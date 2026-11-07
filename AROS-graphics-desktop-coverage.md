@@ -19419,3 +19419,5 @@ QuickPart partition-color definitions header review (2026-11-07; workbench/tools
 QuickPart free-space class header review (2026-11-07; workbench/tools/QuickPart/QP_ccFree.h): checked the instance layout and dispatcher guard against the selected implementation. Its sole field is unused padding/state and the class adds no method or ownership contract; no discrepancy found.
 
 QuickPart operation-group header review (2026-11-07; workbench/tools/QuickPart/QP_ccOpGrp.h): checked the spacer and operation-count fields against add/remove member handling; the count is initialized by zeroed instance data and the spacer is assigned during construction. No layout/interface mismatch established.
+
+QuickPart operation class header review (2026-11-07; workbench/tools/QuickPart/QP_ccOperation.h): checked operation IDs, target/label/spacer fields and dispatcher prototype against the implementation. Delete/Create values match the implementation; Alter is declared but has no selected caller and is not handled by the constructor. No in-tree behavior defect established for the unused value.
