@@ -21332,3 +21332,12 @@ A selected in-tree route is the public-screen picker in Zune Preferences. Its `P
 **Affected configuration:** QuickPart, selected through the Workbench aggregate (`workbench/mmakefile.src:7-25`; `workbench/tools/QuickPart/mmakefile.src:28-34`). **Confidence:** high for the one-variable/post-loop recursion and nested-container construction; trigger depends on a nested table in a non-final sibling. No partition table, scan, GUI operation, or build was used; source-only.
 
 **Coverage evidence:** [QuickPart partition-container full-body nested-recursion trace](AROS-graphics-desktop-coverage.md#quickpart-partition-container-full-body-nested-recursion-gd14941).
+
+<a id="gd14942-quickpart-omits-primary-from-mbr-partition-description"></a>
+## GD14942 — QuickPart omits “primary” from primary MBR partition descriptions
+
+The active-partition details formatter initializes \`ContainerSubStr\` to the non-NULL empty string, then the MBR-parent branch tests \`if (!ContainerSubStr)\` before assigning \`"primary"\` (\`workbench/tools/QuickPart/QP_ccApp.c:232-234,268-274\`). For ordinary MBR primary partition type IDs, the earlier type-ID switch leaves the string unchanged, so this condition is false and the details pane formats the entry as an MBR partition without identifying it as primary.
+
+**Trigger and consequence:** select a primary partition in an MBR table and view its details in QuickPart. The details label omits the “primary” qualifier that the source intends to add. This is a presentation-only error; partition geometry and table data are unaffected. **Affected configuration:** QuickPart, selected through the Workbench aggregate (\`workbench/mmakefile.src:7-25\`; \`workbench/tools/QuickPart/mmakefile.src:28-34\`). **Confidence:** high for the non-NULL initialization and unreachable condition. Test for an empty string or use a separate flag to distinguish an unset subtype. No partition selection, GUI operation, or build was run; source-only.
+
+**Coverage evidence:** [QuickPart application class full-body active-part details audit](AROS-graphics-desktop-coverage.md#quickpart-application-class-full-body-details-gd14942).
