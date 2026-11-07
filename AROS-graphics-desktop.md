@@ -21414,6 +21414,15 @@ When replacing an existing table, `makePartitionTable()` first frees every child
 
 **Coverage evidence:** [HDToolBox preferences and type-map full-body audit](AROS-graphics-desktop-coverage.md#hdtoolbox-preferences-full-body-audit-gd14952-gd14953).
 
+<a id="gd14954-hdtoolbox-size-parser-treats-leading-zero-decimals-as-octal"></a>
+## GD14954 — HDToolBox parses leading-zero size input as octal
+
+`sizeStrToUL()` passes base `0` to `strtoul()` for both the integer and fractional portions (`workbench/tools/HDToolBox/hdtoolbox_support.c:144-155`). The resize size gadget accepts decimal digits, a decimal point, and `M`/`G` suffixes (`workbench/tools/HDToolBox/gui.c:2063-2071`), and its change handler passes the entered string to this helper before converting it to cylinders (`gui.c:729-731`). A leading-zero value is therefore interpreted as octal: for example, `08M` stops parsing at the `8`, falls into the “assume bytes” branch, and converts to zero kilobytes; `010M` is interpreted as 8M rather than 10M.
+
+**Trigger and consequence:** enter a size such as `08M` or `010M` in the resize dialog. HDToolBox computes the wrong cylinder count (for `08M`, the conversion falls to its minimum one-cylinder result), so the displayed and requested partition size do not match the user's decimal input. **Affected configuration:** HDToolBox resize dialog, selected Workbench tool target. **Confidence:** high for base-0 parsing and the decimal-only gadget acceptance; no resize or table write was performed. Parse these user-entered quantities with base 10.
+
+**Coverage evidence:** [HDToolBox support helpers and resize-size caller audit](AROS-graphics-desktop-coverage.md#hdtoolbox-support-and-resize-size-audit-gd14954).
+
 <a id="gd14953-hdtoolbox-preference-type-list-allocation-failure-null-dereference"></a>
 ## GD14953 — HDToolBox dereferences missing type-map nodes after allocation failure
 
