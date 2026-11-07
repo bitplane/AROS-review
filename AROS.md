@@ -12371,7 +12371,7 @@ GD5421 security.library removal-entrypoint recheck (2026-10-31): the selected ro
 
 
 
-**GD10454 — Volumelist reads past non-terminated BCPL DOS-list names:** on m68k, `AROS_BSTR_ADDR()` returns the payload of a length-prefixed BSTR, but Volumelist passes it to `strncpy()` without using the stored length. A short valid BSTR without a C terminator can be read past its allocation. Current in-tree trigger reachability is unconfirmed. See [GD10454](AROS-graphics-desktop.md#gd10454).
+**GD10454 — Volumelist reads past non-terminated BCPL DOS-list names:** on m68k, `AROS_BSTR_ADDR()` returns the payload of a length-prefixed BSTR, but Volumelist passes it to `strncpy()` without using the stored length. A short valid BSTR without an extra C NUL can be read past its allocation. A checkout-wide `AddDosEntry()` census found no selected in-tree producer of that input; external DOS-list producers remain possible. See [GD10454](AROS-graphics-desktop.md#gd10454).
 
 **EK9463 — `AllocMem()` can dereference a freed Diskfont low-memory handler on ExecSMP:** `AllocMem()` snapshots the priority-1 Diskfont handler before taking `LowMemSem`; a concurrent failed-allocation reclaim can reach LDDemon, expunge an unopened Diskfont library, and free that embedded handler before the snapshotting CPU acquires the lock. Conditional on list order, allocation failure, and cross-CPU timing. See [EK9463](AROS-exec-kernel.md#ek9463) and the [LDDemon caller-path strengthening](AROS-exec-kernel-coverage.md#ek9463-lddemon-caller-path-strengthening). Source-only; no allocation failure or interleaving was run.
 
