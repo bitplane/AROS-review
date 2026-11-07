@@ -21423,6 +21423,24 @@ When replacing an existing table, `makePartitionTable()` first frees every child
 
 **Coverage evidence:** [HDToolBox support helpers and resize-size caller audit](AROS-graphics-desktop-coverage.md#hdtoolbox-support-and-resize-size-audit-gd14954).
 
+<a id="gd14955-hdtoolbox-never-deletes-custom-listview-class"></a>
+## GD14955 — HDToolBox never deletes its custom Listview class
+
+`initGUI()` creates a custom Listview class and stores it only in the local `listcc` variable (`workbench/tools/HDToolBox/gui.c:1797-1815`). The class is used to create `gadgets.leftlv`, but `deinitGUI()` disposes the application, frees `ptclass`, and closes `muimaster.library` without calling `MUI_DeleteCustomClass()` for `listcc` (`gui.c:2571-2579`). `MUI_CreateCustomClass()` allocates both a custom-class descriptor and an Intuition class; `MUI_DeleteCustomClass()` is the API that frees the class/descriptor and releases its superclass reference (`workbench/libs/muimaster/mui_createcustomclass.c:64-88`; `mui_deletecustomclass.c:48-64`).
+
+**Trigger and consequence:** launch and exit HDToolBox after `MUI_CreateCustomClass()` succeeds. Its Listview custom-class descriptor and class are left without their matching deletion call; repeated launches can retain class resources and a superclass reference. The same leak occurs if later GUI initialization fails after the class was created. **Affected configuration:** explicitly buildable HDToolBox target. **Confidence:** high for the successful creation and missing delete path; no application launch or class-expunge behavior was exercised. Retain the class pointer in cleanup state and call `MUI_DeleteCustomClass()` after disposing all objects of that class.
+
+**Coverage evidence:** [HDToolBox startup, locale and GUI class-lifecycle audit](AROS-graphics-desktop-coverage.md#hdtoolbox-startup-locale-class-lifecycle-audit-gd14955-gd14956).
+
+<a id="gd14956-hdtoolbox-returns-success-after-startup-failure"></a>
+## GD14956 — HDToolBox returns success after initialization fails
+
+`main()` prints the initialization error when `initEnv()` fails, then performs cleanup and unconditionally returns `0` (`workbench/tools/HDToolBox/main.c:103-117`). `initEnv()` returns distinct nonzero `ERR_*` values for failures opening required libraries or creating the GUI (`:35-55`).
+
+**Trigger and consequence:** launch HDToolBox when a required library or GUI resource cannot be initialized. The tool reports the failure text but exits with a success status, so scripts or callers cannot distinguish startup failure from a normal exit using the process result. **Affected configuration:** explicitly buildable HDToolBox target on startup failure. **Confidence:** high for the failure return and unconditional process status; no startup failure was induced. Return a nonzero result when initialization fails.
+
+**Coverage evidence:** [HDToolBox startup, locale and GUI class-lifecycle audit](AROS-graphics-desktop-coverage.md#hdtoolbox-startup-locale-class-lifecycle-audit-gd14955-gd14956).
+
 <a id="gd14953-hdtoolbox-preference-type-list-allocation-failure-null-dereference"></a>
 ## GD14953 — HDToolBox dereferences missing type-map nodes after allocation failure
 
