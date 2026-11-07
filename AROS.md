@@ -16660,3 +16660,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[OD11479](AROS-other-drivers.md#od11479) — Virtual Bluetooth treats the ignored peer address in an accept-list LE connection request as a literal address.** The selected controller-side reconnect path therefore receives a connection failure instead of connecting to a matching fake device. Conditional on accept-list reconnect mode; selected x86-64 PC/OpenSBI RISC-V64 Bluetooth aggregate. Source-only.
 
 **[OD3749](AROS-other-drivers.md#od3749) — Bluetooth SDP and incoming RFCOMM callbacks use service-record pointers after releasing the registry lock, while removal frees the record.** Conditional on overlapping `btRemServiceRecord()` with an SDP query or RFCOMM accept. The in-tree `btserial` provider is optional; source-only.
+
+**[OD2287](AROS-other-drivers.md#od2287) — USB hub `OnOff` and `Dispose` wait on unchecked `CreateMsgPort()` results.** A failed port or signal allocation leaves a NULL reply port and `WaitPort(NULL)` faults. Selected in x86-64 PC/OpenSBI USB hub package routes; the ordinary USB expunge path is excluded by OD4051. Source-only.
