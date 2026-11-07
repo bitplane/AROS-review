@@ -16650,4 +16650,4 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[OD11476](AROS-other-drivers.md#od11476) — USB HID and Bluetooth HID can divide by zero when a variable item's logical range has equal endpoints and its configured action scales or normalizes an analog-joystick value.** Conditional on the descriptor and action; explicit module targets only, with no default-image inclusion claimed. Source-only.
 
-**[OD11477](AROS-other-drivers.md#od11477) — USB HID configuration can free action nodes while its input worker traverses them on ExecSMP.** Conditional on concurrent report processing and GUI mutation; explicit HID module selection only, no default-image inclusion claimed. Source-only.
+**[OD11477](AROS-other-drivers.md#od11477) — USB HID configuration can free action nodes while its input worker traverses them on ExecSMP.** Conditional on concurrent report processing and GUI mutation; USB HID appears in the x86-64 PC and OpenSBI package class lists. Source-only.
