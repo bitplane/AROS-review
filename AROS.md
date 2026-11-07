@@ -16698,3 +16698,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[GD14933](AROS-graphics-desktop.md#gd14933) — Disabling an active Intuition menu entry leaves its highlight until the menu session closes.** If `OffMenu()` disables the highlighted title, item, or subitem during an open session, the old-entry redraw exits on its enabled-state gate and leaves stale pixels. Source-only.
 
 **[GD14934](AROS-graphics-desktop.md#gd14934-locale-timezone-constructor-failure-leaks-city-listview) — Locale Preferences leaks its city Listview if GMT-control construction fails after the Listview succeeds.** The unattached Listview is omitted from partial-construction cleanup. Explicit Locale target only; source-only.
+
+**[GD14935](AROS-graphics-desktop.md#gd14935-locale-timezone-failed-setup-keeps-event-handler-registered) — Locale Preferences leaves a window event handler registered when Timezone setup fails; retrying can insert the same intrusive node again and corrupt the handler list.** Conditional on a low-color remap allocation failure and reopening the same window; optional explicit target. Source-only.
