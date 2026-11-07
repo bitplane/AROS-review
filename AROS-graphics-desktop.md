@@ -21226,3 +21226,16 @@ Both root and non-root branches of `IconWindow__OM_NEW()` create `_newIconWin__I
 **Confidence:** high for the 42-byte required representation, 39-byte capacity, parser failure, and unbounded matcher scan; the resulting file-selection behavior depends on adjacent runtime bytes. No command, file scan, or build was run; source-only.
 
 **Coverage evidence:** [AddDataTypes exclusion-pattern capacity and matcher caller trace](AROS-graphics-desktop-coverage.md#adddatatypes-exclusion-pattern-capacity-gd14931).
+
+<a id="gd14932-copy-misreports-malformed-destination-pattern"></a>
+## GD14932 — Copy reports malformed destination patterns as storage failures
+
+`IsPattern()` returns the result of `ParsePattern()`, but replaces `IoErr()` with `ERROR_NO_FREE_STORE` for every `-1` result (`workbench/c/Copy.c:1471-1489`). The selected DOS parser uses `ERROR_BAD_TEMPLATE` for malformed syntax, and its autodoc directs callers to `IoErr()` for the specific failure (`rom/dos/parsepattern.c:27-31,50-55`; `rom/dos/patternmatching.c:439-442,628-633`). In the normal copy path, `main()` calls `IsPattern(args.to, cd)`; a `-1` result enters the truthy branch, skips the wildcard-destination diagnostic, and leaves the command's failure result in place (`Copy.c:597,984-995`). Final return handling publishes the overwritten `cd->IoErr` with `SetIoErr()` (`:1201-1209`).
+
+**Trigger and consequence:** invoke Copy with a malformed pattern in `TO`, such as an unterminated character class. The command returns failure without performing the copy, but callers receive `ERROR_NO_FREE_STORE` instead of the parser's `ERROR_BAD_TEMPLATE`, obscuring the cause. Preserve the parser's `IoErr()` when the buffer allocation succeeded and distinguish parse failure from allocation failure.
+
+**Affected configuration:** the `Copy` command is in `SH_FILES` and selected by the `workbench-c-sh` target, which is a dependency of `workbench-c` (`workbench/c/mmakefile.src:67-80,99-109,138-144`).
+
+**Confidence:** high for the error-code overwrite and return path; no command or malformed pattern was run. This is an error-reporting defect; the checked path returns failure and does not proceed with the copy. Source-only.
+
+**Coverage evidence:** [Copy pattern-result and IoErr caller trace](AROS-graphics-desktop-coverage.md#copy-malformed-destination-pattern-error-trace-gd14932).
