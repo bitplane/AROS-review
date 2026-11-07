@@ -19427,3 +19427,5 @@ QuickPart partition class header review (2026-11-07; workbench/tools/QuickPart/Q
 QuickPart text class header review (2026-11-07; workbench/tools/QuickPart/QP_ccTxt.h): checked the instance layout and dispatcher declaration against the wrapper implementation. The unused pen field adds no behavior or ownership; no mismatch established.
 
 QuickPart size-table header review (2026-11-07; workbench/tools/QuickPart/QP_globals.h): checked the external suffix-table declaration against QP_globals.c; its element type, symbol and NULL terminator agree. No separate interface defect established.
+
+QuickPart locale interface header review (2026-11-07; workbench/tools/QuickPart/QP_locale.h): checked the generated catalog-number include and lookup/initialization prototypes against QP_locale.c. Selected callers use the generated numeric IDs and the prototypes match; no independent interface defect established.
