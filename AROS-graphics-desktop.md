@@ -21341,3 +21341,12 @@ The active-partition details formatter initializes \`ContainerSubStr\` to the no
 **Trigger and consequence:** select a primary partition in an MBR table and view its details in QuickPart. The details label omits the “primary” qualifier that the source intends to add. This is a presentation-only error; partition geometry and table data are unaffected. **Affected configuration:** QuickPart, selected through the Workbench aggregate (\`workbench/mmakefile.src:7-25\`; \`workbench/tools/QuickPart/mmakefile.src:28-34\`). **Confidence:** high for the non-NULL initialization and unreachable condition. Test for an empty string or use a separate flag to distinguish an unset subtype. No partition selection, GUI operation, or build was run; source-only.
 
 **Coverage evidence:** [QuickPart application class full-body active-part details audit](AROS-graphics-desktop-coverage.md#quickpart-application-class-full-body-details-gd14942).
+
+<a id="gd14943-quickpart-operation-group-leaks-spacer-on-parent-construction-failure"></a>
+## GD14943 — QuickPart leaks its operation-group spacer when parent construction fails
+
+\`QPOpGrp__OM_NEW()\` creates a \`RectangleObject\` spacer before calling \`DoSuperNewTags()\` to construct the parent group, and only attaches the spacer after the parent constructor succeeds (\`workbench/tools/QuickPart/QP_ccOpGrp.c:59-84\`). If the parent construction fails and returns NULL, the method returns NULL without disposing the already-created spacer.
+
+**Trigger and consequence:** allocation or child construction fails while creating a QuickPart pending-operation group after its initial spacer has been created. The group constructor returns failure, but the unattached spacer object remains allocated. **Affected configuration:** QuickPart, selected through the Workbench aggregate (\`workbench/mmakefile.src:7-25\`; \`workbench/tools/QuickPart/mmakefile.src:28-34\`). **Confidence:** high for the allocation order and missing cleanup; occurrence requires parent-group construction failure. Dispose the spacer on the failed-parent path. No allocation failure, operation group, GUI, or build was used; source-only.
+
+**Coverage evidence:** [QuickPart operation-group full-body constructor and ownership audit](AROS-graphics-desktop-coverage.md#quickpart-operation-group-full-body-spacer-gd14943).
