@@ -16809,3 +16809,6 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 
 **[EK10919](AROS-exec-kernel.md#ek10919) — RexxSupport `STATEF` retains every successful DOS lock, ignores `Examine()` failure, and dereferences an unchecked formatting allocation. Explicit optional target; source-only.**
+
+
+**[EK10920](AROS-exec-kernel.md#ek10920) — RexxSupport `SHOWDIR` retains directory locks, dereferences unchecked enumeration/output allocations, and returns partial results as success after `ExAll()` errors. Explicit optional target; source-only.**
