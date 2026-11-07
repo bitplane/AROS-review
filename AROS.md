@@ -16815,3 +16815,6 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 
 **[EK10921](AROS-exec-kernel.md#ek10921) — RexxSupport `SHOWLIST` dereferences failed initial or growth output-buffer allocations while list protection is held. Explicit optional target; source-only.**
+
+
+**[EK10922](AROS-exec-kernel.md#ek10922) — RexxSupport `DELAY` accepts unbounded decimal input and converts it through `atoi()` into `Delay(ULONG)`, causing out-of-range conversion behavior. Explicit optional target; source-only.**
