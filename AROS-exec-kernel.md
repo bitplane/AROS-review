@@ -10258,6 +10258,13 @@ A selected in-tree caller can also supply a relative name. NetInfo reads the glo
 The unlocked `Remove()` in `EndNotify()` is now included in EK9883 alongside `WaitIO()`'s removal from the same SMP-protected message-port list. Keeping a second active finding would count the shared port-lock defect twice. The EndNotify trigger remains conditional on a caller sharing its notification port with concurrent queue operations; no maintained in-tree caller establishing that overlap was found.
 
 
+<a id="ek10914"></a>
+### EK10914 — RexxSupport `TYPEPKT` returns an uninitialized byte for an unsupported selector [conditional]
+
+The optional RexxSupport command table registers `TYPEPKT` with one or two arguments, and `ArexxDispatch` validates only that count before calling the handler (`workbench/libs/rexxsupport/arexxdispatch.c:49,71-79`). With two arguments, `rxsupp_typepkt()` declares an uninitialized local `char c`; it assigns `c` only for selectors `A`, `C`, or `F`, has no `default` branch, then passes `&c` to `CreateArgstring()` (`workbench/libs/rexxsupport/typepkt.c:27-46`). `CreateArgstring()` copies the requested byte into the returned Rexx string (`workbench/libs/rexxsyslib/createargstring.c:49-68`). Thus an unsupported selector is still reported as success with an indeterminate result byte. No checked-in command documentation establishes a selector contract or defines the invalid-selector response; the defect is conditional on a two-argument call outside the three recognized selectors. The `toupper()` call also receives a plain `char`, so high-bit input can invoke undefined behavior on targets where `char` is signed.
+
+**Trigger and consequence:** call `TYPEPKT` with two arguments and a second argument whose first byte is not `A`, `C`, or `F`. The command returns success and copies an uninitialized stack byte into its result string, producing nondeterministic output. **Affected configuration:** explicitly built and loaded `workbench-libs-rexxsupport`; aggregate package selection is not established. **Confidence:** high that this input reaches the uninitialized read through the selected dispatcher; medium that the unsupported selector should be rejected because no command manual or checked-in caller defines that case. Add an explicit invalid-selector response and convert the input to `unsigned char` before `toupper()`. No Rexx command or build was run; source-only.
+
 <a id="ek8787"></a>
 ### EK8787 — Task notification callbacks deadlock if they change the hook registry [conditional]
 

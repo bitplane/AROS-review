@@ -16591,6 +16591,8 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[EK10912](AROS-exec-kernel.md#ek10912) — StartNotify scans beyond a relative filename when the process has no current directory.** A selected NetInfo path passes SYS/userdb or SYS/groupdb unchanged to StartNotify; its server process inherits a null current directory if opened from a task or a process without one. Still conditional on a relative database setting and such an opener. Source-only.
 
+**[EK10914](AROS-exec-kernel.md#ek10914) — RexxSupport `TYPEPKT` returns an uninitialized byte for a two-argument selector outside `A`, `C`, or `F`.** The optional explicit RexxSupport target accepts the arity but leaves its result byte unset; invalid-selector contract is undocumented. Source-only.
+
 
 
 
