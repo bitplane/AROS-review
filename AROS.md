@@ -16648,4 +16648,4 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[GD14928](AROS-graphics-desktop.md#gd14928) — MiamiPanel can dereference a NULL interface message port during startup if `CreateMsgPort()` fails.** Conditional on allocation failure while app/window construction proceeds; limited to the explicitly buildable optional MiamiPanel module, not claimed in the default AROSTCP aggregate. Source-only.
 
-**[OD11475](AROS-other-drivers.md#od11475) — USB HID and Bluetooth HID can divide by zero when a variable item's logical range has equal endpoints and its configured action scales or normalizes an analog-joystick value.** Conditional on the descriptor and action; explicit module targets only, with no default-image inclusion claimed. Source-only.
+**[OD11476](AROS-other-drivers.md#od11476) — USB HID and Bluetooth HID can divide by zero when a variable item's logical range has equal endpoints and its configured action scales or normalizes an analog-joystick value.** Conditional on the descriptor and action; explicit module targets only, with no default-image inclusion claimed. Source-only.
