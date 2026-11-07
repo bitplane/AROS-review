@@ -21405,6 +21405,24 @@ When replacing an existing table, `makePartitionTable()` first frees every child
 
 **Coverage evidence:** [HDToolBox partition-table lifecycle and backend error trace](AROS-graphics-desktop-coverage.md#hdtoolbox-partition-table-lifecycle-audit-gd14951).
 
+<a id="gd14952-hdtoolbox-preferences-do-not-bound-partition-id-copy"></a>
+## GD14952 — HDToolBox does not bound partition IDs read from preferences
+
+`parsePrefs()` reads preference tokens into a 256-byte `ident` buffer and passes table-type IDs to `parseType()` (`workbench/tools/HDToolBox/prefs.c:175-183,294-301,364-369`). For non-GPT tables, `parseType()` decodes the whole token with `strcpyESC()` into `tn->type.id`, whose fixed capacity is 32 bytes (`prefs.c:126-132`; `rom/partition/include/libraries/partition.h:54-58`; `hdtoolbox_support.c:87-121`). Neither the decoded ID length nor the configured `IDLen` is checked against that capacity. The same unchecked copy is used for a table's `Default` value (`prefs.c:270-274`). The shipped preference file uses short IDs and does not reach the condition.
+
+**Trigger and consequence:** load an `ENV:hdtoolbox.prefs` entry whose non-GPT ID or `Default` string decodes to more than 32 bytes. The parser writes past the fixed ID field into adjacent type/list state, which can corrupt the preference model and make later type lookup or UI use fail. **Affected configuration:** HDToolBox when its editable preferences file contains an oversized non-GPT ID/default entry. **Confidence:** high for the unchecked decoder and fixed destination; the checked-in default entries fit. Reject decoded IDs and IDLen values beyond the destination capacity before copying. No malformed preference was loaded; source-only.
+
+**Coverage evidence:** [HDToolBox preferences and type-map full-body audit](AROS-graphics-desktop-coverage.md#hdtoolbox-preferences-full-body-audit-gd14952-gd14953).
+
+<a id="gd14953-hdtoolbox-preference-type-list-allocation-failure-null-dereference"></a>
+## GD14953 — HDToolBox dereferences missing type-map nodes after allocation failure
+
+`getTableTypeList()` silently skips a partition-table entry if either allocation for its `TableTypeNode` or nested type list fails (`workbench/tools/HDToolBox/prefs.c:84-112`). After preferences are parsed, `parsePrefs()` unconditionally looks up EBR and MBR nodes and dereferences both results to make EBR share the MBR type list (`:414-416`). If allocation failure omitted either entry, that lookup returns NULL and initialization dereferences it. `LoadPrefs()` calls `getTableTypeList()` immediately before `parsePrefs()` (`:421-430`), and `main()` invokes `LoadPrefs()` during startup (`workbench/tools/HDToolBox/main.c:58`).
+
+**Trigger and consequence:** HDToolBox startup experiences an allocation failure while building the table-type map. Initialization later reaches the unconditional EBR/MBR list alias and can fault instead of reporting or recovering from the allocation failure. **Affected configuration:** HDToolBox startup under memory pressure. **Confidence:** high for the skipped allocations and unchecked lookups; no allocation failure was induced. Propagate allocation failure and verify both lookups before dereferencing.
+
+**Coverage evidence:** [HDToolBox preferences and type-map full-body audit](AROS-graphics-desktop-coverage.md#hdtoolbox-preferences-full-body-audit-gd14952-gd14953).
+
 <a id="gd14950-hdtoolbox-overlap-check-allows-last-sector"></a>
 ## GD14950 — HDToolBox's overlap check accepts another partition's final sector
 

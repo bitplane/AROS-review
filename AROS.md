@@ -13433,6 +13433,10 @@ Keyboard and mouse worker setup derives stack bounds from a failed 10-KiB alloca
 **GD14950 — HDToolBox's overlap check accepts another partition's final sector:** its exclusive comparison omits the final sector from an inclusive range. A selected resize/move can create a one-sector overlap; source-only. See [GD14950](AROS-graphics-desktop.md#gd14950-hdtoolbox-overlap-check-allows-last-sector).
 
 **GD14951 — HDToolBox discards the partition model before table destruction is confirmed:** a backend write failure leaves the old table open after its displayed child nodes have been freed. Conditional table-I/O failure; source-only. See [GD14951](AROS-graphics-desktop.md#gd14951-hdtoolbox-erases-model-before-table-destroy-succeeds).
+
+**GD14952 — HDToolBox does not bound partition IDs read from preferences:** overlong non-GPT IDs/default strings exceed the fixed partition-ID field. Malformed local preferences can corrupt the type map; source-only.
+
+**GD14953 — HDToolBox dereferences missing type-map nodes after allocation failure:** skipped map allocations are followed by unchecked EBR/MBR lookups during startup. Conditional memory-pressure startup failure; source-only.
 **GD10563 — QuickPart dereferences a failed selection-region allocation:** selected-partition drawing passes a failed `NewRegion()` result to `OrRectRegion()`. Selected by the active `AROS` Workbench tools aggregate; source-only. See [GD10563](AROS-graphics-desktop.md#gd10563) and the [full partition-class review](AROS-graphics-desktop-coverage.md#quickpart-partition-class-full-body-review).
 **GD10564 — QuickPart does not handle failed partition-node allocations:** failure to allocate the initial or inserted bookkeeping node can lead to a NULL dereference; failure to allocate the trailing free-space node omits that region from the UI model. Selected by the active `AROS` Workbench tools aggregate; source-only. See [GD10564](AROS-graphics-desktop.md#gd10564) and the [partition-container source review](AROS-graphics-desktop-coverage.md#quickpart-partition-container-full-body-review).
 
