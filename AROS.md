@@ -16150,7 +16150,6 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 **[EK10856](AROS-exec-kernel.md#ek10856) — `system_no_sh()` dereferences failed path conversions.** With no shell, a rejected path or conversion-allocation failure reaches `strlen(NULL)`. Source-only.
 **[EK10857](AROS-exec-kernel.md#ek10857) — `system_no_sh()` dereferences failed command-buffer allocations.** Failed `strdup()` or command-buffer `malloc()` results are used without checks. Source-only.
 
-**[EK10858](AROS-exec-kernel.md#ek10858) — RISC-V64 OpenSBI does not handle vector first use or preserve vector state across task switches.** RV64 detects V and allocates per-task vector contexts, but illegal vector instructions are not enabled/retried and the scheduler has no vector save/restore. Source-only.
 
 **[EK10859](AROS-exec-kernel.md#ek10859) — Unix-path `system(NULL)` reports a shell without checking for one.** NIX-mode callers receive `1` even when `bin:sh` cannot be locked, contrary to the documented availability query. Source-only.
 
