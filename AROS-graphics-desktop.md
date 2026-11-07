@@ -21396,6 +21396,15 @@ The Portuguese QuickPart catalog maps `WORD_Bytes` to `caracteres` (`workbench/t
 
 **Coverage evidence:** [HDToolBox partition-model full-body and caller audit](AROS-graphics-desktop-coverage.md#hdtoolbox-partition-model-full-body-audit-gd14949-gd14950).
 
+<a id="gd14951-hdtoolbox-erases-model-before-table-destroy-succeeds"></a>
+## GD14951 — HDToolBox discards the partition model before table destruction is confirmed
+
+When replacing an existing table, `makePartitionTable()` first frees every child model node, then calls `DestroyPartitionTable()` without checking its result, and immediately attempts `CreatePartitionTable()` (`workbench/tools/HDToolBox/partitiontables.c:83-106`). A destroy failure leaves the backend table open: the public API closes it only when the backend destroy method returns success (`rom/partition/destroypartitiontable.c:48-54`), and the MBR destroy method returns failure when its write fails (`rom/partition/partitionmbr.c:454-467`). `CreatePartitionTable()` rejects a root whose table is still open (`rom/partition/createpartitiontable.c:55-82`). HDToolBox then reports table creation failure but retains an empty child model for the still-existing table.
+
+**Trigger and consequence:** choose to replace an existing table in HDToolBox and have the backend fail while writing the destruction update. The tool reports failure after freeing its displayed partition model, while the old table remains open and its partition handles remain in the backend list. Reopening or editing that table from the empty model can misrepresent existing partitions. **Affected configuration:** explicitly buildable HDToolBox on a writable table backend when destruction I/O fails. **Confidence:** high for the order and backend return/close behavior; no write failure was induced. Check and propagate destruction failure before discarding child nodes; rebuild or retain the model on failure. Source-only.
+
+**Coverage evidence:** [HDToolBox partition-table lifecycle and backend error trace](AROS-graphics-desktop-coverage.md#hdtoolbox-partition-table-lifecycle-audit-gd14951).
+
 <a id="gd14950-hdtoolbox-overlap-check-allows-last-sector"></a>
 ## GD14950 — HDToolBox's overlap check accepts another partition's final sector
 
