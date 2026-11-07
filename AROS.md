@@ -16756,3 +16756,7 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[OD11520](AROS-other-drivers.md#od11520-rtl8029-worker-startup-timeout-strands-device-open) — RTL8029 can block unit initialization forever when the live worker misses the 50-poll startup window: cleanup sends Ctrl-C and waits for a reply, while the worker later blocks waiting for a startup message that was never sent.** Conditional on delayed worker startup; optional RTL8029 network-device target; source-only.
 
 **[OD11521](AROS-other-drivers.md#od11521-rtl8029-worker-creation-failure-leaks-lifetime-port) — RTL8029 leaks its caller-owned lifetime port and signal when worker process creation fails after port allocation.** Repeated failed opens can exhaust signal bits and port memory in a long-lived caller; optional RTL8029 network-device target; source-only.
+
+**OD11522 — [BTCtrl can report discovery finished when WAIT setup fails](AROS-other-drivers.md#od11522-btctrl-wait-discovery-allocation-failure-reports-completion).**
+
+**OD11523 — [BTCtrl silently succeeds when remote-name request allocation fails](AROS-other-drivers.md#od11523-btctrl-remote-name-allocation-failure-reports-success).**
