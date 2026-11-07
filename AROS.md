@@ -16806,3 +16806,6 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[GD14959](AROS-graphics-desktop.md#gd14959-vgagfx-init-failure-leaks-attr-bases-and-mode-list) — VGAGfx leaks acquired OOP attribute-base references and any allocated mode-list nodes when graphics.library opening or display-driver registration fails. Applies to native i386-PC/x86-64-PC packages when initialization fails; source-only.**
 
 **[GD14960](AROS-graphics-desktop.md#gd14960-vgagfx-constructor-removes-unregistered-reset-callback) — VGAGfx display-construction rollback calls `Remove()` on a zero-cleared, unregistered reset node and can fault. Applies to native PC packages when VGA display-object construction fails; source-only.**
+
+
+**[EK10919](AROS-exec-kernel.md#ek10919) — RexxSupport `STATEF` retains every successful DOS lock, ignores `Examine()` failure, and dereferences an unchecked formatting allocation. Explicit optional target; source-only.**
