@@ -21432,6 +21432,15 @@ When replacing an existing table, `makePartitionTable()` first frees every child
 
 **Coverage evidence:** [HDToolBox startup, locale and GUI class-lifecycle audit](AROS-graphics-desktop-coverage.md#hdtoolbox-startup-locale-class-lifecycle-audit-gd14955-gd14956).
 
+<a id="gd14957-hdtoolbox-partition-gadget-leaks-frame-image"></a>
+## GD14957 — HDToolBox's partition gadget leaks its frame image object
+
+`pt_new()` allocates a `FRAMEICLASS` image with `NewObjectA()` and saves it in `data->frame` after successful superclass gadget construction (`workbench/tools/HDToolBox/ptclass.c:226-245`). The failure path disposes the image, but `pt_dispose()` releases pens and delegates to the superclass without disposing `data->frame` (`:1051-1068`). The selected Intuition gadget-class dispose method frees notification state and delegates; it does not own or dispose the `GA_Image` pointer (`rom/intuition/gadgetclass.c:473-478`). Other in-tree classes that allocate a frame image explicitly call `DisposeObject()` from their dispose methods, e.g. ColorWheel (`workbench/classes/gadgets/colorwheel/colorwheelclass.c:439-440`).
+
+**Trigger and consequence:** create and dispose HDToolBox's partition-table gadget, including normal application shutdown. The separately allocated frame-image object remains allocated for each successful gadget construction; Add Partition and Resize/Move each construct one such gadget. **Affected configuration:** explicitly buildable HDToolBox target. **Confidence:** high for image allocation, ownership storage and missing disposal; no GUI lifecycle was run. Dispose `data->frame` in `pt_dispose()` after the gadget no longer uses it.
+
+**Coverage evidence:** [HDToolBox partition-table gadget full-body audit](AROS-graphics-desktop-coverage.md#hdtoolbox-partition-gadget-full-body-audit-gd14957).
+
 <a id="gd14956-hdtoolbox-returns-success-after-startup-failure"></a>
 ## GD14956 — HDToolBox returns success after initialization fails
 

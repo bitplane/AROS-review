@@ -13443,6 +13443,8 @@ Keyboard and mouse worker setup derives stack bounds from a failed 10-KiB alloca
 **GD14955 — HDToolBox never deletes its custom Listview class:** the GUI creates a custom class but omits `MUI_DeleteCustomClass()` on cleanup. Per-launch class/superclass resource leak; source-only.
 
 **GD14956 — HDToolBox returns success after initialization fails:** startup errors are printed, but `main()` unconditionally returns zero. Callers cannot detect failure from the process status; source-only.
+
+**GD14957 — HDToolBox's partition gadget leaks its frame image object:** its custom class allocates a FRAMEICLASS image but never disposes it. Per-gadget resource leak; source-only.
 **GD10563 — QuickPart dereferences a failed selection-region allocation:** selected-partition drawing passes a failed `NewRegion()` result to `OrRectRegion()`. Selected by the active `AROS` Workbench tools aggregate; source-only. See [GD10563](AROS-graphics-desktop.md#gd10563) and the [full partition-class review](AROS-graphics-desktop-coverage.md#quickpart-partition-class-full-body-review).
 **GD10564 — QuickPart does not handle failed partition-node allocations:** failure to allocate the initial or inserted bookkeeping node can lead to a NULL dereference; failure to allocate the trailing free-space node omits that region from the UI model. Selected by the active `AROS` Workbench tools aggregate; source-only. See [GD10564](AROS-graphics-desktop.md#gd10564) and the [partition-container source review](AROS-graphics-desktop-coverage.md#quickpart-partition-container-full-body-review).
 
