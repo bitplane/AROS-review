@@ -10279,6 +10279,13 @@ The optional RexxSupport command table registers `TYPEPKT` with one or two argum
 
 **Trigger and consequence:** invoke the accepted two-argument `GETARG` form with a valid message pointer returned by `GETPKT` and an argument index. The handler parses the binary pointer token instead of the supplied index and normally rejects the request, preventing retrieval of the selected Rexx argument. **Affected configuration:** explicitly built and loaded `workbench-libs-rexxsupport`; aggregate package selection is not established. **Confidence:** high for the wrong argument and pointer-byte format; medium for impact because no checked-in caller documents use of the two-argument form. Parse `ARG2(msg)` for the optional index. No Rexx command or build was run; source-only.
 
+<a id="ek10917"></a>
+### EK10917 — RexxSupport `NEXT` reads from the pointer token instead of the pointed-to object [conditional]
+
+`NEXT` requires argument 1 to be an argstring exactly `sizeof(void *)` bytes long, which is the pointer-token format produced by the selected `GETPKT` command (`workbench/libs/rexxsupport/next.c:37-45`; `getpkt.c:29-32`). Its description says it obtains the pointer value stored at the pointed-to address, commonly the next list element. However, it sets `ptr` to `(char *)ARG1(msg) + offset`, using the argstring buffer address instead of decoding the pointer value first (`next.c:43`). The neighboring `OFFSET` helper decodes the same pointer-token format with `*(char **)ARG1(msg)` before adding its offset (`offset.c:31-37`). Therefore `NEXT` copies bytes from the Rexx argstring itself; at offset zero it returns the original pointer token, and at nonzero offsets it reads outside that pointer-sized token rather than reading the pointed-to object's field.
+
+**Trigger and consequence:** call `NEXT` with a valid pointer token from `GETPKT` or another RexxSupport pointer-producing command, optionally supplying a field offset. It returns the token bytes instead of the pointer field at the pointed-to object; nonzero offsets can make `CreateArgstring()` copy bytes past the token allocation. The intended linked-list traversal result is therefore unavailable. **Affected configuration:** explicitly built and loaded `workbench-libs-rexxsupport`; aggregate package selection is not established. **Confidence:** high for the pointer-base mismatch against the function description and adjacent `OFFSET` contract; medium for caller impact because no checked-in `NEXT` caller was found. Decode the pointer token before applying the offset and copy from the target address. No Rexx command or build was run; source-only.
+
 <a id="ek8787"></a>
 ### EK8787 — Task notification callbacks deadlock if they change the hook registry [conditional]
 

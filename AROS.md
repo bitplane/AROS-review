@@ -16597,6 +16597,8 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[EK10916](AROS-exec-kernel.md#ek10916) — RexxSupport `GETARG` parses its optional index from the message-pointer argument.** The accepted two-argument form normally rejects a pointer returned by `GETPKT` instead of retrieving the selected argument; optional explicit target. Source-only.
 
+**[EK10917](AROS-exec-kernel.md#ek10917) — RexxSupport `NEXT` reads from the pointer token instead of the pointed-to object.** It returns the token itself at offset zero and reads outside it for nonzero offsets; optional explicit target, with no maintained caller found. Source-only.
+
 
 
 
