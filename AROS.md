@@ -16835,3 +16835,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[EK10924](AROS-exec-kernel.md#ek10924) — task.resource leaves hook lists uninitialized in snapshot entries from READY/WAIT (and, on SMP, SPINNING); the non-SMP current-task entry also misses initialization. A later C startup can traverse a zero list head. Source-only.**
 
 **[EK10925](AROS-exec-kernel.md#ek10925) — task.resource failed-init rollback calls `SetFunction()` with zero saved predecessors and clears Exec's `NewAddTask`/`RemTask` vectors. Conditional on an early resource-init failure; source-only.**
+
+**[EK8786](AROS-exec-kernel.md#ek8786) — task.resource leaks the per-task late-init hook-type record allocated by C startup when the task exits. Conditional on task.resource being available; source-only.**
