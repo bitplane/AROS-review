@@ -16673,3 +16673,6 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[OD2453](AROS-other-drivers.md#od2453) — NVMe I/O queue command failures leave a worker using freed queue storage or retain an uncounted queue and task.** Conditional on direct bus startup and a failed Create CQ/SQ command; selected bus publication is blocked by OD2876. Source-only.
 
 **[OD2454](AROS-other-drivers.md#od2454) — NVMe ignores I/O worker creation failure, then later signals the NULL task on completion.** Conditional on direct bus startup, task allocation failure, and a completed request; selected bus publication is blocked by OD2876. Source-only.
+
+
+**[OD11481](AROS-other-drivers.md#od11481) — VirtIO returns a partial controller object after initialization failure, so generic HW registration retains an unusable controller and the PCI claim/record.** `Open()` cannot find it and the one-shot probe does not retry. Conditional on a matching device and an initialization failure; selected PC and OpenSBI RISC-V builds. Source-only.
