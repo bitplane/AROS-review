@@ -16828,3 +16828,6 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 
 **[EK10923](AROS-exec-kernel.md#ek10923) — m68kemu zero-extends D0 for `AllocTrap`/`FreeTrap`, so negative trap sentinels become huge positive values on 64-bit hosts and reach invalid shifts. Explicit optional target; source-only.**
+
+
+**[GD14963](AROS-graphics-desktop.md#gd14963-vc4-vblank-signals-stale-task-after-waiter-release) — On Raspberry Pi SMP, the optional VC4 vblank handler can signal a task after its waiter signal bit has been freed, causing a later spurious wake. Conditional on a cross-core vblank during waiter teardown; source-only.**
