@@ -19421,3 +19421,5 @@ QuickPart free-space class header review (2026-11-07; workbench/tools/QuickPart/
 QuickPart operation-group header review (2026-11-07; workbench/tools/QuickPart/QP_ccOpGrp.h): checked the spacer and operation-count fields against add/remove member handling; the count is initialized by zeroed instance data and the spacer is assigned during construction. No layout/interface mismatch established.
 
 QuickPart operation class header review (2026-11-07; workbench/tools/QuickPart/QP_ccOperation.h): checked operation IDs, target/label/spacer fields and dispatcher prototype against the implementation. Delete/Create values match the implementation; Alter is declared but has no selected caller and is not handled by the constructor. No in-tree behavior defect established for the unused value.
+
+QuickPart partition class header review (2026-11-07; workbench/tools/QuickPart/QP_ccPartition.h): checked attributes, instance fields and dispatcher interface against QP_ccPartition.c. The stored partition/table pointers are covered by the class lifecycle review; declarations match the selected accessors and constructor. No separate header-level defect established.
