@@ -16651,3 +16651,8 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[OD11476](AROS-other-drivers.md#od11476) — USB HID and Bluetooth HID can divide by zero when a variable item's logical range has equal endpoints and its configured action scales or normalizes an analog-joystick value.** Conditional on the descriptor and action; USB HID is selected in x86-64 PC and OpenSBI USB package routes. Bluetooth HID is in the active Bluetooth class aggregate. Source-only.
 
 **[OD11477](AROS-other-drivers.md#od11477) — USB HID configuration can free action nodes while its input worker traverses them on ExecSMP.** Conditional on concurrent report processing and GUI mutation; USB HID appears in the x86-64 PC and OpenSBI package class lists. Source-only.
+
+
+**[OD3724](AROS-other-drivers.md#od3724) — Virtual Bluetooth pending-read and unit-port queue operations lack cross-CPU synchronization on ExecSMP.** A direct `AbortIO()` can overlap the unit task's queue operations; conditional on an external abort caller and concurrent scheduling. `vbthci.device` is selected on x86-64 PC and OpenSBI RISC-V64. Source-only.
+
+**[OD11478](AROS-other-drivers.md#od11478) — Virtual Bluetooth acknowledges LE connection cancellation but later reports the pending connection as successful.** The selected host expects cancellation status `0x02`; conditional on cancelling a matching fake LE connection before its timer fires. Selected x86-64 PC/OpenSBI RISC-V64 Bluetooth aggregate. Source-only.
