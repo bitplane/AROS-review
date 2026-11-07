@@ -21378,6 +21378,15 @@ The Portuguese QuickPart catalog maps `WORD_Bytes` to `caracteres` (`workbench/t
 
 **Coverage evidence:** [QuickPart source, GUI stub and catalog review](AROS-graphics-desktop-coverage.md#quickpart-gui-and-catalog-review).
 
+<a id="gd14948-hdtoolbox-inquiry-skips-standard-firmware-revision"></a>
+## GD14948 — HDToolBox skips the firmware revision in standard SCSI INQUIRY data
+
+`identify()` computes the available response length as `4 + data[4]`, then appends the four-byte firmware revision only when that value is at least 36 (`workbench/tools/HDToolBox/harddisks.c:57-66`). Standard INQUIRY byte 4 reports the number of bytes following byte 4; a standard 36-byte response therefore has an additional length of 31, and the computed value is 35. A standards-conforming target returning that response has valid revision bytes at offsets 32–35, but HDToolBox omits them from the drive label. The in-tree ATA SCSI emulation uses 32 for this field (`rom/devs/ata/scsiemu.c:64-65`), which masks the boundary issue for that implementation.
+
+**Trigger and consequence:** probe a device that returns the standard 36-byte INQUIRY response with Additional Length 31. HDToolBox displays its vendor and product fields but omits the firmware revision from the drive name. This is a presentation-only error and does not affect device selection or I/O. **Affected configuration:** explicitly buildable HDToolBox target (`workbench/tools/HDToolBox/mmakefile.src:4-22`) when a probed SCSI device reports the standard field value. **Confidence:** high for the response-length arithmetic and conditional; no physical device or inquiry command was exercised. Interpret Additional Length as bytes after byte 4 (or check for at least 31) before appending offsets 32–35. The SCSI Commands Reference Manual describes the standard response as at least 36 bytes and byte 4 as `N-4` ([Seagate manual](https://knowledge.seagate.com/files/staticfiles/support/docs/manual/Interface%20manuals/100293068m.pdf)).
+
+**Coverage evidence:** [HDToolBox device-probing full-body audit](AROS-graphics-desktop-coverage.md#hdtoolbox-device-probing-full-body-audit-gd14948).
+
 <a id="gd14945-quickpart-does-not-close-uuid-library"></a>
 ## GD14945 — QuickPart leaves its opened UUID library reference outstanding
 
