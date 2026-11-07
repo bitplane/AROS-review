@@ -16760,3 +16760,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **OD11522 — [BTCtrl can report discovery finished when WAIT setup fails](AROS-other-drivers.md#od11522-btctrl-wait-discovery-allocation-failure-reports-completion).**
 
 **OD11523 — [BTCtrl silently succeeds when remote-name request allocation fails](AROS-other-drivers.md#od11523-btctrl-remote-name-allocation-failure-reports-success).**
+
+**OD2319 — [RTL8139 failed-startup cleanup can signal a reclaimed worker task](AROS-other-drivers.md#od2319-rtl8139-failed-startup-can-signal-reclaimed-worker).** On ExecSMP, a failed worker setup can let the child exit and be reclaimed before parent rollback signals its saved process pointer. Optional RTL8139 target; source-only.
