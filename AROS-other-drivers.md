@@ -40288,3 +40288,73 @@ The selected lookup path makes the stale state observable: `GetByNameCmd` and `G
 **Trigger and consequence:** a NetInfo database is parsed successfully, then `StartNotify()` fails because the path cannot be resolved, memory allocation fails, or notification handler registration fails; the database is subsequently changed. The parsed cache remains stale for the lifetime of the device instance because no retry is attempted. Retry registration after failure and clear the marker unless registration succeeds.
 
 **Affected configuration:** NetInfo device and selected usergroup lookup callers; conditional on a `StartNotify()` failure after successful parsing and a later database change. **Confidence:** high for marker ordering, ignored failure, and missing retry; stale lookup consequence follows the selected caller path. No notification failure or database change was induced; source-only.
+
+<a id="od9852-controller-axis-normalization-can-overflow"></a>
+## OD9852 — Controller axis normalization can overflow signed arithmetic
+
+`ctrl_NormaliseAxis()` multiplies a signed `LONG` offset by 65,535 when the descriptor range is at most 65,535 (`workbench/hidds/controller/controller_controls.c:231-240`). A descriptor spanning the signed 16-bit input range can make that product exceed signed 32-bit range before division. The unipolar path also multiplies the raw offset by `HIDD_CONTROLLER_TRIGGER_MAX` in `LONG` without widening (`:219-227`). The later clamp cannot repair a value already produced by overflowing arithmetic.
+
+**Trigger and consequence:** a controller driver supplies a wide-range axis descriptor and reports an upper-range value. The normalized reading can be incorrect or compiler-dependent. Widen the product before multiplication and division. **Affected configuration:** explicit `workbench-hidds-controller` target with an external or alternate controller driver; its aggregate edge is commented out and no checked-in producer is known. **Confidence:** high for the arithmetic bound; conditional on such a descriptor and report. Source-only; no controller or report was run.
+
+<a id="od9853-controller-unchanged-reports-omit-frame-events"></a>
+## OD9853 — Unchanged controller reports omit the documented Frame event
+
+`ctrl_Flush()` emits a `vHidd_Controller_Frame` event after the changed-control events (`workbench/hidds/controller/controller_reading.c:112-139`). But `ctrl_PushReport()` calls it only when `n` is nonzero (`:218-230`); an accepted report whose button, axis, and hat values are unchanged leaves `n` at zero. The public event definition specifies one Frame event per accepted report (`include/controller.h:366-373`).
+
+**Trigger and consequence:** a producer submits an accepted report with no changed controls. Consumers monitoring Frame events receive no indication that the report was processed, contrary to the public contract. Flush a frame event for every accepted report, including reports with no control changes. **Affected configuration:** explicit target with an external or alternate controller producer; no checked-in producer or active aggregate edge was found. **Confidence:** high for the control-flow and documented contract; downstream impact depends on consumers using Frame. Source-only; no report was submitted.
+
+<a id="od9854-controller-writers-are-not-serialized-across-cpus"></a>
+## OD9854 — Controller reading writers can overlap across CPUs
+
+The reading writer brackets updates by incrementing `dev->seq` under `Disable()`/`Enable()` (`workbench/hidds/controller/controller_reading.c:87-99`), while the source comments that raw reports run in the producer's context and the public interface permits Push calls from any context. Exec `Disable()` is CPU-local on ExecSMP (`rom/exec/disable.c:58-61`), so two producers on separate CPUs can enter the same device update concurrently. Their sequence increments can make the counter even while one writer is still modifying the reading, defeating `ctrl_CopyReading()`'s seqlock retry (`controller_reading.c:64-84`). `ctrl_PushValue()` also snapshots the other controls before entering `ctrl_PushReport()`'s write section (`:232-273`), so a concurrent report can be overwritten by that stale snapshot.
+
+**Trigger and consequence:** two CPUs push updates to the same controller concurrently. Readers can accept a torn reading, and a single-control update can overwrite newer values for other controls. Serialize writers per device and take the `PushValue` snapshot within the same serialized update. **Affected configuration:** explicit target on ExecSMP with an external or alternate producer that submits concurrent updates; no checked-in producer or active aggregate edge was found. **Confidence:** high for missing cross-CPU exclusion and source-level interleavings; their occurrence is conditional. No concurrent update or read was run; source-only.
+
+<a id="od9855-controller-mapping-ignores-input-flags"></a>
+## OD9855 — Controller mapping ignores input inversion and half-axis flags
+
+The public `Hidd_Controller_Binding` flags define `BF_Invert`, `BF_HalfPos`, and `BF_HalfNeg` alongside output direction flags (`workbench/hidds/controller/include/controller.h:425-430`). Mapping evaluation tests `BF_OutPos` and `BF_OutNeg` to choose the output range but does not apply the three input flags (`controller_mapping.c:330-370`). The copied mapping therefore retains these requested flags without honoring them.
+
+**Trigger and consequence:** a user/API mapping sets input inversion or positive/negative half-axis behavior. The evaluated standard control uses the untransformed full input range, producing the wrong mapped direction or activating behavior across the full axis. Implement the declared input transforms during evaluation or reject unsupported flags. **Affected configuration:** explicit target with an external or alternate mapping; the built-in database contains no records and no in-tree mapping caller was found. **Confidence:** high for the ignored public flags; conditional on mappings using them. Source-only; no mapping was evaluated.
+
+<a id="od9856-controller-registration-is-not-smp-serialized"></a>
+## OD9856 — Controller driver registration uses CPU-local exclusion for shared state
+
+`ControllerHW__HW__SetUpDriver()` assigns `next_id`, inserts the device and increments `devcount` while holding only `Disable()` (`workbench/hidds/controller/controllersubsystem.c:253-282`). Generic `HW_AddDriver()` calls this subclass setup before it takes the generic driver-list semaphore (`rom/hidds/hidd/hwclass.c:185-199`), so that semaphore does not serialize two setup calls. Exec `Disable()` is CPU-local under ExecSMP (`rom/exec/disable.c:58-61`). Automatic slot selection separately checks for an empty slot and later writes it (`controllersubsystem.c:127-142`).
+
+**Trigger and consequence:** two controller drivers are added concurrently on different CPUs. The device list/count/ID updates can race, and both registrations can select the same automatic legacy slot. Use a shared subsystem lock around registration and slot selection. **Affected configuration:** explicit target on ExecSMP with concurrent driver registration; no checked-in driver producer or active aggregate edge was found. **Confidence:** high for the unprotected shared accesses and generic call order; the race requires concurrent registration. No drivers were registered; source-only.
+
+<a id="od9857-controller-device-ids-are-reused-after-wrap"></a>
+## OD9857 — Controller device IDs are reused after the 16-bit counter wraps
+
+The controller subsystem initializes `next_id` to 1, assigns it to each device, increments the `UWORD`, and resets zero to 1 (`workbench/hidds/controller/controllersubsystem.c:182-185,265-271`). Its source documentation says IDs are never reused (`:35-42`). After the counter cycles, a new device receives an ID that may still be held by a consumer or client for a prior device.
+
+**Trigger and consequence:** enough registrations occur over the subsystem lifetime to wrap the 16-bit ID counter. A stale ID can identify a different device, breaking the documented stable identity contract. Use a wider monotonic ID or fail registration when IDs are exhausted. **Affected configuration:** explicit target with repeated device churn; no checked-in controller producer or active aggregate edge was found. **Confidence:** high for wrap and reuse; conditional on at least 65,535 successful registrations. No device churn was performed; source-only.
+
+<a id="od9858-controller-remapping-skips-devices-after-the-64th"></a>
+## OD9858 — Controller mapping updates skip devices after the 64th
+
+`ctrl_RemapDevices()` snapshots at most 64 device IDs (`workbench/hidds/controller/controllersubsystem.c:361-390`), but driver registration has no matching 64-device cap (`:265-282`). Mapping add/remove calls this routine to apply the changed mapping and emit remap events (`:392-416`).
+
+**Trigger and consequence:** more than 64 devices are registered and a mapping changes for a GUID matching devices beyond the first 64. Those devices keep their previous mapping and receive no Remapped event. Iterate the device list safely without a fixed snapshot cap, or enforce the same limit at registration. **Affected configuration:** explicit target with external/alternate producers and clients; no checked-in controller producer or active aggregate edge was found. **Confidence:** high for the 64-ID cap and missing corresponding registration cap; conditional on device count and matching mapping. No mapping update was performed; source-only.
+
+<a id="od9859-controller-initialization-leaks-root-on-registration-failure"></a>
+## OD9859 — Controller initialization leaks its root object when registration fails
+
+`ControllerHidd_InitClass()` creates the generic root and calls `HW_AddDriver()`; if the root exists but registration fails, it returns `FALSE` without disposing the root (`workbench/hidds/controller/controller_init.c:71-79`). The root is not saved for the expunge hook to reclaim. The generic `HW_AddDriver()` can return NULL on driver-node allocation, driver construction, or subclass setup failure (`rom/hidds/hidd/hwclass.c:185-223`).
+
+**Trigger and consequence:** root construction succeeds and a later `HW_AddDriver()` stage fails. Module initialization fails while retaining the root object's resources/reference. Dispose the root on this failure path. **Affected configuration:** explicit target when registration fails after root creation; no active aggregate edge or in-tree controller driver was found. **Confidence:** high for the unmatched ownership path; conditional on the stated failure sequence. No allocation or module failure was induced; source-only.
+
+<a id="od9860-controller-event-fanout-silently-stops-at-32-consumers"></a>
+## OD9860 — Controller event fanout silently stops at 32 consumers
+
+`ctrl_DeliverEvent()` stores matching consumer pointers in a 32-entry local array and stops appending when it reaches `CTRL_FANOUT_MAX` (`workbench/hidds/controller/controller_notify.c:148-175`; `controller_intern.h:31`). `ctrl_ConsumerAttach()` has no matching limit or rejection (`controller_notify.c:194-201`), so consumers beyond the delivery array capacity can be attached successfully.
+
+**Trigger and consequence:** more than 32 attached consumers match one event. Only the first 32 receive it, while later consumers remain attached without an error indicating that delivery is truncated. Reject attachments beyond the cap or deliver to all matches safely. **Affected configuration:** explicit target with external/alternate consumers; no in-tree consumer or active aggregate edge was found. **Confidence:** high for the cap and lack of attach rejection; conditional on consumer count and matching filters. No consumer or event was created; source-only.
+
+<a id="od9861-controller-initial-device-events-stop-at-64"></a>
+## OD9861 — New controller consumers miss existing devices after the 64th
+
+When a subsystem-wide consumer requests `DeviceAdded`, `ctrl_ConsumerAttach()` snapshots existing registered device IDs into a fixed 64-entry array and silently stops adding IDs at that capacity (`workbench/hidds/controller/controller_notify.c:203-231`). Device registration itself has no 64-device limit (`controllersubsystem.c:265-282`).
+
+**Trigger and consequence:** a subsystem-wide consumer attaches after more than 64 devices are already registered. It receives initial `DeviceAdded` events only for the first 64 and has no indication that the enumeration was truncated. Enumerate all registered devices safely or report/enforce a capacity limit. **Affected configuration:** explicit target with external/alternate device producers and consumers; no in-tree caller or active aggregate edge was found. **Confidence:** high for the bounded snapshot and uncapped registration; conditional on device count and consumer interest in `DeviceAdded`. No controller or event was run; source-only.
