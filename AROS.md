@@ -16655,4 +16655,6 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[OD3724](AROS-other-drivers.md#od3724) — Virtual Bluetooth pending-read and unit-port queue operations lack cross-CPU synchronization on ExecSMP.** A direct `AbortIO()` can overlap the unit task's queue operations; conditional on an external abort caller and concurrent scheduling. `vbthci.device` is selected on x86-64 PC and OpenSBI RISC-V64. Source-only.
 
-**[OD11478](AROS-other-drivers.md#od11478) — Virtual Bluetooth acknowledges LE connection cancellation but later reports the pending connection as successful.** The selected host expects cancellation status `0x02`; conditional on cancelling a matching fake LE connection before its timer fires. Selected x86-64 PC/OpenSBI RISC-V64 Bluetooth aggregate. Source-only.
+**[OD11478](AROS-other-drivers.md#od11478) — Virtual Bluetooth acknowledges LE connection cancellation but later reports the pending direct connection as successful.** A selected disconnect during direct LE connection setup can therefore be followed by a connected link. Selected x86-64 PC/OpenSBI RISC-V64 Bluetooth aggregate; source-only.
+
+**[OD11479](AROS-other-drivers.md#od11479) — Virtual Bluetooth treats the ignored peer address in an accept-list LE connection request as a literal address.** The selected controller-side reconnect path therefore receives a connection failure instead of connecting to a matching fake device. Conditional on accept-list reconnect mode; selected x86-64 PC/OpenSBI RISC-V64 Bluetooth aggregate. Source-only.
