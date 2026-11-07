@@ -13844,6 +13844,8 @@ Apple Silicon CreateSegList ignored-protection-result caller pass (EK712 expande
 
 ## Other Drivers findings reconciled into the index (2026-11-02)
 
+**[OD9438](AROS-other-drivers.md#od9438) — Pencam and Sonixcam accept negative gamma values that can overflow the `UWORD` lookup conversion before clamping; smaller negative values also wrap green and blue output channels. Conditional on a negative `GAMMA` argument. Source-only.**
+
 **[OD3071](AROS-other-drivers.md#od3071) — SANA-II `S2_TRACKTYPE` can dereference a null tracker after allocation failure, or retain phantom unit tracker references after duplicate tracking or opener-baseline allocation failure. Confirmed in PCNet32 and expanded across selected network drivers; conditional on the stated failure/duplicate paths. Source-only.**
 
 **[OD3225](AROS-other-drivers.md#od3225) — BCM GENET RX traverses tracker, opener, and pending-read lists without synchronization against `S2_UNTRACKTYPE`, `CMD_READ`, `AbortIO()`, or `Close()` mutations. High-confidence overlap on the explicit Raspberry Pi ExecSMP variant; conditional higher-priority preemption on single-CPU ARM32. Source-only; no schedule was run.**
