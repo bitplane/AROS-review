@@ -16833,3 +16833,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[GD14963](AROS-graphics-desktop.md#gd14963-vc4-vblank-signals-stale-task-after-waiter-release) — On Raspberry Pi SMP, the optional VC4 vblank handler can signal a task after its waiter signal bit has been freed, causing a later spurious wake. Conditional on a cross-core vblank during waiter teardown; source-only.**
 
 **[EK10924](AROS-exec-kernel.md#ek10924) — task.resource leaves hook lists uninitialized in snapshot entries from READY/WAIT (and, on SMP, SPINNING); the non-SMP current-task entry also misses initialization. A later C startup can traverse a zero list head. Source-only.**
+
+**[EK10925](AROS-exec-kernel.md#ek10925) — task.resource failed-init rollback calls `SetFunction()` with zero saved predecessors and clears Exec's `NewAddTask`/`RemTask` vectors. Conditional on an early resource-init failure; source-only.**
