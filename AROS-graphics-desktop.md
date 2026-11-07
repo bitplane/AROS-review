@@ -21299,3 +21299,14 @@ A selected in-tree route is the public-screen picker in Zune Preferences. Its `P
 **Confidence:** high for the free-before-active-reset ordering and stale-pointer write; no UI, allocator failure, or runtime behavior was exercised. Reset or detach the old active index before freeing its entry, or avoid dereferencing it during the clear transition. Source-only.
 
 **Coverage evidence:** [MUI List clear ordering and public-screen picker caller](AROS-graphics-desktop-coverage.md#mui-list-clear-active-entry-lifetime-gd14938).
+
+<a id="gd14939-quickpart-zero-largest-drive-divides-by-zero"></a>
+## GD14939 — QuickPart divides by zero when every enumerated disk has zero measured capacity
+
+`unitenumFunc()` adds every fixed disk, SSD, or RAID unit to `FoundDrives` even when `OpenRootPartition()` fails; in that case the `MEMF_CLEAR`-initialized `qpfd_Size` remains zero and `qped_DriveLargest` is unchanged (`workbench/tools/QuickPart/QP_FindDisks.c:95-131`). `OpenRootPartition()` can return NULL after its device open or geometry query fails (`rom/partition/openrootpartition.c:50-94`). If the found-drive list is nonempty but all entries retain zero size, `FindDisks()` leaves `qped_DriveLargest` zero, then divides each disk's size by it while setting `MUIA_UserData` (`QP_FindDisks.c:230-258`). The division occurs before the insertion guard, so a failed `QPDisk` object does not avoid this path.
+
+**Trigger and consequence:** QuickPart enumerates one or more supported storage units, but root-partition opening or geometry acquisition fails for every unit. Each drive record is still queued with size zero, and processing the first record divides by zero while computing the scale percentage. QuickPart can fault before completing the disk list.
+
+**Affected configuration:** QuickPart, selected through the Workbench aggregate (`workbench/mmakefile.src:7-25`; `workbench/tools/QuickPart/mmakefile.src:28-34`). **Confidence:** high for the zero-initialized sizes, unconditional enqueue and unchecked denominator; the trigger depends on enumeration succeeding while all root handles or geometry queries fail. Skip records without valid geometry or guard the denominator before computing percentages. No device enumeration, geometry failure, GUI operation, or build was run; source-only.
+
+**Coverage evidence:** [QuickPart disk discovery full-body and zero-capacity scale trace](AROS-graphics-desktop-coverage.md#quickpart-disk-discovery-full-body-zero-capacity-gd14939).
