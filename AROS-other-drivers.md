@@ -40277,3 +40277,14 @@ The selected caller makes this retry path concrete. `btserial.class` registers i
 **Confidence:** high for the partial service publication, repeat callback on a later SABM, sentinel selection, and write through the sentinel; conditional on the stated allocation failures and retry. No connection, allocation failure, or build was exercised; source-only.
 
 **Coverage evidence:** [Bluetooth RFCOMM retry and report-restoration trace](AROS-other-drivers-coverage.md#bluetooth-rfcomm-retry-and-od3726-report-restoration).
+
+<a id="od1909-netinfo-does-not-retry-failed-notify-registration"></a>
+## OD1909 — NetInfo does not retry a failed database notification registration
+
+`InternalSetEnts()` sets `nr_UserData` to the `NetInfo` object before calling `StartNotify()`, then ignores the function's return value (`workbench/devs/netinfo/entries.c:430-440`). `StartNotify()` can fail when path resolution, allocation, or handler registration fails (`rom/dos/startnotify.c:67-69,91-105,157-197`). Because the request's marker remains set, subsequent calls to `InternalSetEnts()` skip notification setup. The marker is cleared only by `EntHandleNotify()`, which cannot run if registration never became active (`entries.c:478-487`).
+
+The selected lookup path makes the stale state observable: `GetByNameCmd` and `GetByIDCmd` call `InternalSetEnts()` and then search the current in-memory entries (`entries.c:100-157`). The selected `usergroup.library` callers use these commands for user and group lookups. If the initial database parse succeeds but notification registration fails, later edits to the database are not observed and these lookups continue returning records from the old parsed map. The registration failure is not returned to the lookup caller.
+
+**Trigger and consequence:** a NetInfo database is parsed successfully, then `StartNotify()` fails because the path cannot be resolved, memory allocation fails, or notification handler registration fails; the database is subsequently changed. The parsed cache remains stale for the lifetime of the device instance because no retry is attempted. Retry registration after failure and clear the marker unless registration succeeds.
+
+**Affected configuration:** NetInfo device and selected usergroup lookup callers; conditional on a `StartNotify()` failure after successful parsing and a later database change. **Confidence:** high for marker ordering, ignored failure, and missing retry; stale lookup consequence follows the selected caller path. No notification failure or database change was induced; source-only.
