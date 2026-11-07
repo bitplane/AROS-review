@@ -16732,4 +16732,6 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[OD11507](AROS-other-drivers.md#od11507-nouveau-acceleration-failure-dereferences-missing-pattern-object) — Failed Nouveau acceleration setup leaves a channel that causes initial pattern setup to dereference a missing object.** Conditional on scratch BO allocation/mapping failure on NV_ARCH_03–NV_ARCH_40; optional Nouveau HIDD; source-only.
 
-**[OD11508](AROS-other-drivers.md#od11508-nouveau-nv50-hostdata-upload-overreads-odd-width-rows) — Nouveau NV50 hostdata upload reads two bytes past odd-width 16-bit source rows when the input is tightly packed.** Conditional on a small native upload; optional Nouveau HIDD; source-only.
+**[OD11508](AROS-other-drivers.md#od11508-nouveau-nv50-nvc0-hostdata-upload-reads-past-odd-width-16-bit-rows) — Nouveau NV50/NVC0 hostdata upload reads two bytes past odd-width 16-bit source rows when the input is tightly packed.** Conditional on a small native upload; optional Nouveau HIDD; source-only.
+
+**[OD11509](AROS-other-drivers.md#od11509-blackwell-small-image-upload-uses-removed-2d-engine) — Blackwell's small-image upload fast path submits NVC0 2D work despite that GPU generation having no initialized 2D engine.** Conditional on a small native upload; optional Nouveau HIDD; source-only.
