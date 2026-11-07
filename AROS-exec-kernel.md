@@ -10286,6 +10286,13 @@ The optional RexxSupport command table registers `TYPEPKT` with one or two argum
 
 **Trigger and consequence:** call `NEXT` with a valid pointer token from `GETPKT` or another RexxSupport pointer-producing command, optionally supplying a field offset. It returns the token bytes instead of the pointer field at the pointed-to object; nonzero offsets can make `CreateArgstring()` copy bytes past the token allocation. The intended linked-list traversal result is therefore unavailable. **Affected configuration:** explicitly built and loaded `workbench-libs-rexxsupport`; aggregate package selection is not established. **Confidence:** high for the pointer-base mismatch against the function description and adjacent `OFFSET` contract; medium for caller impact because no checked-in `NEXT` caller was found. Decode the pointer token before applying the offset and copy from the target address. No Rexx command or build was run; source-only.
 
+<a id="ek10918"></a>
+### EK10918 — RexxSupport `ALLOCMEM` leaks an allocated block when result-string allocation fails [conditional]
+
+`rxsupp_allocmem()` allocates the requested block, then stores its pointer in a newly allocated Rexx argstring (`workbench/libs/rexxsupport/allocmem.c:43-56`). `CreateArgstring()` returns NULL when its `AllocMem()` fails (`workbench/libs/rexxsyslib/createargstring.c:49-56`), but the caller does not check that result: it returns success with `*argstring == NULL` and never frees the already allocated block. `ArexxDispatch` forwards the success code and NULL result unchanged (`arexxdispatch.c:75-79`; `compiler/include/rexx/rexxcall.h:36-39`). The script receives no pointer value with which to call the paired `FREEMEM` command.
+
+**Trigger and consequence:** explicitly call RexxSupport `ALLOCMEM` with a valid size and force the subsequent result-string allocation to fail. The command reports success without returning the block pointer, permanently losing the allocation to the script. **Affected configuration:** explicitly built and loaded `workbench-libs-rexxsupport`; aggregate package selection is not established. **Confidence:** high for the missing failure check and lost pointer; trigger depends on memory exhaustion at the second allocation. Free the block and return an allocation error if `CreateArgstring()` fails. No memory failure, Rexx command, or build was induced; source-only.
+
 <a id="ek8787"></a>
 ### EK8787 — Task notification callbacks deadlock if they change the hook registry [conditional]
 

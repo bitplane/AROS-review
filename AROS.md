@@ -16599,6 +16599,8 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[EK10917](AROS-exec-kernel.md#ek10917) — RexxSupport `NEXT` reads from the pointer token instead of the pointed-to object.** It returns the token itself at offset zero and reads outside it for nonzero offsets; optional explicit target, with no maintained caller found. Source-only.
 
+**[EK10918](AROS-exec-kernel.md#ek10918) — RexxSupport `ALLOCMEM` leaks its allocated block if result-string allocation fails.** The explicit optional target returns success with no pointer result; source-only, conditional on memory exhaustion.
+
 
 
 
