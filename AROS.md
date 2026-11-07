@@ -16665,3 +16665,6 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[OD2287](AROS-other-drivers.md#od2287) — USB hub `OnOff` and `Dispose` wait on unchecked `CreateMsgPort()` results.** A failed port or signal allocation leaves a NULL reply port and `WaitPort(NULL)` faults. Selected in x86-64 PC/OpenSBI USB hub package routes; the ordinary USB expunge path is excluded by OD4051. Source-only.
 **[GD14929](AROS-graphics-desktop.md#gd14929) — Long proportional color-font strings can write before the temporary glyph raster.** With an in-range long `Text()` count and a proportional color font, signed `WORD` positions can wrap and direct glyph writes can precede the raster allocation on compilers that retain low 16 bits. Conditional; source-only.
+
+
+**[OD2365](AROS-other-drivers.md#od2365) — NVMe constructor failure paths leak the PCI claim/record and OOP instance, can retain an admin IRQ whose queue was freed, or leave an enabled controller pointing at freed queue memory.** Hardware consequences depend on subsequent device/interrupt activity; selected ordinary namespace startup is independently blocked by OD2876. Source-only.
