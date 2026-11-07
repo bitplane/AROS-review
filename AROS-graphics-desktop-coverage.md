@@ -19417,3 +19417,5 @@ QuickPart shared definitions header review (2026-11-07; \`workbench/tools/QuickP
 QuickPart partition-color definitions header review (2026-11-07; workbench/tools/QuickPart/QP_PartionColors.h): checked the constant palette specifications against GetPartitionDrawAttribs() consumers. Values are fixed strings or a MUI background constant, with no user-controlled format or buffer behavior; no independent defect established.
 
 QuickPart free-space class header review (2026-11-07; workbench/tools/QuickPart/QP_ccFree.h): checked the instance layout and dispatcher guard against the selected implementation. Its sole field is unused padding/state and the class adds no method or ownership contract; no discrepancy found.
+
+QuickPart operation-group header review (2026-11-07; workbench/tools/QuickPart/QP_ccOpGrp.h): checked the spacer and operation-count fields against add/remove member handling; the count is initialized by zeroed instance data and the spacer is assigned during construction. No layout/interface mismatch established.
