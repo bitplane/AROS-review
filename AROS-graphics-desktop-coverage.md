@@ -19425,3 +19425,5 @@ QuickPart operation class header review (2026-11-07; workbench/tools/QuickPart/Q
 QuickPart partition class header review (2026-11-07; workbench/tools/QuickPart/QP_ccPartition.h): checked attributes, instance fields and dispatcher interface against QP_ccPartition.c. The stored partition/table pointers are covered by the class lifecycle review; declarations match the selected accessors and constructor. No separate header-level defect established.
 
 QuickPart text class header review (2026-11-07; workbench/tools/QuickPart/QP_ccTxt.h): checked the instance layout and dispatcher declaration against the wrapper implementation. The unused pen field adds no behavior or ownership; no mismatch established.
+
+QuickPart size-table header review (2026-11-07; workbench/tools/QuickPart/QP_globals.h): checked the external suffix-table declaration against QP_globals.c; its element type, symbol and NULL terminator agree. No separate interface defect established.
