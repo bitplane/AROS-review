@@ -21387,6 +21387,24 @@ The Portuguese QuickPart catalog maps `WORD_Bytes` to `caracteres` (`workbench/t
 
 **Coverage evidence:** [HDToolBox device-probing full-body audit](AROS-graphics-desktop-coverage.md#hdtoolbox-device-probing-full-body-audit-gd14948).
 
+<a id="gd14949-hdtoolbox-frees-linked-node-after-add-failure"></a>
+## GD14949 — HDToolBox leaves a freed partition node linked when backend creation fails
+
+`addPartition()` inserts its newly allocated UI node into the parent model list before calling `AddPartitionTags()` (`workbench/tools/HDToolBox/partitions.c:291-320,344-350`). If the backend returns NULL, the function calls `freePartitionNode(partition)` and returns NULL (`:375-379`), but does not first remove the node from the parent list. `freePartitionNode()` releases the node and its list sentinel without unlinking the node itself (`:194-205`). The GUI caller reports the failure and does not insert anything into the MUI list (`gui.c:392-411`), leaving the parent model list with links to freed storage. Backend partition creation can return NULL when it cannot allocate its native handle; for example, the MBR backend restores the slot and returns NULL if `PartitionMBRNewHandle()` fails (`rom/partition/partitionmbr.c:282-308`).
+
+**Trigger and consequence:** create a partition in HDToolBox when the selected partition-table backend fails after the GUI node has been linked, such as a native handle allocation failure. The failure path frees the linked node but leaves its address in the parent list; later list traversal, cleanup, or another partition operation can follow invalid links and fault or corrupt the in-memory model. **Affected configuration:** explicitly buildable HDToolBox target with a backend that can fail after model-node insertion. **Confidence:** high for insertion-before-backend-call and free-without-unlink; no allocation failure was induced. Unlink the provisional node before freeing it, or link it only after backend creation succeeds.
+
+**Coverage evidence:** [HDToolBox partition-model full-body and caller audit](AROS-graphics-desktop-coverage.md#hdtoolbox-partition-model-full-body-audit-gd14949-gd14950).
+
+<a id="gd14950-hdtoolbox-overlap-check-allows-last-sector"></a>
+## GD14950 — HDToolBox's overlap check accepts another partition's final sector
+
+`validValue()` represents an existing partition's sector interval as `LowCyl * spc` through `(HighCyl + 1) * spc - 1`, inclusive, but tests the candidate with `value < (((HighCyl + 1) * spc) - 1)` (`workbench/tools/HDToolBox/partitions.c:248-265`). That strict comparison excludes the existing partition's final sector from the overlap test. The selected callers supply inclusive endpoint sectors: the resize dialog computes its proposed high endpoint as `(value + 1) * spc - 1` (`workbench/tools/HDToolBox/gui.c:618-623`), and the drag path computes the active partition's inclusive start/end and checks the shifted endpoint (`workbench/tools/HDToolBox/ptclass.c:806-813`).
+
+**Trigger and consequence:** resize or move a partition so its proposed endpoint lands exactly on the final sector of a different partition. `validValue()` accepts that endpoint, allowing a one-sector overlap in the pending model; saving the table can then describe overlapping partitions and their data ranges conflict. **Affected configuration:** explicitly buildable HDToolBox when the selected table backend permits the edit and the user chooses that boundary. **Confidence:** high for the inclusive endpoint convention and strict comparison; no partition edit or table write was performed. Compare against the exclusive end `(HighCyl + 1) * spc`, or use `<=` for the inclusive end. Source-only.
+
+**Coverage evidence:** [HDToolBox partition-model full-body and caller audit](AROS-graphics-desktop-coverage.md#hdtoolbox-partition-model-full-body-audit-gd14949-gd14950).
+
 <a id="gd14945-quickpart-does-not-close-uuid-library"></a>
 ## GD14945 — QuickPart leaves its opened UUID library reference outstanding
 
