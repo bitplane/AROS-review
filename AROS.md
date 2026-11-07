@@ -16822,3 +16822,6 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[GD14961](AROS-graphics-desktop.md#gd14961-pixfmt-constructor-discards-parsed-attributes) — Generic GFX PixFmt construction accepts format tags but does not copy the parsed descriptor into the new instance; no direct in-tree tagged constructor caller was found. Source-only.**
 
 **[GD14962](AROS-graphics-desktop.md#gd14962-pixfmt-cgx-lookup-index-is-not-bounded) — Generic GFX PixFmt parsing accepts out-of-range standard-format values and `CgxPixFmt` indexes a fixed table without a bound check. Conditional on invalid driver metadata and a Cgx attribute query; source-only.**
+
+
+**[EK10923](AROS-exec-kernel.md#ek10923) — m68kemu zero-extends D0 for `AllocTrap`/`FreeTrap`, so negative trap sentinels become huge positive values on 64-bit hosts and reach invalid shifts. Explicit optional target; source-only.**
