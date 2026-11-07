@@ -21284,3 +21284,18 @@ The window's AddEventHandler implementation unconditionally inserts the supplied
 `init_language_lists()` counts the installed language entries, then allocates the available and preferred pointer arrays (`workbench/prefs/locale/page_language.c:61-68`). It does not check either result before filling them in the following `ForeachNode` loop or writing their terminating NULL pointers (`:70-98`). `Language__OM_NEW()` calls this helper without a status result and proceeds to use both arrays as list source arrays (`:419-421,437-454`). The constructor's later object-allocation checks do not cover these buffers.
 
 **Trigger and consequence:** either pointer-array allocation fails while creating Locale Preferences. The helper then writes through a NULL array while distributing language entries or adding a terminator, causing a crash instead of reporting construction failure. **Affected configuration:** the explicitly buildable Locale Preferences target; its parent Preferences aggregate edge is disabled (`workbench/prefs/locale/mmakefile.src:6-18`). **Confidence:** high for the unchecked allocations and subsequent writes; trigger requires allocation failure. Check both allocations and return through constructor cleanup before populating either array. No allocation failure, preferences UI, or build was run; source-only.
+
+<a id="gd14938-mui-list-clearing-active-selection-indexes-off-entry"></a>
+## GD14938 — MUI List indexes the inactive slot while clearing an active selection
+
+The `MUIA_List_Active` setter converts the documented `MUIV_List_Active_Off` value to `-1` and publishes it as `data->entries_active` (`workbench/libs/muimaster/classes/list.c:1466-1514`). In the writable-list redraw branch it marks the old entry, then unconditionally indexes `data->entries[data->entries_active]` (`:1527-1541`). When an active row is changed to Off, this dereferences `data->entries[-1]`. The MUI contract explicitly allows setting and reading the Off state (`:223-250`).
+
+A selected in-tree path triggers the transition: Locale Preferences creates an interactive city Listview from `CityArray` (`workbench/prefs/locale/page_timezone.c:688-720`), and after a map click it clears the active row with `NNSET(..., MUIA_List_Active, MUIV_List_Active_Off)` (`:812-840`). `NNSET` expands to `SetAttrs()` with `MUIA_NoNotify` (`workbench/libs/muimaster/macros.h:364-365`); it still dispatches the list setter, merely suppressing observer notifications. The list's `read_only` field remains false for this writable list, so the faulty redraw branch is taken after a city row has been selected.
+
+**Trigger and consequence:** select a city in Locale Preferences, then click a timezone on the map. Clearing the city-list selection indexes and dereferences the entry before the list's `-1` active state; this can crash the Preferences interaction. Any other writable MUI List transition from a valid active row to the documented Off value reaches the same source path.
+
+**Affected configuration:** the selected `muimaster.library` List class (`workbench/libs/muimaster/mmakefile.src`); the concrete Locale route is the explicitly buildable `workbench-prefs-locale` target, whose parent Preferences edge is disabled (`workbench/prefs/locale/mmakefile.src:6-18`).
+
+**Confidence:** high for the sentinel-to-`-1` state transition and invalid array access; no GUI interaction was run. Skip the new-entry redraw when the active value is Off, while still redrawing the old selection. Source-only.
+
+**Coverage evidence:** [MUI List active-Off setter and Locale caller trace](AROS-graphics-desktop-coverage.md#mui-list-active-off-redraw-bound-gd14938).
