@@ -16818,3 +16818,8 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 
 **[EK10922](AROS-exec-kernel.md#ek10922) — RexxSupport `DELAY` accepts unbounded decimal input and converts it through `atoi()` into `Delay(ULONG)`, causing out-of-range conversion behavior. Explicit optional target; source-only.**
+
+
+**[GD14961](AROS-graphics-desktop.md#gd14961-pixfmt-constructor-discards-parsed-attributes) — Generic GFX PixFmt construction accepts format tags but does not copy the parsed descriptor into the new instance; no direct in-tree tagged constructor caller was found. Source-only.**
+
+**[GD14962](AROS-graphics-desktop.md#gd14962-pixfmt-cgx-lookup-index-is-not-bounded) — Generic GFX PixFmt parsing accepts out-of-range standard-format values and `CgxPixFmt` indexes a fixed table without a bound check. Conditional on invalid driver metadata and a Cgx attribute query; source-only.**
