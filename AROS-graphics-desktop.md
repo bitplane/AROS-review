@@ -21369,6 +21369,15 @@ main() stores the result of OpenLibrary("uuid.library", 0) in UUIDBase but does 
 
 **Coverage evidence:** [QuickPart startup and UUID library lifecycle audit](AROS-graphics-desktop-coverage.md#quickpart-startup-full-body-uuid-gd14944-gd14945).
 
+<a id="gd14947-quickpart-portuguese-translates-bytes-as-characters"></a>
+## GD14947 — QuickPart's Portuguese catalog labels bytes as characters
+
+The Portuguese QuickPart catalog maps `WORD_Bytes` to `caracteres` (`workbench/tools/QuickPart/catalogs/portuguese.ct:5-7`), while the catalog definition says the source string is `bytes` (`catalogs/quickpart.cd:2-4`). The selected caller inserts this translation after the formatted disk capacity value (`QP_ccDisk.c:257`). In Portuguese, `caracteres` means characters, not the byte unit used by the capacity label.
+
+**Trigger and consequence:** use QuickPart with the Portuguese catalog selected and view a disk capacity. The unit label describes the displayed byte quantity as characters, misleading the user about the capacity unit. This is a presentation/catalog defect; it does not affect the stored capacity or disk operations. **Affected configuration:** QuickPart catalog build includes Portuguese (`catalogs/mmakefile.src:6-12`); the application and catalog are selected through the Workbench QuickPart aggregate (`workbench/tools/QuickPart/mmakefile.src:20-26`). **Confidence:** high that the catalog entry is semantically inconsistent with `WORD_Bytes`; no locale rendering or catalog build was run.
+
+**Coverage evidence:** [QuickPart source, GUI stub and catalog review](AROS-graphics-desktop-coverage.md#quickpart-gui-and-catalog-review).
+
 <a id="gd14945-quickpart-does-not-close-uuid-library"></a>
 ## GD14945 — QuickPart leaves its opened UUID library reference outstanding
 
