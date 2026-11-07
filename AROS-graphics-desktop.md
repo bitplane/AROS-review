@@ -6186,7 +6186,7 @@ The other selected multi-format tables checked here are depth-descending in Rade
 
 **LogView's Clear Log action displays choices but performs no save or clear operation.** Both the menu item and Clear Log button call `logClearHookFunc()` (`workbench/system/LogView/logview.c:721-725`). The hook displays a requester offering “Save & Clear”, “Clear”, and “Cancel”, but both affirmative cases are empty and the default case simply returns (`:308-329`). It never calls `logRemEntry()`, clears the MUI list, or saves log data.
 
-**Affected configuration and trigger:** user selects either affirmative choice in the Clear Log requester. **Consequence:** the requester closes but the log remains unchanged; “Save & Clear” also does not save. **Confidence:** high for the empty action branches and registered callers; no UI action was performed. Source-only.
+**Affected configuration and trigger:** user selects either affirmative choice in the Clear Log requester. The `workbench-system-logview` target is selected in x86-64 PC Workbench builds: `configure.in` forces `with_log_resource=yes` for the x86-64 platform (`:1647-1650`), `TARGET_USELOGRES` activates the LogView edge (`config/target.cfg.in:43`; `workbench/system/LogView/mmakefile.src:7-8`), and `workbench-complete` includes `workbench-system` (`workbench/mmakefile.src:9-23`). Other configurations can select it with `--with-logresource=yes`. This establishes target selection, not package/image inclusion or runtime launch. **Consequence:** the requester closes but the log remains unchanged; “Save & Clear” also does not save. **Confidence:** high for the empty action branches, registered callers and target-selection path; no UI action or build was performed. Source-only.
 
 ## GD5950
 
