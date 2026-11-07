@@ -16593,6 +16593,8 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[EK10914](AROS-exec-kernel.md#ek10914) — RexxSupport `TYPEPKT` returns an uninitialized byte for a two-argument selector outside `A`, `C`, or `F`.** The optional explicit RexxSupport target accepts the arity but leaves its result byte unset; invalid-selector contract is undocumented. Source-only.
 
+**[EK10915](AROS-exec-kernel.md#ek10915) — RexxSupport `REPLY` parses the optional result code from its message-pointer argument.** A valid two-argument reply of a `GETPKT` message normally fails before replying; optional explicit target, with no maintained caller established. Source-only.
+
 
 
 
