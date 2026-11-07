@@ -16783,6 +16783,8 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **OD11523 — [BTCtrl silently succeeds when remote-name request allocation fails](AROS-other-drivers.md#od11523-btctrl-remote-name-allocation-failure-reports-success).**
 
+**OD11524 — [Nouveau `NvI2C=1` selects a transfer callback compiled as unavailable](AROS-other-drivers.md#od11524-nouveau-nvi2c-selects-unavailable-transfer-callback).**
+
 **OD2319 — [RTL8139 failed-startup cleanup can signal a reclaimed worker task](AROS-other-drivers.md#od2319-rtl8139-failed-startup-can-signal-reclaimed-worker).** On ExecSMP, a failed worker setup can let the child exit and be reclaimed before parent rollback signals its saved process pointer. Optional RTL8139 target; source-only.
 
 **OD2436 — [e1000 shutdown passes a signal number where Exec needs a mask](AROS-other-drivers.md#od2436-e1000-shutdown-signal-is-a-bit-number-not-mask).** On normal worker signal allocation, the shutdown notification misses the wait set, leaving the worker and its timer/ports alive while teardown releases its unit state. Selected x86 PC e1000 target; source-only.
