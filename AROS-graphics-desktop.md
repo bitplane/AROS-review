@@ -21197,6 +21197,7 @@ Both root and non-root branches of `IconWindow__OM_NEW()` create `_newIconWin__I
 
 **Trigger and consequence:** start the MiamiPanel application while allocation of its private message port fails, with subsequent app/window construction succeeding far enough to run interface-group setup. This can fault during startup instead of reporting allocation failure cleanly. **Affected configuration:** the explicitly buildable optional `arostcp-libs-muimiamipanel` module; its alias and AROSTCP aggregate edges are commented (`MUI.MiamiPanel/mmakefile.src:10-14,42-45`), so default inclusion is not claimed. **Confidence:** high for the unchecked dereference and call sequence; conditional on the message-port allocation failure. Check the port before constructing/opening the app and return the startup failure through the existing message result path. No allocation failure, panel, or GUI was run; source-only; see the [startup allocation-failure trace](AROS-graphics-desktop-coverage.md#miamipanel-startup-message-port-allocation-failure-gd14928).
 
+<a id="gd14929"></a>
 ## GD14929 — Long proportional color-font strings can write before the temporary glyph raster
 
 `TextExtent()` keeps the running horizontal position and its extrema in signed `WORD` variables (`rom/graphics/textextent.c:80-123`). `ColorFontBasedText()` then stores the raster width, row stride, and per-glyph position in signed `WORD` variables (`rom/graphics/text.c:564,587-593,617-636`) and does not check glyph destinations against the allocated raster before writing rows (`:638-654`).
