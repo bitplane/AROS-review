@@ -10272,6 +10272,13 @@ The optional RexxSupport command table registers `TYPEPKT` with one or two argum
 
 **Trigger and consequence:** use `GETPKT` to obtain a `RexxMsg *`, then invoke the accepted two-argument `REPLY` form to set its result code. For a valid Rexx message, the handler parses the pointer token instead of the result-code argument, rejects it, and leaves the message unreplied until another cleanup/retry path handles it. **Affected configuration:** explicitly built and loaded `workbench-libs-rexxsupport`; aggregate package selection is not established. **Confidence:** high for the wrong argument and early return on the binary pointer token; medium for impact because no checked-in caller or command manual confirms two-argument `REPLY` use. Parse `ARG2(msg)` for the optional result code. No Rexx command or build was run; source-only.
 
+<a id="ek10916"></a>
+### EK10916 — RexxSupport `GETARG` parses its optional index from the message-pointer argument [conditional]
+
+`GETARG` uses argument 1 as a pointer to the Rexx message, then, in its two-argument branch, passes that same `ARG1(msg)` to `strtoul()` as the requested argument index (`workbench/libs/rexxsupport/getarg.c:21-42`). The selected `GETPKT` command returns that message pointer as raw pointer bytes inside an argstring (`getpkt.c:29-32`); this is not a decimal index string, so the parse normally fails the trailing-character check and returns `ERR10_018` before retrieving any argument. The command table accepts one or two arguments (`arexxdispatch.c:36,71-79`), and the one-argument form defaults to index zero, so the optional indexed form is the affected path. The intended numeric index is the second command argument.
+
+**Trigger and consequence:** invoke the accepted two-argument `GETARG` form with a valid message pointer returned by `GETPKT` and an argument index. The handler parses the binary pointer token instead of the supplied index and normally rejects the request, preventing retrieval of the selected Rexx argument. **Affected configuration:** explicitly built and loaded `workbench-libs-rexxsupport`; aggregate package selection is not established. **Confidence:** high for the wrong argument and pointer-byte format; medium for impact because no checked-in caller documents use of the two-argument form. Parse `ARG2(msg)` for the optional index. No Rexx command or build was run; source-only.
+
 <a id="ek8787"></a>
 ### EK8787 — Task notification callbacks deadlock if they change the hook registry [conditional]
 
