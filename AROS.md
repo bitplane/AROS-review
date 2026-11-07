@@ -16729,3 +16729,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[OD11505](AROS-other-drivers.md#od11505-nouveau-compositor-stack-node-allocation-is-unchecked) — Nouveau compositor dereferences a failed stack-node allocation while processing a display bitmap stack.** Conditional on allocation failure; optional Nouveau HIDD; source-only.
 **[OD11506](AROS-other-drivers.md#od11506-nouveau-compositor-bitmap-creation-failure-passes-null-to-modeset) — Failed compositor-bitmap creation is passed as NULL into the Nouveau mode-switch path.** Conditional on object-creation failure during a screen drag; optional Nouveau HIDD; source-only.
+
+**[OD11507](AROS-other-drivers.md#od11507-nouveau-acceleration-failure-dereferences-missing-pattern-object) — Failed Nouveau acceleration setup leaves a channel that causes initial pattern setup to dereference a missing object.** Conditional on scratch BO allocation/mapping failure on NV_ARCH_03–NV_ARCH_40; optional Nouveau HIDD; source-only.
