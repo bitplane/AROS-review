@@ -16568,6 +16568,8 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[EK10912](AROS-exec-kernel.md#ek10912) — StartNotify scans beyond a relative filename when the process has no current directory.** A selected NetInfo path passes SYS/userdb or SYS/groupdb unchanged to StartNotify; its server process inherits a null current directory if opened from a task or a process without one. Still conditional on a relative database setting and such an opener. Source-only.
 
+**[EK10915](AROS-exec-kernel.md#ek10915) — RISC-V OpenSBI consumes breakpoints as scheduler calls when saved `a7` is at most `0x100`.** It skips EBREAK/C.EBREAK instead of delivering the breakpoint to the normal trap path; the trigger is conditional on an in-range register value. RISC-V OpenSBI only; source-only.
+
 
 
 **[OD9566](AROS-other-drivers.md#od9566) — Nouveau NV04 nForce clock/arbitration paths dereference a NULL PCI bridge lookup.** The selected compatibility stub always returns NULL, and the config-read helper dereferences it. Scoped to affected nForce/nForce2 NV04 paths; the separate NV1A caller checks NULL. Source-only; no GPU or PCI access was exercised.
