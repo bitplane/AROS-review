@@ -16566,7 +16566,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[EK8787](AROS-exec-kernel.md#ek8787) — Task notification callbacks deadlock if they change the hook registry.** Notification holds the hook list shared across callbacks; Add/Remove takes it exclusive, so a callback that mutates registration waits on its own shared hold. Conditional on an external or indirect callback; no selected in-tree mutating callback was found. Source-only.
 
-**[EK10912](AROS-exec-kernel.md#ek10912) — `StartNotify()` scans beyond a relative filename when the process has no current directory.** The relative-name path gets a null lock from `GetDeviceProc()`, then the root-name logic scans until `:` without checking for NUL. The optional DOS notify test accepts a command-line filename but does not establish a null current directory; trigger remains conditional on that Process state. Source-only.
+**[EK10912](AROS-exec-kernel.md#ek10912) — StartNotify scans beyond a relative filename when the process has no current directory.** A selected NetInfo path passes SYS/userdb or SYS/groupdb unchanged to StartNotify; its server process inherits a null current directory if opened from a task or a process without one. Still conditional on a relative database setting and such an opener. Source-only.
 
 
 
