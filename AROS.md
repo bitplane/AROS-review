@@ -16668,3 +16668,8 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 
 **[OD2365](AROS-other-drivers.md#od2365) — NVMe constructor failure paths leak the PCI claim/record and OOP instance, can retain an admin IRQ whose queue was freed, or leave an enabled controller pointing at freed queue memory.** Hardware consequences depend on subsequent device/interrupt activity; selected ordinary namespace startup is independently blocked by OD2876. Source-only.
+
+
+**[OD2453](AROS-other-drivers.md#od2453) — NVMe I/O queue command failures leave a worker using freed queue storage or retain an uncounted queue and task.** Conditional on direct bus startup and a failed Create CQ/SQ command; selected bus publication is blocked by OD2876. Source-only.
+
+**[OD2454](AROS-other-drivers.md#od2454) — NVMe ignores I/O worker creation failure, then later signals the NULL task on completion.** Conditional on direct bus startup, task allocation failure, and a completed request; selected bus publication is blocked by OD2876. Source-only.
