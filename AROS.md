@@ -16812,3 +16812,6 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 
 **[EK10920](AROS-exec-kernel.md#ek10920) — RexxSupport `SHOWDIR` retains directory locks, dereferences unchecked enumeration/output allocations, and returns partial results as success after `ExAll()` errors. Explicit optional target; source-only.**
+
+
+**[EK10921](AROS-exec-kernel.md#ek10921) — RexxSupport `SHOWLIST` dereferences failed initial or growth output-buffer allocations while list protection is held. Explicit optional target; source-only.**
