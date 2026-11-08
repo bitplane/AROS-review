@@ -38386,6 +38386,13 @@ Sources: queue drain and full-ring `proceed` handling in `workbench/devs/network
 
 Sources: unit-number scan, record initialization and delayed list insertion in `rom/usb/classes/audio/usbaudio.class.c:278-321`; AHI ID derived from unit number at `:1056`; mode registration at `:1928-1987` and removal at `:2092`; AHI same-ID replacement in `workbench/devs/AHI/Device/database.c:358-375`; Poseidon binding dispatch in `rom/usb/poseidon/poseidon.library.c:6350-6390`; concurrent downstream hub scans in `rom/usb/classes/hub/hub.class.c:435-441,493-522`; local-only `Forbid()` semantics on ExecSMP in `rom/exec/forbid.c`. No device binding, AHI operation, schedule, or build was exercised; source-only review.
 
+<a id="od3237"></a>
+## OD3237 — AHCI disk SCSI translator reads beyond short CDBs [optional QuickPart caller]
+
+HD_SCSICMD checks that the outer IORequest carries a full struct SCSICmd, but the ATA-disk translator does not validate scsi_CmdLength against the opcode before reading CDB fields (rom/devs/ahci/ahci_io.c:388-394; ahci_scsi.c:332-368,443-489). The optional QuickPart caller supplies scsi_Command = &cmd where cmd is a one-byte local, sets scsi_CmdLength = 1, and uses that request for SCSI_INQUIRY after ATA IDENTIFY fails (workbench/tools/QuickPart/QP_ccDisk.c:90-104,112-120). The disk translator evaluates cdb->inquiry.byte2 at ahci_scsi.c:368 before any CDB-length check, reading beyond the one-byte object; if that adjacent value selects EVPD, the helper reads page_code at :278-280 as well. The ATAPI translator rejects CDB lengths below six before decoding, so this finding is limited to the ATA-disk path.
+
+**Trigger and consequence:** the explicitly buildable optional QuickPart target is used on an AHCI-backed ATA disk, ATA IDENTIFY fails, and the fallback submits its one-byte INQUIRY CDB. The disk translator reads beyond the declared and allocated command object; the adjacent stack value can also select an unintended VPD page or leave QuickPart with a failed identification request. The standard INQUIRY branch separately returns IOERR_BADLENGTH because its local rdata_len is derived from the one-byte CDB length; that response-path defect is covered by disk finding DISK-012 and is not duplicated here. **Affected configuration:** optional QuickPart plus an AHCI ATA disk. **Confidence:** high for the one-byte caller object and unchecked field read; caller reachability is conditional on QuickPart being built/run and ATA IDENTIFY failing. Validate the opcode-specific CDB length before reading any fields. No request, device, or build was run; source-only.
+
 <a id="od3288"></a>
 ## OD3288 — Atheros5000 S2_TRACKTYPE mishandles tracker allocation and later failures [selected Atheros5000]
 
