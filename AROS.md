@@ -16873,3 +16873,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[EK10930](AROS-exec-kernel.md#ek10930) — CLI startup leaks its copied argument buffer if argument-vector allocation fails afterward. Conditional on the second allocation failing; source-only.**
 
 **[OD2648](AROS-other-drivers.md#od2648) — OpenSBI M41T11 accepts malformed BCD/calendar data; an invalid `0xFF` year becomes 2165 and wraps `Date2Amiga()`'s 32-bit seconds result instead of using the cached time. Conditional on corrupted RTC data; source-only.**
+
+**[GD5167](AROS-graphics-desktop.md#gd5167) — PSI uses an imported fixed-width public-screen name in unbounded EditWindow concatenation and Copy-action `strcpy()` into an equally sized stack buffer. Conditional on a malformed `.mps` record; source-only.**
