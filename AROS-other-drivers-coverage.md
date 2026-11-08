@@ -37764,3 +37764,5 @@ Nouveau GM107 GPC FUC5 image and TPC strand data pass (2026-11-08; no new findin
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/gf104.c` | 121 | Full 161-line body read; counted MMIO ranges, pack assembly/sentinel, selected device entry, shared MMIO walker and firmware fallback descriptors checked. No independent finding. Hardware register semantics remain unverified. |
 
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/gf108.c` | 119 | Full 160-line body read; generation-specific ranges, shared MMIO pack, init callback ordering, sentinel and selected device/firmware descriptors checked. No independent finding. Hardware register semantics remain unverified. |
+
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/gf110.c` | 99 | Full 136-line body read; SM range, shared/specific MMIO pack, pack sentinel, selected device entry and firmware alternatives checked. No independent finding. Hardware register semantics remain unverified. |
