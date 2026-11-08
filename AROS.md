@@ -17037,3 +17037,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15018](AROS-graphics-desktop.md#gd15018) — RealTime demo falls through from PM_STATE and labels it bogus. Conditional on a state callback. Source-only.**
 **[GD15019](AROS-graphics-desktop.md#gd15019) — RoundShape dereferences a failed NewRectRegion allocation. Conditional on allocation failure during shape rebuild. Source-only.**
 **[GD15020](AROS-graphics-desktop.md#gd15020) — RoundShape reports success after setup failures. Conditional on a failed setup call. Source-only.**
+**[GD15021](AROS-graphics-desktop.md#gd15021) — RoundWindow hook accepts the old shape when allocation fails. Conditional on shape-region allocation failure. Source-only.**
+**[GD15022](AROS-graphics-desktop.md#gd15022) — RoundWindow reports success after setup failures. Conditional on a failed setup call. Source-only.**

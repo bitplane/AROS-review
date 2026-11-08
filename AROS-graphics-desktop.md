@@ -22156,6 +22156,20 @@ The shared cleanup routine prints a diagnostic and releases acquired resources b
 
 **Trigger and consequence:** one of those setup steps fails while the demo is run from a caller that checks its process result. It exits successfully despite failing to construct or display the shaped window. **Affected configuration:** the explicitly buildable `developer/demos/roundshape.c` target. **Confidence:** high for the unconditional success exit and reachable error paths. Return a failure status from cleanup. No resource failure, window operation or build was induced; source-only.
 
+<a id="gd15021"></a>
+## GD15021 — RoundWindow accepts the old shape when its resize hook cannot allocate [conditional]
+
+`shapefunc()` initializes `success` to TRUE and only changes it while adding rectangles after `NewRegion()` succeeds. If `NewRegion()` returns NULL, it skips the construction block and returns TRUE without replacing `msg->NewShape` (`developer/demos/roundwindow.c:71-126`). The selected layer resize path initializes `msg.NewShape` to the existing shape and adopts the callback's value when the hook returns true (`rom/hyperlayers/movesizelayer.c:125-152`).
+
+**Trigger and consequence:** the layer's shape hook runs for creation or resize and its `NewRegion()` allocation fails. The layer implementation accepts the unchanged shape as if the hook successfully rebuilt it; on resize this keeps the old rounded shape geometry rather than applying the new bounds, and on creation may accept the default/old shape instead of the intended rounded one. **Affected configuration:** the explicitly buildable `developer/demos/roundwindow.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the TRUE return on allocation failure and caller's reuse of the initialized shape. Return FALSE when the allocation fails. No allocation failure, layer resize or GUI operation was run; source-only.
+
+<a id="gd15022"></a>
+## GD15022 — RoundWindow reports success after setup failures [conditional]
+
+The shared `cleanup(msg)` routine prints a diagnostic, releases acquired resources and always calls `exit(0)` (`developer/demos/roundwindow.c:32-48`). It is used for library-open, screen-lock, and window-open failures (`:52-75,151-153`).
+
+**Trigger and consequence:** one of those setup operations fails while the demo is run from a caller that checks process status. The demo exits successfully despite failing to create the shaped window. **Affected configuration:** the explicitly buildable `developer/demos/roundwindow.c` target. **Confidence:** high for the unconditional success exit and reachable failure paths. Return a failure status from cleanup. No resource failure, window operation or build was induced; source-only.
+
 <a id="gd15018"></a>
 ## GD15018 — RealTime demo classifies every state-change callback as bogus [conditional]
 
