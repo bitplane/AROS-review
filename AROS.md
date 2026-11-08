@@ -17057,3 +17057,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15038](AROS-graphics-desktop.md#gd15038) — Czech NList preferences help describes the wrong pointer behavior. Unconditional for Czech catalog users. Source-only.**
 **[GD15039](AROS-graphics-desktop.md#gd15039) — German NList partial-character option help reverses the setting’s behavior. Unconditional for German catalog users. Source-only.**
 **[GD15040](AROS-graphics-desktop.md#gd15040) — Greek NList help places the partial-column marker on the wrong edge. Unconditional for Greek catalog users. Source-only.**
+**[GD15041](AROS-graphics-desktop.md#gd15041) — Italian NList labels smooth scrolling as fast scrolling. Unconditional for Italian catalog users. Source-only.**

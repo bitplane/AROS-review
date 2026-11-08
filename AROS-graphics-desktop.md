@@ -22226,6 +22226,12 @@ The shared cleanup routine always exits zero, including when `openlibs()` fails 
 
 **Trigger and consequence:** shape allocation succeeds. The demo retains the region allocation through process cleanup instead of disposing it after the window is closed. **Affected configuration:** the explicitly buildable `developer/demos/winshape.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for allocation and the disabled matching disposal; caller must release the region after its use. Dispose `shape` after `CloseWindow()`. No window operation or build was run; source-only.
 
+## GD15041 — Italian NList settings describe smooth scrolling as fast scrolling [unconditional localization]
+
+Italian `MSG_SMOOTH_SCROLLING` is labeled “Scrolling veloce” and its help describes using “scrolling veloce” for the NList objects (`workbench/classes/zune/nlist/nlistviews_mcp/locale/italian.po:349-360`). The source option and help are specifically about smooth scrolling and its smoothness-speed slider; the translation presents it as fast scrolling.
+
+**Trigger and consequence:** an Italian-speaking user configures NList scrolling. They may mistake the interpolation/smoothness option for a speed or acceleration setting and select an unintended behavior. **Affected configuration:** the selected Italian NListviews MCP catalog. **Confidence:** high for the translated “fast” wording versus the source's “smooth” meaning. Translate the setting as smooth/fluid scrolling and update its help consistently. No locale generation or GUI operation was run; source-only.
+
 ## GD15040 — Greek NList help places the partial-column mark on the wrong side [unconditional localization]
 
 The Greek `MSG_PARTIAL_COL_MARK_HELP` says the special mark is drawn on the left side of the column (`workbench/classes/zune/nlist/nlistviews_mcp/locale/greek.po:406-411`), while the English source says it is drawn at the right side. The option concerns a visible overflow marker, so this direction is the core guidance for locating it.
