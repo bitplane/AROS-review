@@ -17025,3 +17025,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15006](AROS-graphics-desktop.md#gd15006) — MenuDemo ignores failure to install its menu strip. Conditional on SetMenuStrip failure. Source-only.**
 **[GD15007](AROS-graphics-desktop.md#gd15007) — ModelClass demo continues initialization after cleanup has closed acquired resources. Conditional on setup failure. Source-only.**
 **[GD15008](AROS-graphics-desktop.md#gd15008) — MXGads reports successful exit if intuition.library cannot open. Conditional on library-open failure. Source-only.**
+**[GD15009](AROS-graphics-desktop.md#gd15009) — Notify demo waits indefinitely if StartNotify fails. Conditional on registration failure. Source-only.**
+**[GD15010](AROS-graphics-desktop.md#gd15010) — Notify demo exits without ending or freeing its successful notification request. Conditional on registration success. Source-only.**

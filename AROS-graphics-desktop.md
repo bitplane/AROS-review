@@ -22135,6 +22135,20 @@ If `OpenLibrary("intuition.library", 0L)` fails, `main()` prints an error and ca
 
 **Trigger and consequence:** intuition.library cannot be opened. The utility reports successful termination despite failing before its demonstration. **Affected configuration:** the explicitly buildable `developer/demos/mxgads.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the error branch and zero exit status. Exit with a failure code. No library failure, program launch or build was induced; source-only.
 
+<a id="gd15009"></a>
+## GD15009 — Notify demo waits forever if StartNotify fails [conditional]
+
+The demo ignores the return from `StartNotify(nr)` and immediately waits on `SIGF_SINGLE` (`developer/demos/notify.c:40-53`). The selected DOS API returns FALSE on registration failure (`rom/dos/startnotify.c:34-45,72-75,183-195`), and such a failure does not signal the task.
+
+**Trigger and consequence:** notification registration fails, for example because the handler cannot allocate/resolve its request. The demo still waits for a signal that will not arrive, rather than reporting that it could not start monitoring. **Affected configuration:** the explicitly buildable `developer/demos/notify.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the ignored BOOL and unconditional wait. Check the registration result and exit/clean up on failure. No notification operation or build was run; source-only.
+
+<a id="gd15010"></a>
+## GD15010 — Notify demo leaves its successful notification active at exit [conditional]
+
+After `StartNotify(nr)` succeeds and the signal arrives, `main()` prints success and returns without calling `EndNotify(nr)` or freeing the `AllocVec()` request (`developer/demos/notify.c:24-27,40-57`). The DOS API provides `EndNotify()` specifically to remove a request previously started (`rom/dos/endnotify.c:28-46`).
+
+**Trigger and consequence:** a monitored file is created and the wait completes. The demo exits with its allocated request and notification registration still active, retaining resources after the program has finished. **Affected configuration:** the explicitly buildable `developer/demos/notify.c` target. **Confidence:** high for successful registration, the normal return, and absent teardown. Call `EndNotify()` and free the request before returning. No file creation, notification or build was run; source-only.
+
 <a id="gd14993"></a>
 ## GD14993 — Async requester error is reported as the third button [conditional]
 
