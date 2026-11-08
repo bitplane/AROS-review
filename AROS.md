@@ -14414,7 +14414,7 @@ Coverage-link repair: GD10288's coverage link now resolves to the explicit `setr
 **EK10617 — RexxSupport `GETPKT` strands a dequeued message when its result allocation fails.** See [EK10617](AROS-exec-kernel.md#ek10617) and the [GETPKT result-allocation failure trace](AROS-exec-kernel-coverage.md#rexxsupport-getpkt-result-allocation-ek10617).
 - **[EK10618](AROS-exec-kernel.md#ek10618)** — The PC timer accounts for at most one 16-bit PIT rollover per update; if IRQ0 service or another sample is delayed more than about 54.9 ms, elapsed time loses complete counter periods. Conditional on a long service gap; separate from the ExecSMP update race in EK10612. See the [rollover audit](AROS-exec-kernel-coverage.md#pc-timer-eclock-missed-wrap-ek10618). Source-only; no timer or hardware was exercised.
 
-**OD1574 — Efika timer clock normalization is incomplete after a long update gap (latent behind OD9941 build blocker).** See [OD1574](AROS-other-drivers.md#od1574) and the [Efika timer review](AROS-other-drivers-coverage.md#efika-timer-ticks-full-body-review-od1574).
+**OD1574 — Efika timer can count a delayed whole-second remainder twice because `SubTime()` normalizes its shared timeval without consuming that second from the tick accumulator.** Latent until OD9941’s target compile blocker is fixed. See [finding](AROS-other-drivers.md#od1574) and the [Efika timer review](AROS-other-drivers-coverage.md#efika-timer-ticks-full-body-review-od1574).
 
 **OD1872 — Efika EClock update loses complete low-word timebase wraps (latent behind OD9941 build blocker).** See [OD1872](AROS-other-drivers.md#od1872) and the [Efika timer review](AROS-other-drivers-coverage.md#efika-timer-ticks-full-body-review-od1574).
 
