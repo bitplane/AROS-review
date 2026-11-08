@@ -38010,3 +38010,8 @@ IFFParse `CurrentChunk()` full-body state-query pass (2026-11-08; `workbench/lib
 IFFParse `AllocLocalItem()` full-body allocation-failure pass (2026-11-08; `workbench/libs/iffparse/alloclocalitem.c`, 98 physical lines / 39 `cloc 2.06` C code lines): read the complete selected body and traced both allocations. The cleared `IntLocalContextItem` stores type/id/class; optional user data is separately cleared, its exact size recorded for `FreeLocalItem()`, and the item allocation is released if the second allocation fails. A zero data size leaves the user-data fields null/zero from `MEMF_CLEAR`. The documented `ULONG` input is passed through to `AllocMem`; negative sizes are explicitly outside the contract. No independent allocation or initialization defect established. No allocation failure or build was induced; source-only.
 
 | `workbench/libs/iffparse/alloclocalitem.c` | 39 | Full 98-line body read; selected `FUNCS` entry, two-stage allocation cleanup, field initialization and FreeLocalItem size pairing checked. No independent defect. |
+
+
+IFFParse `LocalItemData()` full-body accessor pass (2026-11-08; `workbench/libs/iffparse/localitemdata.c`, 56 physical lines / 16 `cloc 2.06` C code lines): read the complete selected body and matched its null-item behavior and returned user-data pointer to the `AllocLocalItem()` allocation contract. NULL input returns NULL; a valid LCI returns its owned user-data pointer, which may itself be NULL when allocated with zero data size. No independent accessor defect established. No caller or build was exercised; source-only.
+
+| `workbench/libs/iffparse/localitemdata.c` | 16 | Full 56-line body read; selected `FUNCS` entry, NULL input and optional-data behavior checked. No independent defect. |
