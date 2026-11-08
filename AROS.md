@@ -13848,7 +13848,7 @@ Apple Silicon CreateSegList ignored-protection-result caller pass (EK712 expande
 
 **[OD3071](AROS-other-drivers.md#od3071) — SANA-II `S2_TRACKTYPE` can dereference a null tracker after allocation failure, or retain phantom unit tracker references after duplicate tracking or opener-baseline allocation failure. Confirmed in PCNet32 and expanded across selected network drivers; conditional on the stated failure/duplicate paths. Source-only.**
 
-**[OD3225](AROS-other-drivers.md#od3225) — BCM GENET RX traverses tracker, opener, and pending-read lists without synchronization. The tracker free path has no checked-in `S2_UNTRACKTYPE` caller; the opener free race is reachable from AROSTCP `sana_deinit()` calling `CloseDevice()`. High-confidence overlap on the explicit Raspberry Pi ExecSMP variant; conditional higher-priority preemption on single-CPU ARM32. Source-only; no schedule was run.**
+**[OD3225](AROS-other-drivers.md#od3225) — BCM GENET RX traverses tracker, opener, and pending-read lists without synchronization. The tracker free path has no checked-in `S2_UNTRACKTYPE` caller; AROSTCP shutdown can free an opener through `CloseDevice()`. Its priority-5 shutdown task can preempt the priority-0 driver worker on single-CPU ARM32; SMP can overlap across CPUs. Source-only; no schedule was run.**
 
 **[OD3110](AROS-other-drivers.md#od3110) — BCM GENET marks its kernel IRQ as registered even when `KrnAddIRQHandler()` could not allocate a handler; later teardown passes the NULL token to a remover that dereferences it. Conditional on low memory during explicit Raspberry Pi GENET startup; source-only.**
 
