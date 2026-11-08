@@ -16842,4 +16842,4 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[EK8786](AROS-exec-kernel.md#ek8786) — task.resource leaks the per-task late-init hook-type record allocated by C startup when the task exits. Conditional on task.resource being available; source-only.**
 
-**[EK10926](AROS-exec-kernel.md#ek10926) — DynModule glue frees a public interface-port name before unlinking its port. A concurrent `FindPort()` can compare against the freed string during teardown. Explicit optional target; source-only.**
+**[EK664](AROS-exec-kernel.md#ek664) — DynModule glue frees a public interface-port name before unlinking its port. A concurrent `FindPort()` can compare against the freed string during teardown. Explicit optional target; source-only.**

@@ -10398,8 +10398,8 @@ On task removal, the task.resource `RemTask` wrapper either removes and frees th
 
 **Trigger and consequence:** a task reaches C startup while `task.resource` is available, then exits through the task.resource `RemTask` wrapper. Each such task leaks its allocated late-init `TaskListHookEntry`, so repeated task launches consume unreclaimed memory. **Affected configuration:** builds with task.resource and `TASKRES_ENABLE`, which is defined in `rom/task/task_intern.h`; this is the selected configuration. **Confidence:** high for allocation, retained ownership through the task entry, and both cleanup paths omitting nested disposal; no task lifecycle was run. Dispose hook-type entries before freeing the parent task entry. Source-only; see the Exec/Kernel coverage ledger.
 
-<a id="ek10926"></a>
-### EK10926 — DynModule glue frees a public port name before removing its port [conditional]
+<a id="ek664"></a>
+### EK664 — DynModule glue frees a public port name before removing its port [conditional]
 
 `__dynglue_DisposeIFPort()` drains queued messages, frees `dmmport->mp_Node.ln_Name`, and only then calls `DeletePort()` (`compiler/dynmodule/dynmodule_glue.c:63-72`). The port was published with that name by `CreatePort()` (`:43-49`; `compiler/alib/createport.c:49-58`), which stores the caller's pointer in `ln_Name` and calls `AddPort()` without copying it. `DeletePort()` removes a named port only after checking the still-nonnull `ln_Name` pointer (`compiler/alib/deleteport.c:48-54`); `RemPort()` serializes the actual list removal with `PortListSpinLock` on ExecSMP (`rom/exec/remport.c:54-70`). In the interval after `FreeVec()` and before that removal, `FindPort()` can still encounter the listed node. Its SMP read lock does not help because the freeing path has not yet taken the corresponding write lock; `FindName()` checks `ln_Name` and calls `strcmp()` through the freed pointer (`rom/exec/findport.c:52-62`; `rom/exec/findname.c:72-78`). On a single-CPU build, a lookup can likewise run if the disposer is preempted between the free and `DeletePort()`.
 
