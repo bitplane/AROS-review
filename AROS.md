@@ -16861,7 +16861,7 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[OD11530](AROS-other-drivers.md#od11530-pci-express-capability-cycle-hangs-query) — a cyclic PCIe extended-capability pointer chain makes the HIDD capability query loop indefinitely.** Conditional on malformed PCI configuration; the checked-in PCITool caller can hang while displaying that device; source-only.
 
-**[GD14965](AROS-graphics-desktop.md#gd14965-ftmanager-partial-class-init-skips-cleanup) — FTManager GUI startup returns after a later custom-class creation failure without deleting classes that were already created.** Conditional on partial successful initialization; source-only.
+**[GD14965](AROS-graphics-desktop.md#gd14965-ftmanager-partial-class-init-skips-cleanup) — FTManager GUI startup returns after a later custom-class failure without deleting earlier classes or releasing the already opened Codesets and FreeType resources.** Conditional on partial successful initialization; source-only.
 
 **[GD14966](AROS-graphics-desktop.md#gd14966-ftmanager-empty-list-press-dereferences-null-entry) — FTManager's configured list press action can reach the font-window handler with no active font entry, which it dereferences. Conditional on an empty list; source-only.**
 
