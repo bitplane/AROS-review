@@ -38040,3 +38040,8 @@ IFFParse `FindProp()` full-body property lookup pass (2026-11-08; `workbench/lib
 IFFParse `FindCollection()` full-body collection lookup pass (2026-11-08; `workbench/libs/iffparse/findcollection.c`, 76 physical lines / 27 `cloc 2.06` C code lines): read the complete selected body and traced its type/ID query for `IFFLCI_COLLECTION` through `FindLocalItem()`, then its `CIPtr.FirstCI` result extraction. A missing item returns NULL as documented; `CollectionFunc()` creates the `CIPtr` userdata and the purge hook frees the linked collection. Search precedence and list semantics match the reviewed `FindLocalItem()` implementation. No independent lookup or result-layout defect established. No parse or build was run; source-only.
 
 | `workbench/libs/iffparse/findcollection.c` | 27 | Full 76-line body read; selected `FUNCS` entry, class key, NULL behavior and `CIPtr.FirstCI` producer/cleanup checked. No independent defect. |
+
+
+IFFParse `GoodID()` full-body validator pass (2026-11-08; `workbench/libs/iffparse/goodid.c`, 98 physical lines / 47 `cloc 2.06` C code lines): read the complete selected body and traced the local-byte-order word split into four octets. It rejects nonprintable bytes and a leading space except for the all-space ID, matching the documented IFF ID character constraints; casts to `UBYTE` retain the low octet for each shifted byte. `GoodType()` and `PushChunk()` are the checked callers. No independent validation defect established. No validator tests or build were run; source-only.
+
+| `workbench/libs/iffparse/goodid.c` | 47 | Full 98-line body read; selected `FUNCS` entry, local-order byte extraction, printable range and leading-space exception checked against callers. No independent defect. |
