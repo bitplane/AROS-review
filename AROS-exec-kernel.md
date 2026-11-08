@@ -10299,7 +10299,7 @@ A selected in-tree caller can also supply a relative name. NetInfo reads the glo
 <a id="ek10913"></a>
 ### EK10913 withdrawn — duplicate EndNotify path of EK9883
 
-The unlocked `Remove()` in `EndNotify()` is now included in EK9883 alongside `WaitIO()`'s removal from the same SMP-protected message-port list. Keeping a second active finding would count the shared port-lock defect twice. The EndNotify trigger remains conditional on a caller sharing its notification port with concurrent queue operations; no maintained in-tree caller establishing that overlap was found.
+The unlocked `Remove()` in `EndNotify()` is now included in EK9883 alongside `WaitIO()`'s removal from the same SMP-protected message-port list. Keeping a second active finding would count the shared port-lock defect twice. The 2026-11-08 Wanderer trace in EK9883 established a maintained shared-port caller; an append from a different active filesystem handler on another CPU remains a timing-dependent trigger.
 
 
 <a id="ek10914"></a>
