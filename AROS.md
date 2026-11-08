@@ -17125,3 +17125,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[OD1906](AROS-other-drivers.md#od1906) — NetInfo `CMD_UPDATE` retains `NIMF_CHANGED` after a successful save, so later no-op updates rewrite the database and rotate its `.old` copy. Conditional on external or future clients using the public mutation commands; no in-tree writer was found. Source-only.**
 
 **[GD15066](AROS-graphics-desktop.md#gd15066) — When the optional VMM swap bitmap is full, slot allocation returns slot zero as if it were free; a dirty resident frame without a prior slot can overwrite the saved contents of another page. Conditional on a full paging area and that eviction state; AROS startup defects separately limit practical reachability. Source-only.**
+
+**[GD15067](AROS-graphics-desktop.md#gd15067) — VMM swap-bitmap code shifts signed one into bit 31 in padding, allocation, and free masks on 32-bit integer targets. This is undefined C behavior; bitmap corruption depends on compiler behavior. Optional VMM only; source-only.**
