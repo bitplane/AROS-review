@@ -41237,3 +41237,10 @@ Nouveau GP104 GR context descriptor and inherited callback pass (2026-11-08; no 
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgp104.c` | 28 | Full 50-line body read; selected three-PPC descriptor and inherited callback contracts checked. No independent finding. Hardware behavior remains unverified. |
+
+
+Nouveau GP107 GR context descriptor and inherited topology callback pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgp107.c`; 58 physical lines, 29 `cloc 2.06` C code lines): confirmed active manifest selection at `sources.drm.mak:317`, GP107 device-table use, and its two-GPC/three-TPC/one-PPC descriptor. Read the complete table and traced inherited GM107 bundle, GP100 pagepool/SM-ID, GP102 attribute-buffer and attribute, and GM200 topology callbacks to their shared consumers. The descriptor carries the required callback sizes and topology hooks for this target; no local wiring or parameter defect established. Hardware semantics of inherited callbacks remain unverified. No GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgp107.c` | 29 | Full 58-line body read; two-GPC/three-TPC/one-PPC descriptor and inherited callback contracts checked. No independent finding. Hardware behavior remains unverified. |
