@@ -37805,4 +37805,4 @@ Nouveau GM107 GPC FUC5 image and TPC strand data pass (2026-11-08; no new findin
 
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/tu102.c` | 179 | Full 225-line body reread; TPC/FS/Z-cull loops, shared sparse-PPC remap, VEID converter return, GSP gate and TU10x firmware manifests checked. Reconfirms OD11191/OD11193/OD11195; no new finding. |
 
-| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/priv.h` | 24 | Full 47-line header read; GR base vtable signatures, flexible class list, includes and implementation consumers checked. No independent finding. |
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/priv.h` | 38 | Full 47-line header read; GR base vtable signatures, flexible class list, includes and implementation consumers checked. No independent finding. |
