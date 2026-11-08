@@ -10434,3 +10434,15 @@ The selected pthread implementation calls `sched_yield()` after each failed `pth
 **Trigger and consequence:** an external boot-image producer uses this AROS structure to declare a module-alignment tag. The resulting image header does not match the specified tag layout and may not be accepted as intended. **Affected configuration:** external Multiboot2 image producers that include this public AROS header; no in-tree source references this type, and the selected PC bootstrap does not construct this tag. **Confidence:** high for the declaration/specification mismatch, low for in-tree impact because no maintained caller was found. Replace the fields with the common header only. No image was assembled, bootloader was run, or build was performed; source-only.
 
 **Coverage evidence:** [Multiboot2 public-header and caller census](AROS-exec-kernel-coverage.md#multiboot2-module-alignment-header-ek10927).
+
+
+<a id="ek10928"></a>
+### EK10928 — ARM unwind lookup treats linker boundary symbols as data [conditional]
+
+`__gnu_Unwind_Find_exidx()` declares `__exidx_start` and `__exidx_end` as unsigned objects, subtracts their contents, divides by eight, and returns the contents of `__exidx_start` (`compiler/startup/arm-exidx-unwind.c:18-24`). These names are linker-defined `.ARM.exidx` boundary addresses. GCC's ARM unwinder contract uses the address of the start symbol as the table pointer and the difference between the boundary addresses as the number of entries; each entry is two words ([GCC ARM unwinder](https://github.com/gcc-mirror/gcc/blob/master/libgcc/unwind-arm-common.inc), [Arm EHABI32](https://github.com/ARM-software/abi-aa/blob/main/ehabi32/ehabi32.rst)). Thus this implementation returns table data as though it were an address and derives the count from data words, so an exception lookup can search an invalid table range.
+
+The ARM startup makefile includes `arm-exidx-unwind` in its object list when `AROS_TARGET_CPU` contains `arm` and copies it into the startup link library (`compiler/startup/mmakefile.src:22-25,35-50`). The exact selection of this object in individual final links, and whether its weak C++ fallback definitions prevent libgcc's implementation from supplying the lookup, are not established here.
+
+**Trigger and consequence:** an ARM C++ exception-unwind path selects this `__gnu_Unwind_Find_exidx()` implementation and queries an exception index. It may return an invalid table pointer/count, causing unwinding to fail or read the wrong index records. **Affected configuration:** ARM targets linking this startup object and using an unwinder that calls this function; final per-program link selection remains unverified. **Confidence:** high for the mismatch with the linker-symbol contract; conditional for runtime impact pending final link resolution. Use linker-symbol addresses for both the table pointer and count. No link, exception, boot, or build was run; source-only.
+
+**Coverage evidence:** [ARM `.ARM.exidx` unwinder contract and link-selection trace](AROS-exec-kernel-coverage.md#arm-exidx-unwind-linker-symbols-ek10928).
