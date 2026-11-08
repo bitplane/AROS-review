@@ -16480,7 +16480,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[GD14915](AROS-graphics-desktop.md#gd14915) — Scrollgroup ignores FreeHoriz and FreeVert movement limits [conditional].**
 
-**[GD14912](AROS-graphics-desktop.md#gd14912) — Vulkan-Hpp `getPipelineCacheData()` may read an uninitialized output size after an error in no-exceptions, assertions-disabled builds. Candidate only: local source does not establish whether the API may leave the output untouched on error; no non-generated in-tree caller was found.**
+**[GD14912](AROS-graphics-desktop.md#gd14912) — Vulkan-Hpp `getPipelineCacheData()` reads an undefined output size after a runtime error when no-exceptions result assertions are nonfatal. Conditional on a cache query error; no non-generated in-tree caller was found.**
 
 **[GD5694](AROS-graphics-desktop.md#gd5694) — MUI Window snapshot leaves alternate Y uninitialized before config serialization**
 **[GD5696](AROS-graphics-desktop.md#gd5696) — AmigaGuide can miss a resize at asynchronous layout completion**
