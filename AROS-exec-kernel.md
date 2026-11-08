@@ -1,5 +1,5 @@
-<a id="ek10932"></a>
-## EK10932 — `SystemTagList()` unlocks the child’s explicit current directory during CLI startup [conditional]
+<a id="ek10933"></a>
+## EK10933 — `SystemTagList()` unlocks the child’s explicit current directory during CLI startup [conditional]
 
 For a supplied `NP_CurrentDir`, `SystemTagList()` retains the caller's BPTR in its cloned tag list, extracts that same value as `currdir`, passes the tags to `CreateNewProc()`, and also places `currdir` in the CLI startup packet (`rom/dos/systemtaglist.c:347-372,393-405,448-461`). `CreateNewProc()` stores the supplied lock in `process->pr_CurrentDir` and sets `PRF_FREECURRDIR` because the tag is nonzero (`rom/dos/createnewproc.c:434,459-468`). When the shell handles its startup packet, `internal_CliInitAny()` calls `CurrentDir(newdir)` with the same BPTR; `CurrentDir()` returns the process's current `pr_CurrentDir`, which is that same lock, and `newcliproc.c` immediately `UnLock()`s it because `PRF_FREECURRDIR` is set (`rom/dos/newcliproc.c:142-165`; `rom/dos/currentdir.c:47-59`). The process still retains that released BPTR in `pr_CurrentDir`, and `freeLocalVars()` attempts to unlock it again at process exit (`rom/dos/createnewproc.c:960-965`).
 
