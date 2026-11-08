@@ -2357,7 +2357,7 @@ Hyperlayers `EndUpdate()` full-body and direct-caller pass (GD5775/GD6172/GD6175
 | Selected C body | `cloc 2.06` code lines | Review status |
 |---|---:|---|
 | `rom/hyperlayers/basicfuncs.c` | 1007 | Full body reviewed. |
-| `rom/hyperlayers/createlayertaglist.c` | 281 | Full body reviewed; GD6181-GD6182 added; GD5474 and GD4662 rechecked. |
+| `rom/hyperlayers/createlayertaglist.c` | 281 | Full body and creation/cleanup ordering rechecked; GD6181-GD6182 remain, and GD15059 records the retained layer-lock nesting on successful return. GD5474 and GD4662 rechecked. |
 | `rom/hyperlayers/movesizelayer.c` | 262 | Full body reviewed. |
 | `rom/hyperlayers/collectpixelslayer.c` | 195 | Full body reviewed. |
 | `rom/hyperlayers/sortlayercr.c` | 176 | Full body reviewed; MoveRaster caller and cliprect-order contract traced; no independent defect established. |
@@ -16355,6 +16355,8 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 - [GD15057 — AmigaVideo narrows HIDD CopyBox extents to signed words](AROS-graphics-desktop.md#gd15057)
 
 - [GD15058 — ScaleLayer dereferences a missing bitmap for hidden simple-refresh layers](AROS-graphics-desktop.md#gd15058)
+
+- [GD15059 — Layer constructors return with the new layer semaphore still owned](AROS-graphics-desktop.md#gd15059)
 
 - [GD14879 — Radeon PCI size queries overwrite a 32-bit stack local on 64-bit targets](AROS-graphics-desktop.md#gd14879)
 
