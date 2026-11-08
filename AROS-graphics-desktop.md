@@ -22226,6 +22226,12 @@ The shared cleanup routine always exits zero, including when `openlibs()` fails 
 
 **Trigger and consequence:** shape allocation succeeds. The demo retains the region allocation through process cleanup instead of disposing it after the window is closed. **Affected configuration:** the explicitly buildable `developer/demos/winshape.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for allocation and the disabled matching disposal; caller must release the region after its use. Dispose `shape` after `CloseWindow()`. No window operation or build was run; source-only.
 
+## GD15042 — Polish NList option help reverses partial-character behavior [unconditional localization]
+
+Polish `MSG_PARTIAL_CHARS_DRAWN` is labeled as drawing characters partially, and `MSG_PARTIAL_CHARS_DRAWN_HELP` says clipped characters “will be displayed partially” when enabled (`workbench/classes/zune/nlist/nlistviews_mcp/locale/polish.po:437-447`). The English source says that when enabled, characters not fully visible at the left/right edge will **not** be drawn partially.
+
+**Trigger and consequence:** a Polish-speaking user configures this option. The label and help describe the opposite behavior, so they can choose a setting based on an incorrect expectation about clipped text. **Affected configuration:** the selected Polish NListviews MCP catalog. **Confidence:** high; the translation reverses the source behavior. Correct the label/help to explain that partial glyphs are suppressed. No locale generation or GUI operation was run; source-only.
+
 ## GD15041 — Italian NList settings describe smooth scrolling as fast scrolling [unconditional localization]
 
 Italian `MSG_SMOOTH_SCROLLING` is labeled “Scrolling veloce” and its help describes using “scrolling veloce” for the NList objects (`workbench/classes/zune/nlist/nlistviews_mcp/locale/italian.po:349-360`). The source option and help are specifically about smooth scrolling and its smoothness-speed slider; the translation presents it as fast scrolling.
