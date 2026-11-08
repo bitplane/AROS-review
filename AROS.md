@@ -17073,3 +17073,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15053](AROS-graphics-desktop.md#gd15053) — DemoWin reads an uninitialized key byte when raw-key conversion yields no output. Conditional. Source-only.**
 **[GD15054](AROS-graphics-desktop.md#gd15054) — dto uses DataType attributes after a failed or partial query. Conditional. Source-only.**
 **[GD15055](AROS-graphics-desktop.md#gd15055) — dto continues after dependent library opens fail. Conditional. Source-only.**
+**[GD15056](AROS-graphics-desktop.md#gd15056) — Decoration Screen and Window object disposal skips the superclass, leaking per-screen objects. Unconditional for those classes. Source-only.**
