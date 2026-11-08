@@ -17059,3 +17059,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15040](AROS-graphics-desktop.md#gd15040) — Greek NList help places the partial-column marker on the wrong edge. Unconditional for Greek catalog users. Source-only.**
 **[GD15041](AROS-graphics-desktop.md#gd15041) — Italian NList labels smooth scrolling as fast scrolling. Unconditional for Italian catalog users. Source-only.**
 **[GD15042](AROS-graphics-desktop.md#gd15042) — Polish NList partial-character option help reverses the setting’s behavior. Unconditional for Polish catalog users. Source-only.**
+**[GD15043](AROS-graphics-desktop.md#gd15043) — Russian NListviews catalog has no translated messages and falls back to English. Unconditional for Russian catalog users. Source-only.**

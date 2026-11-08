@@ -22226,6 +22226,12 @@ The shared cleanup routine always exits zero, including when `openlibs()` fails 
 
 **Trigger and consequence:** shape allocation succeeds. The demo retains the region allocation through process cleanup instead of disposing it after the window is closed. **Affected configuration:** the explicitly buildable `developer/demos/winshape.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for allocation and the disabled matching disposal; caller must release the region after its use. Dispose `shape` after `CloseWindow()`. No window operation or build was run; source-only.
 
+## GD15043 — Russian NListviews catalog contains no translated messages [unconditional localization]
+
+All 142 message entries in `workbench/classes/zune/nlist/nlistviews_mcp/locale/russian.po` have empty `msgstr` values. The MCP build enumerates every `.po` file as a catalog language and generates `NListviews_mcp.catalog` for each (`workbench/classes/zune/nlist/nlistviews_mcp/mmakefile.src:30-41`). FlexCat omits untranslated entries, leaving the English source strings as the fallback.
+
+**Trigger and consequence:** a Russian locale is selected and the NListviews preferences MCP is shown. Its labels and help appear in English rather than Russian throughout. **Affected configuration:** Russian NListviews MCP catalog. **Confidence:** high for the empty translations and selected build rule; fallback follows the catalog-generation template. Provide Russian translations or stop advertising this catalog as Russian. No catalog generation or GUI operation was run; source-only.
+
 ## GD15042 — Polish NList option help reverses partial-character behavior [unconditional localization]
 
 Polish `MSG_PARTIAL_CHARS_DRAWN` is labeled as drawing characters partially, and `MSG_PARTIAL_CHARS_DRAWN_HELP` says clipped characters “will be displayed partially” when enabled (`workbench/classes/zune/nlist/nlistviews_mcp/locale/polish.po:437-447`). The English source says that when enabled, characters not fully visible at the left/right edge will **not** be drawn partially.
