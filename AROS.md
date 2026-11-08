@@ -17089,3 +17089,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15061](AROS-graphics-desktop.md#gd15061) — LeakWatch dereferences a NULL diff after its fixed diff pool is exhausted.** Conditional on more than 300 diff requests in one process; source-only.
 **[GD15062](AROS-graphics-desktop.md#gd15062) — LeakWatch's copied baseline drops every resource type.** Conditional on a changed resource count in the startup baseline; source-only.
 **[GD15063](AROS-graphics-desktop.md#gd15063) — LeakWatch dereferences GadToolsBase when its library open fails.** Conditional on GadTools library-open failure; source-only.
+
+**[GD15064](AROS-graphics-desktop.md#gd15064) — KMS leaks a loaded segment when OpenKeymap rejects a non-HUNK file.** Conditional on a loadable non-HUNK file being supplied as a keymap; source-only.
