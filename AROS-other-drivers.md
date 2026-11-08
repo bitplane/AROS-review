@@ -37370,6 +37370,15 @@ This is conditional on the render-engine texture-copy fallback and allocation fa
 Source: Mesa 26.0.0 `src/gallium/drivers/i915/i915_surface.c` temporary surface/view creation and generic blitter call. Source-only review.
 
 
+<a id="od9910"></a>
+## OD9910 — IntelGMA Gallium leaks status slots for relocation-free batch flushes [conditional, manual target]
+
+In the normal non-simulation path, `IntelGMA_WS_BatchbufferFlush()` reserves a hardware-status index before iterating the batch relocations. The loop assigns that index only to buffers referenced by relocations. `IntelGMA_StatusFree()` is reached only when `IntelGMA_WS_BufferIsBusy()` finds a matching buffer `status_index`; therefore a flush with zero relocations leaves its reserved index without any owner that can release it. Initialization clears the 924 usable entries once, and the reserve loop retries forever after entries 100 through 1023 are all marked reserved. The exhausted retry runs while `BatchBufferLock` is held, so later batch flushes also remain blocked.
+
+**Trigger and consequence:** a compatible Gallium client repeatedly invokes the IntelGMA flush callback with batches containing no relocations. After 924 such flushes, a later flush waits forever for a status slot, holding the batch-buffer semaphore. **Affected configuration:** the explicitly assembled IntelGMA/Gallium target with the real hardware path; `GALLIUM_SIMULATION` bypasses this code. The checked-in monitor and Mesa dependency edges are commented out, and no in-tree caller of the external Gallium callback was found, so this is not a default-build or established in-tree-client claim. **Confidence:** high for reservation, ownership, capacity, and non-terminating retry; whether a compatible external client submits enough relocation-free batches is unverified. Return slots for batches with no relocation owner or otherwise reclaim them after completion. No batch, GPU operation, resource exhaustion, or build was run; source-only review.
+
+Sources: status-table init/reservation/free in `workbench/devs/monitors/IntelGMA/intelgma_galliumclass.c:92-100,149-182`; reserve-before-relocation and index ownership in `:369-410`; sole buffer-based release path in `:602-630`; `BatchBufferLock` held across the retry in `:369-451` and defined in `intelgma_winsys.h:30-31`; optional target edges in `mmakefile.src:57-67`. Source-only review.
+
 <a id="od10514"></a>
 ## OD10514 — IntelGMA Gallium flush does not provide a completion fence to `glFinish()` [conditional, manual target]
 
