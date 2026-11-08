@@ -17030,3 +17030,6 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15011](AROS-graphics-desktop.md#gd15011) — ReadIcon never closes icon.library after opening it. Conditional on successful library open. Source-only.**
 **[GD15012](AROS-graphics-desktop.md#gd15012) — ReadIcon exits successfully when writing readicon.info fails. Conditional on PutDiskObject failure. Source-only.**
 **[GD15013](AROS-graphics-desktop.md#gd15013) — ReadIcon does not propagate graphical library/window setup failures. Conditional on a failed setup call. Source-only.**
+**[GD15014](AROS-graphics-desktop.md#gd15014) — RegionTest accepts ID 10 for its ten-element region array. Conditional on entering the boundary ID. Source-only.**
+**[GD15015](AROS-graphics-desktop.md#gd15015) — RegionTest reads command tokens into a fixed buffer without a width limit. Conditional on long input. Source-only.**
+**[GD15016](AROS-graphics-desktop.md#gd15016) — RegionTest spins on failed or EOF command input. Conditional on input failure. Source-only.**

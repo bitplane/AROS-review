@@ -22156,6 +22156,27 @@ After `StartNotify(nr)` succeeds and the signal arrives, `main()` prints success
 
 **Trigger and consequence:** icon.library opens successfully. The utility returns while retaining its open library reference, preventing normal library expunge and leaking the reference after each run. **Affected configuration:** the explicitly buildable `developer/demos/readicon.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the open and absence of any close. Close `IconBase` on all return paths. No icon operation or build was run; source-only.
 
+<a id="gd15014"></a>
+## GD15014 — RegionTest accepts region ID 10 for a ten-element array [conditional]
+
+`regions` has ten elements, valid indices 0 through 9 (`developer/demos/regiontest.c:49`). The `xorregionregion()`, `andregionregion()`, and `orregionregion()` handlers accept IDs with `i1 <= 10` and `i2 <= 10`, then index `regions[i1]` and `regions[i2]` (`:248-299`). ID 10 therefore passes validation and reads beyond the array.
+
+**Trigger and consequence:** enter region ID 10 for either operand in one of those commands. The command reads an out-of-range slot and may treat unrelated memory as a region pointer before calling a region operation. **Affected configuration:** the explicitly buildable `developer/demos/regiontest.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the array size and inclusive upper-bound checks. Change the upper bound to `< 10`. No command or region operation was run; source-only.
+
+<a id="gd15015"></a>
+## GD15015 — RegionTest reads commands into an unbounded fixed buffer [conditional long input]
+
+`doall()` declares `char buf[80]` and reads the next command with `scanf("%s", buf)` without a maximum field width (`developer/demos/regiontest.c:301-309`). Inputs longer than the buffer can overwrite adjacent automatic storage.
+
+**Trigger and consequence:** enter a command token longer than 79 bytes. The write exceeds `buf`, so subsequent command processing has undefined behavior. **Affected configuration:** the explicitly buildable `developer/demos/regiontest.c` interactive demo. **Confidence:** high for the unbounded conversion and fixed-size destination. Limit the input width or use a bounded line reader. No long input or program launch was used; source-only.
+
+<a id="gd15016"></a>
+## GD15016 — RegionTest does not terminate or report input EOF [conditional]
+
+The `doall()` loop ignores the return from `scanf("%s", buf)` and unconditionally compares `buf` (`developer/demos/regiontest.c:305-310`). On EOF or a failed conversion, `buf` is not updated and the loop continues.
+
+**Trigger and consequence:** standard input reaches EOF or returns a conversion error. The command loop cannot recognize `quit` and repeatedly processes stale/uninitialized command data instead of exiting. **Affected configuration:** the explicitly buildable `developer/demos/regiontest.c` target. **Confidence:** high for the unchecked input result and infinite-loop path on persistent EOF. Check the conversion result and leave the command loop on EOF. No EOF or input sequence was run; source-only.
+
 <a id="gd15012"></a>
 ## GD15012 — ReadIcon returns success when writing the demonstration icon fails [conditional]
 
