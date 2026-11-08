@@ -574,6 +574,7 @@ The import path accepts a `wanderer:viewsettings.*` chunk into its 1,024-byte st
 
 **Compatibility alias:** Duplicate index entry for [GD5901](AROS-graphics-desktop.md#gd5901), which records the same status-bar `ULONG` total-size accumulation and wrap. Keep GD5901 as the canonical finding; no distinct second bug is established.
 
+<a id="gd3075"></a>
 ## GD3075
 
 **Finding:** The Wanderer toolbar and status-bar extensions allocate one private record per eligible non-root IconWindow (`workbench/system/Wanderer/panel_toolbar.c:268-283`; `panel_statusbar.c:331-342`). After successful panel setup, each record's embedded node is added to a module-level list (`panel_toolbar.c:400`; `panel_statusbar.c:429`; lists declared at `:62` and `panel_statusbar.c:62`). On IconWindow disposal, the selected extension cleanup callbacks run before the superclass disposes the window (`iconwindow.c:830-860`). Neither extension cleanup unlinks its node or frees its private record (`panel_toolbar.c:412-449`; `panel_statusbar.c:441-469`). Both records also leak if their nested MUI construction fails: each is allocated and stored before its panel object is built (`panel_toolbar.c:268-283`; `panel_statusbar.c:331-346`); a failed child makes the selected Group constructor dispose the partial group and return NULL (`workbench/libs/muimaster/classes/group.c:340-352,415-420`), and each extension's NULL-object branch only stores a NULL panel-object field without freeing or clearing its `iwp_PanelPrivate` (`panel_toolbar.c:404-410`; `panel_statusbar.c:425-431`). IconWindow still marks extension setup complete and later invokes cleanup, which likewise does not free the record. These failure branches do not add their nodes to the global lists. The status-bar cleanup also looks up the top-panel slot instead of its bottom-panel slot, but that notifier mismatch is separately tracked as GD5902.
@@ -702,6 +703,7 @@ The import path accepts a `wanderer:viewsettings.*` chunk into its 1,024-byte st
 
 **Withdrawn (2026-10-25):** Orphan index placeholder. A repository-wide search of the reports, coverage ledger, and maintained C/C++ source found no descriptive candidate, source location, trigger, or finding-specific evidence for this ID. Removed from the active index; retain no defect claim unless it is independently recovered from source.
 
+<a id="gd4040"></a>
 ## GD4040
 
 **Indexed summary:** Freeing a cloned RastPort can free clip metadata still owned by the source
@@ -1272,6 +1274,7 @@ The count is reachable through the ColorMap interface: `CM__Root__New()` accepts
 
 **Consequence:** callers cannot use this exported API to select a coercion mode and receive the failure sentinel regardless of whether a suitable mode exists. No viewport or display mode was queried. **Confidence:** high that the vector is selected and always returns `INVALID_ID`; practical impact depends on external callers. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd4656"></a>
 ## GD4656
 
 **`CloseMonitor()` can lose a concurrent `OpenMonitor()` count update.** `OpenMonitor()` increments the public `MonitorSpec.ms_OpenCount` with `AROS_ATOMIC_INC()` after finding a monitor (`rom/graphics/openmonitor.c:64-85`), while `CloseMonitor()` protects a plain `ms_OpenCount--` with `DisplayInfoDataBaseSemaphore` (`rom/graphics/closemonitor.c:54-62`). `OpenMonitor()` does not take that semaphore, so on ExecSMP the atomic increment can interleave with the non-atomic decrement and the decrement's load/store can overwrite the increment. The shared count can then understate outstanding opens; a later `CloseMonitor()` can report that no open reference exists even though one remains. `MonitorSpec.ms_OpenCount` is explicitly documented as the driver open count (`compiler/include/graphics/monitor.h:43`), and `CloseMonitor()` reports failure when it observes zero (`closemonitor.c:29-35,54-62`).
@@ -1499,6 +1502,7 @@ The selected `P96` monitor opens the named card library before opening `p96gfx.h
 
 **Disposition:** Unverified legacy placeholder. The current report and coverage ledger provide no source location, trigger, consequence, or finding-specific evidence from which to re-establish this candidate. It is not retained as an active bug finding pending provenance.
 
+<a id="gd4817"></a>
 ## GD4817
 
 **Generic JAM2 alpha-template blending never reaches the foreground color at full alpha.** In `JAM2AlphaTemplateBuffered()`, each channel is computed as `background + (foreground - background) * alpha / 256` (`rom/hidds/gfx/gfx_bitmapclass.c:3469-3488`). The alpha input is an 8-bit value, optionally inverted with XOR 255. At the fully opaque value 255, integer arithmetic leaves every channel that differs from the foreground exactly one value toward the background: for a positive delta `d`, `d*255/256` truncates to `d-1`; for a negative delta it truncates toward zero to `-(|d|-1)`. Thus a red/green/blue foreground channel of 0 over 255 yields 1, and a foreground channel of 255 over 0 yields 254. The neighboring `do_alpha()` implementation uses a rounded `/255`-equivalent calculation, confirming that the JAM2 denominator is inconsistent with the 0–255 alpha range (`gfx_bitmapclass.c:2944-2956`).
@@ -1960,6 +1964,7 @@ The short read/record-size checks in `MUIS_ReadPubFile()` do not validate string
 
 **Review evidence:** [`AROS-graphics-desktop-coverage.md#gd5096`](AROS-graphics-desktop-coverage.md#gd5096).
 
+<a id="gd5097"></a>
 ## GD5097
 
 **MUIS_ClosePubScreen discards autoclose tracking and reports success when Intuition refuses to close a screen with windows.** After finding the public screen, the helper calls `PubScreenStatus(..., PSNF_PRIVATE)` but ignores its result, removes and frees the screen's node from `muisb_autocScreens`, then calls `CloseScreen()` without checking its BOOL result (`workbench/libs/muiscreen/closepubscreen.c:73-95`). `PubScreenStatus()` returns zero and leaves the screen public when visitor windows remain (`rom/intuition/pubscreenstatus.c:57-73`). Independently, `CloseScreen()` returns FALSE when `screen->FirstWindow` is non-NULL (`rom/intuition/closescreen.c:105-113`). MUIScreen nevertheless sets `retval = TRUE`.
@@ -2831,6 +2836,7 @@ The PCI enumeration callback sets `sd->PCIDevice` before configuring the device 
 **Disposition:** Unverified legacy placeholder. The current report and coverage ledger provide no source location, trigger, consequence, or finding-specific evidence from which to re-establish this candidate. It is not retained as an active bug finding pending provenance.
 
 <a id="gd5330"></a>
+<a id="gd5330-vgagfx-cursor-erasure-reads-past-a-smaller-displayable-bitmap"></a>
 ## GD5330 — VGAGfx cursor erasure reads past a smaller displayable bitmap
 
 `erase_mouse()` builds an inclusive `Box` whose right and bottom coordinates are `mouseX + mouseW` and `mouseY + mouseH`, one pixel beyond the cursor's drawn extent (`arch/all-native/hidd/vgagfx/vgagfx_displayclass.c:392-405`; `draw_mouse()` iterates exactly `mouseW` columns and `mouseH` rows at `:338-389`). `vgaRefreshArea()` clips that box against `disp_width` and `disp_height`, but does not clip source reads against the bitmap's `width` or `height` (`arch/all-native/hidd/vgagfx/vgagfx_support.c:445-480,515-679`). The bitmap constructor preserves requested bitmap dimensions separately from mode dimensions and allocates `bpr * height` bytes; it permits a displayable bitmap smaller than the mode, and visibility setup explicitly clears the uncovered display area (`arch/all-native/hidd/vgagfx/vgagfx_bitmapclass.c:48-91,265-288`). `SetCursorPos()` clamps the cursor origin to the bitmap edge (`vgagfx_displayclass.c:295-317`), so a subsequent cursor erase at the bottom edge of a smaller bitmap can make `vgaRefreshArea()` read source rows beyond the allocated bitmap. The extra inclusive column can also extend reads past the logical row width.
@@ -3185,6 +3191,7 @@ The PCI enumeration callback sets `sd->PCIDevice` before configuring the device 
 
 **Disposition:** Unverified legacy placeholder. The current report and coverage ledger provide no source location, trigger, consequence, or finding-specific evidence from which to re-establish this candidate. It is not retained as an active bug finding pending provenance.
 
+<a id="gd5421"></a>
 ## GD5421
 
 **Indexed summary:** `WaitTOF()`'s shared waiter queue races on ExecSMP and retains a stack node if another task removes its blocked waiter.
@@ -4792,6 +4799,7 @@ This candidate concerns `workbench/devs/AHI/Examples/Low-level/HardDiskRecord/Ha
 
 **Consequence and confidence:** The affected operation silently leaves the destination unchanged for the requested region, even though the public operation has no failure result. High confidence in the ignored allocation failure and missing fallback; manifestation requires the stated allocation failures and an inheriting bitmap class. No allocation failure or drawing operation was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd5733"></a>
 ## GD5733
 
 **Finding:** ChunkyBM's `PutAlphaImage()` stores the source and destination row skips in signed `WORD`s (`rom/hidds/gfx/gfx_chunkybitmapclass.c:439-440`). Both the BGR032 and RGB16_LE branches compute `src_step = msg->modulo - msg->width * 4` and add that signed value after consuming each row (`:447-495,498-557`). `HIDD_BM_PutAlphaImage()` defines `modulo` as `ULONG` (`rom/hidds/gfx/gfx_bitmapclass.c:3004-3005`), so a valid source stride can produce a skip outside the signed 16-bit range. For example, width 1 and modulo 40,000 produce a 39,996-byte row skip; on supported targets where conversion to `WORD` wraps to 16 bits, the stored skip becomes negative and subsequent rows read from the wrong source location. `dst_step` is narrowed the same way for sufficiently wide destination rows.
@@ -4862,6 +4870,7 @@ Withdrawn as a duplicate of [GD6139](#gd6139), which documents the same empty pa
 
 **Affected configuration and trigger:** callers creating pointer sprite data from an HIDD bitmap, when the destination bitmap allocation succeeds, the selected bitmap class uses the generic HIDD scaler method, and one of its three scratch allocations fails. The checked-in Intuition `PointerClass` caller accepts a non-NULL sprite and proceeds to `CreateSharedPointer()` (`rom/intuition/pointerclass.c:103,119-149`). When that pointer path installs its default colormap, palette entry zero is zero-initialized while entries 1 onward receive pointer colors and alpha (`:128-139`); a cleared indexed destination contains index zero, so this path produces a fully transparent pointer image. This is conditional on using the default colormap path; a source-provided colormap can give index zero different semantics. **Consequence:** a transient memory-pressure failure can make pointer creation report success while the newly created pointer is blank (typically invisible with the default palette). **Confidence:** high for the unchecked void scaler result and the generic-method no-write allocation exits; medium for the user-visible pointer effect because it depends on the selected HIDD class and palette path. This is distinct from GD77's general `BitMapScale()` failure-reporting behavior. No allocation failure or pointer creation was induced; source-only.
 
+<a id="gd5744"></a>
 ## GD5744
 
 CyberGraphX coordinate entry points accept unsigned `UWORD` coordinates (and some, such as `ProcessPixelArray()` and `ExtractColor()`, accept `ULONG`), then narrow them into signed `WORD` rectangles or HIDD pixel/blit coordinates. `struct Rectangle` itself stores all four coordinates as `WORD` (`compiler/include/graphics/gfx.h:45-51`). Representative paths include `WritePixelArray()` and `WritePixelArrayAlpha()` constructing such rectangles (`workbench/libs/cgfx/writepixelarray.c:183-188`; `writepixelarrayalpha.c:107-112`), `ReadPixelArray()` and `ExtractColor()` doing the same (`readpixelarray.c:133-147`; `extractcolor.c:92-119`), and `WriteLUTPixelArray()` forwarding destination coordinates to the `WORD`-coordinate `WritePixels8()` path (`writelutpixelarray.c:117-123`). Other reviewed affected entry points include `MovePixelArray`, `FillPixelArray`, `InvertPixelArray`, `ReadRGBPixel`, `WriteRGBPixel`, and `ProcessPixelArray`; their individual file rows in the coverage ledger record the parameter and narrowing paths.
@@ -4900,6 +4909,7 @@ CyberGraphX coordinate entry points accept unsigned `UWORD` coordinates (and som
 
 **Trigger and consequence:** When a single clipped render rectangle requires more than one chunk—for example, its width exceeds `NUMPIX`—the first chunk advances `pixbuf` by `NUMPIX` pixels and the next `GetImage()` writes from beyond the shared buffer. The API call then writes past the allocated scratch buffer while reading the source bitmap. High confidence for the pointer lifetime and chunk transition; no `ExtractColor()` operation was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd5749"></a>
 ## GD5749
 
 `extcol_render()` requests Native32 pixels but passes `tocopy_w` as `HIDD_BM_GetImage()`'s row `modulo` (`workbench/libs/cgfx/extractcolor_renderfunc.c:76-78`). The method contract defines `modulo` in bytes, while a Native32 pixel occupies `sizeof(HIDDT_Pixel)` bytes (`rom/hidds/gfx/gfx_bitmapclass.c:2632-2633,2680-2684`). The generic GetImage implementation writes four bytes per pixel and advances each output row using `msg->modulo - msg->width * bpp` (`:2722-2731`); the correct packed-row modulo here is `tocopy_w * sizeof(HIDDT_Pixel)`.
@@ -5144,6 +5154,7 @@ The same unchecked-failure pairing appears in maintained refresh callers: `rende
 +
 +**Affected configuration and trigger:** All selected Intuition builds; any valid window with an installed DM requester, when a caller attempts to clear it (especially after its active request has ended). **Consequence:** ClearDMRequest always returns FALSE and the stale requester remains eligible for future menu-button activation. **Confidence:** high for early NULL rejection, unchanged field, and selected input-handler use; no requester operation was run. Source-only.
 
+<a id="gd5781"></a>
 ## GD5781
 
 **The no-media initializer returns a partial animation object after frame-storage allocation fails, and startup immediately renders through the missing storage.** `banm_Init()` allocates the outer `AnimData`, but it returns that object without checking subordinate image storage (`rom/dosboot/bootanim_nomedia.c:74-75,124-143`). In the generated chunky variant, `framedata[0]` is the `AllocVec()` result; if that allocation fails, `banm_Init()` still returns non-NULL with a NULL frame pointer (`:124-139,143`). `anim_Init()` treats any non-NULL result as success, publishes it in `DOSBootBase->animData`, clears the screen, and calls `banm_ShowFrame()` (`rom/dosboot/bootanim.c:54-67`). The initial frame path passes the NULL data into `WriteChunkRegion()`, which performs pointer arithmetic on it to form the source passed to `WriteChunkyPixels()`; its render callback derives another source address and passes it to the HIDD (`rom/dosboot/bootanim_nomedia.c:173-185`; `rom/dosboot/bootanim.c:33-46`; `rom/graphics/gfxfuncsupport.c:680-690`).
@@ -5151,6 +5162,7 @@ The m68k build selects the planar image generator (`rom/dosboot/mmakefile.src:6-
 
 **Affected configuration and trigger:** DOSBoot no-media screen when the outer `AnimData` allocation succeeds but required image storage fails. Chunky targets can fail the frame `AllocVec()`; m68k's generated planar path can fail either the plane or bitmap allocation. **Consequence:** initialization falsely reports success and attempts to draw through absent/invalid source data in the chunky path or the missing-bitmap fallback; the zeroed planar bitmap case merely draws nothing. A successful planar plane allocation paired with failed bitmap allocation leaks the plane buffer. A failed chunky frame allocation also leaves a cleanup slot uninitialized, so teardown can free an indeterminate pointer if execution reaches it. **Confidence:** high for the missing allocation checks, publication, and cleanup ownership; graphics effects and whether execution reaches teardown depend on the selected backend and failure. No allocation failure or animation was run. Source-only.
 
+<a id="gd5782"></a>
 ## GD5782
 
 **A failed no-media animation setup leaves the allocated blank cursor buffer unreleased.** `NoBootMediaScreen()` allocates `DOSBootBase->blank_pointer` after opening the screen window and installs it as the hidden pointer when allocation succeeds (`rom/dosboot/bootscreen.c:120-130`). If `anim_Init()` returns NULL, no `AnimData` is published (`rom/dosboot/bootanim.c:54-70`), but the function's failure branch only draws the fallback message. Later, `CloseNoBootMediaScreen()` closes the window/screen and calls `anim_Stop()` (`bootscreen.c:159-168`); `anim_Stop()` frees and clears `blank_pointer` only inside `if (ad)`, where `ad = DOSBootBase->animData` (`bootanim.c:84-95`). Thus when animation setup fails, cleanup skips the separately allocated pointer buffer and leaves its address in the base. On the bootstrap retry path, `CloseNoBootMediaScreen()` is followed by another no-media attempt (`rom/dosboot/bootstrap.c:351-365`; `rom/dosboot/dosboot_init.c:297-315`); a later successful blank-pointer allocation overwrites that stored address, permanently losing the prior allocation. Final DOSBoot cleanup also calls this same ineffective stop path if the screen remains after failed animation setup (`rom/dosboot/cleanup.c:53-56`).
@@ -5658,6 +5670,7 @@ The work buffer is either the application's `StringInfo.Buffer` or a separate `S
 
 **Affected configuration and trigger:** Wanderer copy when the destination exists, overwrite mode is enabled, and allocation of the ask record fails. **Consequence:** NULL is dereferenced before the overwrite prompt can be handled; the copy operation cannot complete normally. **Confidence:** high for the unchecked allocation and immediate write; no allocation failure was induced. Source-only.
 
+<a id="gd5849"></a>
 ## GD5849
 
 **MoveContent and `moveFile()` fail to propagate destination-path allocation failure.** `MoveContent()` stores the result of `CombinePath(FilePart(sourcePath), targetDir)` in `nextTargetFile` and immediately passes it to `FileExists()` without a NULL check (`workbench/system/Wanderer/filesystems.c:642-648`). `CombinePath()` can return NULL on allocation failure (`workbench/system/Wanderer/filesystems_utilities.c:489-514`); `FileExists()` passes the path to DOS `Lock()` (`filesystems_utilities.c:558-568`), whose selected implementation returns `BNULL` for a NULL name (`rom/dos/lock.c:66-68`). That initial check therefore treats allocation failure as “destination does not exist” and continues into `moveFile()`.
@@ -5686,6 +5699,7 @@ The work buffer is either the application's `StringInfo.Buffer` or a separate `S
 
 **Affected configuration and trigger:** explicitly building the separate `Icon.mui` module target. **Consequence:** the checked-in constructor is not valid against its declared message type and contains an undeclared identifier, so this target cannot compile as written; this is a build-target defect, not a claim about the default Wanderer IconList class, which uses a different implementation. **Confidence:** high for the source/type mismatch and undeclared local; no build was run. Source-only.
 
+<a id="gd5855"></a>
 ## GD5855
 
 **IconList label clipping uses the object's X coordinate as its top edge.** In `IconList__MUIM_IconList_DrawEntryLabel()`, the object clipping rectangle is initialized with `objrect.MinX = objX` and `objrect.MinY = objX`, although the object's top coordinate is held separately in `objY` (`workbench/system/Wanderer/Classes/iconlist.c:1481-1552`). The resulting rectangle is intersected with each entry label rectangle before drawing; nonintersecting labels are skipped. The handler is reached from the list redraw/update paths (`iconlist.c:3751,3759,4192`). In direct display mode, `objX/_mleft` and `objY/_mtop` are the object's actual coordinates; only the off-screen-buffer path sets both to zero, which masks the error there. Direct display is also the default Wanderer path in this snapshot: `IconList__OM_NEW()` initializes `icld_DisplayFlags` to `ICONLIST_DISP_SHOWINFO` without `ICONLIST_DISP_BUFFERED` (`iconlist.c:2379`), the only IconWindow buffer-enabling branch is guarded by `ICONWINDOW_BUFFERLIST` (`iconwindow.c:938-947`) and that macro has no definition in the checkout, and `MUIM_Show()` aliases `icld_BufferRastPort` to `icld_DisplayRastPort` when buffering is disabled (`iconlist.c:3112-3115`). The selected redraw/update dispatch calls `MUIM_IconList_DrawEntryLabel()` (`iconlist.c:3751,3759,4192`).
@@ -5710,6 +5724,7 @@ The work buffer is either the application's `StringInfo.Buffer` or a separate `S
 
 **Affected configuration and trigger:** a drop with at least one selected source icon when the per-source node allocation fails. **Consequence:** the drop handler dereferences NULL instead of aborting or reporting a failed drop. **Confidence:** high for unchecked allocation and immediate member access; no allocation failure or drop was induced. Source-only.
 
+<a id="gd5859"></a>
 ## GD5859
 
 **Multiline label splitting can measure beyond a label terminator after skipping leading spaces.** `IconList__LabelFunc_SplitLabel()` measures the first `LabelTextMaxLen` characters into `txwidth`, then skips leading spaces by advancing `labelSplit_SplitStart` and reducing `labelSplit_CurSplitLength` (`workbench/system/Wanderer/Classes/iconlist.c:1204-1227,1239-1256`). If the label is longer than the configured maximum but skipping spaces leaves an empty or short suffix whose pixel width is less than `txwidth`, the following width-adjustment loop keeps increasing the explicit character count passed to `TextLength()` past the remaining string and its NUL (`:1255-1256`). This includes the all-space case already identified and nonempty cases such as a long run of leading spaces followed by a short name. In its proportional-font path, `TextLength()` reads one byte for every requested character and uses default glyph metrics for out-of-range bytes (`rom/graphics/textlength.c:57-75`); when the default glyph advance is narrower than the original spaces' measured width, the adjustment therefore reads beyond the exact-sized label allocation. Fixed-width TextLength does not read the string bytes in this path, so the read-overrun condition is scoped to the proportional/kerned font branch.
@@ -5980,6 +5995,7 @@ The work buffer is either the application's `StringInfo.Buffer` or a separate `S
 
 **Affected configuration and trigger:** environment-path expansion falls back to the original path and the fallback allocation fails during panel preference notifier setup. **Consequence:** NULL destination passed to `CopyMem()`; notification setup cannot complete. **Confidence:** high for unchecked fallback allocation and copy; no allocation failure was induced. Source-only.
 
+<a id="gd5905"></a>
 ## GD5905
 
 **IconList leaks a temporary date string when the date field cannot render text.** `RenderEntryField()` allocates a concatenation buffer for `INDEX_LASTACCESS` and formats the date/time into it (`workbench/system/Wanderer/Classes/iconlist.c:914-921`). It returns early if the resulting string is empty (`:927-928`) or if `TextFit()` returns zero for the available field dimensions (`:966-969`). The only `FreeVec(text)` is at the function end (`:1013`), so neither early return releases the allocated date string.
@@ -6046,6 +6062,7 @@ Serialize all display-mode readers and bitmap construction against removal, or p
 
 **Hardware ranges ending at the CPU address-space boundary are treated as non-overlapping.** `driver_RangesOverlap()` checks half-open ranges with `abase < bbase + bsize && bbase < abase + asize`, using `IPTR` arithmetic without checking endpoint overflow (`rom/graphics/graphics_driver.c:176-193`). If two reported ranges both end exactly at the address-space limit, each endpoint wraps to zero. For example, on a 32-bit target, base `0xfffff000` with size `0x1000` represents the final 4 KiB; comparing that range with itself makes both strict comparisons false after wrap, and the function reports no overlap. `driver_FindBootDisplay()` uses this result to decide whether an incoming native driver is about to take over the boot display's hardware (`graphics_driver.c:220-245`); `AddDisplayDriverA()` exposes the range array through `DDRV_HWRanges`, whose entries are CPU address ranges (`compiler/include/graphics/driver.h:29,40-48`; `rom/graphics/adddisplaydrivera.c:50-64`). **Affected configuration and trigger:** a boot-mode and incoming driver report valid mapped CPU ranges whose half-open endpoint is exactly `UINTPTR_MAX + 1` (or otherwise overflows `IPTR`) and which overlap. The matched ranges are then treated as disjoint; if no other range pair overlaps, the boot driver is not selected for handover and may remain active while the incoming driver takes ownership. The in-tree Nouveau and EFI framebuffer ranges reviewed so far are not shown to reach this boundary. **Consequence:** a boot display can be left active over hardware the new driver is taking over, potentially leaving the old display path using remapped or reprogrammed resources. Use overflow-safe interval comparisons. **Confidence:** high for the wrap and comparison result; low-medium for practical reachability because no selected in-tree caller supplies such a range. No range comparison, handover or driver registration was run; source-only.
 
+<a id="gd5919"></a>
 ## GD5919
 
 **`MakeVPort()` frees a temporary ViewPortExtra without releasing its allocated viewport data on failure.** When the viewport has no existing graphics node, `MakeVPort()` allocates and associates a temporary `ViewPortExtra`, marks it `VPXF_FREE_ME`, and sets `own_vpe` (`rom/graphics/makevport.c:91-107`). It then allocates `HIDD_ViewPortData` into `vpe->DriverData[0]` (`:109-112`). A later failure can occur when wrapping a planar bitmap fails or `HIDD_Display_MakeViewPort()` returns an error (`:132-166,200-215`). On error, the function calls only `GfxFree(&vpe->n)` for a newly-created node (`:238-243`). `GfxFree()` unlinks and frees the `ViewPortExtra`, but does not free its `DriverData[0]` (`rom/graphics/gfxfree.c:69-111`). The normal cleanup in `FreeVPortCopLists()` does release `HIDD_ViewPortData` and an owned wrapped bitmap (`rom/graphics/freevportcoplists.c:60-92`), but it can no longer find the node after `GfxFree()` removes it from the association table. If a wrapped planar bitmap object was created before `HIDD_Display_MakeViewPort()` fails, the error rollback disposes it only when `vpd->PreviousBitmap` is non-NULL; a newly-created VPD has no previous bitmap, so that owned object is also abandoned (`makevport.c:159-166,218-243`). The selected `OpenScreen()` caller marks the open unsuccessful on a nonzero result but continues publishing the screen and does not call `FreeVPortCopLists()` on this path (`rom/intuition/openscreen.c:2476-2500`), so it does not reclaim these temporary allocations. There is also an in-tree path with a pre-associated VPE: `OpenScreen()` allocates one and attaches it to the ColorMap with `VTAG_VIEWPORTEXTRA_SET` (`rom/intuition/openscreen.c:1485,1542-1545,1590-1594`; `rom/graphics/videocontrol.c:73-75,391-395`). `MakeVPort()` then finds this node, leaves `own_vpe` false, but allocates `HIDD_ViewPortData` before attempting the display setup (`rom/graphics/makevport.c:97-114,218`). If that setup fails, its error branch does not free the VPD (`:237-243`); OpenScreen rollback calls `FreeColorMap()`, which calls `GfxFree()` on the VPE, and `GfxFree()` frees the node without releasing `DriverData[0]` (`rom/graphics/freecolormap.c:63-65`; `rom/graphics/gfxfree.c:69-111`). Thus the VPD leak also occurs on this selected OpenScreen failure path, independently of the temporary-node case. **Affected configuration and trigger:** graphics.library when `MakeVPort()` has allocated a VPD and a later operation fails, whether the VPE is newly created by MakeVPort or already attached by OpenScreen; the wrapped-bitmap leak additionally requires wrapping to have succeeded before the later failure. On the selected AmigaVideo backend, `MakeViewPort()` allocates and stores `amigavideo_vpdata` in `vpd->UserData`, then can return `MVP_NO_MEM` if allocation of the replacement `CopList` fails (`arch/m68k-amiga/hidd/amigavideo/amigavideo_hiddclass.c:1230-1259`). The generic `MakeVPort()` error path does not call `HIDD_Display_DeinitViewPort()`; that cleanup, which frees the AmigaVideo state object, only occurs through `FreeVPortCopLists()` (`rom/graphics/freevportcoplists.c:67-68`; AmigaVideo `DeinitViewPort()` at `:1319-1338`). The selected failed-OpenScreen rollback instead frees the associated VPE through `FreeColorMap()`/`GfxFree()` and never reaches that deinitializer. **Consequence:** `HIDD_ViewPortData` leaks on a later `MakeVPort()` failure; a successfully created owned planar wrapper can also be lost; on AmigaVideo, the allocated `amigavideo_vpdata` leaks when the subsequent copper-list allocation fails. **Confidence:** high for the generic VPD leak, conditional wrapper leak, and AmigaVideo state leak on their stated allocation/error paths. No allocation failure or viewport setup was induced; source-only.
@@ -6062,6 +6079,7 @@ Serialize all display-mode readers and bitmap construction against removal, or p
 
 **`OwnBlitter()` does not serialize shared owner state across CPUs on ExecSMP.** The routine reads and writes `GfxBase->BlitOwner` and inserts its stack-local waiter node into the shared `BlitWaitQ` while using only `Disable()` (`rom/graphics/ownblitter.c:68-81`). Exec documents that `Disable()` masks interrupts only on the calling processor in ExecSMP builds and requires a spinlock to protect data from parallel access (`rom/exec/disable.c:55-60`). Two CPUs can therefore both observe `BlitOwner == NULL`, publish different owners, and return as though each has exclusive access. Queue insertion/removal and `DisownBlitter()`'s empty-check/head-read/signal sequence also lack cross-CPU protection (`rom/graphics/disownblitter.c:72-82`). **Affected configuration and trigger:** an ExecSMP system where tasks on separate CPUs concurrently call `OwnBlitter()` while ownership is free, or manipulate the waiter list concurrently with `DisownBlitter()`. **Consequence:** multiple callers can believe they own the blitter at once, allowing unsynchronized blits; waiter nodes/signals can also be lost or corrupted under concurrent queue changes. Protect the owner and waiter list with an SMP-safe lock while preserving interrupt-context constraints. **Confidence:** high for the missing cross-CPU synchronization and documented `Disable()` semantics; practical impact depends on an ExecSMP target/client using the shared blitter API. Checked-in direct hardware blitter users are m68k-specific, and no parallel API call was run; source-only.
 
+<a id="gd5923"></a>
 ## GD5923
 
 **QBlit/QBSBlit queues have no consumer on selected targets other than AmigaVideo.** Both public vectors append nodes to `GfxBase` queues; on an empty pair they also call `OwnBlitter()` before publishing the first node. The only in-tree code that reads and drains these queues is the AmigaVideo `gfx_blit` interrupt handler (`arch/m68k-amiga/hidd/amigavideo/amigavideo_chipset.c:1171-1228`; repository-wide queue-field census). The queue-start code in each vector is otherwise a comment; a synthetic interrupt is requested only under `(AROS_FLAVOUR & AROS_FLAVOUR_BINCOMPAT) && defined(mc68000)` (`rom/graphics/qblit.c:72-100`; `qbsblit.c:69-97`). The default `amiga-m68k` configure path sets `aros_flavour="standcompat"`, which includes `AROS_FLAVOUR_BINCOMPAT` (`configure.in:2273-2280`; flavour mapping `:4594-4597`); thus its selected AmigaVideo handler receives the first-node kick and the earlier idle-Amiga trigger does not apply. On other selected Graphics.library targets, no queue-draining worker or interrupt handler is present, so queued callbacks have no in-tree service path. The public API documentation promises the callback when the blitter is ready and says blitter operations are simulated when hardware lacks a blitter (`qblit.c:36-58`; `qbsblit.c:35-57`).
@@ -6768,6 +6786,7 @@ GD6036-GD6041 concern the build-selected WBRename program. Its active `#MM-` vir
 
 **Info's scan worker replaces a live Zune text object's render state while the GUI can draw it.** The directory-size worker calls `set(sizespace, MUIA_Text_Contents, ...)` from its child process during progress updates and at scan completion (`workbench/system/Wanderer/Tools/Info/main.c:218-223,267-270`). The selected Zune Text `OM_SET` handler destroys `data->ztext`, sets it to NULL, replaces the contents, and rebuilds the render object (`workbench/libs/muimaster/classes/text.c:141-168`). Its draw method reads `data->ztext->height` and passes `data->ztext` into the renderer without synchronization (`:365-400`). If the GUI draws the object while the worker is in the destroy/NULL/rebuild sequence, draw can dereference a NULL or already-destroyed render object. Update the text object on its owning GUI task or protect setter/draw state with a mechanism both paths honor. **Affected configuration and trigger:** Info directory-size scan while the size text object is set up and a draw overlaps a worker progress/final update. **Consequence:** schedule-dependent invalid access or use-after-free in the GUI task. **Confidence:** high for cross-process mutation and unprotected destroy/use sequence; no overlap was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd6053"></a>
 ## GD6053
 
 **DiskInfo truncates block counts and can overflow its used-space percentage calculation.** Both initial display and media-refresh paths pass `InfoData.id_NumBlocks` and `id_NumBlocksUsed` to `FormatBlocksSized()`, whose parameters are `ULONG` (`workbench/system/Wanderer/Tools/DiskInfo/diskinfo.c:274-276,637-638`; `support.h:15`). `ULONG` is explicitly 32-bit in this ABI (`compiler/include/exec/types.h:39-43`), while `InfoData64` stores both counts as `UQUAD` when `__DOS64` selects that layout (`compiler/include/dos/dos.h:176-187,202-205`). On that configuration, counts above `ULONG_MAX` are truncated before byte-size formatting and percentage calculation. Independently, the helper computes `100 * blocks / totalblocks` in 32-bit unsigned arithmetic (`DiskInfo/support.c:65-75`); for example, a fully used 50,000,000-block volume computes 14% after multiplication wraps, instead of 100%. Use widened inputs and perform the multiply/divide in a sufficiently wide type. **Affected configurations and triggers:** all builds with a used-block count above 42,949,672 can miscompute the percentage; `__DOS64` builds can also truncate counts above `ULONG_MAX` in size labels and percentages. **Consequence:** incorrect used/free percentages and, on DOS64, incorrect displayed block-derived sizes for large volumes. **Confidence:** high for the 32-bit types and arithmetic; actual filesystem block counts were not queried. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
@@ -6824,10 +6843,12 @@ GD6036-GD6041 concern the build-selected WBRename program. Its active `#MM-` vir
 
 **ExecuteCommand can start its child shell with an incomplete Workbench search path.** The caller requests a duplicated Workbench path and passes the returned value directly as `NP_Path` without checking the helper result (`workbench/system/Wanderer/Tools/ExecuteCommand/executecommand.c:287-311`). The selected Workbench helper returns the prefix built so far if allocating a path node fails, and it links a node even when `DupLock()` returns `BNULL` (`workbench/libs/workbench/support.c:125-152`). Because `NP_Path` is explicitly supplied, DOS installs that list in the child CLI instead of copying the parent path (`rom/dos/createnewproc.c:324-330`); a NULL list therefore means no inherited search path. Shell resolves bare command names by walking `cli_CommandDir` (`workbench/c/Shell/Shell.c:394-425`). A low-memory path-copy failure or path-lock failure can consequently make valid Workbench-path commands unavailable; a NULL-lock node can leave the child searching from its current directory for that entry. Check duplication completeness and lock results before launching, and fall back to a known valid path or report failure. **Affected configuration and trigger:** ExecuteCommand with a nonempty Workbench search path when path-node allocation or one of the `DupLock()` calls fails. **Consequence:** command lookup can fail or inspect a different directory sequence than Workbench configured. **Confidence:** high for partial-list construction and explicit child-path use; no allocation failure or command launch was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd6068"></a>
 ## GD6068
 
 **ExecuteStartup leaks every successfully loaded DiskObject that is not a tool or project.** `checkIcon()` calls `GetDiskObject(name)` and returns `FALSE` on the non-`WBTOOL`/non-`WBPROJECT` branch without calling `FreeDiskObject()` (`workbench/system/Wanderer/Tools/ExecuteStartup/main.c:85-117`). The caller enumerates every `SYS:WBStartup/*.info` entry and calls `checkIcon()` for each derived icon name (`:127-138`), so drawers, disks, and other icon types that load successfully leak their DiskObject allocations on each startup scan. Free the object before returning false from this branch. **Affected configuration and trigger:** ExecuteStartup with one or more readable WBStartup icons whose DiskObject type is neither WBTOOL nor WBPROJECT. **Consequence:** per-entry icon memory remains allocated after the scan; repeated ExecuteStartup runs accumulate these allocations. **Confidence:** high for load, branch, and missing free; no startup scan was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd6069"></a>
 ## GD6069
 
 **ExecuteStartup exits its WBStartup scan without MatchEnd cleanup on allocation, iteration, and Ctrl-C exits.** After a successful `MatchFirst()`, the scan can jump to `exit` when either InfoNode allocation fails (`workbench/system/Wanderer/Tools/ExecuteStartup/main.c:127-155`), `MatchNext()` returns an error other than `ERROR_NO_MORE_ENTRIES` (`:163-172`), or Ctrl-C is detected inside the scan loop (`:132-136`). The Ctrl-C break occurs before the loop's `MatchNext()` assignment, leaving `error` at zero; the subsequent `error != ERROR_NO_MORE_ENTRIES` branch then jumps to `exit` as well. All three paths bypass the sole `MatchEnd(ap)` call, reached only after normal end-of-directory (`:173-175`). The selected DOS `MatchEnd()` contract releases the AChain allocations and locks retained by `MatchFirst()` (`rom/dos/matchend.c:23-29,48-86`). Call it on all exits after a successful initial match. **Affected configuration and trigger:** ExecuteStartup scans WBStartup entries and then encounters InfoNode/name allocation failure, a DOS `MatchNext()` error, or Ctrl-C during enumeration. **Consequence:** match-chain memory and directory locks remain held for the process lifetime; the current invocation then returns without releasing them. **Confidence:** high for the successful-match exits and missing cleanup; no allocation, signal, or scan error was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
@@ -6976,6 +6997,7 @@ GD6078. **SysMon leaks its prebuilt UI tree and initialized resources when MUI a
 
 **CPUInfo's verbose x86 probe executes CPUID without checking that the processor supports it.** The command invokes `parse_i386()` only in verbose mode and for records whose family is `CPU_Family_i386` (`workbench/c/CPUInfo/main.c:137-145`). `parse_i386()` explicitly leaves a TODO to check CPUID availability, then immediately executes leaf 0 twice (`workbench/c/CPUInfo/x86.c:207-216`). **Affected configuration and trigger:** the explicitly buildable CPUInfo target on a 386-compatible x86 processor without CPUID when invoked with its verbose option. **Consequence:** the probe can raise an invalid-opcode exception instead of printing CPU information. Check the recorded CPU capability or safely detect CPUID before executing it. **Confidence:** high for the missing guard and direct instruction path; no legacy CPU was queried.
 
+<a id="gd6101"></a>
 ## GD6101
 
 **CPUInfo sends GenuineIntel and GenuineTMx86 results into the Cyrix parser.** In `parse_i386()`, the `ebx == 0x756e6547` case dispatches Intel or Transmeta parsing in an inner switch, but has no outer `break` before the following Cyrix case (`workbench/c/CPUInfo/x86.c:248-261`). Both recognized vendors therefore run their own parser and then `parse_i386_Cyrix()` as well. **Affected configuration and trigger:** CPUInfo verbose parsing of an x86 processor whose CPUID vendor begins with the `Genu` EBX value, including GenuineIntel and GenuineTMx86. **Consequence:** the report includes an unrelated Cyrix-specific parse after the correct vendor parser, producing misleading/extra CPU identity, feature, and cache output and issuing Cyrix parser queries on that CPU. Add an outer `break` after the inner dispatch. **Confidence:** high for switch fallthrough and both calls; no CPU probe was run.
@@ -7675,6 +7697,7 @@ This entry duplicates GD4772; the source finding and full-body caller evidence a
 
 **Consequence and scope:** Because `ULONG` is 32-bit, elapsed microseconds wrap after about 4,295 seconds (71 minutes 35 seconds). Continuous cursor position then jumps backward, and pause/resume after that interval loses the elapsed time. For finite-cycle playback, the cursor's cycle-limit calculation is affected only when the configured total duration exceeds this range; shorter playback reaches its limit before wrap. Applies when timer-device cursor tracking is available. High confidence in the narrowing and arithmetic; no long playback was run.
 
+<a id="gd6198"></a>
 ## GD6198
 
 **Indexed summary:** GD6198 — Sound datatype DTM_COPY dereferences a NULL IFF handle after allocation failure.
@@ -7857,6 +7880,7 @@ This entry duplicates GD4772; the source finding and full-body caller evidence a
 
 **Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L2020`](AROS-graphics-desktop-coverage.md#L2020), [`AROS-graphics-desktop-coverage.md:L2026`](AROS-graphics-desktop-coverage.md#L2026), [`AROS-graphics-desktop-coverage.md:L2028`](AROS-graphics-desktop-coverage.md#L2028), [`AROS-graphics-desktop-coverage.md:L2666`](AROS-graphics-desktop-coverage.md#L2666). Recheck the cited note and its scope before treating this candidate as confirmed.
 
+<a id="gd6223"></a>
 ## GD6223
 
 **Finding:** Appearance Preferences renders planar-screen previews into a one-plane bitmap.
@@ -7899,6 +7923,7 @@ This entry duplicates GD4772; the source finding and full-body caller evidence a
 
 **Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L2034`](AROS-graphics-desktop-coverage.md#L2034). Recheck the cited note and its scope before treating this candidate as confirmed.
 
+<a id="gd6229"></a>
 ## GD6229
 
 **Indexed summary:** `SetRPAttrsA()` changes `RPF_NO_PENS` for non-RTG RastPorts even though the `RPTAG_PenMode` contract says the tag has no effect on non-RTG displays.
@@ -8765,6 +8790,7 @@ The callback is registered when the HIDD object is created and removed on its di
 
 **Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L2400`](AROS-graphics-desktop-coverage.md#L2400), [`AROS-graphics-desktop-coverage.md:L2404`](AROS-graphics-desktop-coverage.md#L2404), [`AROS-graphics-desktop-coverage.md:L2571`](AROS-graphics-desktop-coverage.md#L2571). Recheck the cited note and its scope before treating this candidate as confirmed.
 
+<a id="gd6336"></a>
 ## GD6336
 
 **The selected m68k Workbench VMM target omits the assembly objects that define its trap-entry symbols.** The m68k branch of `workbench/system/VMM/mmakefile.src` adds only `m68k/traphandler_m68k` to `FILES`, and `%build_module` passes that list as `files` without an `asmfiles` argument (`mmakefile.src:25-37`). The generic module rule defaults `asmfiles` to empty and creates objects only from the supplied C and assembly lists (`config/make.tmpl:2809-2822,1561-1569`). The selected C wrapper assigns `TrapHandler30`, `TrapHandler40`, or `TrapHandler60` to the vector table (`m68k/traphandler_m68k.c:14-22`); `pagehandler.c` calls this wrapper during handler startup (`:170`). The only checked-in definitions are exported by `m68k/traphandler30.asm`, `traphandler40.asm`, and `traphandler60.asm`; none is selected as a module source or object by this manifest.
@@ -9077,6 +9103,7 @@ The generic bitmap class computes chunky stride as aligned width multiplied by b
 
 **Affected configuration:** Intuition builds with the decorator support in `rom/intuition/decoration.c`; the path requires asynchronous action queuing (caller is not the input-device task) and overlapping decorator lookup/use. **Confidence:** High for the missing lock and absent reference-count recheck; impact is conditional on overlap. No screen open/close, decorator message, or task interleaving was run. See [`AROS-graphics-desktop-coverage.md:L3039`](AROS-graphics-desktop-coverage.md#L3039).
 
+<a id="gd9414"></a>
 ## GD9414
 
 **Finding:** Low-memory failures silently abandon decorator unload.
@@ -9434,6 +9461,7 @@ The maintained BetterString subclass has its own `MUIA_String_DisplayPos` setter
 
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#L2994), [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#L3084), full-body and direct-trigger recheck.
 
+<a id="gd9463"></a>
 ## GD9463
 
 **Indexed summary:** MUI Application cleanup dereferences preferences when Configdata construction fails.
@@ -9618,6 +9646,7 @@ Zune's `PopPublicScreenStrObjFunc()` also reads these allocated descriptors into
 
 **Consequence and scope:** The indexed `MapColor()` search compares these distances to choose the closest palette entry (`gfx_bitmapclass.c:4662-4704`). On 32-bit-`int` targets, accepted full-range color inputs invoke signed-overflow undefined behavior; on targets with wider `int`, the summed value can still narrow modulo 32-bit `ULONG`. The selected palette pen may therefore be wrong, with exact result dependent on integer width and compiler behavior. Applies to subclasses inheriting the generic `MapColor()` implementation, including the selected generic ChunkyBM and PlanarBM classes. High confidence in the arithmetic and caller range; no color mapping was run.
 
+<a id="gd9493"></a>
 ## GD9493
 
 **Indexed summary:** Generic HIDD line rasterization cannot represent the distance between valid signed-`WORD` endpoints.
@@ -10195,6 +10224,7 @@ The selected `change_active_page()` helper calls `MUI_Redraw(obj, MADF_DRAWUPDAT
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md), BumpRevision full-body bounds pass dated 2026-10-24.
 
 
+<a id="gd9562"></a>
 ## GD9562
 
 **`BumpRevision()` copies long names through a fixed 50-byte temporary buffer before truncating its output.** The `copy_` and fallback branches copy `oldname` at `tempstr + 8` using `strcpy()` (`workbench/libs/icon/bumprevision.c:55-60,100-105`). Since `tempstr` has 50 bytes, a name of 42 or more bytes writes past it before the result is copied into the documented 31-byte output.
@@ -10457,6 +10487,7 @@ GD9613. **ScrollRaster and ScrollRasterBF expand negative screen-raster upper bo
 GD9614. **Raster scrolling clears part of the bitmap after an overlapping-copy allocation failure (conditional; high source confidence).** In the no-Layer path, `MoveRaster()` calls `BltBitMap()` for the overlapping source/destination rectangle and ignores its return value (`rom/graphics/gfxfuncsupport.c:838-853`). The Layer path also ignores each blit result: after intersecting source and destination clip rectangles, it calls `BltBitMap()` without checking the result (`gfxfuncsupport.c:951-1019`). With an ordinary visible clip rectangle whose source and destination both use `rp->BitMap`, an overlapping scroll produces the same overlap case in the generic blitter. The generic software `BltBitMap()` implementation allocates a temporary scanline buffer for overlapping copies and returns zero immediately if `AllocMem()` fails (`rom/graphics/bltbitmap.c:299-310`). `MoveRaster()` nevertheless returns `TRUE` (`gfxfuncsupport.c:1031`), so `ScrollRaster()` proceeds to fill the vacated strip with the background pen (`rom/graphics/scrollraster.c:127-140,142-170`), and `ScrollRasterBF()` proceeds to erase it (`rom/graphics/scrollrasterbf.c:124-130,132-165`). For a horizontal overlapping scroll with a nonzero exposed strip, allocation failure therefore leaves the old image in place but overwrites its edge; a vertical or diagonal scroll can similarly erase/fill exposed rows or columns without moving the retained image. **Affected configuration and trigger:** builds selecting the generic software `BltBitMap()` path for a RastPort with or without a Layer, when its overlapping source/destination copy needs a temporary scanline buffer and that `AllocMem()` fails. The Layer case requires a visible clip rectangle whose copy uses the same bitmap for source and destination. HIDD-specific blit implementations may have different failure behavior; no claim is made for them. **Consequence:** partial scroll state and loss of pixels in the strip that should have been vacated by a successful move. Propagate copy failure from `MoveRaster()` before reporting success so callers do not clear the strip. **Confidence:** high for both ignored-result paths and the generic allocation failure; Layer-path reachability follows the selected same-bitmap visible clip rectangle case. No allocation failure or scroll was induced. Source-only.
 
 
+<a id="gd9615"></a>
 ## GD9615
 
 GD9615. **BltBitMap does not clip negative destination coordinates before indexing the destination plane (conditional out-of-bounds access; high source confidence).** The generic software path clips a negative source by advancing the destination, but has no corresponding adjustment when `xDest` or `yDest` is negative (`rom/graphics/bltbitmap.c:244-264`). It checks only the destination's far edge (`:270-272`), so a request such as `xSrc=0, xDest=-1, xSize=2` passes the size checks. The pixel loop adds the signed `xDest` to unsigned `x` and passes the result to `copyonepixel()` (`:314-318`); for the first pixel, `xDest` converts to a very large `ULONG`, and `copyonepixel()` uses it as a byte offset into the destination plane (`:341-363`). A negative `yDest` likewise reaches destination row-address calculation (`:291-294`) and can address outside the plane. The HIDD branch also omits low-edge clipping before dispatch (`:142-162`). The selected generic GFX HIDD `CopyBox` method (`rom/hidds/gfx/mmakefile.src:8-25`; `gfx_hiddclass.c:1252-1308`) reaches `copybox_impl()`, whose contract says it performs no coordinate checks (`:930-977`). For same-format chunky bitmaps in copy mode, that implementation calls `HIDD_BM_CopyMemBox8()` (`:1031-1074`); the helper computes `dst_start = msg->dst + msg->dstY * msg->dstMod + msg->dstX` and copies through it without clipping (`rom/hidds/gfx/gfx_bitmapmemblit.c:215-291`). A negative destination origin therefore also reaches a write before the chunky bitmap buffer on this generic HIDD path. P96's selected m68k `CopyBox` override has the same behavior on its CPU transfer path: when either bitmap is outside VRAM and the draw mode is Copy, it calls the inherited `HIDD_BM_CopyMemBox8/16/24/32()` helper with `msg->destX/Y` unchanged (`arch/m68k-amiga/hidd/p96gfx/p96gfx_hiddclass.c:994-1048`; selected method in `p96gfx.conf:29-30`). That helper derives its destination address from the raw pointer and coordinates without clipping, so the P96 RAM-transfer branch can also write outside the destination bitmap allocation. The build-selected VGAGfx override on i386-PC and x86-64-PC likewise sends `msg->destX/Y` directly to `HIDD_BM_CopyMemBox8()` for Copy mode (`arch/all-native/hidd/vgagfx/vgagfx_hiddclass.c:156-234`; active package HIDD lists in `arch/i386-pc/boot/mmakefile.src:74-75` and `arch/x86_64-pc/boot/mmakefile.src:65-68`). The helper derives its destination pointer from the raw bitmap buffer and coordinates without clipping, so this selected VGA backend has the same conditional out-of-bounds write. VMwareSVGA's Copy-mode path similarly calls inherited `HIDD_BM_CopyMemBox16/24/32()` helpers with unmodified destination coordinates (`workbench/hidds/vmwaresvga/vmwaresvga_hiddclass.c:371-430`); those helpers form the destination address from the raw buffer and coordinates, so the explicitly buildable VMwareSVGA target has the same conditional CPU-copy issue for 16/24/32-bit bitmap pairs. Its parent aggregate edge is commented out (`workbench/hidds/vmwaresvga/mmakefile.src:49-53`), so this is not claimed as a default-image trigger. AmigaVideo's selected m68k override also has no low-edge clipping: `BltBitMap()` forwards negative destination coordinates through `int_bltbitmap()` (`rom/graphics/bltbitmap.c:142-225`), `AmigaVideoCl__Hidd_Gfx__CopyBox()` passes them unchanged to `blit_copybox()` (`arch/m68k-amiga/hidd/amigavideo/amigavideo_hiddclass.c:900-929`), and that routine computes `dstoffset = BytesPerRow * dsty + (dstx / 16) * 2` without rejecting negative origins (`amigavideo_blitter.c:110-159`). For a negative `dsty`, or a `dstx` at or left of the preceding 16-pixel word (for example `dstx=-16` with a positive width that still intersects the bitmap), the resulting plane address is before the bitmap's plane base and is submitted as both blitter C and D pointers (`:205-237`). The fallback superclass is not called because `blit_copybox()` returns TRUE after programming the blitter. Thus the hardware-blitter route also receives an out-of-range destination address. In P96's both-in-VRAM branch, the HIDD passes destination coordinates unchanged to `BlitRectNoMaskComplete()` (`p96gfx_hiddclass.c:1073-1086`), whose implementation invokes a board-supplied function pointer (`p96gfx_card.c:320-327`); no local clip is applied, but the callback's clipping behavior is external to this source tree, so this branch remains unresolved. The NVIDIA override packs destination coordinates directly into the GPU blit command after setting surface offsets and pitches (`workbench/hidds/nvidia/nvidiaclass.c:461-544`), without local clipping; the chip-command clipping behavior is not established by the local implementation, so this branch remains unresolved. Nouveau has a separate, explicitly buildable `Hidd_Gfx::CopyBox` override (`workbench/hidds/nouveau/nouveau_hiddclass.c:783-840`; its parent aggregate is commented out at `workbench/hidds/nouveau/mmakefile.src:18-29`). NV04, NV50, and pre-Blackwell NVC0 helpers submit signed source/destination coordinates without local low-edge clipping (`nv04_exa.c:483-500,223-246`; `nv50_exa.c:1072-1088,286-312`; `nvc0_exa.c:1313-1340,288-315`). The Blackwell branch explicitly clips both rectangles to bitmap bounds (`nvc0_exa.c:1328-1352`). The earlier GPU generations' device-side clipping behavior is not established by this source, so their CopyBox outcome remains unresolved and is not counted as an additional out-of-bounds finding. The X11 and WinGDI overrides similarly forward the rectangle directly to `XCopyArea()` and `BitBlt()` (`arch/all-hosted/hidd/x11/x11gfx_hiddclass.c:197-224`; `arch/all-mingw32/hidd/wingdi/wingdi_hiddclass.c:603-634`), while SDL constructs source/destination rectangles and calls `SDL_BlitSurface()` (`arch/all-hosted/hidd/sdl/sdlgfx_hiddclass.c:439-477`). These local methods do not establish their host APIs' negative-destination clipping behavior; those branches remain unresolved. UIKit's override is an empty TODO, and the iOS README says no UIKit display driver is currently provided; it is not counted as a functioning selected graphics backend (`arch/all-ios/hidd/uikit/uikit_hiddclass.c:281-284`; `arch/all-ios/README.txt:9`). The implementation inventory was searched repository-wide; these are the identified `CopyBox` overrides. **Affected configuration and trigger:** callers selecting the generic software bitmap path, the generic GFX HIDD same-format chunky `CopyBox` path, the selected m68k P96 CPU-transfer branch, the selected i386-PC or x86-64-PC VGAGfx branch, the explicitly buildable VMwareSVGA CPU-copy branch, or the selected m68k AmigaVideo hardware-blitter branch, and requesting a blit whose destination begins above or sufficiently far left of the destination bitmap, with a rectangle that still intersects it. Besides direct public `BltBitMap()` calls, maintained internal routes exist through unlayered-screen `ScrollRaster()`/`ScrollRasterBF()` (`rom/graphics/scrollraster.c:97-109,127-128`; `scrollrasterbf.c:95-108,124-125`; `gfxfuncsupport.c:838-852`) and superbitmapped-layer scrolling. `ScrollLayer()` subtracts an unclamped delta from stored offsets, and `SyncSBitMap()` passes `ClipRect - layer bounds - scroll offset` as the destination origin (`rom/hyperlayers/scrolllayer.c:76-79`; `rom/graphics/syncsbitmap.c:64-74`). The optional, explicitly buildable `test-layers` program exposes this route interactively: its `scrolllayer` command reads arbitrary `dx/dy` values and forwards them without range checks (`developer/debug/test/layers/layerstest.c:354-375,1185-1200`); its startup creates a 91x91 superbitmap layer (`:908-921`). For layer 0, scrolling by `dx=-92` advances the stored X offset past the backing origin; the next nonzero scroll calls `SyncSBitMap()` with a negative destination coordinate. Thus this path has a checked-in user-driven trigger in the optional test utility, in addition to the public API and unlayered-scroll routes. **Consequence:** destination-plane or chunky-buffer access can reach before the intended row or bitmap allocation. Clip the destination origin and reduce the source origin and extent before entering either backend. **Confidence:** high for the generic software path and optional `test-layers` trigger, generic GFX HIDD chunky fast path, P96 CPU-transfer path, selected VGAGfx CPU-copy path, VMwareSVGA CPU-copy path, and AmigaVideo plane-offset submission; P96's both-in-VRAM branch and NVIDIA GPU-command branch remain unresolved because their clipping behavior is outside the local implementation. No blit was run. Source-only.
@@ -10470,6 +10501,7 @@ GD9616. **HIDD AllocBitMap crashes for the documented header-only `BMATags_NoMem
 
 GD9617. **HIDD `BltBitMap()` reports eight planes regardless of the bitmap depths and mask (public result-contract mismatch; high source confidence).** The HIDD path computes the minimum source/destination depth (`rom/graphics/bltbitmap.c:137-140`) and rejects an empty request, then dispatches the blit at `:207-216`; after that it unconditionally assigns `planecnt = 8` (`:226-227`). The function documentation says the result is the number of planes actually involved, and the generic software path counts only destination planes with storage that pass the mask (`:280-289`). Thus a successful HIDD blit on a one-plane bitmap with `mask=1` returns 8 rather than 1; the same mismatch occurs when a mask selects fewer planes than eight. The HIDD branch also returns 8 if its cached GC or bitmap-object acquisition fails and no blit is dispatched (`:196-224`). **Affected configuration and trigger:** graphics.library calls selecting the HIDD path when source or destination is a HIDD bitmap, and a caller observes the return value for a bitmap/mask that involves fewer than eight planes or when HIDD dispatch prerequisites are unavailable. **Consequence:** callers cannot use the return value to determine the number of planes involved and may treat an incomplete or skipped HIDD operation as an eight-plane blit. The reviewed maintained direct `BltBitMap()` call sites discard the return value; no in-tree consequence was established. Return the actual involved-plane count and report failure/no-op consistently with the public result contract. **Confidence:** high that this implementation returns the constant 8 outside the generic path; exact HIDD plane-count semantics for nonplanar display formats and backend failure policy remain open. No blit or HIDD failure was induced; source-only.
 
+<a id="gd9618"></a>
 ## GD9618
 
 GD9618. **`BestModeIDA()` ignores the public `BIDTAG_GreenBits` minimum.** The API documentation names `BIDTAG_GreenBits` alongside `BIDTAG_RedBits` and `BIDTAG_BlueBits` (`rom/graphics/bestmodeida.c:196-200`), and the mode filter compares `disp.GreenBits` against `args->greenbits` (`:111-116`). However, the tag parser handles RedBits and BlueBits but has no GreenBits case (`:257-294`), leaving `args.greenbits` at its default value of four (`:232-243`) for every call. A requested minimum above four can therefore be under-enforced, allowing a mode with too few green bits; a requested minimum below four can be over-enforced, rejecting modes that satisfy the caller's lower requirement. **Affected configuration and trigger:** callers of the generic graphics.library `BestModeIDA()` vector that supply a `BIDTAG_GreenBits` value other than four; the checked-in `BestCModeIDTagList()` wrapper does not expose or set this tag, and repository search found no maintained direct GreenBits-tag caller, so current in-tree impact is unestablished. **Consequence:** the returned mode may violate the requested minimum or the function may reject an otherwise suitable mode. Parse `BIDTAG_GreenBits` into `args.greenbits` like the red and blue tags. **Confidence:** high for the ignored-tag path; no mode list was queried. Source-only.
@@ -10747,12 +10779,14 @@ Check the pixel-array method result and leave the image invalid or fail loading 
 
 **Affected configuration and trigger:** selected installer file counting (`ia_stageclass.c:1204-1205`) or recursive copy (`:1231-1233`) when DOS cannot allocate the `ExAllControl`. **Consequence:** the installer task faults; the held directory lock and buffer are not released on that path. **Confidence:** high for unchecked result and immediate dereference; no allocation failure was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9674"></a>
 ## GD9674
 
 **InstallAROS skip-list construction dereferences unchecked allocations.** `AddSkipListEntry()` writes `entry->ln_Name` immediately after allocating the node, then copies through the name pointer without checking either `AllocVec()` result (`workbench/tools/InstallAROS/ia_diskio.c:588-593`). The selected core-install path calls it twice to exclude environment archive files (`ia_stageclass.c:1483-1489`). Either allocation failing therefore faults while preparing the skip list, before normal copy cleanup.
 
 **Affected configuration and trigger:** selected core-file installation when either skip-list allocation fails. **Consequence:** the installer task faults instead of reporting an allocation error. **Confidence:** high for the null dereferences and selected calls; no allocation failure was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9675"></a>
 ## GD9675
 
 **InstallAROS directory creation copies through an unchecked path allocation.** `RecursiveCreateDir()` allocates `tmpdirpath` and immediately copies `dirpath` into it without checking the allocation (`workbench/tools/InstallAROS/ia_diskio.c:688-700`). The selected copy path calls this helper when a destination directory does not yet exist (`ia_diskio.c:470-476`), and other install-stage paths use it for required destination directories. Allocation failure therefore writes through NULL instead of returning `BNULL` to the caller.
@@ -11299,6 +11333,7 @@ Read all of `workbench/classes/zune/nlist/nlist_mcc/NList_mcc6.c` (1,535 C code 
 
 **Review state:** Compared the complete NListtree manual's CopyToClip contract and public sentinel against the method and its menu caller. No direct-sentinel operation was run.
 
+<a id="gd9747"></a>
 ## GD9747
 
 **Indexed summary:** NListtree Move and Exchange can reinsert a node into its own descendant list and create a cyclic tree.
@@ -11846,6 +11881,7 @@ A checked-in caller requests exactly this combination: PPP ModemManager creates 
 **Affected configuration and trigger:** the selected m68k-Amiga build includes the generic `gfx` HIDD in both ROM and the other-memory module list (`arch/m68k-amiga/boot/mmakefile.src:158,375`), and its `gfx` module selects the generic HIDD bitmap and memory-blit bodies (`rom/hidds/gfx/mmakefile.src:8-25`). The bug is reachable through `BltBitMap()` when same-format 8-bit chunky HIDD bitmaps are used and source and destination start addresses have different modulo-four alignment. Either a one-pixel rightward overlapping shift of a four-pixel region in one longword-aligned bitmap or a non-overlapping copy from `srcX=0` to `destX=1` between separate longword-aligned bitmap buffers is sufficient. No particular in-tree screen mode or workload is asserted. **Consequence:** the bulk transfer performs an odd-address 32-bit access and can raise an address error on 68k instead of completing the bitmap copy. Align both pointers before the longword loop or use byte accesses when their alignments differ. **Confidence:** high for the pointer arithmetic, generic dispatch, both copy-direction cases and explicit 68k trap note; the operation was not run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
 
+<a id="gd9833"></a>
 ## GD9833
 
 **Generic chunky bitmap template drawing reads one word past an exact-width raster row.** `BM__Hidd_BitMap__PutMemTemplate8/16/24/32()` advances the bit mask after every processed pixel and unconditionally loads the next `UWORD` when the current word is exhausted (`rom/hidds/gfx/gfx_bitmapmemblit.c:819-963,964-1109,1110-1317,1318-1463`). For a valid 16-pixel row with `srcx=0`, the sixteenth iteration advances `array` and reads its next word even though no subsequent pixel needs it. The generic ChunkyBM `PutTemplate` method dispatches all four pixel widths to these helpers (`rom/hidds/gfx/gfx_chunkybitmapclass.c:756-817`). `BltTemplate()` forwards its caller template and row modulo to that HIDD method (`rom/graphics/blttemplate.c:20-35,87-106`); the public contract defines `srcMod` as bytes per row and `AllocRaster()` allocates exactly `RASSIZE(width,height)` bytes (`rom/graphics/blttemplate.c:43-58`; `rom/graphics/allocraster.c:48-53`). Thus a one-row 16-pixel raster needs only two bytes, while the generic chunky helper reads two bytes beyond that payload. The hosted SDL bitmap class also dispatches each 1/2/3/4-byte `PutTemplate()` case to these same shared helpers (`arch/all-hosted/hidd/sdl/sdlgfx_bitmapclass.c:743-758`), so the overread applies to SDL-backed bitmaps as well. `Text()` is another selected caller: it constructs a width-16 mask for a two-character fast-font run, allocates `RASSIZE` bytes when no sufficiently large `TmpRas` is available, and calls `BltTemplate()` with the exact raster width and height (`rom/graphics/text.c:137-154,381-388`); the final row reaches the same extra-word read.
@@ -12128,6 +12164,7 @@ The same uninitialized state reaches additional list-dependent selectors in `_NL
 **IPrefs selects the wrong legacy pointer image on little-endian systems when `WhichInFile` is nonzero.** The Pointer preferences editor serializes `npp_WhichInFile` as big-endian and converts it back to host order on import (`workbench/prefs/pointer/prefs.c:98-104,180-184`). IPrefs reads the NPTR chunk but passes `npp->npp_WhichInFile` directly to `LoadPointerFile()` without `AROS_BE2LONG()` (`workbench/c/iprefs/pointerprefs.c:162-170`). If the selected image file is not opened by the picture datatype, `LoadPointerFile()` falls back to the legacy IFF parser and forwards that ULONG as the WORD `which` argument to `LoadPointerPrefs()` (`pointerprefs.c:94-116,135-158`). The legacy filter then compares `which` with the raw, big-endian `pp->pp_Which` field rather than converting it (`:157-159`). On a little-endian target, a serialized `WhichInFile` value of 1 is read as `0x01000000`, narrowed to WORD zero, while a legacy `pp_Which` of 1 is read as `0x0100`; the requested image is skipped, and a file containing multiple PNTR chunks can instead install its index-zero image. The Preferences editor supports two pointer slots (`workbench/prefs/pointer/prefs.h:14`), so index 1 is a valid nonzero choice. Convert and range-check `WhichInFile` before narrowing, and compare host-order pointer IDs. **Affected configuration and trigger:** little-endian builds selecting `workbench-c-iprefs`, when an NPTR preference requests legacy PNTR image 1 from a file that falls back from `NewDTObject()` to `LoadPointerPrefs()`; normal pointer index 0 is unaffected. The target is explicitly buildable through `workbench/c/iprefs/mmakefile.src:27-32`. **Consequence:** the requested busy-pointer image may be omitted or replaced by the file's normal-pointer image. **Confidence:** high for the endian serialization, missing conversion, narrowing, and legacy filter comparison; manifestation requires a nonzero `WhichInFile` and datatype fallback. No preference file was loaded; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
 
+<a id="gd9875"></a>
 ## GD9875
 
 **Concurrent `ChangeVPBitMap()` and `LoadView()` can use a disposed viewport bitmap wrapper.** `ChangeVPBitMap()` publishes `vp->RasInfo->BitMap` and calls `MakeVPort()` before obtaining `ActiViewCprSemaphore` (`rom/graphics/changevpbitmap.c:63-70`). `LoadView()` holds that semaphore while it calls `display_LoadViewPorts()` (`rom/graphics/loadview.c:53-64`), which passes the shared viewport data to `HIDD_Display_ShowViewPorts()` or the fallback `HIDD_Display_Show()` path (`rom/graphics/graphics_display.c:511-568`). In `MakeVPort()`, ordinary planar-to-planar swaps update the backing bitmap through `HIDD_PlanarBM_SetBitMap()` and do not dispose the wrapper. Disposal occurs on a narrower representation-change path: when the new bitmap is a HIDD bitmap, `PreviousBitmap` is already non-NULL, and the current `vpd->Bitmap` is an owned planar wrapper, `MakeVPort()` disposes that wrapper before publishing the HIDD bitmap (`rom/graphics/makevport.c:119-169`). This state can follow a planar bitmap being wrapped, a first HIDD-bitmap swap establishing `PreviousBitmap`, and a return to a planar bitmap that creates a new owned wrapper. The public `ChangeVPBitMap()` contract requires matching depth, alignment and BytesPerRow but does not prohibit that planar/HIDD representation sequence; `AllocScreenBuffer()` also accepts caller-supplied bitmaps without checking their representation (`rom/graphics/changevpbitmap.c:32-38`; `rom/intuition/allocscreenbuffer.c:88-92,140-159`). If `LoadView()` has already read the wrapper while the unsynchronized swap disposes it, the selected P96 `ShowViewPorts()` path passes that object to `P96GFXDisplay__DoShow()` (`arch/m68k-amiga/hidd/p96gfx/p96gfx_hiddclass.c:934-947`), which calls `OOP_SetAttrs()` on it (`:862-878`). AmigaVideo also forwards the shared viewport chain to its compositor (`arch/m68k-amiga/hidd/amigavideo/amigavideo_hiddclass.c:1500-1527`). The m68k Amiga boot HIDD selection includes P96 (`arch/m68k-amiga/boot/mmakefile.src:187,375`). Serialize the bitmap publication, `MakeVPort()` update, and display reload under the same view semaphore, while preserving the required ordering with VBlank buffer replies.
@@ -12485,6 +12522,7 @@ During display-driver handover, `driver_ExpungeBootDisplay()` refuses removal on
 **Affected configuration and trigger:** the explicitly selected `developer/debug/test/graphics/copper` program (`developer/debug/test/graphics/mmakefile.src`) when its copper instruction-buffer allocation fails after the `UCopList` and `CopList` allocations succeed. **Consequence:** the test dereferences a NULL `CopPtr` instead of reporting initialization failure and releasing the partial list. Check the initializer result and free the partial `CopList`/header before abandoning setup; the library initializer should also leave a safely recoverable state on failure. **Confidence:** high for the allocation sequence, ignored return, and NULL dereference; no allocation failure or test program was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
 
+<a id="gd9954"></a>
 ## GD9954
 
 **NList `MUIM_NList_ReplaceSingle` deletes the existing row when replacement construction fails.** `NL_List_Replace()` first asks the configured construct method to duplicate the replacement, and if it returns `NULL`, calls `NL_List_Remove(data, ent)` on the existing row while returning the removal result (`workbench/classes/zune/nlist/nlist_mcc/NList_func2.c:961-1008`). The method is dispatched directly to this function (`workbench/classes/zune/nlist/nlist_mcc/NList_mcc0.c:658-661`). The built-in string construct hook can return `NULL` when its `AllocVecPooled()` call fails (`workbench/classes/zune/nlist/nlist_mcc/NList_mcc.c:129-147`), and user construct hooks can likewise reject or fail to allocate. Thus a failed replacement request can mutate the list by removing the old value and still return success: `NL_List_Remove()` returns `TRUE` after a successful deletion (`workbench/classes/zune/nlist/nlist_mcc/NList_func2.c:1095-1108,1271-1273`). Construct the new entry before changing the list and leave the existing row intact when construction fails. **Affected configuration and trigger:** the explicitly buildable Zune `classes-zune-nlist-class` target when `MUIM_NList_ReplaceSingle` is called with a non-NULL replacement and its construct hook returns NULL, including built-in string-hook allocation failure. No maintained direct caller was found that demonstrates this failure trigger; the method is part of the public NList API. **Confidence:** high for the allocation-failure path, deletion and success return; medium that preserving the old row is the intended failure contract because the method documentation does not explicitly specify construct-failure behavior. No hook or allocation failure was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
@@ -12914,6 +12952,7 @@ During display-driver handover, `driver_ExpungeBootDisplay()` refuses removal on
 
 **`FlushLayoutDomainCache()` does not flush the Layout domain cache.** The exported function is documented to force domain recomputation, but its implementation calls `SetAttrs((Object *)gadget, TAG_DONE)` (`workbench/classes/reaction/layout/layout_funcs.c:65-89`). `Layout__OM_SET()` passes that empty tag list to `layout_set()`, which makes no changes and does not clear `ld_DomainValid`; only selected layout attribute changes, child add/remove operations and `GM_LAYOUT` clear it (`layoutclass.c:145-186,216-259,368-376,972-987`). Subsequent `GM_DOMAIN`/`layout_compute_domain()` therefore returns the cached size without querying changed child domains (`:489-505`). **Trigger and consequence:** a caller changes a child’s natural size and invokes `FlushLayoutDomainCache()` expecting the parent’s next domain/layout query to reflect it; the cached minimum remains stale and the group may retain incorrect sizing. Explicitly invalidate the class cache and trigger/rely on a subsequent domain recomputation. **Affected configuration:** builds selecting the optional Layout class; no maintained in-tree call to this helper was found. **Confidence:** high for the no-op SetAttrs call and unchanged validity flag; effect requires a valid cache followed by child-domain change. No layout cache or child was operated; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd10011"></a>
 ## GD10011
 
 **`ActivateLayoutGadget()` ignores the requested child gadget ID.** Its exported API documents `object` as the ID of the gadget to activate (`workbench/classes/reaction/layout/layout_funcs.c:24-50`), but after checking only that the layout pointer and window are non-NULL it calls `ActivateGadget(gadget, window, requester)` on the layout root and never reads `object` (`:51-63`). The selected Layout class handles `GM_GOACTIVE` by returning `GMR_NOREUSE` (`workbench/classes/reaction/layout/layoutclass.c:958-961`); Intuition does not mark that root active and `ActivateGadget()` reports failure when no gadget is returned (`rom/intuition/inputhandler_support.c:1042-1062`; `rom/intuition/activategadget.c:145`). **Trigger and consequence:** a caller requests activation of a child by ID through this helper; the helper does not look up or activate that child, and on the selected class path returns FALSE after trying the non-activatable layout root. Resolve the ID to the matching child and call `ActivateGadget()` on that child, returning failure only when lookup or activation fails. **Affected configuration:** builds selecting the optional `layout.gadget`; no maintained in-tree call was found. **Confidence:** high for the ignored argument, selected root `GM_GOACTIVE` result, and false return path. No gadget activation was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
@@ -12946,10 +12985,12 @@ During display-driver handover, `driver_ExpungeBootDisplay()` refuses removal on
 
 **ReAction `PushButton` mode forces the button into its selected appearance all the time.** `PushButton(text,id)` sets `BUTTON_PushButton` to TRUE (`compiler/include/reaction/reaction_macros.h:434`), and `button_set()` stores that as `bd_PushButton` (`workbench/classes/reaction/button/buttonclass.c:48-50`). `Button__GM_RENDER()` computes `selected` as `(gad->Flags & GFLG_SELECTED) || data->bd_PushButton`, so every push-mode button renders with `IDS_SELECTED` regardless of the gadget's actual selected state (`:306-316`). **Trigger and consequence:** an application uses the public PushButton macro or enables the tag; the button is drawn pressed/selected from its first render and cannot visually return to its normal state. Base visual state on `GFLG_SELECTED` while preserving push-mode interaction semantics. **Affected configuration:** builds selecting optional `button.gadget`; the behavior is exposed directly by the public reaction macro. **Confidence:** high for the unconditional selected rendering; no GUI was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd10018"></a>
 ## GD10018
 
 **ReAction Button accepts `BUTTON_AutoButton` but never creates or draws its glyph.** The public header defines `BUTTON_AutoButton` and the `BAG_*` glyph types (`compiler/include/gadgets/button.h:43,66-79`). `button_set()` stores the requested type in `bd_AutoButton` and `OM_GET` returns it, but no renderer or other class path reads that field; the actual glyph drawing uses only `bd_Glyph`, set by the separate `BUTTON_Glyph` tag (`workbench/classes/reaction/button/buttonclass.c:54-55,274-276,420-427`). OpenURL's ReAction preferences supplies `BAG_UPARROW` and `BAG_DNARROW` for its reorder buttons (`external/openurl/raPrefs/OpenURL.c:226-233,280-287,331-338`). **Trigger and consequence:** a client creates a button with `BUTTON_AutoButton`; the requested built-in glyph is absent, leaving the button without the arrow or other requested symbol. Map the type to a glyph or reject unsupported values. **Affected configuration:** builds selecting optional `button.gadget`; OpenURL's preferences caller is separately selected by its target. **Confidence:** high that the type is stored but unused and that the checked-in caller requests it; no UI was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd10019"></a>
 ## GD10019
 
 **ReAction Button disposes a caller-supplied `struct Image *` as a BOOPSI object.** The public `BUTTON_Glyph` tag is typed as a single-plane `struct Image *` (`compiler/include/gadgets/button.h:30`). `button_set()` stores that pointer directly in `bd_Glyph`, and `Button__OM_DISPOSE()` passes it to `DisposeObject()` (`workbench/classes/reaction/button/buttonclass.c:51-53,227-237`). An ordinary Intuition `Image` is not necessarily a BOOPSI object and remains caller-owned; disposing such an image as an object violates the public pointer type and can corrupt object state or fault during gadget disposal. Treat the glyph as borrowed image data and do not `DisposeObject()` it, or change the API to accept/own an explicit BOOPSI image object. **Trigger and consequence:** a caller sets BUTTON_Glyph to a normal/static Intuition Image and later disposes the button; the class invokes BOOPSI disposal on that image pointer. **Affected configuration:** builds selecting optional `button.gadget`; no checked-in caller sets BUTTON_Glyph. **Confidence:** high for the type/ownership mismatch; manifestation depends on supplied image representation. No image or gadget was disposed; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
@@ -12998,14 +13039,17 @@ During display-driver handover, `driver_ExpungeBootDisplay()` refuses removal on
 
 **FuelGauge releases an obtained RastPort before drawing the gadget label.** When the render message has no supplied `gpr_RPort`, the class obtains one from `gpr_GInfo` and draws the fill, percent and bevel; it then calls `ReleaseGIRPort(rp)` before the later `GA_Text` rendering block continues to use `rp` for font queries, text measurement and drawing (`workbench/classes/reaction/fuelgauge/fuelgaugeclass.c:219-225,308-337,340-370`). Intuition documents the returned RastPort for exclusive hook rendering and requires release immediately after rendering (`rom/intuition/obtaingirport.c:29-45`; `releasegirport.c:25-31`). **Trigger and consequence:** `GM_RENDER` is invoked with a GadgetInfo but no supplied RastPort, and the gadget has nonempty `GA_Text`; it uses the released rendering context after its layer/lock state has been restored, so the label operation is invalid and may corrupt or misrender window contents. Move the release after all label drawing. **Affected configuration:** builds selecting optional `fuelgauge.gadget`; applies to the obtained-RastPort call path. **Confidence:** high for the release-before-use ordering and API lifetime contract; no render was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd10030"></a>
 ## GD10030
 
 **FuelGauge ignores `FUELGAUGE_VarArgs`, leaving formatted GA_Text placeholders literal.** The public header describes `FUELGAUGE_VarArgs` as the varargs array for `GA_Text` (`compiler/include/gadgets/fuelgauge.h:33`). The class has no setter or rendering path for the tag; its later label renderer reads `gad->GadgetText` and sends those bytes directly to `Text()` (`workbench/classes/reaction/fuelgauge/fuelgaugeclass.c:40-72,336-370`). DiskImage's XAD progress hook sets `GA_Text` to `"%ld KB"` and supplies the current KB count through `FUELGAUGE_VarArgs`; the wrapper forwards the tags straight to `SetGadgetAttrsA()` (`workbench/devs/diskimage/plugins/xad.c:266-273`; `device/progress.c:133-139`). **Trigger and consequence:** XAD reports an entry with unknown uncompressed size; the progress display draws the literal `%ld KB` instead of the current size. Format the label using the supplied varargs, or update the caller to pass a preformatted string. **Affected configuration:** builds selecting `fuelgauge.gadget` and the DiskImage XAD plugin's unknown-size progress path. **Confidence:** high for ignored tag and direct caller; no archive extraction or GUI was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd10031"></a>
 ## GD10031
 
 **FuelGauge accepts and reports tick settings but never renders tick marks.** The API defines major/minor tick counts, tick size and tick pen (`compiler/include/gadgets/fuelgauge.h:29-32`). The setter/getter retain only the major/minor counts, but after the value bar, percent text, bevel and label are drawn there is no tick-rendering path; the stored tick counts are not read by any rendering code (`workbench/classes/reaction/fuelgauge/fuelgaugeclass.c:56-60,162-170,219-378`). The selected DiskImage progress window requests five major ticks and short ticks (`workbench/devs/diskimage/device/progress.c:65-69`). **Trigger and consequence:** a client requests tick marks; the gauge remains an unmarked bar while GetAttr returns the requested counts. Implement tick drawing and the documented size/pen controls or reject the attributes. **Affected configuration:** builds selecting optional `fuelgauge.gadget`; DiskImage progress UI is a checked-in caller. **Confidence:** high for accepted-but-unused count settings and the caller; no gauge was drawn. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd10032"></a>
 ## GD10032
 
 **FuelGauge's signed scaling arithmetic overflows for large progress values and ranges.** `fillSize` multiplies the signed gadget width/height by `(level - min)` before dividing by range, and percentage multiplies `(level - min)` by 100 in `LONG` arithmetic (`workbench/classes/reaction/fuelgauge/fuelgaugeclass.c:229-272`). With a 300-pixel-wide gauge and `min=0`, the fill multiplication exceeds 32-bit `LONG` above roughly 7.16 million; the percentage multiplication exceeds it above roughly 21.47 million. The public attributes are documented as signed `LONG` (`compiler/include/gadgets/fuelgauge.h:22-24`), but DiskImage's XAD caller passes `xfi_Size` and `xpi_CurrentSize`, both `ULONG`, into Max/Level with percent enabled (`workbench/devs/diskimage/plugins/xad.c:275-279`; `workbench/devs/diskimage/include/amigaos/libraries/xadmaster.h:373,622`). Values above `LONG_MAX` therefore also cross the signed attribute boundary before the render calculations. Independently, valid signed Min/Max inputs can overflow in `Max - Min` at line 230, and a wide positive range can overflow `level - Min` or the percentage product at lines 257-272. **Trigger and consequence:** XAD progress exceeds the arithmetic thresholds or a client supplies a wide signed range; signed overflow or out-of-range unsigned-to-signed conversion makes the displayed fill and percentage implementation-dependent or undefined, so the bar can jump, disappear, or show an incorrect percentage. Use range-safe wider intermediates and define behavior for values outside the signed public API. **Affected configuration:** builds selecting `fuelgauge.gadget` and the XAD progress path; threshold varies with gadget dimensions. **Confidence:** high for the arithmetic overflow; the >`LONG_MAX` result is implementation-defined at the conversion boundary and its rendered result is target-dependent. No large archive or extreme-range object was processed. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
@@ -13015,6 +13059,7 @@ During display-driver handover, `driver_ExpungeBootDisplay()` refuses removal on
 
 **ReAction Scroller keeps its public range/position separate from the proportional superclass that draws and handles it.** The class subclasses `PROPGCLASS`, but `scroller_set()` stores `SCROLLER_Total`, `Visible`, `Top` and `Orientation` only in its own fields and never forwards `PGA_Total`, `PGA_Visible`, `PGA_Top` or `PGA_Freedom` (`workbench/classes/reaction/scroller/scrollerclass.c:31-75,80-105,135-164`). The renderer delegates knob drawing and inherited input behavior to `PROPGCLASS` (`:171-182`); that superclass initializes its own state to total=1, visible=1, top=0 and vertical freedom unless given PGA tags (`rom/intuition/propgclass.c:429-458`), and its inherited drag path updates only superclass `data->top` (`:642-644`). Scroller's `OM_GET(SCROLLER_Top)` continues returning its separate stored top. **Trigger and consequence:** a client configures or drags the public Scroller; knob geometry/orientation and the values returned by Scroller tags diverge, with the knob using default/unrelated proportional state. Translate all public range/position/orientation tags into superclass state and synchronize user changes back. **Affected configuration:** builds selecting optional `scroller.gadget`; no checked-in caller of this specific ReAction class was found (DiskImage's similarly tagged `ExtScrollerClass` is a separate class). **Confidence:** high for the disconnected state paths; no scroller was rendered or dragged. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd10034"></a>
 ## GD10034
 
 **ReAction Scroller's `SCROLLER_Arrows` draws only empty frames and does not implement arrow-button behavior.** The public tag promises whether to show arrow buttons and exposes an `SCROLLER_ArrowDelta` click increment (`compiler/include/gadgets/scroller.h:31-33`). The class's `GM_RENDER` draws thin rectangle outlines and explicitly comments that proper arrow imagery is not implemented; it has no input overrides, and `arrowdelta` is never read outside set/get (`workbench/classes/reaction/scroller/scrollerclass.c:60-62,157-164,171-228`; `scroller.conf` lists no GM_GOACTIVE/GM_HANDLEINPUT methods). **Trigger and consequence:** a caller enables arrows and uses the end regions expecting arrow controls; it sees empty outlined regions and inherited proportional-gadget page-click behavior, not directional arrow buttons using the configured delta. Draw the arrow imagery and implement corresponding input steps, or reject/document those tags as unsupported. **Affected configuration:** builds selecting optional `scroller.gadget`; no in-tree caller of this specific class was found. **Confidence:** high for absent imagery/input handling and unused delta; no gadget interaction was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
@@ -13037,6 +13082,7 @@ During display-driver handover, `driver_ExpungeBootDisplay()` refuses removal on
 
 **ReAction TextField is display-only and ignores its advertised editing, cursor and scrolling controls.** Its public API includes a `ReadOnly` switch, `MaxChars`, cursor position, blink rate, and horizontal/vertical scrollers (`compiler/include/gadgets/textfield.h:23-32`), with `ReadOnly` defaulting false through zero-initialized instance data (`workbench/classes/reaction/textfield/textfieldclass.c:76-98`). But the selected class derives directly from `GADGETCLASS`; its class method list contains no GM_GOACTIVE or GM_HANDLEINPUT, and its implementation only draws the supplied string (`textfield.conf`; `textfieldclass.c:160-280`). `MaxChars`, `ReadOnly`, cursor and blink values are merely stored/reported; scroller tags are not handled or stored. **Trigger and consequence:** a client constructs a default editable TextField or requests cursor/scroller behavior; no text editing, cursor movement/blink or scrolling occurs, and configured maximum length is not enforced. Implement those interactions or expose the class as a read-only text display with only supported tags. **Affected configuration:** builds selecting optional `textfield.gadget`; no checked-in caller was found. **Confidence:** high that this selected class has no input methods and does not implement the listed controls; no GUI interaction was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd10039"></a>
 ## GD10039
 
 **TextField's default `TEXTFIELD_WordWrap` setting does not wrap long lines; it silently truncates them at the right edge.** The class defaults `td_WordWrap` to TRUE and accepts updates, but rendering never reads that field (`workbench/classes/reaction/textfield/textfieldclass.c:91-98,52-57`). Instead it scans only to the next explicit newline, reduces `drawlen` to the number of fixed-width characters that fit, draws that prefix, then advances `pos` to the original line end (`:231-261`). Any excess characters in that logical line are therefore omitted from display rather than wrapped to following visual rows. **Trigger and consequence:** a TextField contains a line wider than its interior; the visible text is clipped at a character boundary and the remainder is not shown even though word wrap is enabled by default. Split the line at word/character boundaries into successive visual rows, or do not claim wrap mode. **Affected configuration:** builds selecting optional `textfield.gadget`; no checked-in caller was found. **Confidence:** high for the stored-but-unused flag and prefix-only drawing; no text was rendered. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
@@ -13304,6 +13350,7 @@ During display-driver handover, `driver_ExpungeBootDisplay()` refuses removal on
 
 **Affected configuration:** the optional m68k emulator using the checked-in Intuition thunk tables. **Confidence:** high that the public declarations have no generated/manual dispatch and the unimplemented path returns zero; impact is conditional on guest use of each API. No emulated caller or GUI operation was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd10091"></a>
 ## GD10091
 
 **Generic HIDD construction publishes a display with no name when copying aoHidd_Name fails.** HIDDCl__Root__New() initializes hd_Name to the non-NULL unknown sentinel, but when a non-NULL aoHidd_Name tag is supplied it overwrites that field with StrDup()'s result without checking for allocation failure or failing object construction (rom/hidds/hidd/hiddclass.c:278-299). StrDup() returns NULL when its AllocVec() fails (compiler/alib/strdup.c:16-58), so the superclass constructor returns a live HIDD object with hd_Name == NULL. The generic display constructor supplies a non-NULL aHidd_Name (the caller's tag or its "Generic Display" fallback) to that superclass (rom/hidds/gfx/gfx_displayclass.c:361-373). Intuition's MonitorClass__OM_NEW() copies the resulting attribute into IMonitorNode.MonitorName and publishes the node in MonitorList without checking it (rom/intuition/monitorclass.c:267-275). Name lookup uses Exec FindName(), which deliberately skips nodes whose ln_Name is NULL, so the published display cannot be resolved by monitor name (rom/intuition/findmonitor.c:48-55,111-133; rom/exec/findname.c:82-92).
@@ -13359,6 +13406,7 @@ The resize ends by calling `CheckLayers()`, which routes flagged layers through 
 
 **Affected configuration and trigger:** Graphics.library builds using the general scan-conversion path with edges whose vertical and horizontal spans make this product exceed signed 32-bit range; the public Area API accepts the stated signed-WORD vertices. **Consequence:** signed overflow makes the intersection calculation undefined in C, so edge ordering and fill spans are not reliable and the polygon can be rendered incorrectly. This is distinct from GD5758, which concerns the fixed-point slope multiplication in the convex-quadrilateral fast path. The trigger requires a very large bounds-sized TmpRas for the example; no claim is made that a maintained in-tree caller submits these coordinates. **Confidence:** high that the expression exceeds the signed `LONG` range for the stated input; medium for the visible raster result because no compiler output or rendering was inspected. No polygon or oversized TmpRas was created; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd10101"></a>
 ## GD10101
 
 **The layer diagnostics traverse live ClipRect and DamageList structures without holding the layer lock.** `CRList.Action()` takes the active window's `WLayer` and passes both `lay->ClipRect` and `lay->_cliprects` to `Show()` (`developer/debug/test/layers/CRList.c:160-189`). `Show()` walks each linked list through `cr->Next`, reads each node's bounds/bitmap/list fields, and draws using those bounds without acquiring `LockLayer()` (`:68-139`). The selected layer APIs use the layer semaphore while traversing or changing these lists: `DoHookClipRects()` locks before its ClipRect walk (`rom/hyperlayers/dohookcliprects.c:89-105,214-221`), and `InstallClipRegion()` and `ScrollLayer()` lock around operations that rebuild or alter layer ClipRects (`installclipregion.c:62-68`; `scrolllayer.c:70-90`).
@@ -13385,30 +13433,35 @@ The resize ends by calling `CheckLayers()`, which routes flagged layers through 
 
 **Trigger and consequence:** a connected display-server peer sends a matching ACK with more payload words than the command permits (zero for `Show`, four for `Query`); the extra words are copied beyond the request object. The checked-in Android companion does not produce this reply shape: its `Query` response has four words, its `Show` and successful `Hello` responses have none, and a wrong-version `Hello` gets a one-word NAK that the client handles without copying an ACK payload (`AROSBootstrap.java:175-179,181-255,276-289`; `DisplayServer.java:44-61`). No in-tree trigger was established; this remains a malformed or incompatible-peer robustness candidate. **Affected configuration:** optional Android graphics HIDD with a custom or incompatible companion; the HIDD parent edge is commented in this snapshot (`arch/all-android/hidd/androidgfx/mmakefile.src:4`), so it is not a default packaged path. **Confidence:** high for the unchecked copy if an overlong ACK is supplied, low for reachability with the checked-in peer. No Android HIDD or pipe exchange was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd14340"></a>
 ## GD14340
 
 **The Android graphics HIDD manifest names a bitmap source file that does not exist.** `arch/all-android/hidd/androidgfx/mmakefile.src` lists `androidgfx_bitmap` in `FILES`, but the directory contains `androidgfx_bitmapclass.c` and no `androidgfx_bitmap.c`. The shared module build rules derive `.c` prerequisites from each listed basename (`config/make.tmpl:635-664,2196-2202`), so this target requires the absent `androidgfx_bitmap.c` before it can compile the module. The present bitmap implementation is in `androidgfx_bitmapclass.c`, which defines the configured `ABitmap` methods (`androidgfx.conf:21-23`; `androidgfx_bitmapclass.c:27-199`).
 
 **Affected configuration and trigger:** explicitly building `kernel-hidd-androidgfx` for the Android architecture. The Android bootstrap configuration names `androidgfx.hidd` (`arch/all-unix/boot/AROSBootstrap_android.conf:18`), although the Unix aggregate dependency is optional and commented out by default (`arch/all-unix/boot/mmakefile.src:44`). **Consequence:** the manifest's missing source prerequisite prevents the selected HIDD target from completing its build. Correct the basename to `androidgfx_bitmapclass` or provide the missing source. **Confidence:** high for the manifest/source mismatch and make-rule prerequisite; no build was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd14341"></a>
 ## GD14341
 
 **Android mouse HIDD does not compile with second-level debug logging enabled.** Both `DB2` calls in `AMouse_ReportEvent()` and `AMouse_ReportTouch()` reference `e.action` (`arch/all-android/hidd/androidgfx/android_mouseclass.c:122,159`), but `e` is a `struct pHidd_Mouse_ExtEvent`, whose declared fields are only `button`, `x`, `y`, `type`, and `flags` (`rom/hidds/mouse/include/mouse.h:58-65`). The project's debug macros expand `DB2`'s argument only when `DEBUG > 1` (`compiler/arossupport/include/debug.h:292-305`); at that setting the invalid member access is compiled and the translation unit fails.
 
 **Affected configuration and trigger:** explicitly build `kernel-hidd-androidgfx` with `DEBUG` greater than 1. The target is optional in the aggregate, but is named in Android bootstrap configuration. **Consequence:** the Android mouse HIDD source cannot compile in that debug configuration. Log `pkt->action` or another declared value. **Confidence:** high for the missing structure member and macro guard; no debug build was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd14342"></a>
 ## GD14342
 
 **Android input can synthesize an extra key press when two keys overlap.** `DisplayView` keeps only one `LastKey` value. Every `onKeyDown()` for a different key overwrites it, and every `onKeyUp()` with any non-`-1` value clears it without checking that it belongs to the released key (`arch/all-android/bootstrap/app/src/org/aros/bootstrap/AROSActivity.java:161-164,272-300`). After two keys are pressed, the first key-up clears `LastKey`; the second key-up then enters the `LastKey == -1` branch and emits an extra key-down before its key-up. The HIDD forwards both flags as the raw-key event's up-prefix state (`arch/all-android/bootstrap/app/src/org/aros/bootstrap/AROSBootstrap.java:303-306`; `arch/all-android/hidd/androidgfx/android_kbdclass.c:212-243`).
 
 **Affected configuration and trigger:** the Android bootstrap app when its activity receives overlapping key-down/key-up sequences, for example two physical keyboard keys held together and released one at a time. **Consequence:** the later released key receives a phantom press event immediately before its release; input consumers can observe an unintended keystroke or transient key state. Track pressed keys individually or only consume the one-key-down quirk for a matching key. **Confidence:** high for the single-key state and unconditional reset/branch; simultaneous key delivery depends on the attached Android input device. No Android input event was generated; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd14343"></a>
 ## GD14343
 
 **Softpipe and LLVMpipe double-close acquired libraries when initialization fails.** Both initializers store successful `OpenLibrary()` results in static-data fields, then manually close those libraries on later failure without clearing the fields (`workbench/hidds/softpipe/softpipe_init.c:28-38`; `workbench/hidds/llvmpipe/llvmpipe_init.c:28-41`). Both modules register expunge callbacks which close every non-NULL stored base (`softpipe_init.c:12-23`; `llvmpipe_init.c:12-23`). The generated library initializer invokes registered expunge callbacks when an `INITLIB` callback fails (`compiler/autoinit/functions.c:60-69`), so those failure paths close the same references a second time. The generated standard `CloseLib` decrements `lib_OpenCnt` without checking for zero (`tools/genmodule/writestart.c:1463-1468`).
 
 **Trigger and consequence:** either HIDD's init successfully opens `utility.library` but cannot open `cybergraphics.library`, or opens both but fails to obtain `IID_Hidd_Gallium`. Rollback then calls the expunge hook after the manual close(s). The extra close can consume an open reference owned by another client; if no other references exist, the library count can underflow and inhibit later expunge. Clear each stored base after a manual close, or centralize failed-init cleanup in the expunge hook. **Affected configuration:** explicit Softpipe or LLVMpipe HIDD builds; Softpipe is conditionally selected when `AROS_TARGET_TOOLCHAIN=yes` (`workbench/hidds/softpipe/mmakefile.src:47-50`), and LLVMpipe when both LLVM and target-toolchain conditions are enabled (`workbench/hidds/llvmpipe/mmakefile.src:36-41`). **Confidence:** high for init/rollback order and duplicate closes; the resulting effect depends on the dependency libraries' open counts. No initialization failure or library close was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd14344"></a>
 ## GD14344
 
 **Softpipe and LLVMpipe present every display-target format as if it were BGRA32.** Their `is_displaytarget_format_supported` callbacks return TRUE without checking either usage or format (`workbench/hidds/softpipe/softpipe_galliumclass.c:53-62`; `workbench/hidds/llvmpipe/llvmpipe_galliumclass.c:52-60`), and the display-target constructors retain the requested format (`softpipe_galliumclass.c:65-98`; `llvmpipe_galliumclass.c:64-97`). But each `DisplayResource` ignores that format and calls `WritePixelArray()` with the fixed `AROS_PIXFMT` (`softpipe_galliumclass.c:223-259`; `llvmpipe_galliumclass.c:224-263`), which is `RECTFMT_BGRA32` on little-endian builds (`:29-33` in each file). `WritePixelArray()` uses the supplied source format's bytes-per-pixel and pixel layout when computing its source address and calling `HIDD_BM_PutImage()` (`workbench/libs/cgfx/writepixelarray.c:176-202`).
@@ -13450,6 +13503,7 @@ The resize ends by calling `CheckLayers()`, which routes flagged layers through 
 
 **Trigger and consequence:** an emulated m68k program calls ReadPixel or GetBPen, or calls ScrollRaster or SetABPenDrMd, using the public Graphics vectors. The first pair dispatches to the wrong operation; ScrollRaster and SetABPenDrMd themselves are unimplemented at their declared slots. Correct the manual LVO keys and reconcile duplicate generated registrations so each public vector reaches its matching thunk. **Affected configuration:** the optional m68k emulator's Graphics.library dispatch tables. **Confidence:** high for the configured offsets, table entries, lookup order, and consequences from the thunk argument/result handling; no emulated call was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd10111"></a>
 ## GD10111
 
 **The Intuition manual thunk for `SetWindowPointerA()` intercepts the `AddGList()` vector.** `intuition.conf` and the generated table identify LVO byte offset 438 as `AddGList()` and offset 816 as `SetWindowPointerA()` (`rom/intuition/intuition.conf:126,189`; `rom/m68kemu/m68kemu_thunks_gen.c:5460-5469,7877`). The manual table incorrectly assigns `thunk_intuition_SetWindowPointerA` to 438 (`rom/m68kemu/m68kemu_thunks.c:1450-1458`); dispatch checks manual entries before generated entries (`rom/m68kemu/m68kemu_moira.cpp:223-226,253-261`). That manual thunk is a no-op returning zero (`m68kemu_thunks.c:1342-1346`), so an emulated `AddGList()` call does not link or refresh the supplied gadgets. Native `AddGList()` links the gadget chain, performs layout/refresh work, and returns the insertion position/count (`rom/intuition/addglist.c:106-112,121-157`). The correct `SetWindowPointerA()` generated wrapper already exists at 816. Separately, that generated `AddGList()` wrapper currently discards the native return value and always returns zero (`m68kemu_thunks_gen.c:5461-5469`), so restoring dispatch alone would still lose nonzero results.
@@ -14096,6 +14150,7 @@ The `UniqueHandleTraits<DisplayKHR>` specialization selects `detail::ObjectDestr
 
 
 <a id="gd10233"></a>
+<a id="gd10233-vulkan-hpp-array-proxies-truncate-large-container-sizes"></a>
 ## GD10233 — Vulkan-Hpp array proxies truncate large container sizes
 
 The enhanced `ArrayProxy` constructors accept container `.size()` values convertible to `std::size_t`, then silently cast the value to `uint32_t` for `m_count` (`workbench/hidds/vulkan/include/vulkan/vulkan.hpp:367-375`). The corresponding `ArrayProxyNoTemporaries` constructors do the same for `data()` and `begin()` containers (`:459-479`); initializer-list constructors also narrow `list.size()` (`:350-359`). These proxies feed the generated `ArrayProxy` overloads in `vulkan_handles.hpp`, which pass `proxy.size()` as the Vulkan `uint32_t` element count (for example `:5157-5161,5177-5181,5334-5341`).
@@ -14303,6 +14358,7 @@ Several generated wrappers expose two alternative pointer-array forms and allow 
 
 
 <a id="gd10239"></a>
+<a id="gd10239-vulkan-hpp-string-comparisons-pass-null-names-to-strcmp"></a>
 ### GD10239 — Vulkan-Hpp string comparisons pass null names to `strcmp`
 
 `ApplicationInfo` defaults `pApplicationName` and `pEngineName` to null (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:6891-6903,7023-7029`). Its equality operator treats identical pointers as equal, but otherwise calls `strcmp` without checking either pointer (`:7010-7014`). Under `VULKAN_HPP_HAS_SPACESHIP_OPERATOR`, its custom ordering operator likewise calls `strcmp` whenever the pointers differ (`:6985-6999`). The Vulkan-Hpp hash review already established these `VkApplicationInfo` name fields are nullable and its equality operator recognizes null as representable state (coverage ledger: `vulkan_hash.hpp` review at line 9328).
@@ -14408,6 +14464,7 @@ Multiple copied Vulkan-Hpp wrappers accept fixed-capacity `std::array<char, N>` 
 **Trigger and consequence:** in the optional Vulkan-Hpp C++ API, construct any listed wrapper with at least one fixed-capacity string array containing no NUL byte, then compare the wrapper for equality or, where enabled, ordering. Its `strcmp` can read beyond that array until finding a NUL, invoking undefined behavior and potentially reading beyond the wrapper object or crashing. The performance-description, driver-name/info, device-name, extension/layer, tool, device-fault, data-graph, pipeline-executable, and render-pass-feedback fields are inline arrays; this is distinct from GD10239's nullable `const char *` comparisons. **Affected configuration:** the copied Vulkan-Hpp header and the relevant extension/core structure; no in-tree Vulkan-Hpp C++ consumer was found. API-returned values that obey Vulkan's string termination requirements do not trigger this; the direct trigger is a caller-created wrapper value, which the constructors accept. **Confidence:** high for direct fixed-array acceptance and unbounded comparison; manifestation requires comparison of an unterminated caller-created array. No comparison was executed. Use bounded array comparison or enforce termination during wrapper construction. Source-only.
 
 <a id="gd10250"></a>
+<a id="gd10250-vulkan-hpp-count-fields-can-drive-comparisons-beyond-fixed-inline-arrays"></a>
 ### GD10250 — Vulkan-Hpp count fields can drive comparisons beyond fixed inline arrays
 
 `PhysicalDeviceGroupProperties` accepts `physicalDeviceCount_` independently of its fixed `std::array<PhysicalDevice, VK_MAX_DEVICE_GROUP_SIZE>` (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:93517-93529`). Its optional spaceship operator indexes both arrays up to `physicalDeviceCount` (`:93575-93588`), and equality passes `physicalDeviceCount * sizeof(PhysicalDevice)` to `memcmp` (`:93593-93597`). `PhysicalDeviceMemoryProperties` similarly accepts `memoryTypeCount_` and `memoryHeapCount_` independently of fixed arrays sized by `VK_MAX_MEMORY_TYPES` and `VK_MAX_MEMORY_HEAPS` (`:101176-101187`); its ordering loops and equality `memcmp` operations use those counts without checking the capacities (`:101235-101260`). `QueueFamilyGlobalPriorityProperties` accepts `priorityCount_` separately from `std::array<QueueGlobalPriority, VK_MAX_GLOBAL_PRIORITY_SIZE>` (`:138510-138531`); ordering and equality use that count directly (`:138579-138600`). `ShaderModuleIdentifierEXT` accepts `identifierSize_` separately from its fixed identifier array (`:150029-150040`); optional ordering indexes to that size and equality uses it as the `memcmp` extent (`:150085-150103`). The wrapper constructors do not reject counts larger than their corresponding array capacities, and the count fields are public and mutable.
@@ -14415,6 +14472,7 @@ Multiple copied Vulkan-Hpp wrappers accept fixed-capacity `std::array<char, N>` 
 **Trigger and consequence:** in the optional Vulkan-Hpp C++ API, construct one of these wrappers with a count greater than its fixed array capacity (or assign such a count to its public field), then compare it with another wrapper carrying the same count. Equality reads past the inline array with `memcmp`; when enabled, ordering reads past it through indexed access. This invokes undefined behavior and can crash or otherwise corrupt the comparison result. These are wrapper comparisons themselves; no Vulkan call is needed, and Vulkan valid-usage limits do not protect a manually constructed wrapper from its local comparison operators. **Affected configuration:** copied Vulkan-Hpp header; `PhysicalDeviceGroupPropertiesKHR` is an alias of the first wrapper, and the relevant Vulkan core/extensions provide the other structures, including `VK_EXT_shader_module_identifier`. No in-tree Vulkan-Hpp C++ consumer was found. **Confidence:** high for unchecked count assignment and count-driven reads beyond the declared array capacities; manifestation requires a caller-created invalid count and comparison. No comparison or build was run. Reject invalid counts at construction and mutation, or bound/validate them before comparison. Source-only.
 
 <a id="gd10251"></a>
+<a id="gd10251-vulkan-hpp-pipeline-binary-setters-can-mismatch-a-shared-array-count"></a>
 ### GD10251 — Vulkan-Hpp pipeline-binary setters can mismatch a shared array count
 
 The enhanced `PipelineBinaryKeysAndDataKHR` constructor checks that `pipelineBinaryKeys_` and `pipelineBinaryData_` have equal lengths (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:127341-127355`). The enhanced `setPipelineBinaryKeys()` and `setPipelineBinaryData()` setters instead each assign the shared `binaryCount` from only their own proxy and update only their corresponding pointer (`:127382-127403`); neither checks the other array. `PipelineBinaryCreateInfoKHR::pKeysAndDataInfo` carries this record into `Device::createPipelineBinariesKHR`, whose wrapper forwards it as the native `VkPipelineBinaryCreateInfoKHR` (`vulkan_structs.hpp:127573-127677`; `vulkan_funcs.hpp:28560-28572,28581-28615`). The Vulkan structure requires both arrays to contain `binaryCount` entries ([`VkPipelineBinaryKeysAndDataKHR` reference](https://docs.vulkan.org/refpages/latest/refpages/source/VkPipelineBinaryKeysAndDataKHR.html)).
@@ -14422,6 +14480,7 @@ The enhanced `PipelineBinaryKeysAndDataKHR` constructor checks that `pipelineBin
 **Trigger and consequence:** with enhanced mode and `VK_KHR_pipeline_binary` enabled, call both array setters with unequal nonempty proxies, with `pipelineBinaryData` longer than `pipelineBinaryKeys`. Whichever setter is called last sets `binaryCount` to its own length; in this ordering the count exceeds the key-array length. Passing the record through `pKeysAndDataInfo` leaves an invalid count/pointer pair; validation can reject it, and a native implementation consuming `binaryCount` entries may read beyond the shorter key array. The constructor rejects this mismatch, so this is specifically the setter path. **Affected configuration:** optional copied Vulkan-Hpp API with `VK_KHR_pipeline_binary` and enhanced mode enabled; no in-tree C++ Vulkan-Hpp consumer was found. **Confidence:** high for the unchecked setter mismatch and count/array contract; native impact depends on downstream use. No pipeline-binary call or build was run. Validate the two array lengths together before updating the shared count. Source-only.
 
 <a id="gd10252"></a>
+<a id="gd10252-vulkan-hpp-presentinfokhr-setters-can-desynchronize-swapchain-arrays"></a>
 ### GD10252 — Vulkan-Hpp `PresentInfoKHR` setters can desynchronize swapchain arrays
 
 The enhanced `PresentInfoKHR` constructor checks that `swapchains_` and `imageIndices_` have equal lengths, and that a nonempty `results_` array matches both (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:135114-135145`). The enhanced `setSwapchains()`, `setImageIndices()`, and `setResults()` setters each independently replace the same `swapchainCount` and only their own pointer (`:135198-135235`); no setter checks the other stored arrays. `Queue::presentKHR()` forwards the complete record to `vkQueuePresentKHR` (`workbench/hidds/vulkan/include/vulkan/vulkan_funcs.hpp:9555-9574`). Vulkan defines `pSwapchains` and `pImageIndices` as arrays of `swapchainCount` entries, with optional `pResults` also sized to that count ([`VkPresentInfoKHR` valid usage](https://docs.vulkan.org/refpages/latest/refpages/source/VkPresentInfoKHR.html)).
@@ -14430,6 +14489,7 @@ The enhanced `PresentInfoKHR` constructor checks that `swapchains_` and `imageIn
 
 
 <a id="gd10253"></a>
+<a id="gd10253-vulkan-hpp-resolve-attachment-setters-can-overstate-color-array-lengths"></a>
 ### GD10253 — Vulkan-Hpp resolve-attachment setters can overstate color-array lengths
 
 The enhanced constructors for `SubpassDescription` and `SubpassDescription2` set `colorAttachmentCount` from the color-attachment proxy and reject a nonempty resolve proxy whose size differs (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:140894-140923,141532-141570`). Their enhanced `setResolveAttachments()` methods instead set the same `colorAttachmentCount` from the resolve proxy and update only `pResolveAttachments` (`:140996-141003,141655-141662`). The stored `pColorAttachments` pointer is left unchanged. The corresponding records are passed directly through `Device::createRenderPass()` and `Device::createRenderPass2()` as native `VkRenderPassCreateInfo`/`VkRenderPassCreateInfo2` structures (`workbench/hidds/vulkan/include/vulkan/vulkan_funcs.hpp:5188-5197,7348-7358`).
@@ -14438,6 +14498,7 @@ The enhanced constructors for `SubpassDescription` and `SubpassDescription2` set
 
 
 <a id="gd10254"></a>
+<a id="gd10254-vulkan-hpp-semaphore-wait-setters-can-desynchronize-semaphore-and-value-arrays"></a>
 ### GD10254 — Vulkan-Hpp semaphore-wait setters can desynchronize semaphore and value arrays
 
 The enhanced `SemaphoreWaitInfo` constructor sets `semaphoreCount` from `semaphores_` and requires the `values_` proxy to have the same length (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:148854-148873`). The enhanced `setSemaphores()` and `setValues()` setters each independently replace `semaphoreCount` and only their own pointer (`:148910-148932`), without checking the other array. `Device::waitSemaphores()` and its KHR wrapper pass the record directly to `vkWaitSemaphores`/`vkWaitSemaphoresKHR` (`workbench/hidds/vulkan/include/vulkan/vulkan_funcs.hpp:7171-7190,20219-20239`).
@@ -14445,6 +14506,7 @@ The enhanced `SemaphoreWaitInfo` constructor sets `semaphoreCount` from `semapho
 **Trigger and consequence:** with enhanced mode enabled, set two semaphores and then call `setValues()` with three values. `semaphoreCount` becomes three while `pSemaphores` still points to two entries. Passing the record to either wait wrapper forwards the mismatched count/pointer arrays; validation can reject the invalid wait info, and an implementation reading the advertised number of semaphores may access beyond the shorter array. The enhanced constructor throws on unequal lengths when exceptions are enabled. Under `VULKAN_HPP_NO_EXCEPTIONS`, it uses `VULKAN_HPP_ASSERT` (`:148865-148872`), so `NDEBUG` removes the check and allows the same mismatch at construction time; that path is included under GD10279 below. **Affected configuration:** optional copied Vulkan-Hpp API with enhanced mode and Vulkan 1.2 or `VK_KHR_timeline_semaphore`; no in-tree C++ Vulkan-Hpp consumer was found. **Confidence:** high for the setter mismatch, constructor check, and direct forwarding; native impact depends on downstream use. No semaphore wait or build was run. Keep `semaphoreCount` consistent with both arrays and validate before replacing either. Source-only.
 
 <a id="gd10255"></a>
+<a id="gd10255-vulkan-hpp-descriptor-buffer-offset-setters-can-desynchronize-paired-arrays"></a>
 ### GD10255 — Vulkan-Hpp descriptor-buffer offset setters can desynchronize paired arrays
 
 The enhanced `SetDescriptorBufferOffsetsInfoEXT` constructor sets `setCount` from `bufferIndices_` and rejects unequal `bufferIndices_`/`offsets_` lengths (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:149041-149065`). The enhanced `setBufferIndices()` and `setOffsets()` setters each replace the same `setCount` and only their own pointer (`:149114-149136`), so either can leave the other array shorter than the count. `CommandBuffer::setDescriptorBufferOffsets2EXT()` forwards this record directly to `vkCmdSetDescriptorBufferOffsets2EXT` (`workbench/hidds/vulkan/include/vulkan/vulkan_funcs.hpp:30786-30810`).
@@ -14458,6 +14520,7 @@ The enhanced `SetDescriptorBufferOffsetsInfoEXT` constructor sets `setCount` fro
 
 
 <a id="gd10256"></a>
+<a id="gd10256-vulkan-hpp-submit-setters-can-desynchronize-wait-semaphores-and-stage-masks"></a>
 ### GD10256 — Vulkan-Hpp submit setters can desynchronize wait semaphores and stage masks
 
 The enhanced `SubmitInfo` constructor derives `waitSemaphoreCount` from `waitSemaphores_` and checks that `waitDstStageMask_` has the same length (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:151101-151123`). In `VULKAN_HPP_NO_EXCEPTIONS` builds this check is `VULKAN_HPP_ASSERT`, so `NDEBUG` removes it; that constructor path is covered by GD10279 below. The enhanced `setWaitSemaphores()` and `setWaitDstStageMask()` setters each independently update that shared count and only their own pointer (`:151155-151175`). `Queue::submit()` forwards the record as `VkSubmitInfo` to `vkQueueSubmit` (`workbench/hidds/vulkan/include/vulkan/vulkan_funcs.hpp:917-921,928-936`).
@@ -14466,6 +14529,7 @@ The enhanced `SubmitInfo` constructor derives `waitSemaphoreCount` from `waitSem
 
 
 <a id="gd10257"></a>
+<a id="gd10257-vulkan-hpp-swapchain-time-domain-setters-can-desynchronize-output-arrays"></a>
 ### GD10257 — Vulkan-Hpp swapchain time-domain setters can desynchronize output arrays
 
 The enhanced `SwapchainTimeDomainPropertiesEXT` constructor sets `timeDomainCount` from `timeDomains_`, stores both output pointers, and checks unequal lengths only when both proxies are nonempty (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:155720-155739`). Thus one nonempty and one empty proxy is accepted as a null/non-null pointer pair; with exceptions disabled and assertions compiled out, unequal nonempty arrays are also accepted, leaving the shorter output buffer paired with the larger shared count. Its `setTimeDomains()` and `setTimeDomainIds()` setters each independently update that same count and only their own pointer (`:155770-155789`). `Device::getSwapchainTimeDomainPropertiesEXT()` forwards the record to `vkGetSwapchainTimeDomainPropertiesEXT` (`workbench/hidds/vulkan/include/vulkan/vulkan_funcs.hpp:20347-20357`). The Vulkan structure contract requires both pointers null or both nonnull, with `timeDomainCount` specifying the number of elements in both arrays ([`VkSwapchainTimeDomainPropertiesEXT` reference](https://docs.vulkan.org/refpages/latest/refpages/source/VkSwapchainTimeDomainPropertiesEXT.html)).
@@ -14474,6 +14538,7 @@ The enhanced `SwapchainTimeDomainPropertiesEXT` constructor sets `timeDomainCoun
 
 
 <a id="gd10258"></a>
+<a id="gd10258-vulkan-hpp-av1-tile-setters-can-desynchronize-decode-arrays"></a>
 ### GD10258 — Vulkan-Hpp AV1 tile setters can desynchronize decode arrays
 
 The enhanced `VideoDecodeAV1PictureInfoKHR` constructor derives `tileCount` from `tileOffsets_` and checks that `tileSizes_` has the same length (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:159854-159878`). Its `setTileOffsets()` and `setTileSizes()` methods each independently replace `tileCount` and only their corresponding pointer (`:159928-159949`). The structure is passed in the `pNext` chain of `VideoDecodeInfoKHR`; `CommandBuffer::decodeVideoKHR()` forwards that record to `vkCmdDecodeVideoKHR` (`workbench/hidds/vulkan/include/vulkan/vulkan_funcs.hpp:11919-11922,11928-11934`). Vulkan defines `tileCount` as the length of both arrays ([`VkVideoDecodeAV1PictureInfoKHR` reference](https://docs.vulkan.org/refpages/latest/refpages/source/VkVideoDecodeAV1PictureInfoKHR.html)).
@@ -14482,6 +14547,7 @@ The enhanced `VideoDecodeAV1PictureInfoKHR` constructor derives `tileCount` from
 
 
 <a id="gd10259"></a>
+<a id="gd10259-vulkan-hpp-av1vp9-video-defaults-unused-reference-names-to-dpb-slot-zero"></a>
 ### GD10259 — Vulkan-Hpp AV1/VP9 video defaults unused reference names to DPB slot zero
 
 The enhanced wrapper constructors for `VideoDecodeAV1PictureInfoKHR`, `VideoDecodeVP9PictureInfoKHR`, and `VideoEncodeAV1PictureInfoKHR` default their fixed `referenceNameSlotIndices_` arrays to `{}` and copy those values directly into public fixed arrays (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:159830-159843,160012; 162730-162741,162858; 163651-163668,163809`). These value-initialize to zero, mapping every reference name to DPB slot 0 when callers omit the argument. Vulkan AV1/VP9 guidance specifies negative indices for unused names and uses `-1` for no-reference examples ([AV1 decode proposal](https://docs.vulkan.org/features/latest/features/proposals/VK_KHR_video_decode_av1.html), [VP9 decode proposal](https://docs.vulkan.org/features/latest/features/proposals/VK_KHR_video_decode_vp9.html), [AV1 encode proposal](https://docs.vulkan.org/features/latest/features/proposals/VK_KHR_video_encode_av1.html)). The decode records pass through `CommandBuffer::decodeVideoKHR()` (`vulkan_funcs.hpp:11919-11922,11928-11934`); AV1 encode passes through `CommandBuffer::encodeVideoKHR()` (`:23449-23452,23458-23465`).
@@ -14490,6 +14556,7 @@ The enhanced wrapper constructors for `VideoDecodeAV1PictureInfoKHR`, `VideoDeco
 
 
 <a id="gd10260"></a>
+<a id="gd10260-vulkan-hpp-win32-keyed-mutex-setters-can-desynchronize-shared-array-counts"></a>
 ### GD10260 — Vulkan-Hpp Win32 keyed-mutex setters can desynchronize shared array counts
 
 Both enhanced Win32 keyed-mutex wrappers check matching parallel-array lengths in their constructors, then expose setters that independently update a shared count and only one associated pointer. For `Win32KeyedMutexAcquireReleaseInfoKHR`, the constructor checks the three acquire-array sizes and the two release-array sizes (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:173674-173713`); `setAcquireSyncs`, `setAcquireKeys`, and `setAcquireTimeouts` each set `acquireCount` from only that proxy, while `setReleaseSyncs` and `setReleaseKeys` independently set `releaseCount` (`:173752-173789,173803-173824`). The corresponding NV constructor and setters have the same pattern (`:173948-173995,174028-174065,174081-174101`). Constructor validation is conditional: under `VULKAN_HPP_NO_EXCEPTIONS` it uses `VULKAN_HPP_ASSERT`, whose default definition is `assert` (`vulkan_hpp_macros.hpp:75`). With the default assertion macro and `NDEBUG`, those constructor checks are disabled, so unequal initial proxies can also produce the mismatched arrays without any setter call. `SubmitInfo` and `SubmitInfo2` accept both structure types in their extension chains (`workbench/hidds/vulkan/include/vulkan/vulkan.hpp:12381-12405`); the selected `Queue::submit()` and `submit2()` wrappers forward those records to `vkQueueSubmit` and `vkQueueSubmit2` (`vulkan_funcs.hpp:914-937,7776-7799`). Vulkan specifies that the KHR `acquireCount` covers all three acquire arrays and `releaseCount` both release arrays ([KHR structure reference](https://docs.vulkan.org/refpages/latest/refpages/source/VkWin32KeyedMutexAcquireReleaseInfoKHR.html)); the NV structure has the equivalent shared extents ([NV structure reference](https://docs.vulkan.org/refpages/latest/refpages/source/VkWin32KeyedMutexAcquireReleaseInfoNV.html)).
@@ -14497,6 +14564,7 @@ Both enhanced Win32 keyed-mutex wrappers check matching parallel-array lengths i
 **Trigger and consequence:** with enhanced mode and the corresponding Win32 keyed-mutex extension enabled, construct matching arrays, then replace one acquire array with a proxy of a different length. Its setter changes the common `acquireCount` while the other acquire pointers still refer to arrays of their previous length. The same applies to the release pair. Chaining the record into queue submission forwards inconsistent extents; validation can reject it, and a consumer using the advertised count may read past a shorter array. **Affected configuration:** optional copied Vulkan-Hpp C++ API on Win32 with enhanced mode and either `VK_KHR_win32_keyed_mutex` or `VK_NV_win32_keyed_mutex`; direct constructor mismatch additionally requires `VULKAN_HPP_NO_EXCEPTIONS`, the default `VULKAN_HPP_ASSERT`, and `NDEBUG`. No in-tree C++ consumer was found. **Confidence:** high for the setter-created mismatch, disabled assertion check, and native forwarding; downstream impact depends on use. No keyed-mutex operation, submit, or build was run. Keep every shared count consistent with all associated arrays. Source-only.
 
 <a id="gd10261"></a>
+<a id="gd10261-vulkan-hpp-raii-instances-do-not-retain-the-default-dynamic-loader"></a>
 ### GD10261 — Vulkan-Hpp RAII instances do not retain the default dynamic loader
 
 `VULKAN_HPP_ENABLE_DYNAMIC_LOADER_TOOL` defaults to `1` (`workbench/hidds/vulkan/include/vulkan/vulkan_hpp_macros.hpp:86-88`). In that configuration, `raii::Context` constructs and owns a `DynamicLoader` and its global dispatcher (`vulkan_raii.hpp:3136-3143,3208-3212`). `DynamicLoader` closes the shared library in its destructor with `dlclose()` or `FreeLibrary()` (`vulkan.hpp:20102-20110`). Constructing a RAII `Instance` from a context uses its `vkGetInstanceProcAddr` to allocate a separate `InstanceDispatcher` (`vulkan_raii.hpp:3233-3237`), which loads `vkDestroyInstance` and other entry points as raw function pointers (`:53-60`). The instance stores only its Vulkan handle, allocator pointer and dispatcher (`:3509-3513`); `clear()` later invokes `vkDestroyInstance` through that dispatcher (`:3284-3293`). It does not retain the context or loader handle.
@@ -14505,6 +14573,7 @@ Both enhanced Win32 keyed-mutex wrappers check matching parallel-array lengths i
 
 
 <a id="gd10262"></a>
+<a id="gd10262-vulkan-hpp-raii-creation-drops-handles-on-accepted-non-esuccess-results"></a>
 ### GD10262 — Vulkan-Hpp RAII creation drops handles on accepted non-eSuccess results
 
 The RAII batch wrappers call the native pipeline-creation command, then either pass the result to `resultCheck()` or allow `VK_PIPELINE_COMPILE_REQUIRED_EXT`; they populate the owning `std::vector<raii::Pipeline>` only under `result == eSuccess` (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:16209-16235,16480-16505,21407-21433,22023-22053,22524-22550,27124-27146`). The Vulkan multiple-pipeline creation rules allow an individual pipeline in a batch to fail while other entries succeed, leave non-null handles for the successful entries, and require applications to destroy those handles ([Vulkan pipeline creation rules](https://docs.vulkan.org/spec/latest/chapters/pipelines.html#pipelines-multiple); `vkCreateGraphicsPipelines` lists `VK_PIPELINE_COMPILE_REQUIRED_EXT` as a return code [here](https://docs.vulkan.org/refpages/latest/refpages/source/vkCreateGraphicsPipelines.html)). The KHR ray-tracing wrapper also accepts `eOperationNotDeferredKHR`, a completed success status, but skips conversion for that status as well (`:22040-22053`); the Vulkan reference lists it as a success return code ([`vkCreateRayTracingPipelinesKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkCreateRayTracingPipelinesKHR.html)). The affected wrappers are compute and graphics pipelines, AMDX execution-graph pipelines, KHR/NV ray-tracing pipelines, and ARM data-graph pipelines. The same ownership gate appears in `Device::createPipelineBinariesKHR()` (`:26782-26830`): it accepts `eIncomplete` and `ePipelineBinaryMissingKHR`, but converts the raw output handles to RAII wrappers only for `eSuccess`. The Vulkan contract says a too-small output array can return `VK_INCOMPLETE` after writing up to its capacity, and failed per-binary creations are represented by null entries while other entries can contain created handles ([`vkCreatePipelineBinariesKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkCreatePipelineBinariesKHR.html), [`VkPipelineBinaryHandlesInfoKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/VkPipelineBinaryHandlesInfoKHR.html)). Thus a populated call that returns either accepted non-eSuccess status can leave live non-null binary handles in the plain vector that is destroyed without Vulkan cleanup; the returned RAII vector is empty.
@@ -14512,6 +14581,7 @@ The RAII batch wrappers call the native pipeline-creation command, then either p
 **Trigger and consequence:** call a batch API with multiple create infos where at least one pipeline produces `ePipelineCompileRequiredEXT` (for example, because its create flags request failure rather than compilation) while another pipeline is created successfully; the KHR ray-tracing batch has the same lost-output path when it completes synchronously with `eOperationNotDeferredKHR`. The wrapper accepts that result, skips RAII conversion because the result is not `eSuccess`, then returns an empty vector with the non-eSuccess status; the successful native pipeline handles are lost and not destroyed. `createPipelineBinariesKHR()` has the same outcome for partial binary creation reported as `eIncomplete` or `ePipelineBinaryMissingKHR`; in exception-enabled mode the accepted result does not throw, and the empty owning vector is returned. When another error result is returned after partial pipeline creation, the exception-enabled path can also throw from `resultCheck()` before wrapping or destroying successful outputs. **Affected configuration:** optional copied Vulkan-Hpp RAII API; standard graphics/compute paths with the relevant pipeline-creation-cache-control behavior, the listed optional pipeline extensions, and `VK_KHR_pipeline_binary` for binary handles. No in-tree RAII consumer was found. **Confidence:** high for both result gates and the Vulkan partial-output contracts; triggers depend on partial pipeline or binary creation. No pipeline creation or build was run. Wrap and return each non-null output regardless of the aggregate result, and preserve cleanup if result handling throws. Source-only.
 
 <a id="gd10263"></a>
+<a id="gd10263-vulkan-hpp-raii-wrapping-can-strand-created-handles-if-host-allocation-throws"></a>
 ### GD10263 — Vulkan-Hpp RAII wrapping can strand created handles if host allocation throws
 
 Several RAII methods first receive successfully created Vulkan handles into a plain `std::vector<Vk...>`, then call `reserve()` on a second vector before constructing the owning RAII wrappers. This occurs for command buffers (`vulkan_raii.hpp:15838-15858`), descriptor sets (`:16326-16346`), compute/graphics pipelines (`:16209-16235,16480-16506`), shared swapchains (`:18817-18839`), AMDX/KHR/NV pipeline batches (`:21407-21434,22023-22054,22524-22551`), shader objects (`:26680-26702`), pipeline binaries (`:26788-26830`), and ARM data-graph pipelines (`:27124-27146`). For example, after successful `vkAllocateCommandBuffers`, line 15850 reserves the RAII vector; after successful `vkAllocateDescriptorSets`, line 16338 does the same. A `std::vector::reserve()` allocation failure throws when C++ exceptions are enabled, and the raw Vulkan handle vector has no Vulkan-destroying behavior.
@@ -14522,6 +14592,7 @@ The same ownership gap occurs for single-object creation. `Context::createInstan
 
 
 <a id="gd10264"></a>
+<a id="gd10264-vulkan-hpp-no-exceptions-result-wrappers-package-uninitialized-outputs"></a>
 ### GD10264 — Vulkan-Hpp no-exceptions result wrappers package uninitialized outputs
 
 Three RAII mapping methods declare `void * pData` without initialization, pass its address to Vulkan, call `resultCheck()`, and then unconditionally pass `pData` to `createResultValueType()` (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:15446-15461,18076-18086,24064-24076`). They correspond to `DeviceMemory::mapMemory`, `Device::mapMemory2`, and `Device::mapMemory2KHR`. `PhysicalDevice::getSurfaceSupportKHR()` has the same pattern for `Bool32 supported` (`:18359-18374`). The optional external-handle wrappers also declare their `HANDLE`/`int` outputs without initialization and package them after `resultCheck()`: memory Win32 NV/KHR, memory fd KHR, semaphore Win32/fd KHR, and fence Win32/fd KHR (`:19717-19731,20122-20135,20158-20169,20225-20239,20255-20266,20745-20760,20774-20785`). The Vulkan references document failure returns for Win32 and fd handle-export operations ([memory Win32](https://docs.vulkan.org/spec/latest/chapters/memory.html), [`vkGetMemoryFdKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetMemoryFdKHR.html), [`vkGetSemaphoreFdKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetSemaphoreFdKHR.html), [`vkGetFenceFdKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetFenceFdKHR.html), [`vkGetSemaphoreWin32HandleKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetSemaphoreWin32HandleKHR.html), [`vkGetFenceWin32HandleKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetFenceWin32HandleKHR.html)). With `VULKAN_HPP_NO_EXCEPTIONS`, `resultCheck()` only invokes `VULKAN_HPP_ASSERT_ON_RESULT` (`workbench/hidds/vulkan/include/vulkan/vulkan.hpp:7551-7562`); when that assertion is disabled by `NDEBUG` or configured nonfatal, execution continues. `createResultValueType()` then constructs a `ResultValue<T>` by copying/moving the output (`vulkan.hpp:7490-7497,7526-7545`). Vulkan documents the map pointer as containing the mapped address on success and lists map-failure returns ([`vkMapMemory`](https://docs.vulkan.org/refpages/latest/refpages/source/vkMapMemory.html), [`vkMapMemory2`](https://docs.vulkan.org/spec/latest/chapters/memory.html#memory-map)); surface support may fail with surface-lost or allocation errors ([`vkGetPhysicalDeviceSurfaceSupportKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPhysicalDeviceSurfaceSupportKHR.html)). On failure paths that leave outputs untouched, reading the indeterminate pointer, boolean, `HANDLE`, or `int` to construct the result value is undefined behavior before the caller can inspect `result`.
@@ -14558,6 +14629,7 @@ Three RAII mapping methods declare `void * pData` without initialization, pass i
 **Additional confirmed GD10266 site (2026-11-02):** the two enhanced `PhysicalDevice::getFragmentShadingRatesKHR()` overloads in `vulkan_funcs.hpp:20858-20920` repeat the fragment-shading-rate enumeration case already documented for RAII (`vulkan_raii.hpp:23290-23317`). Each leaves the local count uninitialized through the first query, calls `resultCheck()`, and then reads the count in assertion/resize logic. The Vulkan reference permits out-of-host-memory, unknown, and validation errors without defining the count on error ([`vkGetPhysicalDeviceFragmentShadingRatesKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPhysicalDeviceFragmentShadingRatesKHR.html)). With no exceptions and disabled/nonfatal result assertions, an error can reach the count use. This is the same GD10266 root cause; no query/build was run. Source-only.
 
 <a id="gd10267"></a>
+<a id="gd10267-vulkan-hpp-query-pool-scalar-accessor-returns-undefined-data-on-enotready"></a>
 ### GD10267 — Vulkan-Hpp query-pool scalar accessor returns undefined data on `eNotReady`
 
 `QueryPool::getResult<DataType>()` declares `DataType data` without initialization, calls `vkGetQueryPoolResults`, accepts both `eSuccess` and `eNotReady` in `resultCheck()`, then always moves `data` into `ResultValue<DataType>` (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:15739-15755`). The Vulkan reference states that, without `VK_QUERY_RESULT_PARTIAL_BIT`, a result written for an unavailable query is undefined; without `VK_QUERY_RESULT_WAIT_BIT`, the call may return `VK_NOT_READY` while queries remain unavailable ([`vkGetQueryPoolResults`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetQueryPoolResults.html)).
@@ -14567,6 +14639,7 @@ Three RAII mapping methods declare `void * pData` without initialization, pass i
 **Additional confirmed GD10264 site (2026-11-02):** the enhanced beta `Device::getExecutionGraphPipelineNodeIndexAMDX()` declares `uint32_t nodeIndex` without initialization, passes its address to the error-returning command, checks the result, and then packages the value (`workbench/hidds/vulkan/include/vulkan/vulkan_funcs.hpp:16795-16805`). The Vulkan execution-graph reference lists host-memory, unknown, and validation failures; on a failure that leaves the output unwritten, `VULKAN_HPP_NO_EXCEPTIONS` with disabled/nonfatal result assertions continues into result construction and reads the indeterminate scalar. This is the enhanced API counterpart of the RAII site already recorded above and shares GD10264's root cause. Requires `VK_ENABLE_BETA_EXTENSIONS` and `VK_AMDX_shader_enqueue`; no caller or runtime operation was established. Source-only.
 
 <a id="gd10265"></a>
+<a id="gd10265-vulkan-hpp-swapchain-queries-package-uninitialized-outputs-for-accepted-results"></a>
 ### GD10265 — Vulkan-Hpp swapchain queries package uninitialized outputs for accepted results
 
 The enhanced `Device::acquireNextImageKHR()` and `Device::acquireNextImage2KHR()` wrappers declare an uninitialized `uint32_t imageIndex`, call the native acquire command, and explicitly accept `eTimeout` and `eNotReady` in `resultCheck()` before always constructing `ResultValue<uint32_t>` from that local (`workbench/hidds/vulkan/include/vulkan/vulkan_funcs.hpp:9529-9549,9751-9772`). With `VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS`, both also accept `eErrorOutOfDateKHR`. The optional RAII API repeats this in `SwapchainKHR::acquireNextImage()` and `Device::acquireNextImage2KHR()` (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:18507-18532,18617-18637`). `SwapchainKHR::getCounterEXT()` similarly declares `uint64_t counterValue` uninitialized and, under that macro, accepts `eErrorOutOfDateKHR` before constructing a result with the value (`vulkan_raii.hpp:20491-20510`). Vulkan lists timeout/not-ready as successful return statuses for both acquire commands and guarantees an acquired image index only when acquisition succeeds ([`vkAcquireNextImageKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkAcquireNextImageKHR.html), [`vkAcquireNextImage2KHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkAcquireNextImage2KHR.html)); it permits out-of-date from counter queries ([`vkGetSwapchainCounterEXT`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetSwapchainCounterEXT.html)).
@@ -14575,6 +14648,7 @@ The enhanced `Device::acquireNextImageKHR()` and `Device::acquireNextImage2KHR()
 
 
 <a id="gd10266"></a>
+<a id="gd10266-vulkan-hpp-no-exceptions-enumeration-wrappers-read-counts-after-failure"></a>
 ### GD10266 — Vulkan-Hpp no-exceptions enumeration wrappers read counts after failure
 
 The extension/layer property enumeration loops keep `propertyCount` uninitialized until the first Vulkan call writes it, then call `resultCheck()` and use the count in an assertion and resize condition (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:15267-15295,15298-15329,15331-15357,15359-15386`). Display property, display-plane property, and display-mode property loops have the same pattern (`:18642-18764`). Surface format/present-mode, swapchain-image, and present-rectangle loops also use their uninitialized count after `resultCheck()` (`:18394-18458,18477-18505,18584-18615`). The two `PhysicalDevice::getVideoFormatPropertiesKHR()` overloads (`:19150-19181,19188-19229`), `VideoSessionKHR::getMemoryRequirements()` (`:19249-19278`), and `Pipeline::getShaderInfoAMD()` (`:19608-19643`) likewise consume their uninitialized output counts/sizes in assertions and vector resizing; the video-format structure-chain overload also indexes parallel vectors using the count after the result check. `Instance::enumeratePhysicalDeviceGroupsKHR()` repeats the pattern for its uninitialized `physicalDeviceGroupCount` (`:20068-20097`). `SwapchainKHR::getPastPresentationTimingGOOGLE()` consumes an uninitialized `presentationTimingCount` after result checking (`:20540-20580`); the optional `VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS` macro treats `eErrorOutOfDateKHR` as an accepted result and permits the count use to continue after that error. The performance-counter enumeration wrapper (`:20788-20824`), both surface-formats2 overloads (`:20917-21001`), display-properties2 and display-plane-properties2 (`:21004-21064`), both display-mode-properties2 overloads (`:21065-21140`), and calibrated-time-domain enumeration (`:22821-22846`) have the same uninitialized-count/post-check use. Vulkan permits failure returns from extension enumeration, pipeline-cache data, video-format, AMD shader-info, device-group, performance-counter, surface-format, display-property, past-presentation, and calibrated-time-domain queries ([`vkEnumerateInstanceExtensionProperties`](https://docs.vulkan.org/refpages/latest/refpages/source/vkEnumerateInstanceExtensionProperties.html), [`vkGetPipelineCacheData`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPipelineCacheData.html), [`vkGetPhysicalDeviceVideoFormatPropertiesKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPhysicalDeviceVideoFormatPropertiesKHR.html), [`vkGetShaderInfoAMD`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetShaderInfoAMD.html), [`vkGetVideoSessionMemoryRequirementsKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetVideoSessionMemoryRequirementsKHR.html), [`vkEnumeratePhysicalDeviceGroupsKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkEnumeratePhysicalDeviceGroups.html), [`vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkEnumeratePhysicalDeviceQueueFamilyPerformanceQueryCountersKHR.html), [`vkGetPhysicalDeviceSurfaceFormats2KHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPhysicalDeviceSurfaceFormats2KHR.html), [`vkGetPhysicalDeviceDisplayProperties2KHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPhysicalDeviceDisplayProperties2KHR.html), [`vkGetDisplayModeProperties2KHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetDisplayModeProperties2KHR.html), [`vkGetPastPresentationTimingGOOGLE`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPastPresentationTimingGOOGLE.html), [`vkGetPhysicalDeviceCalibrateableTimeDomainsKHR`](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetPhysicalDeviceCalibrateableTimeDomainsKHR.html)); if failure leaves the output untouched, the local remains indeterminate. `PipelineCache::getData()` has the same pattern for `dataSize` at `:16169-16190`. For wrappers whose only guard is `resultCheck()`, this requires `VULKAN_HPP_NO_EXCEPTIONS` with disabled/nonfatal assertions; the past-timing path also occurs with the out-of-date-as-success macro enabled.
@@ -14703,6 +14777,7 @@ The selected CyberGraphics blur allocates `src` with `AllocMem(..., MEMF_ANY)` a
 **Trigger and consequence:** the optional Dtpic class loads an image whose base bitmap succeeds, but allocation of either its selected or highlighted clone fails; a client enables the corresponding `MUIA_Dtpic_DarkenSelState` or `MUIA_Dtpic_LightenOnMouse` attribute; the image's mask mode is not `mskHasMask`; and the object is shown and enters that state. The next redraw can fault while the blitter checks the null bitmap. The class does not fail setup or fall back to the original bitmap after clone allocation failure. **Affected configuration:** the explicitly requested `workbench-classes-zune-dtpic` module, under clone-allocation failure and use of the corresponding state attribute. The pinned muimaster manifest sets `MAKE_BUILTIN_DTPIC := no`, and the Dtpic target is absent from the active parent class aggregate, so this is not claimed for the default build. No checked-in caller setting either state attribute was found; the trigger is available through the public Dtpic attributes in `workbench/libs/muimaster/classes/dtpic.h:15-20`. **Confidence:** high for the missing allocation check and null dereference path; no allocation failure, state event, or GUI draw was induced. Keep the normal bitmap selected when a clone is unavailable, or reject setup if a requested state image cannot be created. Source-only.
 
 <a id="gd10279"></a>
+<a id="gd10279-vulkan-hpp-no-exceptions-helpers-can-dispatch-mismatched-parallel-arrays"></a>
 ## GD10279 — Vulkan-Hpp no-exceptions helpers can dispatch mismatched parallel arrays
 
 Several enhanced Vulkan-Hpp wrappers check that parallel `ArrayProxy` values have equal lengths by throwing `LogicError` when exceptions are enabled, but reduce the same check to `VULKAN_HPP_ASSERT` under `VULKAN_HPP_NO_EXCEPTIONS`. `VULKAN_HPP_ASSERT` defaults to C `assert` (`workbench/hidds/vulkan/include/vulkan/vulkan_hpp_macros.hpp:74-79`), so `NDEBUG` removes these guards. The wrappers then dispatch a count from one proxy with the other proxy's pointer unchanged.
@@ -14818,6 +14893,7 @@ When arrows are enabled, `Scroller__GM_RENDER()` uses the gadget width as the ve
 **Trigger and consequence:** the optional SysExplorer PCI module enumerates a host bridge or another base-class `0x06` device whose subclass is not `0x04`. The callback inserts it into the PCI driver tree as if it were a PCI-to-PCI bridge, so the displayed hierarchy includes devices that do not provide the downstream PCI bus implied by the branch. Check both class and subclass, accepting only base class `0x06` and subclass `0x04`. **Affected configuration:** explicitly selected `workbench-tools-sysexplorer-module-pci`; the module edge is commented out of the default SysExplorer module aggregate (`workbench/tools/SysExplorer/mmakefile.src:82-90,77-84`). **Confidence:** high for the class-only predicate and distinct host/PCI bridge encodings; occurrence requires an enumerated non-PCI-to-PCI bridge-class device. No PCI device or GUI was enumerated; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#sysexplorer-pci-enumerator-class-filter-pass).
 
 <a id="gd10297"></a>
+<a id="gd10297-requeststring-leaks-its-readargs-allocation-on-every-shell-invocation"></a>
 ## GD10297 — RequestString leaks its ReadArgs allocation on every Shell invocation
 
 `main()` stores the successful `ReadArgs(TEMPLATE, args, NULL)` result in `rdargs`, then returns from both the MUI-success and MUI-construction-failure paths without calling `FreeArgs(rdargs)` (`workbench/c/RequestString.c:105-116,154-214`). DOS documents that the returned handle owns memory which must later be released with `FreeArgs()` (`rom/dos/readargs.c:178-180`); `FreeArgs()` releases the argument buffers and the automatically allocated `RDArgs` (`rom/dos/freeargs.c:55-80`).
@@ -14827,6 +14903,7 @@ This is a persistent leak when the command is repeatedly run from Shell. The sel
 **Affected configuration and trigger:** an explicit build of the optional `workbench-c-requeststring` target (`workbench/c/mmakefile.src:135-136`) and repeated invocation from a long-lived Shell. The `workbench-c` aggregate edge is commented out in this snapshot (`workbench/c/mmakefile.src:86-109`), so default-package inclusion is not claimed. **Consequence:** each invocation retains its DOS argument block and associated buffers until the Shell process exits, causing memory use to grow with repeated invocations. **Confidence:** high for the successful allocation, missing cleanup on every post-parse path, documented release contract, and same-process Shell execution. No command or memory-pressure scenario was run; source-only.
 
 <a id="gd10298"></a>
+<a id="gd10298-requestchoice-leaks-its-gadget-label-buffer-if-body-formatting-allocation-fails"></a>
 ## GD10298 — RequestChoice leaks its gadget-label buffer if body formatting allocation fails
 
 `Do_RequestChoice()` first allocates `GadgetText` with `ComposeGadgetText()`. If `FilterBodyText()` then returns NULL, the function immediately returns `RETURN_FAIL` without freeing `GadgetText` (`workbench/c/RequestChoice.c:153-159`). The normal path frees both buffers at `:195-196`; the later `LockPubScreen()` and `EasyRequestArgs()` failure paths also reach that cleanup. `FreeArgs(rda)` in `main()` releases only the command-line parse storage, not the separate `AllocVec()` result (`:117-124`).
@@ -14851,6 +14928,7 @@ When `ParsePatternArg()` sees malformed pattern input, it frees its own temporar
 
 
 <a id="gd10300"></a>
+<a id="gd10300-search-reads-beyond-its-indentation-buffer-in-deep-trees"></a>
 ## GD10300 — Search reads beyond its indentation buffer in deep trees
 
 `Search` allocates a fixed `SPACES_SIZE` buffer of 161 bytes (`workbench/c/Search.c:77,146`). During recursive `ALL` traversal, it derives the indentation length directly from the directory depth and passes it to `WriteChars()` without a bound check (`:275-290,327-330`). At depth 32, the file-name path requests 163 bytes and the directory path requests 165 bytes, exceeding the allocation. DOS `WriteChars()` reads and writes exactly the requested number of bytes (`rom/dos/writechars.c:53-55`).
@@ -14859,6 +14937,7 @@ When `ParsePatternArg()` sees malformed pattern input, it frees its own temporar
 
 
 <a id="gd10301"></a>
+<a id="gd10301-search-can-loop-forever-while-building-the-prefix-table-for-a-256-byte-query"></a>
 ## GD10301 — Search can loop forever while building the prefix table for a 256-byte query
 
 The plain-string search path stores `strlen(SEARCH)` in the 16-bit `pat_length`, but declares the prefix-table loop counter `q` as `UBYTE` (`workbench/c/Search.c:140-141,171,221-229`). `ReadArgs()` reads up to 256 characters into its 257-byte argument buffer (`rom/dos/readargs.c:205,303-313`; `rom/dos/fgets.c:45-72`), so a 256-byte search token can reach the loop. When `pat_length` is 256, `q` wraps from 255 to 0 and remains less than `pat_length`; the prefix-table loop never terminates.
@@ -14867,6 +14946,7 @@ The plain-string search path stores `strlen(SEARCH)` in the 16-bit `pat_length`,
 
 
 <a id="gd10302"></a>
+<a id="gd10302-setclock-leaves-the-callers-requesters-disabled"></a>
 ## GD10302 — SetClock leaves the caller's requesters disabled
 
 After successfully opening `timer.device`, `SetClock` assigns `(APTR)-1` to the current process's `pr_WindowPtr` to suppress volume requesters, but it never saves or restores the previous value (`workbench/c/SetClock.c:106-114,174-187`). `RunCommand()` invokes the command entry on the current Process and restores other process fields without restoring `pr_WindowPtr` (`rom/dos/runcommand.c:143-160`). DOS treats `(APTR)-1` as “do not open an error requester” (`rom/dos/errorreport.c:91-94`).
@@ -14875,6 +14955,7 @@ After successfully opening `timer.device`, `SetClock` assigns `(APTR)-1` to the 
 
 
 <a id="gd10303"></a>
+<a id="gd10303-setdate-leaks-its-parsed-arguments-on-validation-and-allocation-failures"></a>
 ## GD10303 — SetDate leaks its parsed arguments on validation and allocation failures
 
 After `ReadArgs()` succeeds, `SetDate` returns directly when `StrToDate()` rejects the supplied date/time (`workbench/c/SetDate.c:99-105,118-137`). If parsing succeeds but allocating `aPath` fails, it sets the return code and skips the only `FreeArgs(rda)` call, which is inside the successful-allocation branch (`:139-185,180`). DOS documents the successful `ReadArgs()` result as requiring `FreeArgs()` (`rom/dos/readargs.c:178-180`), and `FreeArgs()` releases the parsed argument storage (`rom/dos/freeargs.c:55-80`).
@@ -14883,6 +14964,7 @@ After `ReadArgs()` succeeds, `SetDate` returns directly when `StrToDate()` rejec
 
 
 <a id="gd10304"></a>
+<a id="gd10304-setdefaultfont-appends-font-past-its-fixed-name-buffer"></a>
 ## GD10304 — SetDefaultFont appends `.font` past its fixed name buffer
 
 `Action()` copies `fontname` into the static 256-byte `s` array and, unless the input contains the substring `.font`, appends the five-character suffix plus its NUL terminator without checking capacity (`workbench/c/SetDefaultFont.c:78,118-121`). A 251-character font name fits in `s` with its initial terminator, but the subsequent `strcat()` writes the suffix terminator one byte past the array. Longer names also overrun in `strcpy()`. The input can exceed the ordinary command-line read limit: invoking `SetDefaultFont ?` makes `ReadArgs()` prompt, and its prompt path grows `iline` in 256-byte increments until newline (`rom/dos/readargs.c:318-321,346-410`).
@@ -14891,6 +14973,7 @@ After `ReadArgs()` succeeds, `SetDate` returns directly when `StrToDate()` rejec
 
 
 <a id="gd10305"></a>
+<a id="gd10305-setpsm-reports-both-modes-when-either-old-mode-bit-is-set"></a>
 ## GD10305 — SetPSM reports both modes when either old mode bit is set
 
 `SetPubScreenModes()` returns the previous public-screen mode bitmask (`rom/intuition/setpubscreenmodes.c:31-32,52-57`), and the two mode constants are independent bits (`compiler/include/intuition/screens.h:247-248`). `SetPSM` computes its DOS return code using logical `&&` against each constant instead of testing each bit (`workbench/c/SetPSM.c:112-114`). Thus any nonzero previous mode causes both conditions to evaluate true and returns 15. The documented and intended result is 5 for prior `SHANGHAI`, 10 for prior `POPPUBSCREEN`, and 15 when both were set.
@@ -14899,6 +14982,7 @@ After `ReadArgs()` succeeds, `SetDate` returns directly when `StrToDate()` rejec
 
 
 <a id="gd10306"></a>
+<a id="gd10306-sort-ignores-its-numeric-option"></a>
 ## GD10306 — Sort ignores its NUMERIC option
 
 `main()` passes `ARG_NUMERIC` to `sort()` (`workbench/c/Sort.c:352-356`), and the command template exposes `NUMERIC/S` (`:61-67`). However, `sort()` never reads `is_numeric` after accepting it as a parameter (`:159-164`); all entries use the same locale string comparator.
@@ -14907,6 +14991,7 @@ After `ReadArgs()` succeeds, `SetDate` returns directly when `StrToDate()` rejec
 
 
 <a id="gd10307"></a>
+<a id="gd10307-sort-case-comparisons-repeatedly-compare-the-first-selected-character"></a>
 ## GD10307 — Sort CASE comparisons repeatedly compare the first selected character
 
 In the `case_on` branch, the loop advances `i`, but each `StrnCmp()` call compares the same one-byte slices at `sd1->data + col` and `sd2->data + col` (`workbench/c/Sort.c:93-119`). When `COLSTART` is omitted, lines with the same first character and the same uppercase/lowercase pattern at later positions compare equal even when their later characters differ. For example, lowercase `ant` and `any` both compare as equal. With nonzero `col`, the `IsUpper()` probes also use `data + col + i` even though `i` already starts at `col`.
@@ -14915,6 +15000,7 @@ In the `case_on` branch, the loop advances `i`, but each `StrnCmp()` call compar
 
 
 <a id="gd10308"></a>
+<a id="gd10308-sort-colstart-comparison-reads-beyond-line-boundaries"></a>
 ## GD10308 — Sort COLSTART comparison reads beyond line boundaries
 
 The comparator computes `len` from the full line lengths, then starts `StrnCmp()` at `data + col` while still passing `len` as its comparison length (`workbench/c/Sort.c:87,121-128`). This can read up to `col` bytes beyond the shorter line; the bytes may belong to the next line, and for a final unterminated line can extend past the input allocation. In `CASE` mode, `IsUpper(data + col + i)` uses a double column offset because `i` starts at `col` (`:93-101`), which can likewise read past a line or the end of the file.
@@ -14923,6 +15009,7 @@ The comparator computes `len` from the full line lengths, then starts `StrnCmp()
 
 
 <a id="gd10309"></a>
+<a id="gd10309-sort-reads-one-byte-past-input-when-the-final-line-lacks-a-newline"></a>
 ## GD10309 — Sort reads one byte past input when the final line lacks a newline
 
 The line parser scans `pos` to `data_len` for a final unterminated line, then evaluates `data[pos] == 0x0a || pos == data_len` (`workbench/c/Sort.c:180-189`). C evaluates the left operand of `||` first, so when `pos == data_len` it reads `data[data_len]` before checking the bound. `data` is allocated to exactly `fib->fib_Size` bytes (`:340-342,352-354`).
@@ -14931,6 +15018,7 @@ The line parser scans `pos` to `data_len` for a final unterminated line, then ev
 
 
 <a id="gd10310"></a>
+<a id="gd10310-sort-mishandles-empty-lines-and-reads-before-the-input-buffer"></a>
 ## GD10310 — Sort mishandles empty lines and reads before the input buffer
 
 When a line consists only of LF, `sort()` records `len` as zero because it excludes the delimiter (`workbench/c/Sort.c:185-200`). `write_data()` then writes zero content bytes and tests `start->data[start->len - 1]` (`:284-286`), which indexes before the line start. For a blank first line that is before the input allocation; for later blank lines it reads the preceding byte. If that byte is the previous line's LF, the writer emits no newline for the blank line, dropping it from output.
@@ -14939,6 +15027,7 @@ When a line consists only of LF, `sort()` records `len` as zero because it exclu
 
 
 <a id="gd10311"></a>
+<a id="gd10311-sort-silently-omits-lines-when-a-record-allocation-fails"></a>
 ## GD10311 — Sort silently omits lines when a record allocation fails
 
 `sort()` advances past each input line, then allocates a `sorted_data` node. If `AllocMem()` fails, the `if (cur)` body is skipped and the line is discarded without setting an error or reporting incomplete output (`workbench/c/Sort.c:180-195,258-260`). The returned list is written normally and `write_data()` can report success (`:352-359`).
@@ -14947,6 +15036,7 @@ When a line consists only of LF, `sort()` records `len` as zero because it exclu
 
 
 <a id="gd10312"></a>
+<a id="gd10312-sort-reports-success-when-openfromlock-fails"></a>
 ## GD10312 — Sort reports success when OpenFromLock fails
 
 After successfully opening the output and allocating the FIB, `error` remains zero. If `OpenFromLock(lock_in)` fails, the `if` body is skipped without copying `IoErr()` into `error`; the program closes the output file and eventually returns `RETURN_OK` (`workbench/c/Sort.c:325-332,343-368,381-387`). The DOS contract says a failed `OpenFromLock()` returns BNULL and leaves an error in `IoErr()` (`rom/dos/openfromlock.c:24-34,48-77`).
@@ -14955,6 +15045,7 @@ After successfully opening the output and allocating the FIB, `error` remains ze
 
 
 <a id="gd10313"></a>
+<a id="gd10313-sort-leaks-its-opened-locale-reference-on-every-invocation"></a>
 ## GD10313 — Sort leaks its opened Locale reference on every invocation
 
 `main()` calls `OpenLocale(NULL)` and retains the returned current-locale reference for comparisons, but there is no `CloseLocale(locale)` on any return path (`workbench/c/Sort.c:310-315,317-387`). `OpenLocale(NULL)` increments the current locale's reference count (`workbench/libs/locale/openlocale.c:181-186`); `CloseLocale()` decrements it (`closelocale.c:49-66`).
@@ -14963,6 +15054,7 @@ After successfully opening the output and allocating the FIB, `error` remains ze
 
 
 <a id="gd10314"></a>
+<a id="gd10314-sort-leaks-the-output-filehandle-when-fib-allocation-fails"></a>
 ## GD10314 — Sort leaks the output filehandle when FIB allocation fails
 
 When the input lock succeeds, `Sort` opens/truncates the output file before allocating its `FileInfoBlock` (`workbench/c/Sort.c:323-330`). If `AllocDosObject(DOS_FIB, NULL)` fails, `error` becomes nonzero and skips the block that contains `Close(file_out)` (`:332-370,368`). The handle is then lost when the scope ends.
@@ -14971,6 +15063,7 @@ When the input lock succeeds, `Sort` opens/truncates the output file before allo
 
 
 <a id="gd10315"></a>
+<a id="gd10315-sort-treats-short-output-writes-as-complete"></a>
 ## GD10315 — Sort treats short output writes as complete
 
 `Write()` returns the number of bytes actually written and can return a short count without returning `-1` (`rom/dos/write.c:22-44`). `write_data()` checks only whether the result equals `-1`; it never compares the count with `start->len` (`workbench/c/Sort.c:282-291`). If a line write is short but the subsequent newline write succeeds, the function records no error and the command returns success.
@@ -14979,6 +15072,7 @@ When the input lock succeeds, `Sort` opens/truncates the output file before allo
 
 
 <a id="gd10316"></a>
+<a id="gd10316-stacksnoop-writes-past-its-output-buffer-when-the-report-is-large"></a>
 ## GD10316 — StackSnoop writes past its output buffer when the report is large
 
 `StackSnoop` stores all formatted output in a fixed 20,000-byte global array (`workbench/c/StackSnoop.c:66-67`). `out()` formats at `&outbuffer[outbuffer_size]`, measures the result, and increments the offset without checking available capacity (`:88-102`). `Action()` appends one line for every visited task (`:162-177`).
@@ -14987,6 +15081,7 @@ When the input lock succeeds, `Sort` opens/truncates the output file before allo
 
 
 <a id="gd10317"></a>
+<a id="gd10317-stacksnoop-traverses-scheduler-lists-without-smp-locks"></a>
 ## GD10317 — StackSnoop traverses scheduler lists without SMP locks
 
 `Action()` calls `Disable()` and then walks `SysBase->TaskReady` and `SysBase->TaskWait` directly without acquiring either list's spinlock (`workbench/c/StackSnoop.c:153-179`). Exec documents that on SMP, `Disable()` applies only to the calling processor and does not protect shared data from parallel access (`rom/exec/disable.c:31-60`). The selected Exec code protects these lists with dedicated locks when reading or changing them (`rom/exec/findtaskbypid.c:88-140`; `rom/exec/exec_intern.h:205-224`).
@@ -14995,6 +15090,7 @@ When the input lock succeeds, `Sort` opens/truncates the output file before allo
 
 
 <a id="gd10318"></a>
+<a id="gd10318-stacksnoop-omits-tasks-running-on-other-smp-cpus"></a>
 ## GD10318 — StackSnoop omits tasks running on other SMP CPUs
 
 The report visits only `TaskReady`, `TaskWait`, and `FindTask(NULL)` (`workbench/c/StackSnoop.c:162-176`). In an SMP Exec build, tasks currently executing on the available CPUs are maintained in the separate private `TaskRunning` list, and lock-spinning tasks have a `TaskSpinning` list (`rom/exec/exec_intern.h:117-123`). The Exec task lookup walks these lists separately from `TaskReady` and `TaskWait` (`rom/exec/findtaskbypid.c:60-88`).
@@ -15002,6 +15098,7 @@ The report visits only `TaskReady`, `TaskWait`, and `FindTask(NULL)` (`workbench
 **Trigger and consequence:** run StackSnoop on a multicore SMP system while one or more other CPUs have tasks in `TaskRunning` or `TaskSpinning`. Those tasks do not appear in the output, so the command's system-wide task stack report is incomplete. Include the SMP running/spinning task sets through a synchronized enumeration interface, with care not to scan a live stack unsafely. **Affected configuration:** `__AROSEXEC_SMP__` builds; `StackSnoop` is listed in the explicit `workbench-c` target (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for the list membership and the command's restricted traversal; consequence requires another CPU to be running or spinning a task. No multicore report was generated; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#stacksnoop-full-body-and-smp-list-lifecycle-pass).
 
 <a id="gd10319"></a>
+<a id="gd10319-symboldump-emits-a-null-end-address-for-zero-length-symbols"></a>
 ## GD10319 — SymbolDump emits a NULL end address for zero-length symbols
 
 `debug.library`'s `EnumerateSymbolsA()` computes a fallback end address for symbols whose `s_highest` is zero, explicitly noting that these symbols have zero length. It then ignores that fallback and passes the original zero `s_highest` to the callback (`rom/debug/enumeratesymbolsa.c:96-104`). `SymbolDump` writes the callback's `si_SymbolEnd` directly into its Callgrind symbol record (`workbench/c/SymbolDump.c:55-64`).
@@ -15017,6 +15114,7 @@ The report visits only `TaskReady`, `TaskWait`, and `FindTask(NULL)` (`workbench
 **Trigger and consequence:** run the explicit `workbench-c` command where `SYS:symbols.out` can be opened but `debug.library` is unavailable or cannot be loaded. The command calls through a NULL library base and can fault instead of reporting the unavailable dependency. Check `DebugBase` before enumeration and return an error. **Affected configuration:** explicit `workbench-c` builds (`workbench/c/mmakefile.src:5-45`) in installations without an openable `debug.library`; default aggregate inclusion is not claimed (`:86-109`). **Confidence:** high for the unchecked open result and unconditional call; manifestation requires the stated installation condition. No library open or command execution was performed; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#symboldump-full-body-and-debug-api-pass).
 
 <a id="gd10321"></a>
+<a id="gd10321-tasklist-reports-success-when-its-aros-task-snapshot-is-incomplete"></a>
 ## GD10321 — TaskList reports success when its AROS task snapshot is incomplete
 
 In the `__AROS__` branch, `fillbuffer()` breaks out of the task iteration when `addtask()` cannot allocate a copied task record, then unconditionally returns `RETURN_OK` (`workbench/c/TaskList.c:190-204`). `addtask()` reports failure when its `AllocVec()` fails (`:88-99`), after which the command prints the records collected so far and returns the success status from `fillbuffer()` (`:213-261`). The separate iterator-handle allocation failure is covered by Exec/Kernel finding [EK125](AROS-exec-kernel.md#ek125): `NextTaskEntry(NULL)` dereferences NULL before TaskList can print a partial listing or reach its unlock call.
@@ -15024,6 +15122,7 @@ In the `__AROS__` branch, `fillbuffer()` breaks out of the task iteration when `
 **Trigger and consequence:** under memory pressure, allocation of any per-task copy fails after at least one task has been collected. TaskList prints only a prefix of the system task list and still reports success, presenting incomplete data as a complete snapshot. Propagate `addtask()` failure and return `RETURN_FAIL`. **Affected configuration:** `__AROS__` builds of the explicit `workbench-c` target (`workbench/c/mmakefile.src:5-45`); the non-AROS branch returns failure when `addtask()` fails. **Confidence:** high for the break-with-success and failure return paths. No allocation failure or command execution was induced; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#tasklist-full-body-and-allocation-failure-pass).
 
 <a id="gd10322"></a>
+<a id="gd10322-tasklist-performs-pointer-arithmetic-on-a-failed-allocation-result"></a>
 ## GD10322 — TaskList performs pointer arithmetic on a failed allocation result
 
 When a task has a non-NULL name, `addtask()` assigns `t = AllocVec(...)` and then computes `e = (STRPTR)&t[1] + strlen(s1)` before checking `if (!t)` (`workbench/c/TaskList.c:88-99`). If `AllocVec()` returns NULL, `&t[1]` forms an offset pointer from a NULL base; the function only checks the allocation result afterward.
@@ -15031,6 +15130,7 @@ When a task has a non-NULL name, `addtask()` assigns `t = AllocVec(...)` and the
 **Trigger and consequence:** a named task is being copied and the allocation fails. The failure path evaluates undefined pointer arithmetic before returning failure, so the allocation error path itself is not defined by C. Move the NULL check before deriving `e`. **Affected configuration:** all builds of the explicit `workbench-c` target when a named-task copy allocation fails (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for the ordering; manifestation requires the stated allocation failure. No allocation failure was induced; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#tasklist-full-body-and-allocation-failure-pass).
 
 <a id="gd10323"></a>
+<a id="gd10323-touch-truncates-an-existing-file-when-timestamp-update-fails"></a>
 ## GD10323 — Touch truncates an existing file when timestamp update fails
 
 `Touch` calls `SetFileDate()` first and, on any failure, opens the same name with `MODE_NEWFILE`, closes it, and returns success (`workbench/c/Touch.c:63-74`). DOS defines `MODE_NEWFILE` as deleting any old file and creating a new one (`rom/dos/open.c:40-48`; `compiler/include/dos/dos.h:408-415`). A concrete in-tree trigger exists in AFS multi-user security: `ACTION_SET_DATE` calls `afsSecCheckNameProperty()` and maps its denial to an unsuccessful packet result (`rom/filesys/afs/main.c:839-853`). That property check permits only root, the object owner, or an unowned object (`afs_security.c:136-150,181-192`; `compiler/include/libraries/security.h:194-205`). In contrast, AFS `ACTION_FINDOUTPUT` accepts an existing file when the caller has `AFS_ACCESS_WRITE | AFS_ACCESS_DELETE` on the file and write access to its parent (`rom/filesys/afs/main.c:400-434`). Its `MODE_NEWFILE` path then calls `deleteObject()` on the old file and creates a new entry (`rom/filesys/afs/filehandles1.c:541-580`).
@@ -15038,6 +15138,7 @@ When a task has a non-NULL name, `addtask()` assigns `t = AllocVec(...)` and the
 **Trigger and consequence:** on an AFS `muF\0` volume with configured/resident `security.library`, a non-owner has group write and delete access to an existing, unlocked file and write access to its parent, but lacks the property-access relationship. `SetFileDate()` returns `ERROR_WRITE_PROTECTED`; `Touch` then replaces the file through `MODE_NEWFILE`, discarding its contents, closes the new empty file, and reports `RETURN_OK`. The AFS security checks are enabled only under the stated security configuration (`rom/filesys/afs/afs_security.h:1-6`). **Affected configuration:** the explicit `workbench-c` target (`workbench/c/mmakefile.src:5-45`) used with the optional `kernel-fs-afs` handler and active AFS multi-user security. **Confidence:** high for the distinct property-versus-write/delete checks and destructive replacement sequence; the trigger requires the stated owner/group permissions and an unlocked file. Do not use the create fallback after an arbitrary date-update failure; distinguish a missing target from permission or I/O errors. No file operation or build was run; source-only; see the [Touch AFS permission trace](AROS-graphics-desktop-coverage.md#touch-afs-property-vs-replacement-gd10323).
 
 <a id="gd10324"></a>
+<a id="gd10324-uuidgen-leaks-its-readargs-allocation-on-every-successful-parse"></a>
 ## GD10324 — UUIDGen leaks its ReadArgs allocation on every successful parse
 
 When `ReadArgs()` succeeds, `UUIDGen` retains the returned `RDArgs` allocation through UUID generation and never calls `FreeArgs()` (`workbench/c/UUIDGen.c:66-97`). This includes both the successful library-open path and the path where `uuid.library` cannot be opened.
@@ -15045,6 +15146,7 @@ When `ReadArgs()` succeeds, `UUIDGen` retains the returned `RDArgs` allocation t
 **Trigger and consequence:** invoke UUIDGen repeatedly from the same long-lived Shell. Each invocation retains its parsed argument storage until the Shell exits, gradually consuming memory. Call `FreeArgs(rda)` on every path after successful parsing. **Affected configuration:** explicit `workbench-c` builds (`workbench/c/mmakefile.src:5-45`) when invoked from a persistent Shell. **Confidence:** high for the unmatched successful `ReadArgs()` and missing cleanup. No command was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#uuidgen-full-body-and-count-validation-pass).
 
 <a id="gd10325"></a>
+<a id="gd10325-a-negative-uuidgen-amount-becomes-billions-of-iterations"></a>
 ## GD10325 — A negative UUIDGen amount becomes billions of iterations
 
 `ReadArgs("...AMOUNT/N", ...)` parses the value into a signed `LONG` (`rom/dos/readargs.c:875-891`), and `StrToLong()` accepts a leading minus sign (`rom/dos/strtolong.c:54-78`). `UUIDGen` reads that value through an `ULONG *` and decrements it in `while (amount--)` (`workbench/c/UUIDGen.c:70-71,81`).
@@ -15052,6 +15154,7 @@ When `ReadArgs()` succeeds, `UUIDGen` retains the returned `RDArgs` allocation t
 **Trigger and consequence:** specify `AMOUNT -1` (or another negative value). The signed value is converted to an unsigned count; `-1` becomes the maximum `ULONG`, so the command attempts billions of UUID generations and output writes instead of rejecting the invalid count. Read into a signed type and reject nonpositive or unsupported counts before conversion. **Affected configuration:** explicit `workbench-c` builds when a negative `AMOUNT` is supplied (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for signed parsing, unsigned conversion and loop behavior. No command or output was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#uuidgen-full-body-and-count-validation-pass).
 
 <a id="gd10326"></a>
+<a id="gd10326-uuidgen-reports-success-when-parsing-or-uuid-library-setup-fails"></a>
 ## GD10326 — UUIDGen reports success when parsing or UUID-library setup fails
 
 `main()` returns `RETURN_OK` whether `ReadArgs()` fails or whether `OpenLibrary("uuid.library", 0)` returns NULL; the latter path emits no UUID and no error (`workbench/c/UUIDGen.c:66-99`). The successful UUID-generation path is the only path that does the command's advertised work (`:73-96`).
@@ -15059,6 +15162,7 @@ When `ReadArgs()` succeeds, `UUIDGen` retains the returned `RDArgs` allocation t
 **Trigger and consequence:** provide invalid command-line syntax, or run where `uuid.library` cannot be opened. The command exits with success despite producing no UUIDs, so scripts cannot detect the failure. Return failure and report the relevant DOS/library error after releasing any parsed arguments. **Affected configuration:** explicit `workbench-c` builds under the stated parse or library-open failure (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for the unconditional success return and no-output paths. No command or library failure was induced; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#uuidgen-full-body-and-count-validation-pass).
 
 <a id="gd10327"></a>
+<a id="gd10327-version-reads-before-its-buffer-on-files-shorter-than-ver"></a>
 ## GD10327 — Version reads before its buffer on files shorter than `$VER:`
 
 `findinfile()` searches for the five-byte `$VER:` marker. After a positive short read with no match, it always preserves five bytes using `memmove(tmp, &tmp[len - stringlen], stringlen)` (`workbench/c/Version.c:601-647`), even when `len < stringlen`. The temporary buffer begins at `tmp`, so for a file of one to four bytes the source pointer is before the allocation.
@@ -15066,6 +15170,7 @@ When `ReadArgs()` succeeds, `UUIDGen` retains the returned `RDArgs` allocation t
 **Trigger and consequence:** run `Version FILE` (or a lookup that reaches `makefilever()`) on a nonempty file shorter than the marker. The marker scan reads before its allocated buffer while carrying the suffix, potentially faulting or corrupting the parse. Preserve only `min(len, stringlen - 1)` bytes and use a nonnegative offset. **Affected configuration:** explicit `workbench-c` builds when the file being scanned is 1–4 bytes and has no marker (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for the negative source offset and exact trigger. No file was scanned; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#version-full-body-file-scanner-and-elf-pass).
 
 <a id="gd10328"></a>
+<a id="gd10328-versions-arm-attribute-parser-trusts-malformed-section-lengths"></a>
 ## GD10328 — Version's ARM attribute parser trusts malformed section lengths
 
 `arm_read_cpudata()` loads an ARM attributes section using the file-supplied offset and size, then calls `ARM_ParseAttrs()` with that exact allocation length (`workbench/c/Version.c:1772-1784`). The parser reads `data[0]` without checking `len`, advances to `attrs = data + 1`, and reads `attrs->size` and `attrs->vendor` while the loop condition checks only `len > 0` (`:1642-1657`). It also subtracts nested file-supplied sizes without verifying they fit the remaining section (`:1659-1671,1739-1746`).
@@ -15073,6 +15178,7 @@ When `ReadArgs()` succeeds, `UUIDGen` retains the returned `RDArgs` allocation t
 **Trigger and consequence:** use `Version ARCH` on an ARM ELF file whose attributes section is truncated or contains a subsection size smaller than its header or larger than its containing section. The parser can read beyond the allocated section; zero or out-of-range sizes can also underflow the remaining-length counters or fail to advance. Reject sections shorter than their required headers and validate each vendor/subsection length against the remaining bytes before reading or subtracting. **Affected configuration:** explicit `workbench-c` builds with `ARCH` on ARM targets, when the selected file has malformed/truncated attributes (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for unchecked reads and length arithmetic; manifestation depends on malformed input. No ELF file was read by the command; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#version-full-body-file-scanner-and-elf-pass).
 
 <a id="gd10329"></a>
+<a id="gd10329-version-reads-an-uninitialized-status-while-parsing-library-id-strings"></a>
 ## GD10329 — Version reads an uninitialized status while parsing library ID strings
 
 `createlibraryver()` declares `error` without initialization and assigns it only when no version number is found (`workbench/c/Version.c:1225-1229,1279-1284`). When a version is found, it calls `makedatafromstring()` and compares the result with `error` (`:1298-1302`). Thus a normal library ID containing a version causes an indeterminate value to be read. The caller uses the returned status to decide whether to keep the parsed version or replace it with the library node's version fields (`:1328-1357`).
@@ -15080,6 +15186,7 @@ When `ReadArgs()` succeeds, `UUIDGen` retains the returned `RDArgs` allocation t
 **Trigger and consequence:** query a loaded library or device whose ID string contains a parseable version. The uninitialized comparison is undefined behavior and can produce an incorrect status; the caller can consequently fall back to version fields or report a warning despite a valid ID string. Initialize the status before parsing and define the intended warning/success precedence. **Affected configuration:** explicit `workbench-c` builds when looking up loaded libraries/devices with version-bearing ID strings (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for the uninitialized read and caller's status-dependent fallback. No library/device query was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#version-full-body-file-scanner-and-elf-pass).
 
 <a id="gd10330"></a>
+<a id="gd10330-wait-turns-a-negative-duration-into-a-very-long-timer-request"></a>
 ## GD10330 — Wait turns a negative duration into a very long timer request
 
 `ReadArgs()` accepts `TIME/N` as a signed `LONG` (`rom/dos/readargs.c:875-891`; `StrToLong()` accepts a leading minus sign at `rom/dos/strtolong.c:54-78`). `Wait` reads it through `ULONG *`, then multiplies it by 60 for `MIN` and by `TICKS_PER_SECOND` (`workbench/c/Wait.c:121-134`).
@@ -15087,6 +15194,7 @@ When `ReadArgs()` succeeds, `UUIDGen` retains the returned `RDArgs` allocation t
 **Trigger and consequence:** pass a negative `TIME`, with or without `MIN`. The negative value becomes a large unsigned count and the multiplication wraps in unsigned arithmetic; the resulting positive delay is still submitted to timer.device, so a typo such as `Wait -1` can wait for a very long period instead of rejecting the duration. Parse into a signed type and reject negative values and multiplication overflow before converting to timer ticks. **Affected configuration:** explicit `workbench-c` builds when a negative duration is supplied (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for signed parsing, unsigned read, and unchecked multiplication; the exact long delay depends on unit/configuration constants. No wait or timer request was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#wait-full-body-and-duration-pass).
 
 <a id="gd10331"></a>
+<a id="gd10331-waitforport-frees-a-timer-request-while-it-may-still-be-active"></a>
 ## GD10331 — WaitForPort frees a timer request while it may still be active
 
 After `BeginIO()` starts the one-second timer request, Ctrl-C or Ctrl-D breaks directly out of the wait loop (`workbench/c/WaitForPort.c:110-120`). Cleanup then calls `CloseDevice()`, `DeleteIORequest()` and `DeleteMsgPort()` without aborting or waiting for the outstanding request (`:152-165`). Exec documents that all outstanding requests must be finished before `CloseDevice()` (`rom/exec/closedevice.c:40-55`); the sibling `Wait` command explicitly aborts and waits on its timer request when interrupted (`workbench/c/Wait.c:176-183`).
@@ -15094,6 +15202,7 @@ After `BeginIO()` starts the one-second timer request, Ctrl-C or Ctrl-D breaks d
 **Trigger and consequence:** send Ctrl-C or Ctrl-D while a one-second timer request is pending, including after a poll re-arms the request. Cleanup violates the device contract and frees the request and reply port while the timer operation may still be outstanding, risking invalid completion state and resource corruption. Abort the request if pending and wait for completion before closing the device and deleting either object. **Affected configuration:** explicit `workbench-c` builds on systems with timer.device version 36 or later, when the user interrupts during a pending wait (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for the active-request path and missing abort/wait; outcome depends on timer.device's behavior on close with a pending request. No signal or timer request was issued; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#waitforport-full-body-timer-lifecycle-and-timeout-pass).
 
 <a id="gd10332"></a>
+<a id="gd10332-waitforport-exceeds-its-documented-ten-second-timeout"></a>
 ## GD10332 — WaitForPort exceeds its documented ten-second timeout
 
 `WaitForPort` initializes a one-second timer and sets `wait_limit` to ten seconds (`workbench/c/WaitForPort.c:107-110`). On every timer completion it increments `wait_time` by one second, but exits only when `wait_time > wait_limit` (`:123-134`). At the tenth completion the value equals the limit, so it rearms for an eleventh second and only then exits.
@@ -15101,6 +15210,7 @@ After `BeginIO()` starts the one-second timer request, Ctrl-C or Ctrl-D breaks d
 **Trigger and consequence:** the named port remains absent throughout the timeout. The command waits about eleven seconds despite documenting a maximum of ten, delaying scripts that rely on the advertised bound. Use an inclusive limit comparison or calculate the deadline from elapsed time. **Affected configuration:** explicit `workbench-c` builds with timer.device version 36 or later, when the target port does not appear (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for the one-second interval, increment and strict comparison. No port wait or timer operation was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#waitforport-full-body-timer-lifecycle-and-timeout-pass).
 
 <a id="gd10333"></a>
+<a id="gd10333-automount-leaves-a-dos-entry-registered-when-startup-buffer-allocation-fails"></a>
 ## GD10333 — Automount leaves a DOS entry registered when startup-buffer allocation fails
 
 For a matching unmounted boot node, Automount assigns `dn->dn_Handler` and adds the node to the DOS list before allocating the temporary `name:` buffer required to start it (`workbench/c/Automount.c:298-324`). If that `AllocMem()` fails, it sets `res` and breaks without removing the DOS entry or clearing the handler. The node's `dn_Task`, `dn_SegList`, and startup state are not advanced; later passes skip it because `dn_Handler` is now non-NULL (`:282-283`).
@@ -15108,6 +15218,7 @@ For a matching unmounted boot node, Automount assigns `dn->dn_Handler` and adds 
 **Trigger and consequence:** memory allocation fails for the startup name buffer on a matching boot node with `ADNF_STARTPROC`. The command leaves a DOS-list entry advertising a handler that was never started, and future Automount passes skip the node. Roll back the handler and DOS-list insertion on this failure, or arrange a retryable state. **Affected configuration:** explicit `workbench-c` builds during startup when the matching boot node requires a handler process and the buffer allocation fails (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for operation order and early break; manifestation requires the stated allocation failure. No boot node was modified and no allocation failure was induced; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#automount-full-body-configuration-and-mount-lifecycle-pass).
 
 <a id="gd10334"></a>
+<a id="gd10334-automount-returns-success-after-preference-or-mount-setup-errors"></a>
 ## GD10334 — Automount returns success after preference or mount setup errors
 
 `main()` can retain an error in `res` when `LoadPrefs()` rejects the configuration or when later handler/name allocations fail, but after deleting its pool it unconditionally returns `RETURN_OK` (`workbench/c/Automount.c:270-271,301-324,339-345`). Parse failures are printed by `LoadPrefs()`'s caller, but startup scripts still receive success; errors inside the mount loop can be silent as well.
@@ -15116,6 +15227,7 @@ For a matching unmounted boot node, Automount assigns `dn->dn_Handler` and adds 
 
 <a id="gd10335-break-can-signal-a-task-after-its-taskresource-snapshot-is-released"></a>
 <a id="gd10335"></a>
+<a id="gd10335-break-can-signal-a-task-after-lookup-locks-are-released"></a>
 ## GD10335 — Break can signal a task after lookup locks are released
 
 The `NAME` path stores raw matching `struct Task *` pointers in `prList`, releases the task-resource lock, then signals those pointers (`workbench/c/Break.c:158-182,191-224`). The `PROCESS` path calls `FindCliProc()` and later signals its returned process pointer; `FindCliProc()` releases the DOS root semaphore before returning and does not pin the task lifetime (`:133-143`; `rom/dos/findcliproc.c:42-69`). For both paths, `Forbid()` is local to the processor on ExecSMP (`rom/exec/forbid.c:31-48`), so another CPU can remove the target after lookup and before `Signal()`.
@@ -15125,6 +15237,7 @@ The `PORT` path has the corresponding gap for its public port: `FindPort()` retu
 **Trigger and consequence:** on an SMP system, a process/task target exits or a named port is removed on another CPU after Break's lookup lock is released and before it reads/signals the saved target. The pointer can refer to freed task or port storage, so Break may access stale memory or signal invalid task state. Keep an appropriate lifetime reference through the signal operation, or perform lookup and signaling under synchronization that also prevents target destruction. **Affected configuration:** `__AROSEXEC_SMP__` builds using Break's `NAME`, `PROCESS`, or `PORT` selector. **Confidence:** high for the lookup/return and local-only Forbid ordering; manifestation requires concurrent target teardown. No task, port, or signal was exercised; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#break-full-body-task-lifetime-and-allocation-pass).
 
 <a id="gd10336"></a>
+<a id="gd10336-break-dereferences-unchecked-task-list-node-allocations"></a>
 ## GD10336 — Break dereferences unchecked task-list node allocations
 
 Each target-selection path allocates a `struct Node` and immediately writes `prNode->ln_Name` without checking whether `AllocVec()` returned NULL (`workbench/c/Break.c:141-143,151-153,174-176,186-188`). The name-matching path can repeat this allocation once per matching task.
@@ -15132,6 +15245,7 @@ Each target-selection path allocates a `struct Node` and immediately writes `prN
 **Trigger and consequence:** memory pressure makes any one of these node allocations fail. Break dereferences NULL while building the signal target list instead of reporting allocation failure and cleaning up prior nodes. Check each allocation and free the partially built list before returning failure. **Affected configuration:** explicit `workbench-c` builds when a selected target or matching task is found and its list-node allocation fails (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for each unchecked allocation/dereference pair; manifestation requires allocation failure. No allocation failure or signal was induced; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#break-full-body-task-lifetime-and-allocation-pass).
 
 <a id="gd10337"></a>
+<a id="gd10337-changetaskpri-reads-its-n-priority-at-pointer-width"></a>
 ## GD10337 — ChangeTaskPri reads its `/N` priority at pointer width
 
 `ReadArgs()` stores each `/N` value as a `LONG` and returns a pointer to that value (`rom/dos/readargs.c:875-889`). `ChangeTaskPri` instead reads the priority through `IPTR *` and narrows it back to `LONG` (`workbench/c/ChangeTaskPri.c:83-99`). On 64-bit builds, this reads pointer-width bytes from a 32-bit numeric slot; the bytes above the `LONG` value are not part of the parsed number.
@@ -15139,6 +15253,7 @@ Each target-selection path allocates a `struct Node` and immediately writes `prN
 **Trigger and consequence:** run ChangeTaskPri on a 64-bit target with a valid priority. The full-width read can combine the parsed 32-bit value with adjacent/stale bytes, making an in-range priority appear out of range or otherwise incorrect, so the requested priority is rejected or changed incorrectly. Read the argument through `LONG *` as specified by `ReadArgs()`'s `/N` result contract. **Affected configuration:** `__WORDSIZE == 64` builds of the explicit `workbench-c` target. **Confidence:** high for the type-width mismatch; exact observed value depends on surrounding storage bytes. No priority was changed; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#changetaskpri-full-body-and-readargs-number-width-pass).
 
 <a id="gd10338"></a>
+<a id="gd10338-break-reads-a-n-process-id-at-pointer-width"></a>
 ## GD10338 — Break reads a `/N` process ID at pointer width
 
 `ReadArgs()` returns `/N` values as pointers to `LONG` (`rom/dos/readargs.c:875-889`), but Break dereferences its `PROCESS/N` result as `IPTR` before passing it to `FindCliProc()` (`workbench/c/Break.c:133-140`). On 64-bit builds this reads beyond the 32-bit numeric value and includes unrelated upper bytes.
@@ -15146,6 +15261,7 @@ Each target-selection path allocates a `struct Node` and immediately writes `prN
 **Trigger and consequence:** run Break with a numeric process ID on a 64-bit target. The widened read can produce the wrong ID, causing a valid process not to be found or a different ID to be queried. Read the value as `LONG` (or widen it only after the correct-width load). **Affected configuration:** `__WORDSIZE == 64` builds of the explicit `workbench-c` target. **Confidence:** high for the mismatch against ReadArgs' storage contract; resulting ID depends on adjacent/stale bytes. No process was signaled; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#changetaskpri-full-body-and-readargs-number-width-pass).
 
 <a id="gd10339"></a>
+<a id="gd10339-conclip-off-starts-the-service-when-it-is-not-already-running"></a>
 ## GD10339 — ConClip OFF starts the service when it is not already running
 
 `checkport()` only treats an existing rendezvous port as the stop case. If `FindPort()` returns NULL, it creates a new port and returns success without checking `off` (`workbench/c/ConClip.c:154-176`). `main()` then installs the edit hook and enters the service loop (`:435-443`).
@@ -15153,6 +15269,7 @@ Each target-selection path allocates a `struct Node` and immediately writes `prN
 **Trigger and consequence:** run `ConClip OFF` while no ConClip instance is running. Instead of being a no-op or reporting that there is nothing to stop, the command creates a new server and blocks in its service loop. Handle `off` before creating the port. **Affected configuration:** explicit `workbench-c` builds when the rendezvous port is absent (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for the branch and resulting call sequence. No ConClip instance was started; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#conclip-full-body-options-and-hook-lifecycle-pass).
 
 <a id="gd10340"></a>
+<a id="gd10340-conclip-reads-its-n-clipboard-unit-at-pointer-width"></a>
 ## GD10340 — ConClip reads its `/N` clipboard unit at pointer width
 
 `ReadArgs()` stores `/N` arguments as `LONG` values and returns a pointer to that value (`rom/dos/readargs.c:875-889`). `getarguments()` reads `CLIPUNIT/N` through `IPTR *` before narrowing it to `ULONG` (`workbench/c/ConClip.c:133-146`). On 64-bit builds this reads pointer-width bytes from a 32-bit numeric slot.
@@ -15160,6 +15277,7 @@ Each target-selection path allocates a `struct Node` and immediately writes `prN
 **Trigger and consequence:** run ConClip with `CLIPUNIT=<n>` on a 64-bit target. The clipboard unit can be composed from the requested 32-bit value and unrelated upper bytes, causing clipboard reads/writes to target the wrong unit. Load through `LONG *` and then validate/convert the signed unit. **Affected configuration:** `__WORDSIZE == 64` builds of the explicit `workbench-c` target when `CLIPUNIT` is supplied. **Confidence:** high for the width mismatch against ReadArgs' result contract; resulting unit depends on adjacent/stale bytes. No clipboard was opened; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#conclip-full-body-options-and-hook-lifecycle-pass).
 
 <a id="gd10341"></a>
+<a id="gd10341-conclip-shutdown-can-strand-synchronous-rendezvous-callers-waiting-for-replies"></a>
 ## GD10341 — ConClip shutdown can strand synchronous rendezvous callers waiting for replies
 
 The global edit hook finds the rendezvous port, sends a stack-allocated message, and blocks in `WaitPort()` for the service reply (`workbench/c/ConClip.c:210-235`). The selected console CharMap class has the same synchronous protocol: `charmapcon_copy()` finds the named port, sends a stack-local message containing pointers to its stack-local `SGWork` and selection buffer, then waits for the reply before freeing that buffer (`rom/devs/console/charmapconclass.c:1334-1371`). The console module manifest selects `charmapconclass.c` (`rom/devs/console/mmakefile.src:4-5`). On Ctrl-C, `handleall()` can exit when the port signal is not yet set; cleanup replaces the global hook and deletes the port without coordinating either kind of in-flight sender (`workbench/c/ConClip.c:115-121,393-425`). `SetEditHook()` only swaps Intuition's global hook pointer (`rom/intuition/setedithook.c:40-51`); it does not wait for active calls to finish.
@@ -15167,6 +15285,7 @@ The global edit hook finds the rendezvous port, sends a stack-allocated message,
 **Trigger and consequence:** an editor-hook or CharMap copy sender has found the port but has not yet queued its message when the service task receives Ctrl-C, or a request is still queued as shutdown proceeds. The sender can wait forever for a reply; the CharMap caller also retains its selection buffer and stack-backed message state while waiting. A late message can target a deleted port. Stop accepting new requests and drain/reply to or cancel every in-flight request before deleting the port. **Affected configuration:** explicit `workbench-c` builds with ConClip running and the console CharMap class selected, while ConClip is stopped during concurrent string-gadget editing or console text selection/copy. **Confidence:** high for both synchronous request/reply paths and cleanup order; manifestation requires the shutdown interleaving. No hook, port, copy operation, or shutdown was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#conclip-full-body-options-and-hook-lifecycle-pass).
 
 <a id="gd10342"></a>
+<a id="gd10342-date-overflows-signed-arithmetic-when-setting-dates-after-2046"></a>
 ## GD10342 — Date overflows signed arithmetic when setting dates after 2046
 
 `Date` converts the parsed day count to seconds with `ds_Days * 60 * 60 * 24` using `LONG` arithmetic before assigning the result to timer.device's seconds field (`workbench/c/Date.c:165-167`). `DateStamp.ds_Days` is a signed 32-bit `LONG` (`compiler/include/dos/dos.h:43-46`), and the intermediate product exceeds `LONG_MAX` for dates after approximately 2046, even though timer.device's seconds field is an unsigned `ULONG`.
@@ -15174,6 +15293,7 @@ The global edit hook finds the rendezvous port, sends a stack-allocated message,
 **Trigger and consequence:** set a date after the signed-seconds boundary (for example, a valid date in 2050). The signed multiplication overflows before assignment, so C behavior is undefined and the timer can receive an incorrect timestamp. Convert days to seconds in a sufficiently wide unsigned type and range-check against the timer interface. **Affected configuration:** explicit `workbench-c` builds when setting a valid date after approximately 2046 (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for the signed 32-bit operand and overflow threshold; the resulting timer value is compiler-dependent. No date or timer operation was performed; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#date-command-full-body-date-to-seconds-pass).
 
 <a id="gd10343"></a>
+<a id="gd10343-date-discards-a-requested-output-file-failure-after-setting-the-clock"></a>
 ## GD10343 — Date discards a requested output-file failure after setting the clock
 
 When date/time arguments are supplied with `TO=filename`, `main()` calls `setdate()` and, if that succeeds, calls `printdate()` without assigning or checking its return value (`workbench/c/Date.c:267-278`). `printdate()` returns `RETURN_FAIL` if the output file cannot be opened or a write is short (`:201-249`).
@@ -15181,6 +15301,7 @@ When date/time arguments are supplied with `TO=filename`, `main()` calls `setdat
 **Trigger and consequence:** the clock update succeeds but creating or writing the requested `TO` file fails. Date exits with success even though the requested output was not produced, so scripts cannot detect the incomplete operation. Propagate `printdate()`'s result. **Affected configuration:** explicit `workbench-c` builds when `TO` is supplied and its output operation fails. **Confidence:** high for the ignored return and failure branches. No clock or file operation was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#date-command-full-body-date-to-seconds-pass).
 
 <a id="gd10344"></a>
+<a id="gd10344-delete-returns-success-when-the-requested-object-was-protection-skipped"></a>
 ## GD10344 — Delete returns success when the requested object was protection-skipped
 
 When `Delete` finds a delete-protected file or directory and `FORCE` is absent, it prints “Not Deleted” and clears `deleteit`, but sets `deletedfile = TRUE` before the protection decision (`workbench/c/Delete.c:311-326`). At function exit, `deletedfile` is used as the success condition (`:350-368`). No `DeleteFile()` call occurs for that protected object.
@@ -15188,6 +15309,7 @@ When `Delete` finds a delete-protected file or directory and `FORCE` is absent, 
 **Trigger and consequence:** delete a single protected file or directory without `FORCE`. The object remains, the command says it was not deleted, but returns `RETURN_OK`; scripts cannot detect the failure. Track successful deletion separately from protected/skipped objects and return a warning or failure when requested items remain. **Affected configuration:** explicit `workbench-c` builds when the target has `FIBF_DELETE` set and `FORCE` is omitted (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for the flag assignment, skipped deletion and final return path. No file was deleted; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#delete-command-full-body-protection-and-return-status-pass).
 
 <a id="gd10345"></a>
+<a id="gd10345-load-invokes-the-scsi-eject-sequence"></a>
 ## GD10345 — Load invokes the SCSI eject sequence
 
 `SCSIEject()` accepts a `load` argument but never reads it. It always sends START STOP UNIT with byte 4 equal to `1` and then `2` (`workbench/c/Eject.c:106-110,132-136`); the second CDB requests load/eject with LOEJ set and START clear, i.e. eject. `main()` calls this function for both the `Eject` and `Load` command names (`:204-207,257-260`).
@@ -15195,6 +15317,7 @@ When `Delete` finds a delete-protected file or directory and `FORCE` is absent, 
 **Trigger and consequence:** invoke the `Load` alias on a device that accepts the SCSI command path. The routine sends an eject sequence instead of a load/spin-up sequence. Select the proper START STOP CDB based on `load`, and avoid the unconditional eject CDB. **Affected configuration:** explicit `workbench-c` builds using the SCSI path for `Load` (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for the unused parameter and fixed eject CDB values. No SCSI command or media action was issued; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#eject-and-load-full-body-device-command-pass).
 
 <a id="gd10346"></a>
+<a id="gd10346-eject-overwrites-the-scsi-result-with-an-unconditional-trackdisk-command"></a>
 ## GD10346 — Eject overwrites the SCSI result with an unconditional trackdisk command
 
 After `SCSIEject()` returns, `main()` always invokes `TrackdiskEject()` and overwrites the first result (`workbench/c/Eject.c:257-260`). The selected USB mass-storage driver supports `HD_SCSICMD` but maps `TD_EJECT` to `cmd_Invalid` (`workbench/devs/USB/classes/MassStorage/storage_device.c:465-500`). `TrackdiskEject()` converts a nonzero `io_Error` to `ERROR_UNKNOWN` (`Eject.c:165-169`).
@@ -15202,6 +15325,7 @@ After `SCSIEject()` returns, `main()` always invokes `TrackdiskEject()` and over
 **Trigger and consequence:** eject media through a USB mass-storage device where the SCSI sequence succeeds but `TD_EJECT` is unsupported. The device can carry out the SCSI eject, then the unsupported second command replaces success with an error, so the command reports failure after the requested action. Select the supported protocol for the opened device and preserve its result instead of issuing both unconditionally. **Affected configuration:** explicit `workbench-c` builds on the selected USB mass-storage driver when SCSI eject succeeds and `TD_EJECT` is unsupported. **Confidence:** high for the unconditional calls, result overwrite and selected command map; successful eject depends on device response. No USB device or media was used; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#eject-and-load-full-body-device-command-pass).
 
 <a id="gd10347"></a>
+<a id="gd10347-eject-can-continue-with-a-null-io-request-after-allocation-failure"></a>
 ## GD10347 — Eject can continue with a NULL I/O request after allocation failure
 
 `main()` calls `CreateIORequest(port, ...)` even if `CreateMsgPort()` returned NULL, then sets `error = IoErr()` when either allocation failed (`workbench/c/Eject.c:187-191`). Exec documents that `CreateIORequest()` returns NULL for a NULL reply port and its implementation does not set DOS `IoErr()` (`rom/exec/createiorequest.c:37-54,72-97`); `CreateMsgPort()` also returns NULL without setting `IoErr()` (`rom/exec/createmsgport.c:62-88`). If the inherited IoErr is zero, the command proceeds and later dereferences the NULL request in `SCSIEject()` (`Eject.c:257-260,125-127`).
@@ -15209,6 +15333,7 @@ After `SCSIEject()` returns, `main()` always invokes `TrackdiskEject()` and over
 **Trigger and consequence:** message-port or request allocation fails while the process's IoErr is zero. The error guard remains clear and the command calls the device routine with a NULL request, faulting instead of reporting memory exhaustion. Check each allocation directly and set a concrete failure code before continuing. **Affected configuration:** explicit `workbench-c` builds when either startup allocation fails and IoErr is zero. **Confidence:** high for NULL returns, unchanged IoErr and later dereference; manifestation requires allocation failure and the stated initial error state. No allocation failure or device operation was induced; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#eject-and-load-full-body-device-command-pass).
 
 <a id="gd10348"></a>
+<a id="gd10348-filenote-quiet-still-prints-errors-and-truncation-warnings"></a>
 ## GD10348 — Filenote QUIET still prints errors and truncation warnings
 
 The `QUIET` option gates only successful filename output (`workbench/c/Filenote.c:222-225,246-249,268-271`). `SafeSetFileComment()` prints `PrintFault()` on SetComment failure and prints the truncation warning for long comments without receiving or checking the quiet flag (`:329-345`); `Do_Filenote()` also prints MatchFirst/MatchNext and wrong-type errors regardless of QUIET (`:194-201,282-285`).
@@ -15216,6 +15341,7 @@ The `QUIET` option gates only successful filename output (`workbench/c/Filenote.
 **Trigger and consequence:** use `QUIET` with a protected/unwritable file, a nonmatching pattern, a volume name rejected without ALL, or a comment longer than 79 characters. Diagnostic text still appears, contrary to the option's help text that it suppresses output. Apply QUIET consistently to diagnostics, or narrow the documented option semantics. **Affected configuration:** explicit `workbench-c` builds using `QUIET` on any of the stated failure/warning paths (`workbench/c/mmakefile.src:5-45`). **Confidence:** high for the unguarded output sites and documented promise. No comment or pattern operation was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#filenote-full-body-recursion-and-quiet-output-pass).
 
 <a id="gd10349"></a>
+<a id="gd10349-gpio-pull-uses-the-bcm2711-register-layout-on-legacy-broadcom-gpio"></a>
 ## GD10349 — GPIO PULL uses the BCM2711 register layout on legacy Broadcom GPIO
 
 The GPIO resource selects its RP1 path only when `gpio_rp1_bar1` is set for BCM2712; other Broadcom peripheral-base systems enter the shared peripheral-I/O branch (`arch/arm-native/soc/broadcom/2708/gpio/gpio_init.c:27-34,195-207`). That branch always writes pull bits at `GPIO_BASE + 0xE4` (`:198-206`), the GPPUPPDN register layout used by BCM2711, while the same target header defines the legacy BCM2835 pull controller at `GPPUD`/`GPPUDCLK0`/`GPPUDCLK1` offsets `0x94`/`0x98`/`0x9c` (`arch/arm-native/soc/broadcom/2708/include/hardware/bcm2708.h:430-432`). The command invokes `GPIOSetPull()` without a platform-specific alternative (`workbench/c/GPIO.c:118-125`).
@@ -15224,6 +15350,7 @@ The GPIO resource selects its RP1 path only when `gpio_rp1_bar1` is set for BCM2
 
 
 <a id="gd10350"></a>
+<a id="gd10350-info-device-pattern-normalization-overflows-its-stack-buffer"></a>
 ## GD10350 — Info device-pattern normalization overflows its stack buffer
 
 `myMatchPatternNoCase()` stores `strlen(p)` in an 8-bit `UBYTE`, then copies that many bytes into `name[32]` and writes `name[len]` and `name[len + 1]` (`workbench/c/Info.c:235-252`). The `DEVICES/M` arguments are passed here after `ReadArgs()` and `ParsePatternNoCase()` validation (`:572-610`); neither check limits their length to 30 bytes.
@@ -15231,6 +15358,7 @@ The GPIO resource selects its RP1 path only when `gpio_rp1_bar1` is set for BCM2
 **Trigger and consequence:** pass a device filter longer than 30 bytes that does not end in `:`. The copy and colon/NUL writes exceed the local array, corrupting the command's stack before pattern matching. Normalize into a suitably sized checked buffer or reject names that exceed the supported bound. **Affected configuration:** explicit `workbench-c` builds when `Info` is given such a `DEVICES` pattern. **Confidence:** high for the unchecked copy and writes; no command was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#info-command-full-body-and-formatting-pass).
 
 <a id="gd10351"></a>
+<a id="gd10351-info-locale-date-expansion-overruns-its-output-buffer"></a>
 ## GD10351 — Info locale date expansion overruns its output buffer
 
 When `info_datetime` is set, `Info` reads at most 63 format bytes into `buf[64]`, then streams `FormatDate()` output through `FmtProcedure()` into `datestr[128]` without tracking capacity (`workbench/c/Info.c:603-609,822-836,900-904`). The selected `FormatDate()` implementation expands directives such as `%A` and `%B` to full locale strings and emits a final NUL (`workbench/libs/locale/formatdate.c:135-141,160-166,348`). Thus a valid short format containing repeated expanding directives can produce more than 128 output bytes; each callback writes past `datestr`.
@@ -15238,6 +15366,7 @@ When `info_datetime` is set, `Info` reads at most 63 format bytes into `buf[64]`
 **Trigger and consequence:** configure `info_datetime` with repeated full-name directives whose locale strings expand the result beyond 128 bytes, then list a volume with a date. The callback overwrites the stack past `datestr`, potentially corrupting `Info` state or faulting. Bound the callback or format into a sufficiently sized/dynamically allocated destination. **Affected configuration:** explicit `workbench-c` builds with a long-expanded `info_datetime` preference and a dated volume. **Confidence:** high for the unchecked append and FormatDate expansion contract; actual stack effect depends on the configured locale and format. No preference or volume was read; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#info-command-full-body-and-formatting-pass).
 
 <a id="gd10352"></a>
+<a id="gd10352-info-reports-success-after-argument-or-processing-failures"></a>
 ## GD10352 — Info reports success after argument or processing failures
 
 `main()` calls the `void` `doInfo()` routine and always returns `RETURN_OK` (`workbench/c/Info.c:197-211`). `doInfo()` returns early on allocation failures, silently skips the body when `ReadArgs()` fails, and exits through cleanup after invalid patterns (`:555-567,572-610`). Its later scan can also fail without a status reaching `main()` (`:615-620,884-887`).
@@ -15245,6 +15374,7 @@ When `info_datetime` is set, `Info` reads at most 63 format bytes into `buf[64]`
 **Trigger and consequence:** invoke `Info` with invalid arguments or encounter a reported allocation/scan failure. The command can print an error or produce no output yet exit with success, so scripts and callers cannot detect the failure. Return and propagate a status from `doInfo()` for each error path. **Affected configuration:** explicit `workbench-c` builds on those error paths. **Confidence:** high for the unconditional return and void failure paths; no command or failure was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#info-command-full-body-and-formatting-pass).
 
 <a id="gd10353"></a>
+<a id="gd10353-info-truncates-kilobyte-counts-for-filesystems-larger-than-4-tib"></a>
 ## GD10353 — Info truncates kilobyte counts for filesystems larger than 4 TiB
 
 `ComputeKBytes()` multiplies block count and block size in `UQUAD`, shifts the byte count to KiB, then narrows it to `ULONG` (`workbench/c/Info.c:890-896`). The disk report uses the returned values for size, used, free, and percentage calculations (`:718-742`). With 32-bit `ULONG`, any capacity above `ULONG_MAX` KiB (4 TiB minus 1 KiB) wraps the displayed values.
@@ -15253,6 +15383,7 @@ When `info_datetime` is set, `Info` reads at most 63 format bytes into `buf[64]`
 
 
 <a id="gd10354"></a>
+<a id="gd10354-ipmi-leaks-the-temporary-hidd-system-root"></a>
 ## GD10354 — IPMI leaks the temporary HIDD system root
 
 `FindInterfaces()` creates a `CLID_Hidd_System` object, or a `CLID_HW_Root` fallback, then enumerates drivers and returns without disposing the successfully created root (`workbench/c/IPMI.c:141-156`). `main()` calls this routine on every command invocation (`:690-691`).
@@ -15260,6 +15391,7 @@ When `info_datetime` is set, `Info` reads at most 63 format bytes into `buf[64]`
 **Trigger and consequence:** run IPMI when either root object can be created. The allocated HIDD root object is never passed to `OOP_DisposeObject()`, retaining its object resources after the enumeration and accumulating a leak across repeated invocations. Dispose of whichever root was created after enumeration. **Affected configuration:** explicit `workbench-c` builds where an HIDD system or hardware root is available. **Confidence:** high for the successful object creation and missing disposal; no command was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#ipmi-command-full-body-and-sensor-arithmetic-pass).
 
 <a id="gd10355"></a>
+<a id="gd10355-ipmi-sensor-conversion-overflows-signed-32-bit-arithmetic"></a>
 ## GD10355 — IPMI sensor conversion overflows signed 32-bit arithmetic
 
 `ConvertReading()` keeps the IPMI linear conversion, intermediate value and exponent scaling in `LONG` (`workbench/c/IPMI.c:318-346`). The SDR's signed 10-bit M/B factors, 8-bit raw reading and signed 4-bit B/R exponents can produce values well outside 32-bit range; the loops multiply `scaled` by ten without checking.
@@ -15268,6 +15400,7 @@ When `info_datetime` is set, `Info` reads at most 63 format bytes into `buf[64]`
 
 
 <a id="gd10356"></a>
+<a id="gd10356-iconx-discards-the-script-launch-and-exit-status"></a>
 ## GD10356 — IconX discards the script launch and exit status
 
 `SystemTagList()` returns the executed command's return code or `-1` when it could not run (`rom/dos/systemtaglist.c:50-67`). IconX stores that result and maps `-1` to `RETURN_FAIL`, but then always waits and overwrites `rc` with `RETURN_OK` (`workbench/c/IconX.c:328-342`).
@@ -15276,6 +15409,7 @@ When `info_datetime` is set, `Info` reads at most 63 format bytes into `buf[64]`
 
 
 <a id="gd10357"></a>
+<a id="gd10357-install-copies-an-unchecked-device-name-into-a-32-byte-stack-array"></a>
 ## GD10357 — Install copies an unchecked device name into a 32-byte stack array
 
 `initVolume()` copies the device portion of the required `DRIVE` argument into `dname[32]` with an `UBYTE` index and no length check (`workbench/c/Install.c:395-412`). AROS DOS device names are stored as BSTRs with a maximum length greater than 31 bytes, so the fixed local buffer is not a valid bound for all names.
@@ -15283,6 +15417,7 @@ When `info_datetime` is set, `Info` reads at most 63 format bytes into `buf[64]`
 **Trigger and consequence:** invoke Install with a device name longer than 31 bytes before the colon. The loop writes past `dname`, corrupting the stack before device lookup; names over the index type's range can also wrap the index. Validate the name length before copying or use a buffer sized to the DOS name limit. **Affected configuration:** explicit `workbench-c` builds with a long device name. **Confidence:** high for the unchecked copy and available DOS name length; no command was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#install-command-full-body-device-and-blocklist-pass).
 
 <a id="gd10358"></a>
+<a id="gd10358-installs-stage2-extent-list-writes-beyond-its-fixed-storage"></a>
 ## GD10358 — Install's stage2 extent list writes beyond its fixed storage
 
 `stage2_firstblock` is 128 `ULONG`s (512 bytes), and `collectBlockList()` treats the one-past pointer at element 128 as a reverse-growing array of 8-byte `BlockNode`s (`workbench/c/Install.c:97-103,141-142,181-190,244-250`). The extent loop decrements a signed index and checks `blocklist[blk_count-1]` before writing `blocklist[blk_count]`; after the 64 available nodes are consumed, the check itself reads before the array and a further extent writes there. There is no separately bounded extent count.
@@ -15290,6 +15425,7 @@ When `info_datetime` is set, `Info` reads at most 63 format bytes into `buf[64]`
 **Trigger and consequence:** install stage2 from a file fragmented into at least 64 extents (a further extent is needed for the out-of-range write). The block-list builder accesses memory before `stage2_firstblock`; this corrupts adjacent global storage and can produce an invalid boot block or fail unpredictably. Track the 64-node capacity before every index calculation and return a bounded error. **Affected configuration:** explicit `workbench-c` builds when the stage2 file has enough non-contiguous extents. **Confidence:** high for the 512-byte backing store and unchecked reverse indexing; no disk or file was accessed. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#install-command-full-body-device-and-blocklist-pass).
 
 <a id="gd10359"></a>
+<a id="gd10359-install-failure-cleanup-leaks-io-requests-and-open-device-references"></a>
 ## GD10359 — Install failure cleanup leaks I/O requests and open device references
 
 `initVolume()` creates an I/O request and port, opens the device, and then reads the target boot sector (`workbench/c/Install.c:443-483`). On request-buffer allocation, device-open, or post-open read/media validation failure, the common failure path frees the block buffer, deletes the message port and frees `volume`, but does not delete `volume->iotd`; when `OpenDevice()` succeeded, it also does not call `CloseDevice()` (`:484-527`). The normal success cleanup does both (`:551-558`).
@@ -15297,6 +15433,7 @@ When `info_datetime` is set, `Info` reads at most 63 format bytes into `buf[64]`
 **Trigger and consequence:** any of those initialization failures after the request/port were created; a post-open read failure or non-DOS disk additionally leaves the device open. The request object leaks, and a successful device open keeps its open reference, so repeated Install attempts retain resources. Use one cleanup path that conditionally closes an opened device and deletes the request before deleting its port. **Affected configuration:** explicit `workbench-c` builds on the stated failure paths. **Confidence:** high for the divergent cleanup branches; no device or failure was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#install-command-full-body-device-and-blocklist-pass).
 
 <a id="gd10360"></a>
+<a id="gd10360-install-returns-success-after-argument-and-device-operation-failures"></a>
 ## GD10360 — Install returns success after argument and device-operation failures
 
 `main()` prints a `ReadArgs()` failure or calls `initVolume()` and may receive NULL, but unconditionally returns zero (`workbench/c/Install.c:589-612`). The install, boot-code removal, and check helpers also return no result to the caller (`:218-389,551-587`).
@@ -15305,6 +15442,7 @@ When `info_datetime` is set, `Info` reads at most 63 format bytes into `buf[64]`
 
 
 <a id="gd10361"></a>
+<a id="gd10361-leakwatch-walks-exec-system-lists-without-smp-list-locks"></a>
 ## GD10361 — LeakWatch walks Exec system lists without SMP list locks
 
 `AddLibs()`, `AddDevs()`, and `AddNodeNames()` traverse `LibList`, `DeviceList`, `ResourceList`, `IntrList`, `PortList`, and `SemaphoreList` while holding only `Forbid()` (`workbench/c/LeakWatch.c:243-340`). Exec documents that `Forbid()` is processor-local on `EXECSMP` and requires a spinlock for cross-CPU protection (`rom/exec/forbid.c:35-57`). The corresponding list additions/removals acquire the Exec list spinlocks; for example, `AddLibrary()` uses the LibList write lock (`rom/exec/addlibrary.c:63-69`). Other Workbench list commands use `execlock.resource` for SMP traversal (`workbench/c/LibList.c:100-140`; `DevList.c:101-140`).
@@ -15312,6 +15450,7 @@ When `info_datetime` is set, `Info` reads at most 63 format bytes into `buf[64]`
 **Trigger and consequence:** take a LeakWatch snapshot on an SMP system while another CPU adds or removes a listed resource. The traversal can observe changing links or a node being removed, yielding an inconsistent snapshot or dereferencing a stale node. Obtain the matching Exec system-list read lock for each traversal, retaining `Forbid()` only for local scheduler coordination. **Affected configuration:** `EXECSMP` builds with concurrent system-list mutations. **Confidence:** high for the missing cross-CPU lock and selected mutation locking; no concurrent operation was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#leakwatch-full-body-snapshot-ownership-and-smp-pass).
 
 <a id="gd10362"></a>
+<a id="gd10362-leakwatch-baseline-copies-lose-each-resources-type"></a>
 ## GD10362 — LeakWatch baseline copies lose each resource's type
 
 `CopyResourcesNode()` duplicates the resource name, address and count, but does not copy `src->type` (`workbench/c/LeakWatch.c:651-659`). `main()` uses this copy as the initial baseline (`:724-728`); when a resource's open count later changes, `NewStateDiff()` copies `other->type` from that baseline into the report (`:554-569`), and `DisplayStateDiff()` formats it as a string (`:596-620`).
@@ -15319,6 +15458,7 @@ When `info_datetime` is set, `Info` reads at most 63 format bytes into `buf[64]`
 **Trigger and consequence:** take a baseline, then change the open count of a resource that was already present at startup and request the since-start report. Its diff entry has a NULL type rather than `Library`, `Device`, or another category, so the report loses the resource classification and may be mishandled by the formatter. Copy the type into the baseline node. **Affected configuration:** all builds when a baseline resource's open count changes. **Confidence:** high for the omitted field and the report consumer; no resource count was changed. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#leakwatch-full-body-snapshot-ownership-and-smp-pass).
 
 <a id="gd10363"></a>
+<a id="gd10363-leakwatch-does-not-handle-exhausted-snapshotdiff-storage"></a>
 ## GD10363 — LeakWatch does not handle exhausted snapshot/diff storage
 
 LeakWatch uses bounded static pools (`MAX_TR`, `MAX_ORN`, `MAX_RD`, `MAX_MR`); the release helpers do not recycle entries (`workbench/c/LeakWatch.c:103-208`). `CopyResourcesState()` enqueues `nc` without checking whether `CopyResourcesNode()` returned NULL (`:662-682`), and its caller does not check whether `start_rs` was created (`:724-728`). Likewise `NewStateDiff()` can return NULL when its diff or modified-resource pool is exhausted (`:537-539,561-578`), but both signal handlers pass that result directly to `DisplayStateDiff()` (`:749-779`), which immediately dereferences it (`:596-603`).
@@ -15326,6 +15466,7 @@ LeakWatch uses bounded static pools (`MAX_TR`, `MAX_ORN`, `MAX_RD`, `MAX_MR`); t
 **Trigger and consequence:** run enough snapshots/diffs to exhaust a fixed pool, or have enough changed resources to exhaust the modified-resource pool. The command either enqueues a NULL node or displays a NULL diff, causing an invalid list access/dereference instead of reporting that the snapshot capacity was reached. Check each allocation result and stop the operation cleanly before using it. **Affected configuration:** any build after the respective static-pool limit is reached. **Confidence:** high for pool limits, NULL returns and unchecked consumers; no pool was exhausted. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#leakwatch-full-body-snapshot-ownership-and-smp-pass).
 
 <a id="gd10364"></a>
+<a id="gd10364-leakwatch-dereferences-gadtoolsbase-when-openlibrary-fails"></a>
 ## GD10364 — LeakWatch dereferences GadToolsBase when OpenLibrary fails
 
 `open_libs()` stores the result of `OpenLibrary("gadtools.library", 0)` but does not test it (`workbench/c/LeakWatch.c:692-695`). The initial `NewResourcesState()` calls `AddOpenedResources()`, which immediately dereferences `GadToolsBase` as a private GadTools base to read class pointers (`:405-435,724-728`).
@@ -15334,6 +15475,7 @@ LeakWatch uses bounded static pools (`MAX_TR`, `MAX_ORN`, `MAX_RD`, `MAX_MR`); t
 
 
 <a id="gd10365"></a>
+<a id="gd10365-list-reads-anchorpath-flags-after-freeing-the-anchorpath"></a>
 ## GD10365 — List reads AnchorPath flags after freeing the AnchorPath
 
 `listFile()` calls `MatchEnd(ap)` and frees the allocation containing `ap`, then reads `ap->ap_Flags` to decide whether to print the empty-directory summary (`workbench/c/List.c:1018-1035`). On normal completed matches `MatchNext()` returns `ERROR_NO_MORE_ENTRIES`, which is normalized to zero immediately before this read.
@@ -15341,6 +15483,7 @@ LeakWatch uses bounded static pools (`MAX_TR`, `MAX_ORN`, `MAX_RD`, `MAX_MR`); t
 **Trigger and consequence:** list a directory or pattern that completes normally (or is interrupted with `ERROR_BREAK`). The summary path dereferences freed memory; allocator reuse can change the `APF_ITSWILD` decision or make the read fault. Save the flag before freeing the path, or print the summary before `FreeVec(ap)`. **Affected configuration:** explicit `workbench-c` builds when a listing reaches the summary path. **Confidence:** high for the free-before-read ordering and normal trigger; no listing was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#list-command-full-body-pattern-and-cleanup-pass).
 
 <a id="gd10366"></a>
+<a id="gd10366-list-treats-anchorpath-allocation-failure-as-a-successful-empty-listing"></a>
 ## GD10366 — List treats AnchorPath allocation failure as a successful empty listing
 
 When `listFile()` cannot allocate its `AnchorPath`, it returns zero (`workbench/c/List.c:900-906`), the same value used for success. Its caller treats zero as successful completion (`:1271-1284`), so the command exits successfully without listing the requested directory. During `ALL`, this immediate return also bypasses cleanup of any already queued `DirList` and processed `FreeDirNodeList` nodes and their duplicated path strings (`:1064-1068`). Recursive traversal also silently skips a child when `AllocMem()` or `StrDup()` for its `DirNode` fails (`:992-1007`).
@@ -15348,6 +15491,7 @@ When `listFile()` cannot allocate its `AnchorPath`, it returns zero (`workbench/
 **Trigger and consequence:** exhaust memory while starting a listing or while queuing a recursive child directory. `List` produces incomplete or absent output and reports success, preventing scripts from detecting the omission; an AnchorPath failure during `ALL` can also strand queued recursion nodes and copied paths. Set an error on allocation failure, free all pending/processed nodes and propagate failure through `listFile()` and `main()`. **Affected configuration:** explicit `workbench-c` builds with `ALL` or any directory listing under allocation pressure. **Confidence:** high for the failure returns, skipped cleanup and callers; no allocation failure was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#list-command-full-body-pattern-and-cleanup-pass).
 
 <a id="gd10367"></a>
+<a id="gd10367-list-leaves-securitylibrary-open-after-the-command-exits"></a>
 ## GD10367 — List leaves security.library open after the command exits
 
 When the security library is resident, `main()` opens `security.library` before formatting owner fields (`workbench/c/List.c:1128-1131`), but no path calls `CloseLibrary(secBase)`; normal cleanup only frees patterns and restores output (`:1319-1334`). Several validation errors return early after the open as well (`:1140-1168`).
@@ -15355,6 +15499,7 @@ When the security library is resident, `main()` opens `security.library` before 
 **Trigger and consequence:** run List when `security.library` is resident. Each invocation leaves an unmatched library open reference, preventing the library from closing after clients finish and accumulating references over repeated runs. Close the library on all return paths after owner formatting is complete. **Affected configuration:** builds where `FindResident(SECURITYNAME)` succeeds and `OpenLibrary()` succeeds. **Confidence:** high for the unmatched open/close; no library state was queried at runtime. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#list-command-full-body-pattern-and-cleanup-pass).
 
 <a id="gd10368"></a>
+<a id="gd10368-list-truncates-recursive-total-block-counts-to-32-bits"></a>
 ## GD10368 — List truncates recursive total block counts to 32 bits
 
 The recursive `Statistics.nBlocks` accumulator is `UQUAD`, but the `ALL` summary passes it to `%ld` (`workbench/c/List.c:254-260,1296-1303`). Per-directory `nBlocks` is also accumulated in `ULONG` and passed through `printSummary(int nBlocks)` (`:847-858,883-889`).
@@ -15362,6 +15507,7 @@ The recursive `Statistics.nBlocks` accumulator is `UQUAD`, but the `ALL` summary
 **Trigger and consequence:** list a sufficiently large tree whose aggregate block count exceeds the 32-bit range (or one directory whose count wraps `ULONG`). The displayed total is truncated or wrapped although the size path supports 64-bit files. Keep block counters wide through per-directory and total formatting, using a matching UQUAD conversion. **Affected configuration:** explicit `workbench-c` builds on large filesystems/trees exceeding the 32-bit block range. **Confidence:** high for the mismatched counter and format widths; no large tree was listed. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#list-command-full-body-pattern-and-cleanup-pass).
 
 <a id="gd10369"></a>
+<a id="gd10369-lists-lformat-pre-scan-reads-beyond-a-trailing-percent-sign"></a>
 ## GD10369 — List's LFORMAT pre-scan reads beyond a trailing percent sign
 
 Before rendering an LFORMAT string, `printLformat()` scans for `%S` pairs and advances `temp` once for the character following every `%` (`workbench/c/List.c:345-375`). If the format ends in `%`, that read consumes its terminating NUL; the next loop condition then reads one byte beyond the string. The main formatting loop has an explicit trailing-percent case, but it is reached only after the unsafe pre-scan.
@@ -15370,6 +15516,7 @@ Before rendering an LFORMAT string, `printLformat()` scans for `%S` pairs and ad
 
 
 <a id="gd10370"></a>
+<a id="gd10370-lock-reports-failed-write-protect-packets-as-success"></a>
 ## GD10370 — Lock reports failed write-protect packets as success
 
 Both `lockDevice()` and `unlockDevice()` return the `DoPkt()` result (`workbench/c/Lock.c:84-92`), but `main()` maps a true result to `IoErr()` and a false result to zero (`:149-156`). `DoPkt()` returns packet `dp_Res1` and stores `dp_Res2` as the caller's `IoErr()` (`rom/dos/dopkt.c:111-119,126-141`). The RAM filesystem sets `DOSFALSE` when `CmdWriteProtect()` rejects the request (`rom/filesys/ram/handler.c:362-366`; `commands.c:2530-2557`): an incorrect unlock passkey sets `ERROR_INVALID_COMPONENT_NAME`, while asking to lock an already locked volume sets `ERROR_DISK_WRITE_PROTECTED` and leaves its state unchanged.
@@ -15378,6 +15525,7 @@ Both `lockDevice()` and `unlockDevice()` return the `DoPkt()` result (`workbench
 
 
 <a id="gd10371"></a>
+<a id="gd10371-makelink-clears-the-soft-link-filesystem-error"></a>
 ## GD10371 — MakeLink clears the soft-link filesystem error
 
 The hard-link path saves and prints `IoErr()` when `MakeLink()` fails, but the soft-link path only updates `retval` on success and never captures or prints the failure (`workbench/c/MakeLink.c:102-108,124-128`). The function then unconditionally calls `SetIoErr(error)` with the still-zero local value (`:137-140`). The DOS `MakeLink()` contract says failure is returned as `DOSFALSE` with the reason in `IoErr()` (`rom/dos/makelink.c:27-48`).
@@ -15386,6 +15534,7 @@ The hard-link path saves and prints `IoErr()` when `MakeLink()` fails, but the s
 
 
 <a id="gd10372"></a>
+<a id="gd10372-mount-ignores-invalid-mount-file-tooltypes-and-can-mount-partial-parameters"></a>
 ## GD10372 — Mount ignores invalid mount-file tooltypes and can mount partial parameters
 
 `readmountfile()` sets `mountinfo` when a mount file parses successfully, then processes icon tooltypes. If `ReadMountArgs()` rejects a tooltype, the failure is only logged in DEBUG and is not assigned to `error` or returned (`workbench/c/Mount.c:1142-1184`). The already-true `mountinfo` flag then reaches `mount(params,name)` (`:1208-1216`), using whatever parameters were changed before the invalid tooltype.
@@ -15393,6 +15542,7 @@ The hard-link path saves and prints `IoErr()` when `MakeLink()` fails, but the s
 **Trigger and consequence:** use a valid mount file with at least one malformed or unsupported non-comment tooltype. Mount continues with partial/default settings and may add a device whose configuration differs from the requested icon settings, while the invalid tooltype is not reported. Propagate the parser error and do not call `mount()` after any tooltype fails. **Affected configuration:** explicit `workbench-c` builds mounting a file that has icon tooltypes. **Confidence:** high for the ignored return and subsequent mount; no mount definition was loaded. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#mount-command-full-body-parser-and-handler-pass).
 
 <a id="gd10373"></a>
+<a id="gd10373-mount-reports-success-when-activate-fails-to-start-the-handler"></a>
 ## GD10373 — Mount reports success when ACTIVATE fails to start the handler
 
 After `AddDosEntry()` succeeds, `mount()` appends `:` and calls `DeviceProc(name)` for ACTIVATE, but ignores the returned port and unconditionally sets `error = 0` (`workbench/c/Mount.c:1891-1910`). `DeviceProc()` returns NULL when it cannot resolve/start a process for the device (`rom/dos/deviceproc.c:21-35,61-76`).
@@ -15400,6 +15550,7 @@ After `AddDosEntry()` succeeds, `mount()` appends `:` and calls `DeviceProc(name
 **Trigger and consequence:** mount with ACTIVATE when the newly added handler cannot be started, such as an invalid handler path or startup failure. Mount returns success even though activation failed and the device may not be usable. Check the DeviceProc result and propagate its IoErr. **Affected configuration:** explicit `workbench-c` builds with `ACTIVATE/K` and a handler-start failure. **Confidence:** high for the ignored result and API NULL failure contract; no handler was started. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#mount-command-full-body-parser-and-handler-pass).
 
 <a id="gd10374"></a>
+<a id="gd10374-mount-masks-mount-file-path-errors-after-breaking-the-match-loop"></a>
 ## GD10374 — Mount masks mount-file path errors after breaking the match loop
 
 In the mount-file pattern loop, a `NameFromLock()` or `AddPart()` failure prints a fault and executes `break`, but does not update `err` (`workbench/c/Mount.c:416-440`). After `MatchEnd()`, the code assigns `error = err` unless `err` is `ERROR_NO_MORE_ENTRIES` (`:471-482`). Because the loop-body break leaves `err` at the preceding successful MatchFirst/MatchNext value (zero), the error is overwritten with success.
@@ -15407,6 +15558,7 @@ In the mount-file pattern loop, a `NameFromLock()` or `AddPart()` failure prints
 **Trigger and consequence:** list a mount-file pattern for which resolving a matched path fails or exceeds the path buffer. The command displays a diagnostic but can return success and continue as though the mount operation completed. Save the path-resolution error before leaving the loop and propagate it instead of the last match status. **Affected configuration:** explicit `workbench-c` builds when a matched path cannot be resolved or appended. **Confidence:** high for the loop/update ordering; no path failure was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#mount-command-full-body-parser-and-handler-pass).
 
 <a id="gd10375"></a>
+<a id="gd10375-mount-continues-after-handler-or-device-string-allocation-fails"></a>
 ## GD10375 — Mount continues after handler or device string allocation fails
 
 When `ReadMountArgs()` copies HANDLER/EHANDLER/FILESYSTEM or DEVICE values, it frees the prior buffer and attempts `AllocVec()`, but does not handle a NULL result or set an error (`workbench/c/Mount.c:758-790,807-820`). Later code uses `HandlerString` to select/load a handler and `DeviceString` as the filesystem startup device (`:1728-1748,1859-1869`). Other string allocations in the same parser do propagate `ERROR_NO_FREE_STORE`.
@@ -15415,6 +15567,7 @@ When `ReadMountArgs()` copies HANDLER/EHANDLER/FILESYSTEM or DEVICE values, it f
 
 
 <a id="gd10376"></a>
+<a id="gd10376-protect-leaves-securitylibrary-open-after-using-groupother"></a>
 ## GD10376 — Protect leaves security.library open after using GROUP/OTHER
 
 When `security.library` is resident, `main()` opens it before processing GROUP/OTHER protection bits (`workbench/c/Protect.c:195-211`). No cleanup path closes `secBase` (`:293-326,417-493`).
@@ -15422,6 +15575,7 @@ When `security.library` is resident, `main()` opens it before processing GROUP/O
 **Trigger and consequence:** run Protect when `security.library` is resident and the open succeeds, including invocations that later reject an argument. The unmatched open reference remains after command exit and accumulates across repeated calls, preventing the library from closing when its other users are done. Close the library on all exits after `secSetProtection()` use. **Affected configuration:** explicit `workbench-c` builds with resident `security.library`. **Confidence:** high for the unmatched open/close; no library state was changed. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#protect-command-full-body-protection-and-break-pass).
 
 <a id="gd10377"></a>
+<a id="gd10377-protects-quiet-option-still-prints-errors"></a>
 ## GD10377 — Protect's QUIET option still prints errors
 
 The help says QUIET suppresses any shell output, and per-file status output is guarded by `if (!quiet)` (`workbench/c/Protect.c:56-57,371-391`). However, invalid GROUP/OTHER/FLAGS diagnostics and the no-match/scan-error `PrintFault()` paths are unconditional (`:200,274,399-402`).
@@ -15429,6 +15583,7 @@ The help says QUIET suppresses any shell output, and per-file status output is g
 **Trigger and consequence:** invoke `Protect ... QUIET` with invalid flags, a nonmatching path, or a pattern scan/protection error. Diagnostics still appear on the shell despite QUIET, so scripts using redirected/suppressed output receive unexpected text. Apply QUIET to all shell output while preserving the return code and IoErr. **Affected configuration:** explicit `workbench-c` builds using QUIET on one of these error paths. **Confidence:** high for the documented promise and unguarded output sites; no protection operation was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#protect-command-full-body-protection-and-break-pass).
 
 <a id="gd10378"></a>
+<a id="gd10378-protect-reports-ctrl-c-as-a-generic-error"></a>
 ## GD10378 — Protect reports Ctrl-C as a generic error
 
 `doProtect()` consumes Ctrl-C in the loop condition but does not set `IoErr(ERROR_BREAK)` or a break-specific result (`workbench/c/Protect.c:115,332-337`). After leaving the loop it checks `IoErr()` for `ERROR_NO_MORE_ENTRIES`; on interruption it unconditionally prints the current IoErr and returns `RETURN_ERROR` (`:399-403`).
@@ -15437,6 +15592,7 @@ The help says QUIET suppresses any shell output, and per-file status output is g
 
 
 <a id="gd10379"></a>
+<a id="gd10379-reboot-returns-success-when-the-reboot-request-is-unsupported"></a>
 ## GD10379 — Reboot returns success when the reboot request is unsupported
 
 `ShutdownA()` documents that it returns zero when the requested shutdown/reboot does not occur (`rom/exec/shutdowna.c:21-52`). `ColdReboot()` also returns if its warm-reset callbacks do not reboot (`rom/exec/coldreboot.c:42-53`). Reboot prints “This action is not supported” after either call returns, but then returns `0` (`workbench/c/Reboot.c:65-76`).
@@ -15445,6 +15601,7 @@ The help says QUIET suppresses any shell output, and per-file status output is g
 
 
 <a id="gd10380"></a>
+<a id="gd10380-rename-leaks-the-matchfirst-chain-when-the-initial-source-pattern-fails"></a>
 ## GD10380 — Rename leaks the MatchFirst chain when the initial source pattern fails
 
 The initial `MatchFirst(from[0], ap)` failure jumps to cleanup without calling `MatchEnd(ap)` (`workbench/c/Rename.c:172-179`). The selected DOS `MatchFirst()` initializes `ap_Base` to NULL, but after `Match_BuildAChainList()` succeeds it stores the chain in `ap_Base` before calling `MatchNext()`; a MatchNext error is returned without freeing that chain (`rom/dos/matchfirst.c:63-80`; `matchnext.c:424-440`). For a valid path prefix followed by a missing final component, `MatchNext()` has already attached locks to chain nodes before `Lock()` of that component fails (`rom/dos/matchnext.c:134-160,194-214`). `MatchEnd()` is the API that frees the chain and unlocks those locks (`rom/dos/matchend.c:48-86`).
@@ -15452,6 +15609,7 @@ The initial `MatchFirst(from[0], ap)` failure jumps to cleanup without calling `
 **Trigger and consequence:** use an initial source pattern whose chain can be built but whose first MatchNext fails, such as a path with an existing directory prefix and a missing final component. The command exits without releasing the match chain and its associated locks, retaining resources for the process lifetime. Call `MatchEnd()` on this failure path before freeing the AnchorPath. **Affected configuration:** explicit `workbench-c` builds when the initial MatchFirst fails after chain construction. **Confidence:** high for the selected DOS ownership contract and missing cleanup; no pattern was matched. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#rename-command-full-body-match-and-quiet-pass).
 
 <a id="gd10381"></a>
+<a id="gd10381-renames-quiet-option-still-prints-failure-diagnostics"></a>
 ## GD10381 — Rename's QUIET option still prints failure diagnostics
 
 The help defines QUIET as suppressing any command output, but the option only gates the success line (`workbench/c/Rename.c:46-50,266-268`). Failure paths still print destination errors, rename prefixes, and `PrintFault()` diagnostics without checking `quiet` (`:178-180,202-204,231-233,275-279,301-305,330-331,353-357`).
@@ -15460,6 +15618,7 @@ The help defines QUIET as suppressing any command output, but the option only ga
 
 
 <a id="gd10382"></a>
+<a id="gd10382-type-treats-input-read-errors-as-normal-end-of-file"></a>
 ## GD10382 — Type treats input read errors as normal end of file
 
 `get()` stores `IoErr()` when `Read()` returns a negative error, then returns `-1` for both that case and EOF (`workbench/c/Type.c:109-119`). Both `dumpfile()` and `hexdumpfile()` interpret any negative `getc()` result as end of input and return success unless an output operation separately fails (`:254-280,329-343`). The selected DOS `Read()` contract distinguishes zero-byte EOF from `-1` on error (`rom/dos/read.c:29-47`).
@@ -15467,6 +15626,7 @@ The help defines QUIET as suppressing any command output, but the option only ga
 **Trigger and consequence:** read a file from a device or filesystem that reports an I/O error after opening it. Type stops displaying data at the error and can report success, making a truncated display indistinguishable from a complete file. Preserve and return the read failure separately from EOF. **Affected configuration:** explicit `workbench-c` builds when an opened input fails during Read. **Confidence:** high for the API result contract and the shared EOF/error handling; no read failure was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#type-command-full-body-io-and-formatting-pass).
 
 <a id="gd10383"></a>
+<a id="gd10383-type-ignores-errors-while-flushing-final-output"></a>
 ## GD10383 — Type ignores errors while flushing final output
 
 `dumpfile()` ignores the return from its final `put(out)` at EOF (`workbench/c/Type.c:337-343`). In hex mode, `hexdumpfile()` ignores both the return from rendering the final partial line and the final `put(out)` (`:274-280`). If `TO` names a file, `main()` also ignores the result of `Close(out->fd)` (`:480-482`), although the selected DOS contract says Close can fail when the final buffered write fails (`rom/dos/close.c:21-48`).
@@ -15474,6 +15634,7 @@ The help defines QUIET as suppressing any command output, but the option only ga
 **Trigger and consequence:** an output device or file fails while Type flushes its last buffered bytes, or the final partial hex line cannot be written. Type may return success after silently omitting the tail of the output. Propagate render, flush, and close failures into the command result. **Affected configuration:** explicit `workbench-c` builds when a final output write/close fails. **Confidence:** high for the unchecked error returns and documented Close contract; no output failure was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#type-command-full-body-io-and-formatting-pass).
 
 <a id="gd10384"></a>
+<a id="gd10384-type-exits-successfully-when-its-to-file-cannot-be-opened"></a>
 ## GD10384 — Type exits successfully when its TO file cannot be opened
 
 `retval` is initialized to `RETURN_OK`. If opening the requested `TO` path fails, the `out->fd` failure branch prints `IoErr()` but does not change `retval` (`workbench/c/Type.c:407,429-433,486-489`). Cleanup then returns that unchanged value (`:496-503`).
@@ -15481,6 +15642,7 @@ The help defines QUIET as suppressing any command output, but the option only ga
 **Trigger and consequence:** invoke Type with `TO` set to an unwritable or invalid destination. The command emits an error yet returns success, so scripts can treat a failed copy/display as completed. Set a failure result on this path. **Affected configuration:** explicit `workbench-c` builds with a failing `TO` open. **Confidence:** high for the initialized result and branch flow; no output file was opened. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#type-command-full-body-io-and-formatting-pass).
 
 <a id="gd10385"></a>
+<a id="gd10385-types-number-line-counter-wraps-after-65535-lines"></a>
 ## GD10385 — Type's NUMBER line counter wraps after 65,535 lines
 
 `dumpfile()` stores the line number in `unsigned short` and increments it for each line (`workbench/c/Type.c:325-330,346-348`). On a 16-bit unsigned short, incrementing past 65,535 wraps to zero; `putlinenumber()` emits only five decimal digits (`:301-320`).
@@ -15488,6 +15650,7 @@ The help defines QUIET as suppressing any command output, but the option only ga
 **Trigger and consequence:** use `NUMBER` on a file with more than 65,535 lines. Subsequent lines are mislabeled from zero, so the displayed line numbers cease to identify the actual line. Use a wider counter and a formatter that can represent it. **Affected configuration:** explicit `workbench-c` builds where `unsigned short` is 16 bits (including the selected AROS ABI). **Confidence:** high for the fixed-width counter and increment; no large file was processed. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#type-command-full-body-io-and-formatting-pass).
 
 <a id="gd10386"></a>
+<a id="gd10386-type-accepts-opt-but-never-applies-its-value"></a>
 ## GD10386 — Type accepts OPT but never applies its value
 
 The command template accepts `OPT/K`, and its documented synopsis says `OPT H | N`, but `main()` and the dump routines only consult the separate `HEX` and `NUMBER` switches; `args[ARG_OPT]` is never read (`workbench/c/Type.c:9-18,66-71,410-416,380-383`).
@@ -15495,6 +15658,7 @@ The command template accepts `OPT/K`, and its documented synopsis says `OPT H | 
 **Trigger and consequence:** invoke the documented `OPT H` or `OPT N` form. ReadArgs accepts it, but Type ignores the selected mode and displays the default text format. Either implement the legacy option values or reject/document the unsupported keyword. **Affected configuration:** explicit `workbench-c` builds using the advertised OPT syntax. **Confidence:** high for the accepted-but-unused argument and synopsis; no command was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#type-command-full-body-io-and-formatting-pass).
 
 <a id="gd10387"></a>
+<a id="gd10387-types-hex-offset-overflows-on-files-larger-than-2-gib"></a>
 ## GD10387 — Type's HEX offset overflows on files larger than 2 GiB
 
 `hexdumpfile()` keeps the byte offset in signed `LONG` and advances it by 16 for every full row (`workbench/c/Type.c:239-240,288`). On the selected 32-bit ABI, the offset overflows at 2 GiB; subsequent displayed row offsets wrap or are otherwise undefined, although the file can continue to be read.
@@ -15503,6 +15667,7 @@ The command template accepts `OPT/K`, and its documented synopsis says `OPT H | 
 
 
 <a id="gd10388"></a>
+<a id="gd10388-eval-prints-n-instead-of-the-documented-newline"></a>
 ## GD10388 — Eval prints `*n` instead of the documented newline
 
 `printLformat()` enters the `case '*'` branch but tests `format[i] == 'n'` while `format[i]` is still `'*'` (`workbench/c/Eval.c:224-238`). The branch therefore always prints a literal asterisk; the next loop iteration prints the `n`.
@@ -15510,6 +15675,7 @@ The command template accepts `OPT/K`, and its documented synopsis says `OPT H | 
 **Trigger and consequence:** use an `LFORMAT` containing the documented `*n`, for example `LFORMAT="%n*n"`. Eval writes the characters `*n` where the requested line break should be, joining subsequent output onto the same line. Check the following character and consume it when processing the escape. **Affected configuration:** explicit `workbench-c-eval` target using `LFORMAT` with `*n`; the parent `workbench-c` aggregate is commented in this snapshot. **Confidence:** high for the unreachable condition and documented syntax; no Eval command was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#eval-command-full-body-expression-and-output-format-pass).
 
 <a id="gd10389"></a>
+<a id="gd10389-evals-octal-lformat-buffer-is-too-small-for-negative-results"></a>
 ## GD10389 — Eval's octal LFORMAT buffer is too small for negative results
 
 For `%o`, `printLformat()` formats the `int` into `char s[10]` before truncating to the requested width (`workbench/c/Eval.c:217-256`). On the AROS 32-bit `int` ABI, a negative value passed to `%o` is rendered as an unsigned 32-bit value and can require 11 octal digits plus the terminating NUL, exceeding this buffer.
@@ -15517,6 +15683,7 @@ For `%o`, `printLformat()` formats the `int` into `char s[10]` before truncating
 **Trigger and consequence:** format a negative expression such as `-1` with a documented octal format such as `%o8`. The conversion writes beyond the local buffer before the width truncation is applied, so output formatting has undefined behavior and may corrupt adjacent stack state. Size the scratch buffer for the longest supported conversion, including its terminator, before formatting. **Affected configuration:** explicit `workbench-c-eval` builds with 32-bit `int`, negative result and `%o` format. **Confidence:** high for the buffer size and maximum octal representation; no command was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#eval-command-full-body-expression-and-output-format-pass).
 
 <a id="gd10390"></a>
+<a id="gd10390-eval-does-not-validate-the-xo-width-before-indexing-its-buffer"></a>
 ## GD10390 — Eval does not validate the `%x`/`%o` width before indexing its buffer
 
 The `%x` and `%o` branches use the next format character as an array index by subtracting `'0'`, without checking that it is a digit in the buffer's valid range (`workbench/c/Eval.c:240-256`). The width character is also read unconditionally, including when the format ends after `%x` or `%o`.
@@ -15524,6 +15691,7 @@ The `%x` and `%o` branches use the next format character as an array index by su
 **Trigger and consequence:** provide a malformed `LFORMAT` such as `%x` with no width, `%o:` or `%xA`. The computed index can be negative or outside `s[10]`, and the assignment writes outside the local buffer. Validate and bound the width before indexing, and handle incomplete conversion sequences as format errors. **Affected configuration:** explicit `workbench-c-eval` builds given malformed `%x`/`%o` format strings. **Confidence:** high for the unchecked character-to-index operation; no malformed format was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#eval-command-full-body-expression-and-output-format-pass).
 
 <a id="gd10391"></a>
+<a id="gd10391-eval-divides-by-zero-while-evaluating-or-mod"></a>
 ## GD10391 — Eval divides by zero while evaluating `/` or `mod`
 
 The grammar evaluates division and remainder directly as `$1 / $3` and `$1 % $3`, with no zero-divisor check (`workbench/c/evalParser.y:58-59`). `main()` treats parser return code 1 as a syntax error only after `yyparse()` returns (`workbench/c/Eval.c:164-167`); that does not handle a divide exception raised while evaluating the production.
@@ -15531,6 +15699,7 @@ The grammar evaluates division and remainder directly as `$1 / $3` and `$1 % $3`
 **Trigger and consequence:** evaluate an expression such as `1/0` or `1 mod 0`. The integer division operation can fault instead of returning a normal Eval error, terminating the command and its invoking shell context. Check the divisor in the grammar action and report a calculation error before performing either operation. **Affected configuration:** explicit `workbench-c-eval` builds for expressions with a zero divisor. **Confidence:** high for the unguarded operations; no expression was evaluated. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#eval-command-full-body-expression-and-output-format-pass).
 
 <a id="gd10392"></a>
+<a id="gd10392-eval-evaluates-out-of-range-shift-counts-without-validation"></a>
 ## GD10392 — Eval evaluates out-of-range shift counts without validation
 
 The `lsh` and `rsh` productions apply C shifts directly to signed `int` values without validating the right operand (`workbench/c/evalParser.y:48-50`). For the 32-bit `int` used by AROS, a shift count below zero or at least 32 has undefined behavior.
@@ -15538,6 +15707,7 @@ The `lsh` and `rsh` productions apply C shifts directly to signed `int` values w
 **Trigger and consequence:** evaluate an expression such as `1 lsh 32` or `1 rsh -1`. The result is undefined and may differ across compiler/CPU configurations rather than producing a stable expression result or an Eval error. Validate the count against the operand width and define the intended signed-shift behavior. **Affected configuration:** explicit `workbench-c-eval` builds with an out-of-range shift count. **Confidence:** high for the direct signed shifts and missing validation; no shift expression was evaluated. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#eval-command-full-body-expression-and-output-format-pass).
 
 <a id="gd10393"></a>
+<a id="gd10393-eval-parses-08-and-09-as-zero-instead-of-decimal-numbers"></a>
 ## GD10393 — Eval parses `08` and `09` as zero instead of decimal numbers
 
 The lexer comment says `08...` and `09...` should be treated as ordinary decimal input, but these cases fall through to the generic digit parser, which calls `sscanf(..., "%i", ...)` (`workbench/c/evalParser.y:112-116,169-178`). `%i` treats a leading zero as octal and stops at the first `8` or `9`; the subsequent digit loop consumes the rest of the token anyway.
@@ -15545,6 +15715,7 @@ The lexer comment says `08...` and `09...` should be treated as ordinary decimal
 **Trigger and consequence:** evaluate `08+1` or `09+1`. The lexer consumes the whole leading-zero token but assigns only the parsed zero, yielding 1 instead of 9 or 10. Parse these cases as decimal (or explicitly reject invalid octal) rather than consuming digits that were not part of the parsed value. **Affected configuration:** explicit `workbench-c-eval` builds using a decimal number with a leading zero followed by 8 or 9. **Confidence:** high for the `%i` conversion and token-consumption loop; no expression was evaluated. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#eval-command-full-body-expression-and-output-format-pass).
 
 <a id="gd10394"></a>
+<a id="gd10394-eval-accepts-a-hex-prefix-with-no-digits-using-a-stale-value"></a>
 ## GD10394 — Eval accepts a hex prefix with no digits using a stale value
 
 For `0x` and `#x` literals, the lexer calls `sscanf()` but ignores its conversion count, then returns `NUM` even if no hexadecimal digit was consumed (`workbench/c/evalParser.y:77-93,127-143`). Since `yylval` is not assigned on failed conversion, it retains its prior token value (or its initial zero).
@@ -15553,6 +15724,7 @@ For `0x` and `#x` literals, the lexer calls `sscanf()` but ignores its conversio
 
 
 <a id="gd10395"></a>
+<a id="gd10395-loadwb-returns-success-when-workbench-does-not-start"></a>
 ## GD10395 — LoadWB returns success when Workbench does not start
 
 `LoadWB` only calls `StartWorkbench()` when `workbench.library` opens, ignores that function's `BOOL` result, and returns zero on every path (`workbench/c/LoadWB.c:22-30`). The selected `StartWorkbench()` returns `FALSE` when it cannot find the resident Workbench segment or `CreateNewProc()` fails (`workbench/libs/workbench/startworkbench.c:46-84`); a failed `OpenLibrary()` also silently skips the start attempt.
@@ -15561,6 +15733,7 @@ For `0x` and `#x` literals, the lexer calls `sscanf()` but ignores its conversio
 
 
 <a id="gd10396"></a>
+<a id="gd10396-setkeyboard-changes-the-system-default-instead-of-the-current-shell"></a>
 ## GD10396 — SetKeyboard changes the system default instead of the current shell
 
 The command documentation says SetKeyboard changes the current shell's keymap and directs users to the Input preferences program to change the default for all shells (`workbench/c/SetKeyboard.c:11-42`). Its implementation calls `SetKeyMapDefault()` on the loaded keymap (`:100-105`), whose public contract explicitly says it sets the systemwide default (`rom/keymap/setkeymapdefault.c:26-39`).
@@ -15569,6 +15742,7 @@ The command documentation says SetKeyboard changes the current shell's keymap an
 
 
 <a id="gd10397"></a>
+<a id="gd10397-play-reports-success-when-playback-is-interrupted-with-ctrl-c"></a>
 ## GD10397 — Play reports success when playback is interrupted with Ctrl-C
 
 After starting the sound datatype, `Play` waits for either the completion signal or `SIGBREAKF_CTRL_C`, but discards the mask returned by `Wait()` and unconditionally sets `result = RETURN_OK` (`workbench/c/Play.c:89-101`). The selected sound datatype signals the configured task/bit when non-continuous playback completes (`workbench/classes/datatypes/sound/dispatch.c:3292-3303`), while the shell can also wake the task with Ctrl-C.
@@ -15577,6 +15751,7 @@ After starting the sound datatype, `Play` waits for either the completion signal
 
 
 <a id="gd10398"></a>
+<a id="gd10398-gfxcontrol-reports-the-direct-bitmap-access-transition-before-it-completes"></a>
 ## GD10398 — GfxControl reports the direct-bitmap-access transition before it completes
 
 `PREVENT_DIRECT_BITMAP_ACCESS` starts `PatchTask` and reports success when `CreateNewProcTags()` returns; the worker still has to open cybergraphics.library, create/publish its port, and install the replacement vector (`workbench/c/GfxControl.c:88-103,143-152`). The `ALLOW_DIRECT_BITMAP_ACCESS` path only enqueues a message with `PutMsg()` and returns without waiting for the worker to restore the original vector (`:156-165`). Exec documents PutMsg as a send to a port and WaitPort as returning when a message is present, without removing it (`rom/exec/putmsg.c:21-44`; `rom/exec/waitport.c:21-46`).
@@ -15584,6 +15759,7 @@ After starting the sound datatype, `Play` waits for either the completion signal
 **Trigger and consequence:** immediately use `LockBitMapTagList()` after PDBA/ADBA, or have the worker fail during library/port setup after the parent has reported PDBA success. The vector may still be in its previous state, or remain unchanged despite the success result, so callers cannot rely on the requested state after the command returns. Add an acknowledgement/result handshake and propagate worker setup failure before reporting completion. **Affected configuration:** explicit `workbench-c-sh` builds using PDBA or ADBA. **Confidence:** high for the asynchronous request/return ordering and unreported worker setup failures; no vector was patched. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#gfxcontrol-command-full-body-transition-and-options-pass).
 
 <a id="gd10399"></a>
+<a id="gd10399-gfxcontrol-mishandles-simultaneous-prevent-and-allow-switches"></a>
 ## GD10399 — GfxControl mishandles simultaneous PREVENT and ALLOW switches
 
 `Start()` looks up `port` once before processing either switch, then handles PDBA and ADBA independently using that unchanged pointer (`workbench/c/GfxControl.c:139-165`). If both switches are supplied while no patch port exists, PDBA launches the patch task, but ADBA still sees the original NULL and does not send a stop request.
@@ -15592,6 +15768,7 @@ After starting the sound datatype, `Play` waits for either the completion signal
 
 
 <a id="gd10400"></a>
+<a id="gd10400-print-returns-success-when-a-requested-file-cannot-be-opened-as-a-datatype"></a>
 ## GD10400 — Print returns success when a requested file cannot be opened as a datatype
 
 After successfully opening datatypes.library, `Print` initializes `result` to `RETURN_OK` before iterating the requested files (`workbench/c/Print.c:124-129`). If `NewDTObject()` fails for one of those files, the branch prints “Can't open” but does not set a failure result (`:145-146`); after the loop the command returns the unchanged success value (`:157-158`).
@@ -15600,6 +15777,7 @@ After successfully opening datatypes.library, `Print` initializes `result` to `R
 
 
 <a id="gd10401"></a>
+<a id="gd10401-arosmondrvs-skips-all-monitor-drivers-if-iconlibrary-fails-to-open"></a>
 ## GD10401 — AROSMonDrvs skips all monitor drivers if icon.library fails to open
 
 `findMonitors()` explicitly supports a NULL `IconBase` by assigning every driver priority zero (`workbench/c/AROSMonDrvs.c:139-143`), but `main()` only calls `findMonitors()` and `loadMonitors()` inside `if (IconBase)` (`:225-237`). The failed-open path neither loads any monitors nor changes `res`, which remains `RETURN_OK`.
@@ -15607,6 +15785,7 @@ After successfully opening datatypes.library, `Print` initializes `result` to `R
 **Trigger and consequence:** start AROSMonDrvs with a usable `DEVS:Monitors` directory when icon.library cannot be opened. The command silently skips every monitor driver and exits successfully, even though its own helper has a no-icon fallback. Continue enumeration with zero priorities when icon.library is unavailable, or return a reported failure if it is truly required. **Affected configuration:** explicit `workbench-c-sh` builds when opening icon.library fails and monitor files are present. **Confidence:** high for the dead fallback and skipped load path; no driver was started. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#arosmondrvs-command-full-body-monitor-discovery-and-execution-pass).
 
 <a id="gd10402"></a>
+<a id="gd10402-arosmondrvs-leaks-diskobjects-with-other-icon-types"></a>
 ## GD10402 — AROSMonDrvs leaks DiskObjects with other icon types
 
 `checkIcon()` frees the result of `GetDiskObject()` only inside the `WBTOOL`/`WBPROJECT` type branch (`workbench/c/AROSMonDrvs.c:82-101`). For any other valid DiskObject type it returns the default priority without calling `FreeDiskObject()`.
@@ -15614,6 +15793,7 @@ After successfully opening datatypes.library, `Print` initializes `result` to `R
 **Trigger and consequence:** a monitor driver has a corresponding `.info` file whose DiskObject type is not WBTOOL or WBPROJECT. Each scan retains that DiskObject's allocations for the lifetime of the loader process. Release every non-NULL DiskObject after optionally reading STARTPRI. **Affected configuration:** explicit `workbench-c-sh` builds scanning monitor entries with another valid icon type. **Confidence:** high for the unmatched ownership path; no icon was read. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#arosmondrvs-command-full-body-monitor-discovery-and-execution-pass).
 
 <a id="gd10403"></a>
+<a id="gd10403-arosmondrvs-ignores-failures-to-find-or-start-the-requested-drivers"></a>
 ## GD10403 — AROSMonDrvs ignores failures to find or start the requested drivers
 
 The composition and monitor paths call `Execute()` but only assign its boolean result inside `D(...)` debug macros (`workbench/c/AROSMonDrvs.c:175-177,207-213`). With this file's `DEBUG` set to zero, those assignments and diagnostics are compiled out. `loadMonitors()` is `void`, and `main()` leaves `res` unchanged. The selected DOS contract says `Execute()` returns whether it could find and start the command (`rom/dos/execute.c:31-64`).
@@ -15622,6 +15802,7 @@ The composition and monitor paths call `Execute()` but only assign its boolean r
 
 
 <a id="gd10404"></a>
+<a id="gd10404-binddrivers-truncates-wildcard-product-ids-before-device-matching"></a>
 ## GD10404 — BindDrivers truncates wildcard product IDs before device matching
 
 When a `PRODUCT` tooltype contains a manufacturer without `/product`, `BindDriverAdd()` stores `PROD_ANY` (`~0`) in the `UWORD` product field (`workbench/c/BindDrivers.c:131-140`). The caller passes that field to `BindDriver()`, whose product parameter is `UBYTE` (`:199-210,339`). It is therefore converted to 255 before being passed to `FindConfigDev()`. The API takes a `LONG` and documents `-1` as the wildcard; its implementation tests `product == -1` before comparing against the board's product (`compiler/include/libraries/expansion.h` and `rom/expansion/findconfigdev.c:86-90`).
@@ -15629,6 +15810,7 @@ When a `PRODUCT` tooltype contains a manufacturer without `/product`, `BindDrive
 **Trigger and consequence:** a driver `.info` file uses `PRODUCT=<manufacturer>` to support any product from that manufacturer, and a matching configurable board has a product other than 255. `BindDrivers` searches only for product 255, so it does not bind that driver to the board. Preserve and pass the wildcard using a signed type (or translate it back to `-1`) at the `BindDriver()` boundary. **Affected configuration:** explicit `workbench-c-sh` builds using `PRODUCT` tooltypes without a product component. **Confidence:** high; the stored wildcard, narrowing parameter, API contract and comparison are directly connected. No device was bound. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#binddrivers-shell-command-full-body-tooltype-and-binding-pass).
 
 <a id="gd10405"></a>
+<a id="gd10405-binddrivers-leaks-icon-objects-for-drivers-without-a-valid-product-tooltype"></a>
 ## GD10405 — BindDrivers leaks icon objects for drivers without a valid PRODUCT tooltype
 
 `BindDriverAdd()` obtains a `DiskObject` with `GetDiskObject()` (`workbench/c/BindDrivers.c:101`), but frees it only after successfully creating and adding a driver node (`:115-159`) and later in the consumer loop (`:344-346`). If the icon has no `PRODUCT` tooltype, the function falls through and returns without freeing it (`:105-165`). The same leak occurs for a rejected tooltype string and when the node allocation fails.
@@ -15636,6 +15818,7 @@ When a `PRODUCT` tooltype contains a manufacturer without `/product`, `BindDrive
 **Trigger and consequence:** scan an expansion directory containing an `.info` file whose icon has no valid `PRODUCT` tooltype, or encounter the node-allocation failure path. Each such scan leaks its loaded icon object and associated allocations until process exit; repeated invocations accumulate the leaked memory. Free the `DiskObject` on every path that does not transfer ownership to a queued node. **Affected configuration:** explicit `workbench-c-sh` builds scanning such an expansion directory. **Confidence:** high for the missing cleanup paths and ownership transfer. No allocation failure or scan was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#binddrivers-shell-command-full-body-tooltype-and-binding-pass).
 
 <a id="gd10406"></a>
+<a id="gd10406-binddrivers-reports-success-after-driver-binding-failures"></a>
 ## GD10406 — BindDrivers reports success after driver binding failures
 
 `BindDriver()` returns `RETURN_FAIL` when `LoadSeg()` fails or a loaded segment contains no resident (`workbench/c/BindDrivers.c:218-242`). The caller breaks out of the product loop on that error (`:338-342`) but discards it, continues cleanup, and unconditionally returns `RETURN_OK` (`:344-354`).
@@ -15644,6 +15827,7 @@ When a `PRODUCT` tooltype contains a manufacturer without `/product`, `BindDrive
 
 
 <a id="gd10407"></a>
+<a id="gd10407-assign-returns-success-when-startup-or-argument-parsing-fails"></a>
 ## GD10407 — Assign returns success when startup or argument parsing fails
 
 `Main()` initializes `error` to `RETURN_OK`, then skips its command body if opening utility.library or dos.library fails; it never changes `error` on either path (`workbench/c/Assign.c:227-244,315-321`). Likewise, if `ReadArgs()` returns NULL, the success path is skipped and `Main()` still returns the unchanged `RETURN_OK` (`:243-244,310-321`). When `AllocDosObject(DOS_RDARGS)` succeeded, that parse-failure path also bypasses the `FreeDosObject()` that exists only inside the `readarg != NULL` branch (`:240-244,310-312`). `ReadArgs()` frees the structure itself only when it allocated that structure internally; its error cleanup leaves a caller-supplied RDArgs object for the caller to release (`rom/dos/readargs.c:918-924`).
@@ -15651,6 +15835,7 @@ When a `PRODUCT` tooltype contains a manufacturer without `/product`, `BindDrive
 **Trigger and consequence:** Assign is run where a required library cannot be opened, or with arguments that cause `ReadArgs()` to fail after RDArgs allocation. The command exits successfully without performing the requested operation or reporting the startup/parse error; the allocated RDArgs object also remains unreleased on the parse-failure path. Set a failure result, report the error and free RDArgs on each applicable path. **Affected configuration:** explicit `workbench-c-sh` builds encountering these library or parser failures. **Confidence:** high for the unhandled NULL/failure branches, skipped cleanup and final return; no library-open or parse failure was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#assign-shell-command-full-body-initialization-and-output-pass).
 
 <a id="gd10408"></a>
+<a id="gd10408-assign-discards-short-or-failed-writes-while-printing-lists"></a>
 ## GD10408 — Assign discards short or failed writes while printing lists
 
 `_DeferFlush()` sends up to 128 bytes with `Write()` but ignores its return value, advances by the full requested length and reduces `left` by that amount regardless of bytes written (`workbench/c/Assign.c:901-933`). It also ignores the return from both `Flush()` calls (`:906,933`), although DOS documents zero on flush error (`rom/dos/flush.c:32-42`). A separate earlier stage, `deferputch()`, silently returns if it cannot allocate another 4096-byte output node (`:835-846`); the formatter and its callers receive no failure status. The function then frees the queued buffers and callers do not receive or propagate output failure.
@@ -15659,6 +15844,7 @@ When a `PRODUCT` tooltype contains a manufacturer without `/product`, `BindDrive
 
 
 <a id="gd10409"></a>
+<a id="gd10409-dir-treats-pattern-enumeration-errors-as-successful-completion"></a>
 ## GD10409 — Dir treats pattern-enumeration errors as successful completion
 
 In `doPatternDir()`, every nonzero `MatchNext()` result merely exits the enumeration loop (`workbench/c/Dir.c:529-539`). After a successful `MatchFirst()`, `error` remains `RETURN_OK`; the code does not distinguish the normal `ERROR_NO_MORE_ENTRIES` terminator from other errors. The selected MatchNext implementation returns zero on success and an error code otherwise, including `ERROR_BREAK` and filesystem errors (`rom/dos/matchnext.c:20-37,114-119,410-420`). The function later restores an `IoErr` captured before `MatchNext()` and returns the unchanged success result (`workbench/c/Dir.c:529-561`).
@@ -15666,6 +15852,7 @@ In `doPatternDir()`, every nonzero `MatchNext()` result merely exits the enumera
 **Trigger and consequence:** enumeration of a wildcard path is interrupted or encounters an error after some matches have been produced. Dir can omit remaining entries and return success, so scripts cannot distinguish a complete listing from a partial one. Treat only `ERROR_NO_MORE_ENTRIES` as normal completion; report other MatchNext errors and preserve their IoErr. **Affected configuration:** explicit `workbench-c-sh` builds using a wildcard/pattern path whose `MatchNext()` fails before normal exhaustion. **Confidence:** high for result handling and the selected API implementation; no enumeration error was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#dir-shell-command-full-body-enumeration-and-allocation-pass).
 
 <a id="gd10410"></a>
+<a id="gd10410-dir-uses-the-pattern-buffer-without-checking-allocation-success"></a>
 ## GD10410 — Dir uses the pattern buffer without checking allocation success
 
 For every explicitly supplied directory argument, Dir computes `toklen`, calls `AllocMem()`, and passes the result directly to `ParsePattern()` without a NULL check (`workbench/c/Dir.c:209-215`). The selected ParsePattern contract requires a destination buffer and returns `-1` only for parse/buffer errors (`rom/dos/parsepattern.c:17-47`); its implementation forms and writes through `Dest` (`rom/dos/patternmatching.c:431-451`).
@@ -15674,6 +15861,7 @@ For every explicitly supplied directory argument, Dir computes `toklen`, calls `
 
 
 <a id="gd10411"></a>
+<a id="gd10411-copy-direct-delete-ignores-deletion-failures"></a>
 ## GD10411 — Copy DIRECT DELETE ignores deletion failures
 
 The `DIRECT`/`DELETE` branch calls `KillFile()` for each source and ignores its return value, then unconditionally sets `RetVal2` to `RETURN_OK` (`workbench/c/Copy.c:930-938`). `KillFile()` returns `DeleteFile()`'s result, and the selected DOS contract says deletion can fail when an object is in use or protected (`workbench/c/Copy.c:1513-1522`; `rom/dos/deletefile.c:17-42`).
@@ -15681,6 +15869,7 @@ The `DIRECT`/`DELETE` branch calls `KillFile()` for each source and ignores its 
 **Trigger and consequence:** use `Copy DIRECT ... DELETE` on a source that cannot be deleted, such as a protected or in-use file. The command leaves the file in place but reports success, so scripts cannot detect that the requested deletion failed. Check each `KillFile()` result, retain the error, and return failure if any source remains. **Affected configuration:** explicit `workbench-c-sh` builds using DIRECT DELETE. **Confidence:** high for ignored return values and the DeleteFile failure contract; no file was deleted. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#copy-shell-command-full-body-mode-and-error-path-pass).
 
 <a id="gd10412"></a>
+<a id="gd10412-copy-silently-skips-soft-link-directories-when-its-link-buffer-allocation-fails"></a>
 ## GD10412 — Copy silently skips soft-link directories when its link buffer allocation fails
 
 During recursive traversal, the soft-link branch initializes `enter` and `doit` to false, then only reads and follows the link inside `if (buffer)` (`workbench/c/Copy.c:1350-1408`). If the 512-byte allocation fails, the branch exits without setting an error or warning; the traversal does not recurse into or process that directory link, and the overall operation can still return success.
@@ -15688,6 +15877,7 @@ During recursive traversal, the soft-link branch initializes `enter` and `doit` 
 **Trigger and consequence:** use a recursive mode on a tree containing a directory soft link while the link-target buffer allocation fails. Copy silently omits that link's target subtree, so the requested recursive operation is incomplete. Report the allocation failure or otherwise preserve an explicit failure result. **Affected configuration:** explicit `workbench-c-sh` builds with `USE_SOFTLINKCHECK` enabled (the checked-in source sets it to 1), recursive processing of a directory soft link, and allocation failure. **Confidence:** high for the checked allocation and unchanged success state; no allocation failure or link traversal was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#copy-shell-command-full-body-mode-and-error-path-pass).
 
 <a id="gd10413"></a>
+<a id="gd10413-copy-can-dereference-a-null-device-procedure-while-examining-a-soft-link"></a>
 ## GD10413 — Copy can dereference a NULL device procedure while examining a soft link
 
 After successfully allocating its link buffer, the recursive soft-link branch calls `GetDeviceProc()` and immediately dereferences `dvp->dvp_Port` without checking whether the call returned NULL (`workbench/c/Copy.c:1358-1363`). The selected DOS implementation can return NULL when it cannot allocate the `DevProc`, setting `ERROR_NO_FREE_STORE` (`rom/dos/getdeviceproc.c:92-116`).
@@ -15695,6 +15885,7 @@ After successfully allocating its link buffer, the recursive soft-link branch ca
 **Trigger and consequence:** recursively process a directory soft link while the `GetDeviceProc()` allocation fails. Copy dereferences NULL and the command can fault instead of reporting the resource failure. Check `dvp` before using its fields and retain the traversal error. **Affected configuration:** explicit `workbench-c-sh` builds with `USE_SOFTLINKCHECK` enabled, recursive directory soft-link traversal, and `GetDeviceProc()` failure. **Confidence:** high for the unchecked return and selected NULL-return path; no allocation failure or soft-link traversal was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#copy-shell-command-full-body-mode-and-error-path-pass).
 
 <a id="gd10414"></a>
+<a id="gd10414-amigaguide-navigator-installs-an-empty-clip-region-after-rectangle-allocation-failure"></a>
 ## GD10414 — AmigaGuide navigator installs an empty clip region after rectangle allocation failure
 
 `InstallClipRegionSafe()` clears the navigator's region, calls `OrRectRegion()` when given a rectangle, ignores its Boolean result, and installs the region regardless (`workbench/classes/datatypes/amigaguide/util.c:189-195`). `OrRectRegion()` returns `FALSE` on allocation failure and leaves an initially empty destination region empty (`rom/graphics/orrectregion.c:62-91`). The installed region is used to form the layer's clip rectangles (`rom/hyperlayers/basicfuncs.c:1362-1434`); an empty region produces no drawing area. The navigator's `draw_button()` and `render()` paths still draw after `installregion()` returns (`workbench/classes/datatypes/amigaguide/navigator.c:158-170,350-368`).
@@ -15702,6 +15893,7 @@ After successfully allocating its link buffer, the recursive soft-link branch ca
 **Trigger and consequence:** the first rectangle allocation for the navigator clip region fails. The code installs an empty clip region and proceeds with drawing, so that navigator redraw is clipped out; the old clip region is restored afterward. Check the `OrRectRegion()` result and skip installing the new region or report the failure. **Affected configuration:** AmigaGuide datatype navigator redraw when region-rectangle allocation fails. **Confidence:** high for the unchecked failure and empty-region clip behavior; no allocation failure or redraw was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#graphics-library-clearregion-full-body-and-amigaguide-caller-pass).
 
 <a id="gd10415"></a>
+<a id="gd10415-compositor-dereferences-a-missing-alpha-region-after-allocation-failure"></a>
 ## GD10415 — Compositor dereferences a missing alpha region after allocation failure
 
 When a visible bitmap node has `COMPF_ALPHA`, `HIDDCompositorRecalculateVisibleRegions()` sets `COMPSTATEF_HASALPHA`, calls `NewRegion()` if `compdata->alpharegion` is NULL, and then unconditionally passes `compdata->alpharegion` to `OrRectRegion()` (`workbench/devs/monitors/Compositor/compositor_class.c:207-215`). `NewRegion()` can return NULL when its Region allocation fails (`rom/graphics/newregion.c:54-70`); `OrRectRegion()` then reads `Reg->RegionRectangle` (`rom/graphics/orrectregion.c:62-91`). The recalculation is called during display redraw when no explicit draw rectangle is supplied (`workbench/devs/monitors/Compositor/compositor_class.c:415-419`), including the redraw after composition is enabled (`:734-740`). Graphics `LoadView()` sends the viewport stack through the compositor wrapper (`rom/graphics/graphics_display.c:520-553`; `graphics_compositor.h:18-28`), and Intuition accepts per-screen `SA_CompositingFlags` (`rom/intuition/openscreen.c:492-498`). This is distinct from GD6251, which covers ignored Boolean failures from region operations when the destination already exists.
@@ -15709,6 +15901,7 @@ When a visible bitmap node has `COMPF_ALPHA`, `HIDDCompositorRecalculateVisibleR
 **Trigger and consequence:** a full compositor redraw includes a visible alpha bitmap, `alpharegion` is not already allocated, and the `NewRegion()` allocation fails. The subsequent `OrRectRegion()` call dereferences NULL and can fault the compositor redraw. Check the allocation before adding alpha rectangles and propagate or recover from the region-build failure. **Affected configuration:** the Compositor monitor with alpha-composited visible bitmaps under Region allocation failure. **Confidence:** high for the unchecked NULL result and selected callee dereference; no allocation failure or display redraw was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#graphics-clearregion-compositor-visibility-caller-pass).
 
 <a id="gd10416"></a>
+<a id="gd10416-compositor-treats-a-failed-display-region-build-as-an-empty-display"></a>
 ## GD10416 — Compositor treats a failed display-region build as an empty display
 
 At the start of `HIDDCompositorRecalculateVisibleRegions()`, the Compositor creates `dispvisregion` and ignores the result of `OrRectRegion(dispvisregion, &compdata->displayrect)` (`workbench/devs/monitors/Compositor/compositor_class.c:157-162`). For an empty destination, `OrRectRegion()` returns FALSE if it cannot allocate the first region rectangle and leaves the destination empty (`rom/graphics/orrectregion.c:62-91`). Each later `AndRegionRegion(dispvisregion, n->screenregion)` then clears that node's screen region because the left-hand display region is empty (`rom/graphics/andregionregion.c:59-61`), so no node receives `STACKNODEF_VISIBLE`. The full redraw caller proceeds to redraw; its independent display-region pass skips invisible nodes and fills the display void with the backfill or solid color (`workbench/devs/monitors/Compositor/compositor_class.c:414-419,437-438,479-503`).
@@ -15720,6 +15913,7 @@ The redraw pass independently creates another `dispvisregion` and ignores the `O
 **Trigger and consequence:** a full or partial Compositor redraw reaches one of these region-seeding calls and its first rectangle allocation fails. Failure while seeding the display visibility region makes all bitmap nodes invisible; failure while seeding one bitmap's region omits that bitmap; failure in the redraw damage-region setup skips backfilling uncovered pixels while bitmap redraw may continue. These cases produce an incorrect frame. Propagate region construction failure and retain or retry the previous visibility state. **Affected configuration:** Compositor monitor redraw under region-rectangle allocation failure. **Confidence:** high for the unchecked operation results and follow-on empty-region behavior; no allocation failure or redraw was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#graphics-clearregion-compositor-visibility-caller-pass).
 
 <a id="gd10417"></a>
+<a id="gd10417-failed-alpha-region-expansion-suppresses-later-alpha-recomposition"></a>
 ## GD10417 — Failed alpha-region expansion suppresses later alpha recomposition
 
 During visible-region recalculation, each visible alpha bitmap rectangle is added to `compdata->alpharegion` with `OrRectRegion()`, but the Boolean result is ignored (`workbench/devs/monitors/Compositor/compositor_class.c:208-215`). For a nonempty region, `OrRectRegion()` constructs a temporary result and returns FALSE on allocation failure without replacing the original region (`rom/graphics/orrectregion.c:62-84`). The alpha region is later used by the incremental non-alpha bitmap update path to decide whether an overlapping alpha redraw is needed (`workbench/devs/monitors/Compositor/compositor_class.c:1310-1338`).
@@ -15727,6 +15921,7 @@ During visible-region recalculation, each visible alpha bitmap rectangle is adde
 **Trigger and consequence:** the alpha region already exists, a later alpha bitmap's visible rectangle requires region-operation allocation, and that allocation fails. The region remains incomplete; a subsequent update to an opaque bitmap in the omitted area can fail `isRectInRegion()` and redraw only the opaque bitmap, leaving the alpha overlay absent or stale until another redraw. Check and propagate failed region expansion, or conservatively redraw alpha overlays when the tracking region is incomplete. **Affected configuration:** Compositor with multiple/complex alpha visibility regions and an incremental opaque-bitmap update after region allocation failure. **Confidence:** high for the retained old region and unchecked tracking result; consequence follows the selected incremental redraw branch; no allocation failure or redraw was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#graphics-clearregion-compositor-visibility-caller-pass).
 
 <a id="gd10418"></a>
+<a id="gd10418-compositor-can-paint-the-display-background-over-a-bitmap-after-region-subtraction-fails"></a>
 ## GD10418 — Compositor can paint the display background over a bitmap after region subtraction fails
 
 After drawing each visible opaque bitmap region, `HIDDCompositorRedrawVisibleRegions()` calls `ClearRegionRegion(n->screenregion, dispvisregion)` and ignores its Boolean result (`workbench/devs/monitors/Compositor/compositor_class.c:467`). `ClearRegionRegion()` builds a temporary region and only replaces its destination after success; on allocation failure it returns FALSE with `dispvisregion` unchanged (`rom/graphics/clearregionregion.c:62-89`). The function then iterates that destination as the display void and paints the backfill or solid background (`workbench/devs/monitors/Compositor/compositor_class.c:479-503`).
@@ -15734,6 +15929,7 @@ After drawing each visible opaque bitmap region, `HIDDCompositorRedrawVisibleReg
 **Trigger and consequence:** while redrawing a visible opaque bitmap, allocation fails while subtracting its screen region from the display void region. The bitmap is drawn first, subtraction leaves its pixels classified as void, and the later background pass paints over them. Check the subtraction result and avoid backfilling regions that were not successfully removed, or abort/retry the redraw. **Affected configuration:** Compositor full or partial redraw with visible opaque bitmap regions and `ClearRegionRegion()` allocation failure. **Confidence:** high for unchanged destination on failure and subsequent draw ordering; no allocation failure or redraw was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#graphics-clearregion-compositor-visibility-caller-pass).
 
 <a id="gd10419"></a>
+<a id="gd10419-compositor-redraws-an-unclipped-bitmap-region-when-display-intersection-fails"></a>
 ## GD10419 — Compositor redraws an unclipped bitmap region when display intersection fails
 
 `HIDDCompositorRecalculateVisibleRegions()` seeds each node's `screenregion` with the bitmap's full screen-coordinate rectangle, calls `AndRegionRegion(dispvisregion, n->screenregion)` to clip it to the display, and ignores the result (`workbench/devs/monitors/Compositor/compositor_class.c:187-197`). The selected `AndRegionRegion()` builds a temporary output and returns FALSE without changing `screenregion` if allocation fails (`rom/graphics/andregionregion.c:62-91`). The compositor then treats any remaining rectangle as visible and forwards it to `HIDD_Gfx_CopyBox()` for opaque bitmaps (`workbench/devs/monitors/Compositor/compositor_class.c:197-205,435-463`). The selected CopyBox interface requires valid source and destination coordinates and explicitly performs no bounds checks (`rom/hidds/gfx/gfx_hiddclass.c:914-961`).
@@ -15741,6 +15937,7 @@ After drawing each visible opaque bitmap region, `HIDDCompositorRedrawVisibleReg
 **Trigger and consequence:** a bitmap extends beyond the display rectangle and the allocation needed to intersect its screen region with `dispvisregion` fails. The unchanged full bitmap rectangle is marked visible; a subsequent opaque redraw can pass destination coordinates outside the display bitmap's valid area to CopyBox, violating its precondition and risking a failed or incorrect blit (backend dependent). Check the intersection result and do not draw an unclipped region. **Affected configuration:** Compositor with a partially off-display opaque bitmap and region-operation allocation failure. **Confidence:** high that failure preserves and forwards the unclipped region; medium for the resulting backend behavior because acceleration implementations differ. No allocation failure or blit was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#graphics-clearregion-compositor-visibility-caller-pass).
 
 <a id="gd10420"></a>
+<a id="gd10420-failed-opaque-region-subtraction-lets-lower-compositor-bitmaps-overwrite-upper-ones"></a>
 ## GD10420 — Failed opaque-region subtraction lets lower Compositor bitmaps overwrite upper ones
 
 During z-order visibility calculation, the Compositor removes each visible opaque bitmap rectangle from `dispvisregion` with `ClearRectRegion()` and ignores the return value (`workbench/devs/monitors/Compositor/compositor_class.c:204-208`). For a partial overlap requiring region reconstruction, `ClearRectRegion()` returns FALSE on allocation failure and leaves its input region unchanged (`rom/graphics/clearrectregion.c:62-107`). The recalculation processes the bitmap stack topmost to bottommost, and the redraw later traverses that same order when drawing visible non-alpha nodes (`workbench/devs/monitors/Compositor/compositor_class.c:153-155,435-463`).
@@ -15748,18 +15945,21 @@ During z-order visibility calculation, the Compositor removes each visible opaqu
 **Trigger and consequence:** subtracting an upper opaque bitmap's visible area from the remaining display region fails during allocation. A lower overlapping bitmap then retains the same pixels in its calculated visible region; during redraw it is drawn after the upper bitmap and can overwrite it. Check and propagate `ClearRectRegion()` failure, or conservatively stop/retry visibility calculation without publishing the incomplete regions. **Affected configuration:** Compositor with overlapping opaque bitmap layers where the subtraction requires region allocation and that allocation fails. **Confidence:** high for unchanged region state on failure and the z-order/repaint sequence; no allocation failure or redraw was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#graphics-clearregion-compositor-visibility-caller-pass).
 
 <a id="gd10421"></a>
+<a id="gd10421-nlist-demo-image-drawing-loops-can-wrap-at-the-signed-coordinate-limit"></a>
 ## GD10421 — NList demo image drawing loops can wrap at the signed coordinate limit
 
 The optional NList demo's custom image renderer stores `_top()`, `_bottom()`, `_left()`, and `_right()` coordinates in signed `WORD`s, then advances signed `WORD` loop variables by two while comparing them against an inclusive endpoint (`workbench/classes/zune/nlist/demo/NList-Demo3.c:93-97,139-160`). `WORD` is a signed 16-bit type (`compiler/include/exec/types.h:61`). For an even `MUIA_NLIMG_Spec` value in the 2–9 drawing branch, the vertical loop uses the object's bottom as its endpoint; for values at most 7, the horizontal loop can use an endpoint at the object's right edge. If the corresponding loop reaches the top representable coordinate (32767 vertically, or the largest even endpoint 32766 horizontally), adding two produces an out-of-range signed-`WORD` conversion. On targets where that conversion wraps, the loop variable becomes negative and remains `<=` the positive endpoint as it cycles, so drawing does not terminate. The selected NList renderer passes rich-text image tags to the custom object's `SetAttrs()` before redrawing it (`workbench/classes/zune/nlist/nlist_mcc/NList_mcc6.c:1109-1118,1147`); the demo header defines `MUIA_NLIMG_Spec` (`NList-Demo3.h:8`).
 
 **Trigger and consequence:** build/run the explicit `classes-zune-nlist-demo` target, supply an NList custom-image tag selecting an even spec from 2 through 9, and give the object geometry/parity that reaches the signed coordinate limit. On a wrapping target the GUI task can remain in the pixel loop during redraw. Use a wider loop counter or stop before incrementing past the endpoint. **Affected configuration:** optional NList demo/custom image path; this is not claimed for the default desktop package or for the demo's ordinary `NLI_Create()` use, which initializes `special` to zero. **Confidence:** medium: the signed-width loop and wrap condition are source-supported, but no checked-in demo data sets this custom tag and target-specific out-of-range conversion behavior was not compiled or run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#nlist-demo-custom-image-renderer-full-body-and-caller-pass).
 <a id="gd10422"></a>
+<a id="gd10422-nlist-demo-custom-images-discard-inherited-area-attribute-updates"></a>
 ## GD10422 — NList demo custom images discard inherited Area attribute updates
 
 The custom class overrides `OM_SET` with `mNLI_Set()`, handles only `MUIA_NLIMG_EntryCurrent`, `MUIA_NLIMG_EntryHeight`, and `MUIA_NLIMG_Spec`, then returns zero without forwarding the message to its `MUIC_Area` superclass (`workbench/classes/zune/nlist/demo/NList-Demo3.c:208-229,231-241`). The selected NList object-image path adds a caller-supplied custom object to its group and explicitly sends `MUIA_Disabled=FALSE` (`workbench/classes/zune/nlist/nlist_mcc/NList_func4.c:200-216`). `MUIC_Area` handles that tag by clearing its disabled count and redrawing (`workbench/libs/muimaster/classes/area.c:559-570,704-711`); the custom class drops it, so an object constructed disabled remains disabled after NList's attach step. The companion NList image class demonstrates the expected forwarding pattern by calling `DoSuperMethodA()` after filtering its own tags (`workbench/classes/zune/nlist/nlist_mcc/NList_img.c:61-83`).
 
 **Trigger and consequence:** use a disabled custom Area-derived object as an NList image, with the NList attachment path active and the object not already parented. NList's attempt to enable it is ignored; the Area retains its disabled state and does not perform the normal state-change redraw/release handling. Forward unhandled tags to the superclass after consuming class-specific tags. **Affected configuration:** explicit optional `classes-zune-nlist-demo` custom-image path; ordinary demo construction starts enabled, so the trigger requires a caller-created disabled image object. **Confidence:** high for the dropped tag and selected caller, medium for user-visible effect beyond the retained disabled state; no object, GUI, or build was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#nlist-demo-custom-image-renderer-full-body-and-caller-pass).
 <a id="gd10424"></a>
+<a id="gd10424-nlist-demo-abandons-caller-created-image-objects-during-shutdown"></a>
 ## GD10424 — NList demo abandons caller-created image objects during shutdown
 
 The demo registers the custom `NLI` image object and two inline `SimpleButtonTiny()` objects with `MUIM_NList_UseImage()` (`workbench/classes/zune/nlist/demo/NList-Demo.c:665,754-755`). On cleanup, NList's `NL_DeleteImages()` calls `NL_DeleteImage()` for these registrations. For `MUIA_Image_Spec` objects, `NL_DeleteImage()` removes an object from the NList group with `OM_REMMEMBER()` and frees its wrapper/record, but never disposes the supplied object (`workbench/classes/zune/nlist/nlist_mcc/NList_func4.c:794-829,855-867`). The demo closes both windows, unregisters all images, and then calls `MUI_DisposeObject(APP_Main)` followed by `NLI_Delete()`; it retains no pointers to the detached image objects (`NList-Demo.c:820-826`). `NLI_Delete()` ignores `MUI_DeleteCustomClass()`'s result and clears `NLI_Class` (`NList-Demo3.c:255-260`); the selected implementation documents that deletion returns FALSE while objects or subclasses remain in use (`workbench/libs/muimaster/mui_deletecustomclass.c:24-33,49-63`).
@@ -15768,6 +15968,7 @@ The demo registers the custom `NLI` image object and two inline `SimpleButtonTin
 
 
 <a id="gd10425"></a>
+<a id="gd10425-vgagfx-changes-vga-mode-without-the-shared-hardware-lock"></a>
 ## GD10425 — VGAGfx changes VGA mode without the shared hardware lock
 
 `VGAGfxDisplay__Hidd_Display__Show()` serializes display changes with `data->sema`, then calls `OOP_SetAttrs()` to mark the new bitmap visible (`arch/all-native/hidd/vgagfx/vgagfx_displayclass.c:219-243`). The selected bitmap `Root.Set` handler sets `data->disp` and, for a visible bitmap, calls `vgaRestore()` followed by one or two `vgaEraseArea()` calls without obtaining `HW_acc` (`arch/all-native/hidd/vgagfx/vgagfx_bitmapclass.c:255-288`). `vgaRestore()` programs the sequencer, CRTC, graphics controller, attribute controller and DAC (`arch/all-native/hidd/vgagfx/vgagfx_support.c:196-222`); `vgaEraseArea()` also changes graphics/sequencer registers and writes the VGA aperture (`:681-710`).
@@ -15778,6 +15979,7 @@ The separate `HW_acc` semaphore is the lock used by cursor operations and bitmap
 
 
 <a id="gd10426"></a>
+<a id="gd10426-popupmenu-transition-can-blit-an-uncleared-bitmap-after-rastport-allocation-failure"></a>
 ## GD10426 — PopupMenu transition can blit an uncleared bitmap after RastPort allocation failure
 
 When PopupMenu animation is enabled, `PM_OffScreenBfr()` first allocates `bw->te.BMap` and only then allocates a copied RastPort. If `PM_CpyRPort()` fails, the function leaves the bitmap non-NULL and the RastPort NULL (`workbench/libs/popupmenu/window.c:61-72`). `PM_OpenWindow()` still returns TRUE after this partial setup (`:78-110`). The selected caller's `PM_RenderMenu()` draws offscreen only when `te.RPort` is non-NULL (`workbench/libs/popupmenu/pm.c:105-114`), but `PM_OpenPopupWindow()` starts the transition whenever `te.BMap` is non-NULL and blits that bitmap over the menu window (`:435-468`). The bitmap is allocated without `BMF_CLEAR` (`window.c:64`). `AllocBitMap()` initializes its clear flag only from `BMF_CLEAR` and calls `BltBitMap()` to clear only when that flag is set (`rom/graphics/allocbitmap.c:193,457-458`). A concrete selected allocator path is the M68k-Amiga P96 HIDD: `AllocBitMap()` carries the friend bitmap's mode and display driver into HIDD object creation (`:258-281,345-347`); the P96 display class selects its bitmap class for that mode (`arch/m68k-amiga/hidd/p96gfx/p96gfx_hiddclass.c:694-715`), whose allocator obtains uncleared VRAM or falls back to `AllocMem(..., MEMF_ANY)` (`p96gfx_bitmapclass.c:57-73,76-110`). Thus this P96-backed offscreen bitmap is not initialized by either allocator when the menu draw went to the window instead.
@@ -15786,6 +15988,7 @@ When PopupMenu animation is enabled, `PM_OffScreenBfr()` first allocates `bw->te
 
 
 <a id="gd10427"></a>
+<a id="gd10427-popupmenu-dereferences-a-missing-input-event-port-after-setup-allocation-failure"></a>
 ## GD10427 — PopupMenu dereferences a missing input-event port after setup allocation failure
 
 `PM_InstallHandler()` allocates its bookkeeping structure, then creates the reply port and event port, but returns the non-NULL structure even when either `CreatePort()` fails (`workbench/libs/popupmenu/pminput.c:122-153`). `PM_OpenPopupMenuA()` treats any non-NULL result as a successfully installed handler (`workbench/libs/popupmenu/pm.c:946-948`) and continues into the popup loop. Both `PM_DoPopup()` and `PM_DoHint()` evaluate `p->pmh->port->mp_SigBit` before waiting (`pm.c:603,750`). If creation of the second port fails, `pmh->port` is NULL and this selected path dereferences it; failure of the first port also returns a partially initialized handler record.
@@ -15793,6 +15996,7 @@ When PopupMenu animation is enabled, `PM_OffScreenBfr()` first allocates `bw->te
 **Trigger and consequence:** on an explicit PopupMenu library build, allocation succeeds for the `PM_InputHandler` record but `CreatePort()` fails while creating its event port; invoke `PM_OpenPopupMenuA()` for a normal popup or hint. The caller mistakes partial setup for success and dereferences the missing event port, faulting instead of returning a failed menu request. Make `PM_InstallHandler()` unwind and return NULL on every incomplete setup path, and validate the handler before entering either loop. **Affected configuration:** explicit `workbench-libs-popupmenu` builds under event-port allocation failure. **Confidence:** high for the non-NULL partial result and the unconditional caller dereference. No allocation failure or popup was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#popupmenu-main-implementation-full-body-pass).
 
 <a id="gd10428"></a>
+<a id="gd10428-popupmenu-dereferences-the-root-menu-after-its-allocation-fails"></a>
 ## GD10428 — PopupMenu dereferences the root menu after its allocation fails
 
 `PM_OpenPopupMenuA()` assigns the result of `PM_SetupSubWindow(NULL, p, NULL)` to `p->RootMenu` but never checks it (`workbench/libs/popupmenu/pm.c:952`). `PM_SetupSubWindow()` returns NULL when its `PM_Window` allocation fails (`:484-487,557`); on the AROS path that allocation is through the library pool and can fail (`pmmem.c:8-23`; pool construction at `pminit.c:82-88`). The caller can dereference `RootMenu` while applying `PM_Left`, `PM_Top` or `PM_PullDown` tags (`pm.c:990-1024`), and unconditionally writes `p->RootMenu->PM.Sub` after the tag loop (`:1062`) before passing the pointer to `PM_DoPopup()` or `PM_DoHint()`.
@@ -15801,6 +16005,7 @@ When PopupMenu animation is enabled, `PM_OffScreenBfr()` first allocates `bw->te
 
 
 <a id="gd10429"></a>
+<a id="gd10429-popupmenu-silently-drops-shadow-map-regions-after-allocation-failure"></a>
 ## GD10429 — PopupMenu silently drops shadow-map regions after allocation failure
 
 Several selected shadow/topography paths continue with incomplete geometry when an allocation fails. `PM_CopyList()` skips a failed `PM_CopyNode()` and returns the shortened list (`workbench/libs/popupmenu/pmdlist.c:52-68`); `PM_SetupSubWindow()` installs that result as the child `Topographic` and `Shadowmap` without checking completeness (`pm.c:488-495`). `PM_AddTopographicRegion()` unlinks an overlapped topography node, calls `PM_SubTopographicRects()`, ignores its failure result and frees the original node (`pmtopography.c:20-54,79-133`). Likewise, `PM_SubRects()` reports fragment-allocation failure, but `PM_AddShadow()` and `PM_SubMenuRect()` ignore it and free the source node (`pmshadow.c:61-152,157-234`). `PM_AddShadow()` also skips failed copies into its persistent shadow map without setting its `fail` result (`:188-198`), while `PM_MapShadow()` skips failed output-rectangle allocations and returns success (`pmtopography.c:137-189`). The resulting maps feed `PM_HandleShadow()`'s depth and overlap clipping before shadow segments are drawn (`pm.c:35-90`).
@@ -15808,6 +16013,7 @@ Several selected shadow/topography paths continue with incomplete geometry when 
 **Trigger and consequence:** use PopupMenu shadow mapping with nested menus and force allocation failure while cloning a map, splitting an overlapped region, or generating/copying shadow rectangles. The library keeps using incomplete geometry, so it can omit shadow segments or draw segments that overlap existing menus/shadows. Propagate the allocation failures and preserve the previous map or unwind the affected shadow update. **Affected configuration:** explicit `workbench-libs-popupmenu` builds with shadow mapping enabled under the stated allocation failures. **Confidence:** medium; the ignored failures and subsequent map use are explicit, while the visible artifact depends on which rectangle allocation fails and the menu geometry. No allocation failure, menu, display operation, or build was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#popupmenu-linked-list-full-body-and-submenu-shadow-map-pass).
 
 <a id="gd10430"></a>
+<a id="gd10430-popupmenu-setters-free-getter-returned-values-before-reusing-them"></a>
 ## GD10430 — PopupMenu setters free getter-returned values before reusing them
 
 `PM_GetItemAttrsA()` returns the item's internal `Title`, `UserData`, `Sub`/`Members`, and `Exclude` pointers through output tags (`workbench/libs/popupmenu/pmtags.c:269-299,368-370`). The corresponding setter cases free the existing owned title/string or recursively free the existing submenu/list before copying or storing `tag->ti_Data` (`pmtags.c:27-38,52-68,73-85,163-168`). No pointer-identity check or temporary copy protects a value that aliases the current field. The public tag definitions identify these fields as strings or pointers to menu/list data (`compiler/include/libraries/pm.h:77-87,119-120,128`); no no-alias restriction is stated there.
@@ -15815,6 +16021,7 @@ Several selected shadow/topography paths continue with incomplete geometry when 
 **Trigger and consequence:** retrieve an owned value with `PM_GetItemAttrsA()` and pass that same pointer back to `PM_SetItemAttrsA()` as `PM_Title`, `PM_UserDataString`, `PM_Sub`/`PM_Members`, or a non-shared `PM_Exclude`. The setter releases the backing storage first, then reads from or stores the stale pointer. Depending on the allocator and later use, this can corrupt the value, traverse freed submenu/list nodes, or free them again when the menu is destroyed. Stage/copy the incoming value or skip release when it aliases the existing field. **Affected configuration:** explicit PopupMenu library builds used by clients that round-trip these getter-returned pointers through the setter. **Confidence:** high for the free-before-reuse ordering; no in-tree getter-to-setter round-trip was found, so caller reachability is conditional. No menu API call or allocation behavior was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#popupmenu-item-attribute-full-body-and-aliasing-pass).
 
 <a id="gd10431"></a>
+<a id="gd10431-clearing-a-popupmenu-exclusion-list-leaves-its-freed-pointer-installed"></a>
 ## GD10431 — Clearing a PopupMenu exclusion list leaves its freed pointer installed
 
 For `PM_Exclude`, `PM_SetItemAttrsA()` frees the current list when it is owned, but assigns the incoming value only when `tag->ti_Data` is non-NULL (`workbench/libs/popupmenu/pmtags.c:163-168`). Therefore setting this pointer tag to NULL leaves `p->Exclude` pointing at the just-freed list. The selection path traverses a non-NULL exclusion list through `PM_AlterState()` (`pm.c:172-190,847-877`), and `PM_FreePopupMenu()` later frees it again (`pmcreate.c:42-44`).
@@ -15823,6 +16030,7 @@ For `PM_Exclude`, `PM_SetItemAttrsA()` frees the current list when it is owned, 
 
 
 <a id="gd10432"></a>
+<a id="gd10432-centered-popupmenu-items-call-strlen-on-a-missing-title"></a>
 ## GD10432 — Centered PopupMenu items call `strlen()` on a missing title
 
 `PM_NewDrawItem()` initializes `pmtitle` from the nullable `pm->Title` (`workbench/libs/popupmenu/pmgraph.c:130-138`). If `NPM_CENTERED` is set, it unconditionally passes `pmtitle` to `strlen()` before the later title-drawing paths check whether the pointer is non-NULL (`:264-271,273-280,324-344`). The public `PM_Title` tag can explicitly clear the title, and `PM_Center` independently sets `NPM_CENTERED` (`workbench/libs/popupmenu/pmtags.c:27-38,216-220`; tag definitions in `compiler/include/libraries/pm.h:77,96`). `PM_MakeItemA()` also permits an item with no title; the renderer is reached through the normal menu draw path (`pm.c:149-155`).
@@ -15831,6 +16039,7 @@ For `PM_Exclude`, `PM_SetItemAttrsA()` frees the current list when it is owned, 
 
 
 <a id="gd10433"></a>
+<a id="gd10433-popupmenu-accepts-a-boopsi-title-object-but-never-measures-or-draws-it"></a>
 ## GD10433 — PopupMenu accepts a BOOPSI title object but never measures or draws it
 
 The public `PM_Object` tag is documented as a BOOPSI object with the ability to render a menu item (`compiler/include/libraries/pm.h:82`). `PM_SetItemAttrsA()` stores the object and switches the item's text mode to `NPX_TXTBOOPSI` (`workbench/libs/popupmenu/pmtags.c:46-50`). The selected layout and drawing implementations do not use that object: `PM_ItemWidth()` has an empty BOOPSI-mode branch and the `pm->Title` guard is false after `PM_FreeTitle()` clears the string (`pmlayout.c:44-62`; `pmtags.c:23-29`); `PM_NewDrawItem()` only resolves locale mode and otherwise renders `pm->Title`, without invoking `pm->Boopsi` (`pmgraph.c:130-138,273-344`). A repository-wide PopupMenu source search finds no other `Boopsi` use beyond storing and returning the field.
@@ -15839,6 +16048,7 @@ The public `PM_Object` tag is documented as a BOOPSI object with the ability to 
 
 
 <a id="gd10434"></a>
+<a id="gd10434-popupmenu-insert-before-places-new-items-after-a-submenus-first-child"></a>
 ## GD10434 — PopupMenu “insert before” places new items after a submenu's first child
 
 `PM_FindBefore()` and `PM_FindBeforeID()` initialize their `prev` result to the first node passed to them (`workbench/libs/popupmenu/pmfind.c:129-159`). When either search recurses into a submenu and the requested target is that submenu's first child, it returns the target itself as its predecessor. `PM_InsertMenuItemA()` then treats that result as the predecessor and links the new item through `pointer->Next` (`workbench/libs/popupmenu/pm.c:1165-1177`), placing it after the target. The public tags promise insertion before the item or first item with the matching ID (`compiler/include/libraries/pm.h:152-153`).
@@ -15891,6 +16101,7 @@ Each NList, NListtree, BetterString, and TextEditor `StartClipboardServer()` all
 **Trigger and consequence:** the semaphore allocation succeeds but creation of the clipboard worker process fails during MCC initialization. That module open fails and leaks one semaphore allocation/object per failed attempt. Free and clear `serverLock` on the worker-creation failure path before returning FALSE. **Affected configuration:** explicitly buildable AROS NList, NListtree, BetterString, and TextEditor MCC targets; their standalone targets select these helper files. This does not claim all four are included in the default product aggregate. **Confidence:** high for the unmatched allocation and generated failure unwind; occurrence depends on worker-process creation failure. This is distinct from GD9697, where worker creation succeeds but a later worker setup failure leaves the starter blocked. No process-creation failure or module load was induced; source-only. See the [clipboard-worker startup failure pass](AROS-graphics-desktop-coverage.md#clipboard-worker-create-failure-pass).
 
 
+<a id="gd10441"></a>
 ## GD10441
 
 **Say can report success after WAV finalization fails.**
@@ -15900,6 +16111,7 @@ Each NList, NListtree, BetterString, and TextEditor `StartClipboardServer()` all
 **Trigger and consequence:** use `--wav`/`OUT` and encounter a final seek, header-write, or close failure after successful synthesis. The command reports success despite leaving a WAV with stale lengths or incomplete final output. **Affected configuration:** explicit `workbench-c-say` target in `workbench/c/mmakefile.src:147-148`; its parent aggregate edge is commented in this snapshot, so default-image inclusion is not claimed. **Confidence:** high for ignored finalization results and success propagation; actual failure manifestation depends on the selected filesystem/device. Propagate finalization failure through `EndWav()` and the command result. No WAV, I/O failure, or build was exercised; source-only. See the [coverage ledger](AROS-graphics-desktop-coverage.md#say-command-wav-finalization-and-full-body-pass).
 
 
+<a id="gd10442"></a>
 ## GD10442
 
 **Say reports text-input cancellation as a command failure.**
@@ -16061,6 +16273,7 @@ The public Sound datatype extension defines exactly four sample-type values, `SD
 
 
 <a id="gd10462"></a>
+<a id="gd10462-hyperlayers-omits-resize-backfill-strips-when-rectangle-union-fails"></a>
 ## GD10462 — Hyperlayers omits resize backfill strips when rectangle union fails
 
 `MoveSizeLayer()` builds the region of newly exposed pixels from `rectw` and `recth` after a layer grows (`rom/hyperlayers/movesizelayer.c:402-411`). It clears the temporary region, calls `OrRectRegion()` for each positive dimension, ignores both Boolean results, then passes the resulting region to `_BackFillRegion()` and ultimately returns TRUE (`:433-439`). `OrRectRegion()` documents FALSE on allocation failure; for an existing destination it constructs a temporary result and only replaces the original after success, so a failed second union leaves the first strip as the destination (`rom/graphics/orrectregion.c:21-38,64-101`). `_BackFillRegion()` immediately returns for an empty region and otherwise invokes the layer backfill hook once per rectangle (`rom/hyperlayers/basicfuncs.c:1252-1268,1333-1361`).
@@ -16069,6 +16282,7 @@ The public Sound datatype extension defines exactly four sample-type values, `SD
 
 
 <a id="gd10463"></a>
+<a id="gd10463-changelayershape-installs-an-empty-layer-bound-when-rectangle-allocation-fails"></a>
 ## GD10463 — ChangeLayerShape installs an empty layer bound when rectangle allocation fails
 
 `ChangeLayerShape()` disposes the current outer `l->shape`, allocates a replacement `Region`, and, when that allocation succeeds, adds the layer-bounds rectangle with `OrRectRegion()` (`rom/hyperlayers/changelayershape.c:128-141`). It ignores the Boolean result; the source comment explicitly leaves error handling as a FIXME. `OrRectRegion()` can return FALSE when it cannot allocate the region rectangle and leaves an initially empty destination empty (`rom/graphics/orrectregion.c:21-38,64-101`). The function then continues using the empty `l->shape`: its custom-shape intersection with the empty bound has no pixels, and `SetRegion(l->shape, l->visibleshape)` clears the derived visible shape (`changelayershape.c:143-151`; `rom/graphics/andregionregion.c:54-57`; `rom/graphics/setregion.c:25-39`). Unlike GD6179, this case has a valid Region object; the failure is the separate rectangle-node allocation.
@@ -16077,6 +16291,7 @@ The selected Intuition `ChangeWindowShape()` route calls `ChangeLayerShape()` un
 
 
 <a id="gd10464"></a>
+<a id="gd10464-hyperlayers-can-omit-exposed-simple-refresh-areas-after-damage-insertion-fails"></a>
 ## GD10464 — Hyperlayers can omit exposed simple-refresh areas after damage insertion fails
 
 `_CopyClipRectsToClipRects()` ignores `OrRectRegion()` failures at both simple-refresh damage insertion sites (`rom/hyperlayers/basicfuncs.c:572-585,775-790`). `_BackFillRegion()` also sets `LAYERREFRESH` and ignores `OrRegionRegion(r, l->DamageList)` when `addtodamagelist` is true (`basicfuncs.c:1278-1287`). In backup mode, the first site adds the intersection to `DamageList` when an old clip rectangle was hidden. In the visible-area path, the second site calls the layer backfill hook and then adds the newly exposed rectangle to `DamageList`; a successful hook call does not itself perform the client redraw represented by the refresh list. `OrRectRegion()` returns FALSE on allocation failure and leaves its destination unchanged (`rom/graphics/orrectregion.c:64-101`). After the clip-copy loop, `_CopyClipRectsToClipRects()` derives `LAYERREFRESH` from whether `DamageList` is empty (`basicfuncs.c:952-960`). `BeginUpdate()` constructs refresh clipping from `DamageList` (`rom/hyperlayers/beginupdate.c:67-100`), so a failed insertion can leave the newly exposed area outside the client refresh. The selected `_BackupPartsOfLayer()` caller uses the backup-mode insertion during layer geometry changes (`basicfuncs.c:1018-1070`); `_ShowPartsOfLayer()` uses the visible-area insertion when revealing content (`:1078-1138`), with callers in visibility, shape, movement/resize, deletion and z-order operations.
@@ -16084,6 +16299,7 @@ The selected Intuition `ChangeWindowShape()` route calls `ChangeLayerShape()` un
 **Trigger and consequence:** a simple-refresh layer enters one of these insertion paths and allocation for its rectangle or region union fails. The affected area is absent from `DamageList`; if no other damage remains, `LAYERREFRESH` is cleared, otherwise the client receives a refresh that still omits this area. During reveal, the backfill hook runs before the failed insertion, but the application redraw region is still lost. **Affected configuration:** `kernel-layers` simple-refresh layers undergoing operations that back up or reveal clip rectangles. **Confidence:** high for ignored failures and DamageList-driven refresh selection; visible stale content depends on the affected area requiring client redraw and not being repaired by later damage. Check all three insertion results and retain/retry the area on failure. This is separate from GD10096's Intuition resize-specific insertions. No allocation failure, layer transition, or refresh was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#hyperlayers-damage-insertion-failure-recheck).
 
 <a id="gd10465"></a>
+<a id="gd10465-boingiconbar-can-leave-its-static-toolbar-hidden-after-window-creation-fails"></a>
 ## GD10465 — BoingIconBar can leave its static toolbar hidden after window creation fails
 
 Both static-mode startup and Workbench screen restoration call `OpenMainWindow()` without checking its Boolean result (`workbench/tools/BoingIconBar/iconbar.c:488-493,1885-1892`). `OpenMainWindow()` returns FALSE when `OpenWindowTags()` fails and sets `Window_Open` only on success (`:1541-1570`). In the no-window main-loop path, the only retry is through `CheckMousePosition()` (`:603-638`), which calls `OpenMainWindow()` only when the pointer is within the bottom eight screen pixels and horizontal toolbar range (`:1590-1604`).
@@ -16099,6 +16315,7 @@ Both static-mode startup and Workbench screen restoration call `OpenMainWindow()
 **Trigger and consequence:** an active V3D scanout resource leaves scanout and the `scanout-exit` BO allocation fails. The driver forgets the binding but leaves the resource attached to the framebuffer page; later rendering can modify a display page through the ordinary windowed path, contrary to the helper's stated detach invariant. Visible damage depends on whether that page is displayed or reused by the framebuffer path. **Affected configuration:** optional Raspberry Pi 3/4 AArch64 V3D Gallium HIDD (`arch/arm-native/soc/broadcom/2708/hidd/v3d/mmakefile.src`); its parent aggregate edge is commented, so default-image inclusion is not claimed. **Confidence:** high that failed allocation preserves the framebuffer BO while scanout state is cleared; the resulting visible corruption depends on subsequent render/presentation state. Preserve/retry the detach state or prevent reuse of the framebuffer BO after allocation failure. No allocation failure, display, GPU operation, or build was exercised; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#v3d-scanout-detach-allocation-failure-gd10466).
 
 <a id="gd10467"></a>
+<a id="gd10467-v3d-can-present-a-frame-discarded-by-timeout-recovery"></a>
 ## GD10467 — V3D can present a frame discarded by timeout recovery
 
 `v3d_wait_for()` returns FALSE after a GPU timeout and calls `v3d_recover()` (`arch/arm-native/soc/broadcom/2708/hidd/v3d/v3d_hw.c:610-615`). Recovery clears the running/queued job state and advances `finished_seqno` to the current `seqno` without replaying those jobs (`:561-569,582-584`). The sequence wrapper discards the wait result and returns no status (`:767-775`). In the overlay path, `DisplayResourceRP()` then unconditionally calls `v3d_show_overlay()` for the queued BO after `v3d_hw_wait_seqno()` (`arch/arm-native/soc/broadcom/2708/hidd/v3d/v3d_galliumclass.c:888-896`); success rotates that BO into the on-plane state (`:949-956`).
@@ -16107,6 +16324,7 @@ Both static-mode startup and Workbench screen restoration call `OpenMainWindow()
 
 
 <a id="gd10468"></a>
+<a id="gd10468-v3d-job-state-is-not-serialized-against-interrupts-in-execsmp"></a>
 ## GD10468 — V3D job state is not serialized against interrupts in ExecSMP
 
 `v3d_service()` protects its state updates only with `Disable()/Enable()` and explicitly notes that this is sufficient on UP but requires a spinlock for SMP (`arch/arm-native/soc/broadcom/2708/hidd/v3d/v3d_hw.c:370-377`). The routine mutates the binner/render running flags, completion sequence numbers, overflow state, and the RCL queue (`:386-479`). It is called from the completion IRQ handler (`:487-495`) and from task-side submit/wait paths (`:593-607,662-739`). Those task paths hold `job_lock`, but the IRQ handler does not take it; `Disable()` only disables interrupts on the calling CPU in ExecSMP (`rom/exec/disable.c:58-60`). The selected driver registers GIC SPI 74 (`v3d_intern.h:195`). BCM2711 targets shared SPIs to CPU 0 (`arch/aarch64-native/kernel/platform_bcm2711.c:87-107`), while AArch64 SMP scheduling accepts tasks with no assigned affinity on any CPU (`kernel_scheduler.c:38-49`). The RasPi `smp` configure variant defines `__AROSEXEC_SMP__` (`configure:11356-11360`). Thus a task-side service call on a nonzero CPU can overlap the device IRQ handler on CPU 0; the handler does not acquire the task's `job_lock`.
@@ -16115,6 +16333,7 @@ Both static-mode startup and Workbench screen restoration call `OpenMainWindow()
 
 
 <a id="gd10469"></a>
+<a id="gd10469-changelayershape-ignores-custom-shape-intersection-failure"></a>
 ## GD10469 — ChangeLayerShape ignores custom-shape intersection failure
 
 After constructing the layer's rectangular bound, `ChangeLayerShape()` intersects `l->shaperegion` into `l->shape` with `AndRegionRegion()` and ignores the result (`rom/hyperlayers/changelayershape.c:134-146`). `AndRegionRegion()` calculates into a temporary region; on allocation failure it returns FALSE before clearing or replacing its destination (`rom/graphics/andregionregion.c:57-87`). Therefore, when the requested custom shape is non-NULL and the Boolean operation needs region-rectangle allocation that fails, `l->shape` remains the full rectangular bound instead of the requested intersection. The function translates and installs this broader region and derives `visibleshape` from it (`changelayershape.c:143-149`).
@@ -16123,6 +16342,7 @@ The selected Intuition `ChangeWindowShape()` caller continues to `CheckLayers()`
 
 
 <a id="gd10470"></a>
+<a id="gd10470-palette-preferences-cannot-restore-very-large-color-maps-through-loadrgb4"></a>
 ## GD10470 — Palette Preferences cannot restore very large color maps through LoadRGB4
 
 Palette Preferences snapshots the active screen's `ColorMap->Count` in unsigned `data->count`, allocates that many saved entries, and sets `restore = TRUE` (`workbench/prefs/palette/paleditor.c:376-388`). During cleanup it passes the full count to `LoadRGB4()` (`:402-412`). `ColorMap->Count` is `UWORD` (`compiler/include/graphics/view.h:148-153`), but the `LoadRGB4()` vector takes signed `WORD count` and immediately returns for `count <= 0` (`rom/graphics/loadrgb4.c:14-20,64-65`). `GetColorMap(ULONG entries)` can construct a map with 32,768 entries and stores that count in the `UWORD` field; its documentation says the result may be stored in a viewport (`rom/graphics/getcolormap.c:14-29,59-69`). OpenScreen does not provide this trigger through `SA_ColorMapEntries`: its local `numcolors` is signed `WORD` (`rom/intuition/openscreen.c:174`), so on the affected 16-bit two's-complement targets the value 32,768 narrows to -32,768 before the call and the `numcolors < 32 ? 32 : numcolors` expression creates a 32-entry map instead (`:685-688,1393-1406`). The supported external producer is therefore a client that obtains a 32,768-entry map through `GetColorMap()` and installs it in a viewport. Palette Preferences can be directed to a public screen and selects it when its bitmap depth exceeds four (`workbench/prefs/palette/main.c:50-73,105-112`); no checked-in producer of such an installed map was found.
@@ -16130,6 +16350,7 @@ Palette Preferences snapshots the active screen's `ColorMap->Count` in unsigned 
 **Trigger and consequence:** on a target where conversion of UWORD 32768 to signed WORD yields -32768, run Palette Preferences on a public screen with a 32,768-entry `ColorMap` created through `GetColorMap()`, allow its snapshot allocation to succeed, change palette colors, and close/clean up the editor. `LoadRGB4()` receives a nonpositive count and returns without restoring the snapshot, so the screen retains the edited palette. This is not reachable by requesting 32,768 through `SA_ColorMapEntries`, because OpenScreen narrows that tag to signed `WORD` and creates a 32-entry map on those targets. **Affected configuration:** Palette Preferences explicitly directed to a depth-greater-than-four public screen whose client-installed `ColorMap` has more than `WORD_MAX` entries, on targets with the usual 16-bit two's-complement signed conversion. No in-tree producer of such a map was identified. **Confidence:** high for the unsigned-to-signed narrowing and early return on those targets; medium for practical reachability because the required map must be supplied and installed by a client. Use a count type able to represent `ColorMap->Count` or restore in bounded chunks. This is separate from GD5910's pixel-table bounds issue for positive counts above 256. No screen, preference editor, or color-map update was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#palette-preferences-large-colormap-restore-recheck).
 
 <a id="gd10472"></a>
+<a id="gd10472-openscreen-reduces-large-sa_colormapentries-requests-to-32-entries"></a>
 ## GD10472 — OpenScreen reduces large `SA_ColorMapEntries` requests to 32 entries
 
 `OpenScreen()` stores the `SA_ColorMapEntries` tag value in local `WORD numcolors` (`rom/intuition/openscreen.c:174,685-688`). On the selected 16-bit two's-complement targets, requesting 32,768 entries converts to -32,768. The defaulting check (`if (!numcolors)`) does not run, and the later minimum expression treats the negative value as less than 32, so `GetColorMap()` is called with 32 (`:1393-1406`). The call succeeds and installs a 32-entry map rather than rejecting the unsupported request or providing the requested size. The public tag documentation describes the value as the number of ColorMap entries and states a default, but no maximum (`rom/intuition/openscreentaglist.c:208-211`). `GetColorMap()` accepts an `ULONG`, stores `entries` in a `UWORD` count, and documents that the returned map may be stored in a viewport (`rom/graphics/getcolormap.c:14-29,59-69`), so 32,768 is representable by the ColorMap API.
@@ -16146,6 +16367,7 @@ The generated dynamic-dispatch initializers copy EXT pointers into KHR slots whe
 **Trigger and consequence:** initialize a dynamic dispatcher on an implementation that returns an EXT command pointer but null for its KHR name, then call the corresponding KHR-named wrapper: `getCalibrateableTimeDomainsKHR()`, `getCalibratedTimestampsKHR()`, `releaseSwapchainImagesKHR()`, or `endRendering2KHR()`. The Vulkan specification explicitly says alias function pointers must be retrieved separately and an alias pointer is available only when the extension/version that introduced that alias is supported and enabled; an EXT pointer with a null KHR lookup is therefore a supported case ([Vulkan specification, Command Function Pointers](https://registry.khronos.org/vulkan/specs/latest/html/vkspec.html#initialization-functionpointers)). The KHR slot is left null. Assertion-enabled enhanced/RAII builds stop at the wrapper assertion; with assertions disabled, or through raw overloads that do not check the slot, the wrapper calls through null and can fault. The EXT-named wrappers retain their separately loaded pointers. **Affected configuration:** clients of the bundled optional Vulkan-Hpp API using dynamic dispatch, including RAII, on implementations exposing an affected EXT command name without its KHR name. The optional `hidd-vulkan` target stages these headers through its `%copy_includes` rule (`workbench/hidds/vulkan/mmakefile.src:6-21`); no in-tree C++ Vulkan-Hpp caller was found, so affected use is downstream. No effect on the C Vulkan API is claimed. **Confidence:** high for each overwrite and wrapper use; occurrence depends on the implementation's proc-address results and client choosing the KHR wrapper. Preserve each fallback by applying it after the KHR lookup or only assigning the KHR slot when that lookup succeeds. No Vulkan call, build, or runtime reproduction was performed; source-only; see the [dynamic dispatch fallback review](AROS-graphics-desktop-coverage.md#vulkan-hpp-end-rendering2-dispatch-fallback-gd10471).
 
 <a id="gd10473"></a>
+<a id="gd10473-videocore-cursor-setup-leaks-firmware-memory-after-partial-allocation"></a>
 ## GD10473 — VideoCore cursor setup leaks firmware memory after partial allocation
 
 `InitCursor()` asks the VideoCore firmware for a 64×64×4-byte cursor allocation and stores the returned handle in `vcsd_CurBufHandle` (`arch/arm-native/soc/broadcom/2708/hidd/vcgfx/vcgfx_hiddclass.c:294-323`). It then returns `FALSE` if `LOCKMEM` fails (`:325-340`), or if the returned bus address lacks the GPU alias bits (`:342-354`), without issuing `FREEMEM` for the allocated handle; the latter branch also leaves the allocation locked. The adjacent offscreen bitmap setup explicitly releases its firmware allocation when its address validation fails (`vcgfx_offbitmap.c:99-132`), and the general GPU-memory free helper pairs unlock and free (`vcgfx_memory.c:163-187`). `vcgfx_init.c` ignores `InitCursor()`'s return value and continues driver initialization (`:154-160`), so this partial cursor failure does not enter the module-wide failed-init cleanup already covered by GD6256.
@@ -16170,6 +16392,7 @@ With the default `VULKAN_HPP_ENABLE_DYNAMIC_LOADER_TOOL=1`, the RAII default `Co
 
 <a id="gd10476"></a>
 
+<a id="gd10476-sysexplorer-keeps-removed-hidd-objects-in-its-hardware-tree"></a>
 ## GD10476 — SysExplorer keeps removed HIDD objects in its hardware tree
 
 SysExplorer's enumeration callbacks pass borrowed HIDD object pointers in `InsertObjectMsg`; the NListtree construct hook copies each pointer into persistent `ObjectUserData` without obtaining an object reference, and the destruct hook only frees that wrapper (`workbench/tools/SysExplorer/sysexp_main.c:80-85,193-222`). The Storage and ATA module callbacks retain the same kind of controller pointer (`Modules/Storage/storage_enum.c:51-60,92-111`; `Modules/ATA/ata_enum.c:122-129`). The Gfx module also stores each display object: `gfxEnum()` obtains `aHidd_Gfx_DisplayList` or `aHidd_Gfx_DisplayDefault`, and `addGfxDisplay()` passes the borrowed display pointer through `InsertObjectMsg` (`Modules/Gfx/gfx_enum.c:56-82,85-109`). None of these tree rows is invalidated when its source object is removed.
@@ -16180,6 +16403,7 @@ There is a separate graphics-display route through the same retained-pointer def
 
 **Trigger and consequence:** build/select SysExplorer with its Storage/ATA or Gfx support module, enumerate the relevant object, then remove its ATA controller or hand over its boot-mode display while the application remains open. If the cached row's properties are opened afterward, OOP dispatch uses an object that has been disposed and can fault or corrupt state. **Affected configuration:** optional `workbench-tools-sysexplorer-app` with `workbench-tools-sysexplorer-module-storage` plus `...-module-ata` and a removable ATA controller, or `workbench-tools-sysexplorer-module-gfx` with a boot-mode display that is later taken over. The module aggregate edges are commented in `workbench/tools/SysExplorer/mmakefile.src:77-78,112-114,134-143`; no default-package reachability is claimed. **Confidence:** high for pointer retention, disposal and the later property-window dereferences; overall trigger is conditional on removal/handover occurring between enumeration and property access. Keep a valid object reference per tree row or remove/invalidate rows when the corresponding HIDD object is removed. The ATA expunge double-disposal issue is separately recorded as OD2899. No module, controller, GUI, handover, removal, or runtime operation was exercised; source-only; see the [ownership and caller trace](AROS-graphics-desktop-coverage.md#sysexplorer-cached-hidd-object-removal-gd10476).
 <a id="gd10477"></a>
+<a id="gd10477-uikit-bitmap-offset-validation-misclamps-signed-coordinates"></a>
 ## GD10477 — UIKit bitmap offset validation misclamps signed coordinates
 
 The UIKit bitmap instance stores `left` and `top` as signed `int`, while `width`, `height`, `win_width`, and `win_height` are `unsigned int` (`arch/all-ios/hidd/uikit/uikit_bitmap.h:5-17`). Its Set method compares the signed coordinates directly with unsigned bounds (`uikit_bitmapclass.c:157-164`). The usual arithmetic conversions therefore convert a negative coordinate to unsigned for the first comparison, and convert `-data->width` / `-data->height` to unsigned for the second comparison. For ordinary positive extents, a negative coordinate satisfies the first test and is clamped to the positive window extent; a nonnegative coordinate that is not already past the window extent satisfies the second test and is clamped to the negative bitmap extent. The same defect applies on both axes.
@@ -16190,6 +16414,7 @@ This Set method is reached by graphics.library's `ScrollVPort()`, which writes t
 
 
 <a id="gd10478"></a>
+<a id="gd10478-iconlist-can-dereference-a-cleared-display-rastport-when-buffered-flags-are-updated-while-hidden"></a>
 ## GD10478 — IconList can dereference a cleared display RastPort when buffered flags are updated while hidden
 
 `IconList__MUIM_Hide()` leaves `icld_DisplayFlags` unchanged but clears both `icld_BufferRastPort` and `icld_DisplayRastPort` after a successful superclass Hide (`workbench/system/Wanderer/Classes/iconlist.c:3220-3230`). `MUIA_IconList_DisplayFlags` is a settable/gettable `ULONG` attribute and `ICONLIST_DISP_BUFFERED` is a supported flag (`Classes/iconlist_attributes.h:44,86-89`). If a client has enabled buffering, hides the object, then updates the flags while retaining `ICONLIST_DISP_BUFFERED` (for example, changing another display bit), `IconList__OM_SET()` enters the buffered branch. With the cleared buffer pointer, it reaches `GetCyberMapAttr(data->icld_DisplayRastPort->BitMap, ...)` without first reacquiring or validating the display RastPort (`iconlist.c:2514-2548`, especially :2537-2544), so the setter dereferences NULL before the next Show can recreate the display RastPort.
@@ -16198,6 +16423,7 @@ A possible selected Wanderer preference-notification trigger was checked and rul
 **Affected configuration and trigger:** a client selecting the Wanderer IconList class enables `ICONLIST_DISP_BUFFERED`, the list is successfully hidden, and the client sets `MUIA_IconList_DisplayFlags` to a value that still includes the buffered bit before the next Show. Wanderer's own code that enables buffering is behind the commented-out `ICONWINDOW_BUFFERLIST` switch (`workbench/system/Wanderer/iconwindow.c:930-947`); no checked-in caller was found that enables this bit, so the in-tree trigger is not claimed. **Consequence:** a valid display-flag update while hidden can fault in the setter instead of being retained for the next Show. Defer buffer creation until Show or reject/defer the buffered transition when no display RastPort exists. **Confidence:** high for the preserved flag, cleared pointers, public settable attribute and NULL dereference sequence; no flag update or GUI lifecycle was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#iconlist-buffer-flag-set-while-hidden-gd10478).
 
 <a id="gd10479"></a>
+<a id="gd10479-vulkan-hpp-displaymodekhr-copies-lose-their-physical-device-association"></a>
 ## GD10479 — Vulkan-Hpp DisplayModeKHR copies lose their physical-device association
 
 `DisplayModeKHR` stores the `VkPhysicalDevice` needed by its `getDisplayPlaneCapabilities()` member. Its public copy constructor copies only `m_displayModeKHR` and `m_dispatcher`, leaving `m_physicalDevice` at its default null value (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:10068-10069,10143-10146`). Its public copy assignment likewise updates the mode and dispatcher but leaves the destination's physical-device field unchanged (`:10077-10082`). The method later passes that field and the copied mode to `vkGetDisplayPlaneCapabilitiesKHR()` (`:18783-18796`). Vulkan requires a valid physical-device handle and requires that the display mode was created, allocated, or retrieved from that physical device ([official reference](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetDisplayPlaneCapabilitiesKHR.html)).
@@ -16205,6 +16431,7 @@ A possible selected Wanderer preference-notification trigger was checked and rul
 **Trigger and consequence:** a Vulkan-Hpp client copies a valid `DisplayModeKHR` wrapper and calls `getDisplayPlaneCapabilities()` on the copy. Copy construction sends a null physical-device handle; copy assignment can instead retain a different destination physical device. The call then violates Vulkan's handle/parent requirements and may fail validation or the implementation call. **Affected configuration:** downstream C++ clients using the optional copied Vulkan-Hpp RAII API with `VK_KHR_display`; no non-generated in-tree C++ caller was found. **Confidence:** high for the omitted fields and the consuming native call. Copy both the physical-device handle and dispatcher in the copy constructor and assignment. No Vulkan call or C++ client build was run; source-only. See the [copy/dispatch trace](AROS-graphics-desktop-coverage.md#vulkan-raii-displaymode-copy-parent-gd10479).
 
 <a id="gd10480"></a>
+<a id="gd10480-vulkan-hpp-display-enumeration-can-release-an-existing-display-acquisition"></a>
 ## GD10480 — Vulkan-Hpp display enumeration can release an existing display acquisition
 
 `DisplayKHR::clear()` calls `vkReleaseDisplayEXT()` for every non-null wrapped display handle (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:9934-9943`). However, `PhysicalDevice::getDisplayPlaneSupportedDisplaysKHR()` receives borrowed `VkDisplayKHR` handles from the query and constructs a `DisplayKHR(*this, handle)` wrapper for each result (`:18703-18732`). The returned vector's wrappers therefore run `clear()` when destroyed, even though this query did not acquire control of those displays. `DisplayKHRs` also owns and destroys the returned wrapper vector (`:10011-10033`). The Vulkan specification describes `vkGetDisplayPlaneSupportedDisplaysKHR()` as a query returning supported handles, while `vkReleaseDisplayEXT()` releases a previously acquired display; acquisition grants control until the display is released or disconnected ([plane-display query](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetDisplayPlaneSupportedDisplaysKHR.html), [acquire/release semantics](https://docs.vulkan.org/spec/latest/chapters/VK_KHR_surface/wsi.html)). The same owning conversion is used by `PhysicalDevice::getRandROutputDisplayEXT()`, `getDrmDisplayEXT()`, and `getWinrtDisplayNV()` (`:20408-20415,24224-24231,24944-24951`), with convenience `DisplayKHR` constructors delegating to those queries (`:9859-9880`). Their specifications describe them as lookup/query operations that return the corresponding display handle, while separate acquire commands grant control ([RandR query](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetRandROutputDisplayEXT.html), [DRM query](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetDrmDisplayEXT.html), [WinRT query](https://docs.vulkan.org/refpages/latest/refpages/source/vkGetWinrtDisplayNV.html)). Thus any one of these query results for a display already acquired by the same instance can release that acquisition when its RAII wrapper is destroyed; the RandR, DRM, and WinRT routes are conditional on their respective Xlib-XRandR, DRM, and Win32 platform guards and acquisition extensions.
@@ -16228,6 +16455,7 @@ A possible selected Wanderer preference-notification trigger was checked and rul
 The enhanced `Device::bindVideoSessionMemoryKHR()` overload also forwards `bindSessionMemoryInfos.size()` as the native `uint32_t bindSessionMemoryInfoCount` while retaining the proxy's original data pointer (`workbench/hidds/vulkan/include/vulkan/vulkan_funcs.hpp:11665-11681`). `ArrayProxy` has already narrowed a source-container size above `UINT32_MAX`, so the wrapper can pass a truncated count, including zero at 2^32. Such an extent exceeds the Vulkan count type and applicable video-session memory-binding limits; this is another invalid-input handling site of the existing GD10233 narrowing root cause, not a valid-call corruption claim. No non-generated in-tree C++ caller was found.
 
 <a id="gd10481"></a>
+<a id="gd10481-empty-vulkan-hpp-transform-feedback-size-proxy-can-pass-an-invalid-pointer"></a>
 ## GD10481 — Empty Vulkan-Hpp transform-feedback size proxy can pass an invalid pointer
 
 The enhanced `CommandBuffer::bindTransformFeedbackBuffersEXT()` overload permits `sizes.empty()` without requiring it to match the nonempty `buffers` array, then forwards `sizes.data()` unchanged (`workbench/hidds/vulkan/include/vulkan/vulkan_funcs.hpp:11964-11993`). `ArrayProxy` exposes a public `(uint32_t count, T const * ptr)` constructor and preserves `ptr` even when `count` is zero (`vulkan.hpp:332-336`), so an empty proxy may carry a non-null pointer. Vulkan defines `pSizes` as either `NULL` or a pointer to an array of `bindingCount` sizes; `NULL` selects the whole remaining buffer size ([`vkCmdBindTransformFeedbackBuffersEXT`](https://docs.vulkan.org/refpages/latest/refpages/source/vkCmdBindTransformFeedbackBuffersEXT.html)). Thus the wrapper's accepted “no sizes” form can pass a non-null pointer that does not reference the required number of entries. A Vulkan implementation may read beyond the caller's empty range while recording the command.
@@ -16238,6 +16466,7 @@ The enhanced `CommandBuffer::bindTransformFeedbackBuffersEXT()` overload permits
 
 
 <a id="gd10482"></a>
+<a id="gd10482-popupmenu-wait-loop-dereferences-a-missing-timer-port-after-timer-setup-failure"></a>
 ## GD10482 — PopupMenu wait loop dereferences a missing timer port after timer setup failure
 
 `PM_OpenPopupMenuA()` assigns the result of `EZCreateTimer()` to `p->treq`, but only sets `p->tport` and submits the initial timer request when that result is non-NULL (`workbench/libs/popupmenu/pm.c:1066-1079`). It calls `PM_DoPopup()` or `PM_DoHint()` regardless (`:1081-1084`). `EZCreateTimer()` returns NULL when reply-port creation, `CreateExtIO()`, or `OpenDevice(TIMERNAME, ...)` fails (`workbench/libs/popupmenu/pminput.c:210-233`). On AROS the PopupMenu pool is created with `MEMF_CLEAR` (`pminit.c:82-90`), so the unassigned `p->tport` remains NULL. Both popup loops evaluate `a->p->tport->mp_SigBit` while building their initial `Wait()` mask (`pm.c:603,750`), before any timeout or input event can be handled.
@@ -16246,6 +16475,7 @@ The enhanced `CommandBuffer::bindTransformFeedbackBuffersEXT()` overload permits
 
 
 <a id="gd10483"></a>
+<a id="gd10483-aboutbox-documentation-names-a-fallback-attribute-absent-from-the-public-header"></a>
 ## GD10483 — Aboutbox documentation names a fallback attribute absent from the public header
 
 The Aboutbox API documentation names the fallback attribute `MUIA_Aboutbox_LogoFallback` in its section heading, attribute description, and example (`workbench/classes/zune/aboutbox/MCC_Aboutbox.doc:160,163,185`). The selected public header instead exports `MUIA_Aboutbox_LogoFallbackMode` (`workbench/classes/zune/aboutbox/Aboutbox_mcc.h:19`), and the class implementation handles only that name (`Aboutbox.c:510-512`). The Aboutbox target copies this header as its public include (`mmakefile.src:7-18`).
@@ -16255,12 +16485,14 @@ The Aboutbox API documentation names the fallback attribute `MUIA_Aboutbox_LogoF
 **Affected configuration:** downstream clients of the explicitly buildable Zune Aboutbox.mcc target that use the documented fallback option. **Confidence:** high for the header/documentation/implementation name mismatch and compile-time consequence; no client compile or build was run. Source-only; see the [Aboutbox header and documentation coverage pass](AROS-graphics-desktop-coverage.md#optional-zune-aboutbox-header-and-api-documentation-reconciliation-gd9784-rechecked-gd10483-added-2026-10-31).
 
 <a id="gd10484"></a>
+<a id="gd10484-vulkan-hpp-raii-physical-device-enumeration-can-return-null-entries-after-device-removal"></a>
 ## GD10484 — Vulkan-Hpp RAII physical-device enumeration can return null entries after device removal
 
 `Instance::enumeratePhysicalDevices()` first queries `physicalDeviceCount`, resizes `physicalDevices` to that count, then fills the vector on a second call (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:15114-15130`). The Vulkan contract says the count passed with a non-null output array is its capacity and is overwritten with the number of handles actually written; `VK_INCOMPLETE` is required when capacity is less than the number currently available ([`vkEnumeratePhysicalDevices`](https://docs.vulkan.org/refpages/latest/refpages/source/vkEnumeratePhysicalDevices.html)). If the available-device set shrinks between the count and fill calls, the fill can therefore succeed after writing fewer handles. The wrapper does not resize `physicalDevices` to the returned count before wrapping every vector element. Its default-initialized raw handle slots are `VK_NULL_HANDLE` (`vulkan_handles.hpp:18871,20961`), so it returns extra RAII `PhysicalDevice` objects holding null handles; subsequent physical-device queries on those objects dispatch with an invalid handle.
 
 **Trigger and consequence:** the physical-device inventory shrinks between the wrapper's two enumeration calls and the fill call returns `VK_SUCCESS` with a smaller written count. The returned vector then has the old, larger size, including trailing null-handle objects. **Affected configuration:** downstream users of the optional copied Vulkan-Hpp RAII API when physical devices can disappear during enumeration; no checked-in C++ RAII caller was found. **Confidence:** high for count handling and the resulting null entries under this inter-call change; no device hotplug or Vulkan operation was exercised. Resize to the count returned by the fill call before constructing RAII wrappers. Source-only.
 <a id="gd10485"></a>
+<a id="gd10485-software-compositor-drops-updates-wider-than-signed-word"></a>
 ## GD10485 — Software compositor drops updates wider than signed `WORD`
 
 The public `UpdateBitMap()` vector accepts unsigned `UWORD` coordinates and dimensions (`rom/graphics/graphics.conf:247`; `rom/graphics/updatebitmap.c:14-36`). Its compositor wrapper forwards those values into `pHidd_Compositor_BitMapRectChanged`, whose `x`, `y`, `width`, and `height` fields are signed `WORD` (`rom/graphics/graphics_compositor.h:43-55`; `workbench/devs/monitors/Compositor/include/compositor.h:80-88`). The bitmap implementation stores width and height as `UWORD` (`rom/hidds/gfx/gfx_intern.h:183-184`) and accepts the width tag without a `WORD_MAX` restriction (`rom/hidds/gfx/gfx_bitmapclass.c:5144-5160`). Its constructor explicitly allows a bitmap to be larger than the visible display area for scrollable framebuffer use (`:4450-4465`).
@@ -16271,6 +16503,7 @@ The maintained CyberGraphX caller `UnLockBitMapTagList()` sends the full bitmap 
 
 
 <a id="gd10486"></a>
+<a id="gd10486-getcolormap-truncates-an-unrepresentable-entry-count-and-leaks-its-tables-on-free"></a>
 ## GD10486 — GetColorMap truncates an unrepresentable entry count and leaks its tables on free
 
 `GetColorMap()` accepts an `ULONG entries`, allocates both color tables using that value, and stores it directly in `ColorMap.Count`, whose public field is `UWORD` (`rom/graphics/getcolormap.c:43,73-78,90-91`; `compiler/include/graphics/view.h:152`). For `entries == 65536`, both table allocations can succeed and the returned map is initialized with `Count == 0`. `FreeColorMap()` computes both release sizes from the truncated count (`rom/graphics/freecolormap.c:57-61`); `FreeMem()` returns without freeing when the requested size is zero (`rom/exec/freemem.c:65-68`). Thus freeing this successfully returned map leaks both 131,072-byte tables. The setters/getters also treat the map as having no valid entries (`rom/graphics/setrgb4cm.c:59`; `rom/graphics/getrgb4.c:57-60`).
@@ -16279,6 +16512,7 @@ The maintained CyberGraphX caller `UnLockBitMapTagList()` sends the full bitmap 
 
 
 <a id="gd10487"></a>
+<a id="gd10487-wanderer-dereferences-a-failed-workbench-path-allocation"></a>
 ## GD10487 — Wanderer dereferences a failed Workbench path allocation
 
 `Wanderer__MUIM_Application_Execute()` requests the root Workbench window by calling `MUIM_Wanderer_CreateDrawerWindow` with a NULL drawer (`workbench/system/Wanderer/wanderer.c:3542-3545`). In that method, `isWorkbenchWindow` is true, and after successfully creating the `IconWindowObject`, the code allocates a five-byte `drw` buffer for the literal `"RAM:"` but does not check the result before calling `sprintf(drw, "RAM:")` (`:3977-3980,3997-4010,4018-4031`). `AllocVec()` returns NULL when its underlying allocation fails (`rom/exec/allocvec.c:61-66`).
@@ -16287,6 +16521,7 @@ The maintained CyberGraphX caller `UnLockBitMapTagList()` sends the full bitmap 
 
 
 <a id="gd10488"></a>
+<a id="gd10488-wanderer-continues-copydelete-operations-when-its-stop-window-fails-to-open"></a>
 ## GD10488 — Wanderer continues copy/delete operations when its Stop window fails to open
 
 `CreateCopyDisplay()` returns TRUE whenever the MUI application object was created, even if setting `MUIA_Window_Open` on its progress window fails (`workbench/system/Wanderer/wanderer.c:2497-2508,2576-2579`). The drop-copy path then proceeds to `CopyContent()` (`:332-345`), and the delete path proceeds to `DeleteContent()` (`:2622-2645`). The progress hook polls `d->stopflag` after processing input (`:181-187`), but the only writer of that flag is the Stop gadget notification registered after the unchecked open (`:2503,2577`). When the window is closed because setup or native window creation failed, the user cannot activate that gadget; the caller has already been told display creation succeeded and continues the operation.
@@ -16322,6 +16557,7 @@ For a top-level directory copy, `CopyContent()` checks an existing destination p
 **Trigger and consequence:** recursively copy a directory where `ExNext()` returns an error other than `ERROR_NO_MORE_ENTRIES`, including after one or more entries have already been copied, and no later top-level sidecar copy sets the failure flag (for example, the directory has no `.info` sidecar). Wanderer displays an error requester but returns the success value; a multi-entry drop continues, and callers cannot use the return value to distinguish the incomplete copy. Set `stop` on the enumeration error and propagate it. **Affected configuration:** explicitly buildable `workbench-system-wanderer-app` (`workbench/system/Wanderer/mmakefile.src:7-21,37-39`) when the filesystem reports a directory-enumeration error during recursive copy; default aggregate inclusion is not claimed (`:23-27`). **Confidence:** high for the DOS dual-result contract, error branch, unmodified return value, and caller status handling; occurrence requires a filesystem enumeration error. The error requester may still notify the user. No filesystem error or copy was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#wanderer-recursive-copy-enumeration-error-gd10492).
 
 <a id="gd10493"></a>
+<a id="gd10493-gadtools-dereferences-a-failed-menu-bar-label-image-during-menu-creation"></a>
 ## GD10493 — GadTools dereferences a failed menu-bar-label image during menu creation
 
 `makemenuitem()` allocates the menu-item record, then constructs an image for `NM_BARLABEL` with `NewObjectA(NULL, MENUBARLABELCLASS, ...)` (`workbench/libs/gadtools/menus.c:203-214,282-295`). `NewObjectA()` returns NULL when it cannot find/create the class object, including failure to allocate the class pool (`rom/intuition/newobjecta.c:108-124,133-143`). GadTools detects a NULL `ItemFill` and sets its local `menuitem` pointer to NULL, but immediately writes `menuitem->ItemFill` into the bar-image table (`menus.c:299-313`). That dereference occurs before `makemenuitem()` can return NULL.
@@ -16331,6 +16567,7 @@ For a top-level directory copy, `CopyContent()` checks an existing destination p
 **Trigger and consequence:** while constructing any GadTools menu containing an `NM_BARLABEL`, creation of the `MENUBARLABELCLASS` image fails. The menu-building task then dereferences NULL and can fault instead of reporting menu construction failure through `CreateMenusA()`'s existing error path. Return immediately when the image creation fails, before writing through `menuitem`, so the caller can perform its normal cleanup. **Affected configuration:** GadTools builds using the new menu implementation (`NEWMENUCODE` is TRUE in `gadtools_intern.h:195-196`); the maintained Wanderer app is one selected caller. **Confidence:** high for the nullable constructor result, unchecked dereference, and caller error path; the trigger is conditional on class/object creation failure. No allocation failure, menu construction, UI operation or build was induced. Source-only; see the [coverage trace](AROS-graphics-desktop-coverage.md#gadtools-barlabel-image-construction-failure-gd10493).
 
 <a id="gd10494"></a>
+<a id="gd10494-gadtools-reports-submenu-layout-success-after-a-child-layout-error"></a>
 ## GD10494 — GadTools reports submenu layout success after a child layout error
 
 `LayoutMenuItemsA()` first walks each top-level item and calls `layoutsubitems()` for items with submenus, then lays out the top-level chain itself (`workbench/libs/gadtools/layoutmenuitemsa.c:53-76`). `layoutsubitems()` calls `layoutmenuitems()` on the submenu but ignores its BOOL result and always returns TRUE (`workbench/libs/gadtools/menus.c:926-934`). The child helper can return FALSE when it cannot open the requested `GTMN_TextAttr` font (`menus.c:760-790`); the public `LayoutMenuItemsA()` contract says FALSE when an error occurs (`layoutmenuitemsa.c:26-29`).
@@ -16340,6 +16577,7 @@ A supported menu shape can isolate the lost error: use an image menu item as the
 **Trigger and consequence:** `LayoutMenuItemsA()` processes a menu item tree containing an image parent and text submenu, and `OpenFont()` fails for the supplied `GTMN_TextAttr` while laying out a child. The caller receives success and cannot take the documented layout-error path, despite the submenu item not having completed layout. Propagate `layoutmenuitems()`'s result from `layoutsubitems()`. **Affected configuration:** GadTools `NEWMENUCODE` implementation; the trigger is conditional on opening the requested font failing. **Confidence:** high for the discarded result, the explicit error return, and the parent/child traversal; no font failure or menu operation was induced. This is an exported API candidate with no maintained direct `LayoutMenuItemsA()` client found in the checked source search; no in-tree caller consequence is claimed. Source-only; see the [coverage trace](AROS-graphics-desktop-coverage.md#gadtools-submenu-layout-error-propagation-gd10494).
 
 <a id="gd10495"></a>
+<a id="gd10495-createmenusa-attaches-submenu-entries-from-trimmed-items-to-the-previous-item"></a>
 ## GD10495 — `CreateMenusA()` attaches submenu entries from trimmed items to the previous item
 
 The selected NewMenu implementation caps each title at 64 top-level items. When `item_ctr >= 64`, it sets `GTMENU_TRIMMED` and skips creating the item, but leaves `curitem` pointing at the last created item (`workbench/libs/gadtools/createmenusa.c:265-271,306-310`). The following `NM_SUB`/`IM_SUB` path still accepts entries when `curitem` is non-NULL and attaches them to that retained item (`:313-350,358-398`). Thus, when the 65th top-level item has submenu entries, that parent is omitted but its child entries become subitems of item 64. The API returns the truncated menu and, when `GTMN_SecondaryError` is requested, reports `GTMENU_TRIMMED`; it does not reject the tree (`:420-454`).
@@ -16347,6 +16585,7 @@ The selected NewMenu implementation caps each title at 64 top-level items. When 
 **Trigger and consequence:** a `NewMenu` title contains more than 64 top-level items and an over-limit item is followed by one or more subitems. The omitted item's submenu appears under the previous retained item instead, changing the menu hierarchy and making those actions available from the wrong parent. Discard subitems belonging to a trimmed parent along with that parent. **Affected configuration:** GadTools' selected `NEWMENUCODE` implementation when callers exceed the per-title item limit; the source explicitly defines this as a successful trimmed-menu case. **Confidence:** high for the counter, skipped-item state, subsequent attachment, and returned trim status; no over-limit menu was created. Source-only; see the [coverage trace](AROS-graphics-desktop-coverage.md#gadtools-trimmed-menu-item-submenu-parenting-gd10495).
 
 <a id="gd10496"></a>
+<a id="gd10496-createmenusa-leaks-its-allocation-when-rejecting-an-invalid-full-menu"></a>
 ## GD10496 — `CreateMenusA()` leaks its allocation when rejecting an invalid full menu
 
 `CreateMenusA()` first scans the `NewMenu` records, sizes the menu block, and allocates it with `AllocVec()` (`workbench/libs/gadtools/createmenusa.c:99-183,185-207`). Only in the second pass does it validate that a full menu starts with a title. If `GTMN_FullMenu` is TRUE and the first record is `NM_ITEM`/`IM_ITEM` or a subitem without a current item, the function sets `GTMENU_INVALID` and jumps to `failexit` while `firstmenu` is still NULL (`:257-263,323-329`). The cleanup calls `FreeMenus(firstmenu)` (`:457-474`); `FreeMenus()` frees the backing block only inside `if (menu)` (`workbench/libs/gadtools/freemenus.c:56-85`). The allocated block is therefore leaked on each such rejected call.
@@ -16354,6 +16593,7 @@ The selected NewMenu implementation caps each title at 64 top-level items. When 
 **Trigger and consequence:** a caller sets `GTMN_FullMenu=TRUE` and supplies a `NewMenu` array whose first item/subitem violates the required title/parent ordering. `CreateMenusA()` returns NULL and reports `GTMENU_INVALID` through `GTMN_SecondaryError` when that tag is supplied, but loses its sole pointer to the already allocated menu block, so repeated rejected calls consume memory. Free the allocation directly when no returned menu/item pointer has been established, or establish a cleanup root immediately after allocation. **Affected configuration:** GadTools' selected `NEWMENUCODE` implementation and invalid full-menu input. **Confidence:** high for allocation-before-validation and the NULL-guarded cleanup; trigger requires rejected menu structure. No invalid menu was submitted; source-only; see the [coverage trace](AROS-graphics-desktop-coverage.md#gadtools-invalid-full-menu-allocation-cleanup-gd10496).
 
 <a id="gd10497"></a>
+<a id="gd10497-gadtools-closes-the-rastports-borrowed-font-after-an-openfont-failure"></a>
 ## GD10497 — GadTools closes the RastPort's borrowed font after an `OpenFont()` failure
 
 For IntuiText labels, `renderlabel()` calls `preparefont()` and later passes its returned `font` and `oldfont` values to `closefont()` (`workbench/libs/gadtools/basicfuncs.c:254-261,305-308`). When `OpenFont(itext->ITextFont)` succeeds, `preparefont()` saves the RastPort font and installs the newly opened font. But when it fails, it assigns `font = rport->Font` as a fallback while leaving `*oldfont` set to that same existing font (`basicfuncs.c:189-204`). `closefont()` tests only whether `oldfont` is non-NULL, restores it, and unconditionally calls `CloseFont(font)` (`:211-219`). Thus the fallback path decrements a font accessor that this render operation did not acquire. Graphics `OpenFont()` increments the selected font's accessor only on success (`rom/graphics/openfont.c:80-93`), while `CloseFont()` decrements the supplied font and removes a non-ROM font when the count reaches zero (`rom/graphics/closefont.c:55-60`).
@@ -16363,6 +16603,7 @@ The selected GadTools `CreateGadgetA()` path creates and stores an IntuiText lab
 **Trigger and consequence:** a GadTools IntuiText label has a non-NULL TextAttr, `OpenFont()` cannot find it during rendering, and the supplied RastPort already has a font. The helper falls back to that current font, then `closefont()` wrongly consumes one of its references; if it is the last counted reference to a non-ROM font, Graphics removes the font while the RastPort still holds it. Only close fonts actually opened by `preparefont()`, while restoring the previous RastPort font independently. **Affected configuration:** selected GadTools gadget classes that render IntuiText labels; trigger is conditional on requested-font lookup failure. **Confidence:** high for the borrowed-versus-owned pointer flow and Graphics accessor behavior; font loss and rendering were not induced. Source-only; see the [coverage trace](AROS-graphics-desktop-coverage.md#gadtools-label-font-fallback-ownership-gd10497).
 
 <a id="gd10498"></a>
+<a id="gd10498-gadtools-palette-color-count-depends-on-tag-order"></a>
 ## GD10498 — GadTools palette color count depends on tag order
 
 `makepalette()` parses the caller's tag list in order. Every `GTPA_Depth` tag sets both the depth and the generated `GTPA_NumColors` value to `1L << depth`, while `GTPA_NumColors` sets only the generated count (`workbench/libs/gadtools/gadgets.c:270-281`). Therefore, when `GTPA_NumColors` precedes `GTPA_Depth`, the later depth overwrites the explicitly requested color count. The helper then passes its fixed tag array to the palette class (`:282-289`). The selected `palette_set()` explicitly implements the opposite precedence: once it sees `GTPA_NumColors`, later `GTPA_Depth` tags do not replace it (`workbench/libs/gadtools/paletteclass.c:327-350,400-405`).
@@ -16370,6 +16611,7 @@ The selected GadTools `CreateGadgetA()` path creates and stores an IntuiText lab
 **Trigger and consequence:** `CreateGadgetA(PALETTE_KIND, ...)` receives both `GTPA_NumColors` and `GTPA_Depth`, with the color-count tag earlier in the list. The palette is created with the depth-derived count instead of the requested count; layout, available swatches and color-selection bounds then use the wrong number. Preserve whether `GTPA_NumColors` was supplied and apply its value after parsing, matching the palette class's stated precedence. **Affected configuration:** selected GadTools `PALETTE_KIND` implementation when both tags are supplied in this order. **Confidence:** high for input-order parsing, overwrite, fixed outgoing tag order, and downstream precedence; no palette was created. Source-only; see the [coverage trace](AROS-graphics-desktop-coverage.md#gadtools-palette-depth-and-color-count-tag-order-gd10498).
 
 <a id="gd10499"></a>
+<a id="gd10499-gadtools-numeric-gadget-formatting-can-exceed-its-render-buffer"></a>
 ## GD10499 — GadTools numeric gadget formatting can exceed its render buffer
 
 `GTText__GM_RENDER()` formats `NUMBER_KIND` values into a 256-byte stack array by passing `puttostr()` to `RawDoFmt()` (`workbench/libs/gadtools/textclass.c:303-314,318-365`). The callback stores every emitted byte and increments the destination pointer without checking the array capacity. `makenumber()` passes the caller's `GTNM_Format` string through unchanged (`workbench/libs/gadtools/gadgets.c:376-407`); RawDoFmt supports a minimum field width, so a format such as `%300ld` produces more characters than fit. The later `GTNM_Clipped` path calls `TextFit()` only after formatting and cannot protect the write.
@@ -16377,6 +16619,7 @@ The selected GadTools `CreateGadgetA()` path creates and stores an IntuiText lab
 **Trigger and consequence:** a GadTools `NUMBER_KIND` gadget is rendered with a `GTNM_Format` whose output is at least 256 bytes, or a slider level gadget created by `makeslider()` is rendered with a wide `GTSL_LevelFormat` (the builder forwards it as `GTNM_Format` to this same class; `workbench/libs/gadtools/gadgets.c:440-442,568-645`). Formatting writes beyond `textbuf`, corrupting adjacent stack state and potentially disrupting the redraw or task. Bound the callback to the array capacity and terminate safely, or determine the required length and use storage sized for the formatted output. **Affected configuration:** selected GadTools `NUMBER_KIND` and slider level text rendering with caller-supplied wide formats. **Confidence:** high for the unchecked callback write and supported format-width behavior; no gadget was rendered. Source-only; see the [coverage trace](AROS-graphics-desktop-coverage.md#gadtools-text-class-full-body-numeric-format-bounds-and-caller-pass-gd10499-added-2026-10-31).
 
 <a id="gd10500"></a>
+<a id="gd10500-gadtools-vertical-slider-notifications-expose-the-inverted-thumb-position"></a>
 ## GD10500 — GadTools vertical slider notifications expose the inverted thumb position
 
 `GTSlider__OM_GET()` converts the stored `data->level` back to the logical `GTSL_Level` for vertical sliders (`workbench/libs/gadtools/sliderclass.c:197-214`). The notification helper does not perform that conversion: it always emits `data->level` as the `GTSL_Level` value (`:35-49`). The vertical class stores the inverted position in `data->level` when setting values and while tracking `PGA_Top` (`:89-99,243-247`). The maintained `makeslider()` path maps slider `GTSL_Level` notifications to its attached level gadget's `GTNM_Number` (`workbench/libs/gadtools/gadgets.c:438-442,568-645`).
@@ -16384,6 +16627,7 @@ The selected GadTools `CreateGadgetA()` path creates and stores an IntuiText lab
 **Trigger and consequence:** a vertical slider changes level through `GTSL_Level`, input tracking, or initialization notification. The notification and linked level display receive the inverted physical thumb position, while `GTSL_Level` reads return the logical value. Applications reacting to notifications can therefore observe a value inconsistent with `GT_GetGadgetAttrsA()`, and the attached numeric display can show the wrong level. Emit the same orientation-adjusted logical value used by `OM_GET()`. **Affected configuration:** selected GadTools vertical sliders that notify a client or use the optional level display. **Confidence:** high for the stored-versus-reported conversion and internal mapping; no slider/input operation was run. Source-only; see the [coverage trace](AROS-graphics-desktop-coverage.md#gadtools-slider-class-full-body-range-update-and-notification-pass-gd10500-gd10501-added-2026-10-31).
 
 <a id="gd10501"></a>
+<a id="gd10501-gadtools-slider-range-updates-can-leave-its-level-outside-the-new-bounds"></a>
 ## GD10501 — GadTools slider range updates can leave its level outside the new bounds
 
 `GTSlider__OM_SET()` clamps `GTSL_Level` only when that tag is encountered. Updating `GTSL_Min` or `GTSL_Max` merely changes the stored bound and marks the range for superclass update; it does not clamp the existing `data->level` (`workbench/libs/gadtools/sliderclass.c:75-112`). The method then derives `PGA_Total` and `PGA_Top` from the new range and the potentially out-of-range stored level (`:102-109`). `GTSlider__OM_GET()` returns that stored level (orientation-adjusted for vertical sliders) without range validation (`:197-214`). `GT_SetGadgetAttrsA()` forwards these attributes to custom gadget objects (`workbench/libs/gadtools/gt_setgadgetattrsa.c:47-61`).
@@ -16391,6 +16635,7 @@ The selected GadTools `CreateGadgetA()` path creates and stores an IntuiText lab
 **Trigger and consequence:** a caller changes only `GTSL_Min` or `GTSL_Max` so the current level falls outside the new valid range. The slider's `GTSL_Level` getter can then return a value below the minimum or above the maximum; the proportional gadget update also receives a top derived from that invalid level. Clamp the retained level to the new bounds whenever either bound changes, then update the superclass and notify with the normalized level. **Affected configuration:** selected GadTools slider range updates through `GT_SetGadgetAttrsA()`/object attributes. **Confidence:** high for the unnormalized stored state and getter result; visual superclass behavior was not exercised. Source-only; see the [coverage trace](AROS-graphics-desktop-coverage.md#gadtools-slider-class-full-body-range-update-and-notification-pass-gd10500-gd10501-added-2026-10-31).
 
 <a id="gd10502"></a>
+<a id="gd10502-gadtools-string-construction-continues-after-frame-allocation-failure"></a>
 ## GD10502 — GadTools string construction continues after frame allocation failure
 
 In `GTString__OM_NEW()`, failure to create the required frame image disposes the newly created gadget and sets `retval` to NULL, but execution continues into the optional `GA_TextAttr` handling (`workbench/libs/gadtools/stringclass.c:116-160`). If `OpenFont(tattr)` succeeds, the code stores the font reference through the now-stale `data` pointer and calls `DoSuperMethod()` with the NULL object. The string class's dispose method would normally close this owned font (`:252-259`), but that disposed instance can no longer own it.
@@ -16400,6 +16645,7 @@ This font-success condition is available through the checked-in optional HardDis
 **Trigger and consequence:** GadTools string or integer gadget construction supplies a `GA_TextAttr`; the string gadget's frame-image allocation fails; and `OpenFont()` for the supplied attribute succeeds. The constructor then writes through disposed instance data and dispatches `OM_SET` with a NULL object, risking a fault and leaking the opened font. Return immediately after disposing the partially constructed gadget, before optional font setup. **Affected configuration:** selected GadTools `STRING_KIND`/`INTEGER_KIND` constructor with explicit text attribute under frame-image allocation failure. **Confidence:** high for the control flow and ownership; no allocation failure or gadget construction was induced. Source-only; see the [coverage trace](AROS-graphics-desktop-coverage.md#gadtools-string-class-full-body-and-frame-failure-pass-gd10502-added-2026-10-31).
 
 <a id="gd10503"></a>
+<a id="gd10503-gadtools-list-view-cannot-represent-lists-beyond-its-signed-word-index-range"></a>
 ## GD10503 — GadTools list view cannot represent lists beyond its signed-WORD index range
 
 When `GTLV_Labels` is set, `GTListView__OM_SET()` counts every node by incrementing `ld_NumEntries` without a size check (`workbench/libs/gadtools/listviewclass.c:536-559`). The field is a signed `WORD`, as are `ld_Top`, `ld_Selected`, hit-test positions and several intermediate row indices (`workbench/libs/gadtools/gadtools_intern.h:549-573`; `listviewclass.c:482-534,576-590,876-942`). The list remains an ordinary linked list and the setter neither caps it nor rejects counts that do not fit. `GTLV_Total` then exposes the narrowed count (`listviewclass.c:819-827`), while scrolling, selection and row drawing use the narrowed state.
@@ -16407,6 +16653,7 @@ When `GTLV_Labels` is set, `GTListView__OM_SET()` counts every node by increment
 **Trigger and consequence:** a caller supplies more than 32,767 label nodes. Counting overflows the signed `ld_NumEntries`; list totals, scroll range and row indices then become invalid, and rows above the representable signed-WORD range cannot be selected or addressed reliably. Widen the stored count and indices and their intermediate calculations, or explicitly reject lists that exceed the supported maximum. **Affected configuration:** selected GadTools `LISTVIEW_KIND` with a caller-provided label list exceeding 32,767 rows. **Confidence:** high that the class stores and consumes these values as signed WORD without a guard; medium that maintained callers reach this size, since no checked-in producer of such a large list was found. No large list or UI interaction was created. Source-only; see the [coverage trace](AROS-graphics-desktop-coverage.md#gadtools-listview-class-full-body-and-index-width-pass-gd10503-added-2026-10-31).
 
 <a id="gd10504"></a>
+<a id="gd10504-gadtools-cycle-construction-does-not-validate-its-initial-active-label"></a>
 ## GD10504 — GadTools cycle construction does not validate its initial active label
 
 `makecycle()` forwards the caller's `GTCY_Active` value unchanged, and `GTCycle__OM_NEW()` stores it before counting the supplied label array without clamping it (`workbench/libs/gadtools/gadgets.c:110-134`; `workbench/libs/gadtools/cycleclass.c:115-135`). The setter does clamp an active index above the available labels before redraw (`cycleclass.c:213-218`), but the constructor path bypasses that check. `GTCycle__GM_RENDER()` indexes `data->labels[data->active]` directly and passes the result to `rendercyclelabel()`, which calls `strlen()` (`cycleclass.c:40-48,269-287`).
@@ -16414,6 +16661,7 @@ When `GTLV_Labels` is set, `GTListView__OM_SET()` counts every node by increment
 **Trigger and consequence:** `CreateGadgetA(CYCLE_KIND, ...)` receives a non-NULL, non-empty `GTCY_Labels` array and a `GTCY_Active` index greater than or equal to its item count. Initial rendering reads outside the label-pointer array and may pass an invalid string pointer to `strlen()`. Apply the same bounds check during construction that is used before setter redraw. **Affected configuration:** selected GadTools cycle gadget construction with an out-of-range initial active tag. **Confidence:** high for direct unchecked indexing and the setter inconsistency; medium for API-level severity because no checked-in caller supplies an invalid initial index and no rendering was performed. Source-only; see the [coverage trace](AROS-graphics-desktop-coverage.md#gadtools-cycle-class-full-body-and-initial-index-pass-gd10504-added-2026-10-31).
 
 <a id="gd10505"></a>
+<a id="gd10505-gadtools-mx-layout-keeps-the-size-of-a-font-that-failed-to-open"></a>
 ## GD10505 — GadTools MX layout keeps the size of a font that failed to open
 
 `GTMX__OM_NEW()` attempts `OpenFont(data->tattr)`, but regardless of success sets `data->fontheight` from `data->tattr->ta_YSize` (`workbench/libs/gadtools/mxclass.c:117-127`). `GTMX__GM_RENDER()` uses the default DrawInfo font when `data->font` is NULL, while it positions tick images and successive labels using `data->fontheight + data->spacing` (`mxclass.c:269-287,305-357`). `GTMX__OM_NEW()` also derives gadget height from that requested size (`:128-138`). Thus, if the requested font cannot be opened and its requested height differs from the DrawInfo font height, the actual text metrics and the vertical row pitch/overall height disagree.
@@ -16421,6 +16669,7 @@ When `GTLV_Labels` is set, `GTListView__OM_SET()` counts every node by increment
 **Trigger and consequence:** a GadTools mutual-exclusion gadget supplies an explicit `GA_TextAttr` whose font cannot be opened, and its `ta_YSize` differs from the screen's DrawInfo font. The class falls back to drawing with the screen font but leaves spacing and gadget height based on the unavailable font size; labels/ticks can be vertically misaligned or clipped. Set `fontheight` from the font actually used after fallback, or reject construction when the requested font is required. **Affected configuration:** selected GadTools `MX_KIND` with an unavailable explicit font attribute. **Confidence:** high for the mismatched font selection and geometry source; visible layout impact depends on font metrics and was not rendered. Source-only; see the [coverage trace](AROS-graphics-desktop-coverage.md#gadtools-mx-class-full-body-font-fallback-layout-pass-gd10505-added-2026-10-31).
 
 <a id="gd10506"></a>
+<a id="gd10506-gadtools-palette-layout-divides-by-zero-for-zero-colors"></a>
 ## GD10506 — GadTools palette layout divides by zero for zero colors
 
 `palette_set()` accepts `GTPA_NumColors` without a nonzero check and schedules a relayout (`workbench/libs/gadtools/paletteclass.c:398-402`). On a later `GM_LAYOUT` with a `GadgetInfo`, the layout calculation starts with one column, reduces it to zero when `pd_NumColors` is zero, then divides by that column count to compute rows (`paletteclass.c:611-638`). The gadget builder forwards `GTPA_NumColors` unchanged (`workbench/libs/gadtools/gadgets.c:249-289`).
@@ -16428,6 +16677,7 @@ When `GTLV_Labels` is set, `GTListView__OM_SET()` counts every node by increment
 **Trigger and consequence:** `PALETTE_KIND` is constructed or updated with `GTPA_NumColors=0`, then receives layout with a valid `GadgetInfo`. `GM_LAYOUT` divides by zero instead of rejecting the empty palette or retaining a safe layout. Reject zero color counts before relayout or explicitly handle the empty palette. **Affected configuration:** selected GadTools palette when a caller supplies zero colors. **Confidence:** high for the accepted zero, zero-column calculation and division; no palette was laid out. Source-only; see the [coverage trace](AROS-graphics-desktop-coverage.md#gadtools-palette-class-full-body-zero-count-and-color-table-pass-gd10506-gd10507-added-2026-10-31).
 
 <a id="gd10507"></a>
+<a id="gd10507-gadtools-palette-treats-an-unmapped-pen-as-a-color-table-index"></a>
 ## GD10507 — GadTools palette treats an unmapped pen as a color-table index
 
 When both `GTPA_Color` and `GTPA_ColorTable` are supplied, `palette_set()` treats the color as a pen and searches the table for a matching entry (`workbench/libs/gadtools/paletteclass.c:352-358,405-432`). If no entry matches, the loop leaves `pd_Color` equal to the caller's pen value instead of selecting a valid index or rejecting it. Later `GetPalettePen()` indexes the table with `pd_Color` (`paletteclass.c:82-91`), and rendering/getter paths use that helper (`:150-157,471-473`). A pen value outside the table's index range therefore reads beyond the caller's table.
@@ -16436,6 +16686,7 @@ When both `GTPA_Color` and `GTPA_ColorTable` are supplied, `palette_set()` treat
 
 
 <a id="gd10508"></a>
+<a id="gd10508-graphics-double-buffer-reply-queue-can-lose-an-entry-on-execsmp"></a>
 ## GD10508 — Graphics double-buffer reply queue can lose an entry on ExecSMP
 
 `TOF_VBlank()` removes due entries from `PrivGBase(GfxBase)->dbuf_pending` without a lock (`rom/graphics/graphics_init.c:177-192`). `internal_QueueDBufInfo()` inserts at the head under `Disable()` only (`:205-211`). Exec documents that `Disable()` is processor-local on ExecSMP and that cross-CPU shared data also needs a spinlock (`rom/exec/disable.c:58-61`). On AArch64 Raspberry Pi SMP, the BCM2711/BCM2712 timer path invokes `core_Cause(INTB_VERTB, ...)` only on CPU 0 (`arch/aarch64-native/kernel/platform_bcm2711.c:184-195`; `platform_bcm2712.c:293-303`). The 32-bit Raspberry Pi 2/3 SMP path has the same division: its shared GPU interrupt is routed to CPU 0 (`arch/arm-native/kernel/platform_bcm2708.c:321-336`), where the global GPU timer handler causes `INTB_VERTB` (`:563-575,588-617`); per-core CNTP ticks update only local scheduling state (`:266-318`). The x86-64 PC SMP package also selects the architecture PC timer device (`arch/x86_64-pc/boot/mmakefile.src:66-76`, `arch/all-pc/timer/mmakefile.src:8-11`), and its selected PC timer options define `USE_VBLANK_EMU` (`arch/all-pc/timer/make.opts:1-2`). That timer registers IRQ 0 and sends its VBlank request (`arch/all-pc/timer/timer_init.c:163-168,201-210`); the completion path invokes the `INTB_VERTB` vector (`rom/timer/lowlevel.c:286-305`). The PC IOAPIC route defaults to the boot processor/CPU 0 (`arch/all-pc/kernel/acpi_ioapic.c:408-430`), while per-core APIC heartbeats do not invoke VBlank. All three selected SMP paths permit buffer changes from another CPU via `ChangeScreenBuffer()`/`ChangeVPBitMap()` (`rom/intuition/changescreenbuffer.c:74-81`; `rom/graphics/changevpbitmap.c:98-105`).
@@ -16443,6 +16694,7 @@ When both `GTPA_Color` and `GTPA_ColorTable` are supplied, `palette_set()` treat
 **Trigger and consequence:** while CPU 0's VBlank handler has loaded the current queue head and is about to unlink it because `dbi_Count1` is due, a task on another CPU inserts a new `DBufInfo` at the head. The handler's subsequent `*link = db->dbi_Link1` can overwrite the new head with the old head's successor, making the newly queued entry unreachable. Its `dbi_SafeMessage` and `dbi_DispMessage` then remain unreplied; a client waiting for those messages can block, and the selected `FreeScreenBuffer()` restore path waits synchronously for `dbi_SafeMessage` (`rom/intuition/freescreenbuffer.c:73-95`). Serialize both queue operations with an SMP-safe lock or use an interrupt-safe atomic queue protocol. **Affected configuration:** x86-64 PC and Raspberry Pi ExecSMP targets: 32-bit BCM2836/BCM2837 (Raspberry Pi 2/3) and AArch64 BCM2711/BCM2712 (Raspberry Pi 4/5), with `graphics.library`'s VBlank server active, a displayed viewport, and a buffer-change enqueue from another CPU overlapping removal of a due queue head. On PC, explicit IRQ affinity overrides may route IRQ 0 differently. **Confidence:** high for the unsynchronized shared pointer updates and lost-head interleaving; the exact overlap and task placement are conditional and were not exercised. Source-only; see the [coverage trace](AROS-graphics-desktop-coverage.md#graphics-double-buffer-reply-queue-execsmp-gd10508).
 
 <a id="gd10510"></a>
+<a id="gd10510-sdl-hidd-treats-four-byte-32-bit-pixel-formats-as-three-byte-surfaces"></a>
 ## GD10510 — SDL HIDD treats four-byte 32-bit pixel formats as three-byte surfaces
 
 The SDL bitmap `PutImage()` and `GetImage()` methods obtain only `aHidd_PixFmt_Depth` for ordinary standard pixel formats and pass that value to `SDL_CreateRGBSurfaceFrom()` (`arch/all-hosted/hidd/sdl/sdlgfx_bitmapclass.c:402-435,483-506`). The `Native32` special case later overrides `BytesPerPixel` to four, but the four 32-bit formats without alpha (`0RGB32`, `BGR032`, `RGB032`, `0BGR32`) take the ordinary branch and do not receive that override. The selected standard-format definitions give these formats depth 24 and storage width four bytes (`rom/hidds/gfx/stdpixfmts_le.h:141-165`; corresponding big-endian definitions are in `stdpixfmts_be.h`). The SDL constructor itself uses `BytesPerPixel * 8` when creating an ordinary bitmap precisely to preserve this distinction (`sdlgfx_bitmapclass.c:93-110`).
@@ -16672,11 +16924,13 @@ That task was already started before `sdl_hidd_init()` and `sdl_Startup()` (`sta
 `DoGadgetMethodA()` initializes its reusable RastPort, then copies only `Layer` and `BitMap` from `gi->gi_RastPort` before replacing `gi_RastPort` with the reusable object (`rom/intuition/dogadgetmethoda.c:106-113`). `InitRastPort()` zeroes the structure and sets `FgPen` to `-1` and `BgPen` to `0` (`rom/graphics/initrastport.c:60-71`). The `GM_RENDER` path changes write mask and draw mode but does not restore the source RastPort's foreground or background pen (`dogadgetmethoda.c:130-162`). Before the reusable-port optimization, this branch passed the complete `ObtainGIRPort()` clone to the method (`07eb4e69d5^:rom/intuition/dogadgetmethoda.c`); `ObtainGIRPort()` clones the complete RastPort before setting rendering attributes (`rom/intuition/obtaingirport.c:67-92`), and Intuition's clone copies the complete structure (`rom/intuition/misc.c:145-155`).
 
 **Trigger and consequence:** a custom gadget is rendered through `DoGadgetMethodA()` with a window/requester whose RastPort has nondefault `FgPen` or `BgPen`, and its `GM_RENDER` implementation relies on those inherited values before setting its own pens. The callback instead sees `FgPen == -1` and `BgPen == 0`, which can produce incorrect pixels or incorrect pen-dependent drawing. The only checked-in direct `DoGadgetMethodA()` `GM_RENDER` caller found is `animation.datatype`'s playback refresh (`workbench/classes/datatypes/animation/animationplayback.c:335-340`): its renderer blits a frame bitmap, or explicitly sets the foreground color before its fallback fill (`animationclass.c:1620-1640`); its nested TapeDeck renderer selects explicit draw pens from `DrawInfo` (`workbench/classes/gadgets/tapedeck/tapedeckclass.c:348-405`). Thus no in-tree caller depending on the lost inherited pen state was established. The visible-impact claim remains conditional on external/custom classes using the documented render RastPort. Copy the caller RastPort state into the reusable port before applying the deliberate rendering overrides. **Affected configuration:** selected Intuition builds when a downstream custom `GM_RENDER` method relies on inherited `FgPen`/`BgPen`; no checked-in trigger was found. **Confidence:** high for the regression and lost pen state, medium for visible impact because it depends on a callback consuming that state. No gadget was rendered or runtime behavior exercised; source-only. See the [coverage record](AROS-graphics-desktop-coverage.md#dogadgetmethoda-render-rastport-pen-state-pass-gd10539-added).
+<a id="gd10543"></a>
 ## GD10543
 
 **WBRename can overflow its relabel-path buffer for a long valid DOS name.** `doRelabel()` uses `TEXT buff[128]`, then appends the volume name and `:` with `strcat()` before looking up its device (`workbench/system/Wanderer/Tools/WBRename/main.c:280-285`); it later clears the buffer and appends the device name and `:` the same way (`:286-289`). Either name needs at most 126 bytes to fit with the colon and terminator, but DOS-list names are not limited to that size: `MakeDosEntry()` allocates according to `strlen(name)` and copies the full input in the selected `AROS_FAST_BPTR` representation (`rom/dos/makedosentry.c:54-80`); the BSTR representation also accepts a 255-byte name. WBRename obtains the old volume name from its Workbench lock and the device name from `dol_Name`, without imposing a shorter bound (`main.c:95-103,252-278`). **Affected configuration and trigger:** build-selected WBRename target; relabel a volume whose volume or device name is at least 127 bytes. **Consequence:** unchecked concatenation writes beyond the 128-byte stack buffer, causing undefined behavior and likely process corruption or a fault. **Confidence:** high for the buffer arithmetic and unbounded DOS-name construction; no long-name DOS-list entry or relabel was created. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
 
+<a id="gd10544"></a>
 ## GD10544
 
 **Workbook dereferences a missing GadTools VisualInfo during window construction.** `WBWindowNew()` successfully opens a window and creates its menu, then calls `GetVisualInfo(my->Window->WScreen, TAG_END)` and passes the result directly to `LayoutMenus()` without checking it (`workbench/system/Workbook/wbwindow.c:797-803`). `GetVisualInfoA()` returns NULL when allocating the `VisualInfo` fails (`workbench/libs/gadtools/getvisualinfoa.c:58-64`), while `LayoutMenusA()` immediately dereferences `vi->vi_dri` before any null check (`workbench/libs/gadtools/layoutmenusa.c:58-61`). **Affected configuration and trigger:** the explicitly buildable `workbench-system-workbook` target (`workbench/system/Workbook/mmakefile.src:11-18`), when VisualInfo allocation fails for a successfully opened Workbook window and its menu was created. **Consequence:** the Workbook task faults during window construction instead of taking the `WBWindowNew()` error path; the menu allocation and opened window are not released by that error path. Check `vis` before layout and route failure through cleanup that also frees the menu. **Confidence:** high for the nullable return, immediate dereference, and missing caller check; allocation failure was not induced. The parent aggregate edge is commented, so default-image inclusion is not claimed. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#workbook-gadtools-visual-info-failure-gd10544).
@@ -17209,6 +17463,7 @@ The generated Graphics thunk clones the guest TagItem list and maps pointer-valu
 **Trigger and consequence:** an emulated m68k program calls Graphics `GetRPAttrsA()` with an output tag such as `RPTAG_APen` whose `ti_Data` points to a four-byte guest variable. The getter stores the requested value plus four bytes into adjacent guest memory; `RPTAG_Font` also returns a native host pointer rather than a guest/shadow pointer. **Affected configuration:** the optional x86-64 `m68kemu.library` target (`rom/m68kemu/mmakefile.src:8-10,14-17,25-44`); its package edge is disabled by default, but the library target is explicitly buildable. **Confidence:** high for the host/guest width mismatch, mapped output address and native write width; caller reachability depends on guest software using this graphics API. Use a guest-width output marshaller and translate pointer-valued results back into guest/shadow handles. No emulator, guest program, or build was run; source-only.
 
 
+<a id="gd14333"></a>
 ## GD14333
 
 **Reaction Label ignores the documented pen mapping for its embedded image.** The public Reaction image header defines `LABEL_Mapping` as a `UWORD *` “Pen mapping for next image” (`compiler/include/images/label.h:40`). `label_set()` accepts the tag but only stores the pointer in `ld_Mapping` (`workbench/classes/reaction/label/labelclass.c:57-59`); `OM_GET` returns that stored pointer (`:305-307`). The complete class body contains no read of `ld_Mapping`. When the label is drawn, it calls `DrawImageState()` with the child image, state and `DrawInfo`, but does not apply the stored map (`:376-388`). A repository-wide exact-symbol search found no in-tree caller setting `LABEL_Mapping`; the class is an explicitly buildable module target (`workbench/classes/reaction/label/mmakefile.src:1-15`).
@@ -17216,6 +17471,7 @@ The generated Graphics thunk clones the guest TagItem list and maps pointer-valu
 **Trigger and consequence:** a client builds or sets a Reaction Label with both `LABEL_Mapping` and a child image whose pen indices require remapping. Drawing the label ignores the requested mapping and renders the child image with the mapping available from the image/DrawInfo path, which can produce incorrect colors. **Affected configuration:** builds that include `workbench-classes-reaction-label`; caller-visible effect requires a client to use the documented tag and an image for which the mapping changes rendered pens. **Confidence:** high that the tag is accepted but never consumed and omitted from the image-draw call; medium that the current implementation violates the intended “next image” contract, since no checked-in caller or fuller in-tree contract clarifies the expected mapping semantics. Apply the mapping to the child image's draw operation according to the Reaction image contract, or remove/deprecate the unsupported attribute if it is not intended to be honored. No image was drawn and no build was run; source-only; see the [LABEL_Mapping contract recheck](AROS-graphics-desktop-coverage.md#label-mapping-pen-map-contract-gd14333).
 
 
+<a id="gd14334"></a>
 ## GD14334
 
 **Reaction Label does not implement the public `LABEL_Key` getter.** The public header defines `LABEL_Key` as a `UWORD` OM_GET attribute for the underscore key (`compiler/include/images/label.h:42`). `Label__OM_GET()` handles `LABEL_Underscore` and other label attributes but has no `LABEL_Key` case, so it delegates the query to its ImageClass superclass (`workbench/classes/reaction/label/labelclass.c:212-318`). ImageClass returns FALSE for attributes outside its recognized `IA_*` set (`rom/intuition/imageclass.c:162-205`); therefore a `LABEL_Key` query fails and does not write the caller's output storage. A repository-wide search found no in-tree `LABEL_Key` query, so impact is limited to external users of the explicitly buildable Reaction class (`workbench/classes/reaction/label/mmakefile.src:1-18`). **Confidence:** high that the documented attribute is unimplemented; caller impact requires a client to query it and rely on the documented result.
@@ -17340,6 +17596,7 @@ No target, blit or runtime behavior was exercised; source-only.
 
 
 <a id="gd14355"></a>
+<a id="gd14355-dir-discards-malformed-pattern-template-errors"></a>
 ## GD14355 — Dir discards malformed pattern-template errors
 
 For a supplied directory argument, `Dir` passes the result of `ParsePattern()` into `iswild` but only tests whether it equals `1` (`workbench/c/Dir.c:209-235`). The selected parser returns `-1` and sets `ERROR_BAD_TEMPLATE` for malformed patterns such as an unterminated character class (`rom/dos/parsepattern.c:17-47`; `rom/dos/patternmatching.c:439-442,558-574,630-633`). Since `-1` is not `1`, `Dir` calls `doDir()` with the original template as a literal path; the subsequent `Lock()` failure replaces the parser's useful error with the path lookup error.
@@ -17348,6 +17605,7 @@ For a supplied directory argument, `Dir` passes the result of `ParsePattern()` i
 
 
 <a id="gd14356"></a>
+<a id="gd14356-dirs-all-files-option-does-not-recurse-into-subdirectories"></a>
 ## GD14356 — Dir's `ALL FILES` option does not recurse into subdirectories
 
 In `doDir()`, both recursion and directory-name display are inside `if (error == 0 && doDirs)` (`workbench/c/Dir.c:601-655`). When `all` is true, the loop recursively visits children; when `doDirs` is false, that entire block is skipped. The final file-output block only prints files from the current directory (`:657-665`). The command documentation says `ALL` displays files recursively while `FILES` selects file-only output (`:62-64`), and the option parser permits both switches together (`:139-150,175-196`).
@@ -17356,6 +17614,7 @@ In `doDir()`, both recursion and directory-name display are inside `if (error ==
 
 
 <a id="gd14357"></a>
+<a id="gd14357-search-suppresses-file-open-and-file-io-errors"></a>
 ## GD14357 — Search suppresses file-open and file-I/O errors
 
 `FindString()` ignores a failed `Open()` and returns `FALSE`; its `Read()` loops stop on any nonpositive result without distinguishing EOF from `-1`, and the initial and current-position `Seek()` results are not checked (`workbench/c/Search.c:453-510`). These operations set `IoErr()` on failure (`rom/dos/open.c:17-40`; `rom/dos/read.c:17-40`; `rom/dos/seek.c:17-38`). The caller does not mark `success` false when `FindString()` fails to open or read a file (`Search.c:333-356`), and after ordinary traversal it clears `IoErr()` whenever `success` remains true (`:365-368`).
@@ -17363,6 +17622,7 @@ In `doDir()`, both recursion and directory-name display are inside `if (error ==
 **Trigger and consequence:** Search reaches a matching file that cannot be opened, or a read/seek fails while scanning it, while directory matching itself completes normally. The command treats the file as a nonmatch and can return the ordinary “not found” warning without reporting the I/O failure, so users cannot tell an incomplete search from a complete one. Propagate `FindString()` access/read/seek failures separately from “no match” and preserve the DOS error. **Affected configuration:** explicit `workbench-c` builds when a traversed file handler reports an open, read, or seek error. **Confidence:** high for the unchecked results, DOS error contract and final `IoErr()` clearing; no handler failure was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#search-command-file-io-error-propagation-pass).
 
 <a id="gd14360"></a>
+<a id="gd14360-delete-hides-unmatched-arguments-after-any-earlier-match"></a>
 ## GD14360 — Delete hides unmatched arguments after any earlier match
 
 `doDelete()` initializes `firstmatch` once before iterating the `/M` file arguments, then clears it permanently on the first result (`workbench/c/Delete.c:211,218-242`). At function exit, it reports a non-`ERROR_OBJECT_NOT_FOUND`/non-`ERROR_NO_MORE_ENTRIES` match error only while `firstmatch` is still true (`:355-361`). Therefore an unmatched later pattern is ignored if any earlier argument matched; `deletedfile` may already be true from an earlier successful deletion and the command returns `RETURN_OK` (`:363-368`).
@@ -17371,6 +17631,7 @@ In `doDir()`, both recursion and directory-name display are inside `if (error ==
 
 
 <a id="gd14361"></a>
+<a id="gd14361-delete-reads-before-an-empty-file-argument"></a>
 ## GD14361 — Delete reads before an empty file argument
 
 For each `/M` item, `doDelete()` computes `lastIndex = strlen(files[i]) - 1` and immediately reads `files[i][lastIndex]` to check for a trailing colon (`workbench/c/Delete.c:218-224`). `ReadItem()` accepts a quoted empty token and returns it as an item containing only the NUL terminator (`rom/dos/readitem.c:136-163`), so this input can reach the code with length zero. The index then becomes negative (or an implementation-defined narrowing of the unsigned underflow) and the colon check reads before the string.
@@ -17379,6 +17640,7 @@ For each `/M` item, `doDelete()` computes `lastIndex = strlen(files[i]) - 1` and
 
 
 <a id="gd14362"></a>
+<a id="gd14362-makedir-all-clears-filesystem-errors-on-several-failure-paths"></a>
 ## GD14362 — MakeDir ALL clears filesystem errors on several failure paths
 
 `CreateDirAll()` initializes its local `error` to zero and sets it only for a repeated volume prefix or an existing non-directory component (`workbench/c/MakeDir.c:143,153-160,205-213`). If the root `Lock()` fails, an intermediate `CreateDir()` fails, or `Examine()` fails, the function breaks with `error` still zero and unconditionally calls `SetIoErr(error)` before returning `BNULL` (`:220-252`). DOS documents that failed `Lock()`, `CreateDir()`, and `Examine()` set `IoErr()` (`rom/dos/lock.c`, `createdir.c:17-39`, `examine.c:17-42`). The caller uses that value for its final `PrintFault()` (`MakeDir.c:101-121`).
@@ -17387,6 +17649,7 @@ For each `/M` item, `doDelete()` computes `lastIndex = strlen(files[i]) - 1` and
 
 
 <a id="gd14457"></a>
+<a id="gd14457-allocspritedataa-does-not-bound-old-format-sprite-height"></a>
 ## GD14457 — AllocSpriteDataA does not bound old-format sprite height
 
 `SPRITEA_OutputHeight` is copied to the `ULONG height` local, but the old-data conversion narrows it to `UWORD height2` for the temporary bitmap and plane allocation, then iterates using a `UWORD k` against the original `ULONG height` (`rom/graphics/allocspritedataa.c:155-177,180-189`). No upper-bound check precedes this conversion. For `SPRITEA_OldDataFormat` with `SPRITEA_OutputHeight=65537`, `height2` becomes 1 and only four bytes are allocated for the two temporary planes, while the conversion attempts to process the requested 65,537 rows. The UWORD loop counter wraps at 65,535 and remains less than the ULONG height, so it does not terminate; writes proceed beyond the allocation.
@@ -17403,6 +17666,7 @@ For each `/M` item, `doDelete()` computes `lastIndex = strlen(files[i]) - 1` and
 **Trigger and consequence:** construct or mutate two wrapper values with the same `identifierSize` greater than 32, then compare them. Both comparison implementations read beyond the fixed identifier arrays, invoking undefined behavior. This concerns invalid wrapper state; compliant Vulkan query results do not trigger it. Bound the comparison length to the array size or reject invalid sizes at construction and mutation. **Affected configuration:** optional Vulkan-Hpp header; C++20 ordering requires `VULKAN_HPP_HAS_SPACESHIP_OPERATOR`, while equality is unconditional. No in-tree C++ caller constructing an oversized identifier was found. **Confidence:** high for fixed capacity and unchecked comparison bounds; no comparison or build was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#shader-module-identifier-comparison-bounds-pass).
 
 <a id="gd14364"></a>
+<a id="gd14364-vcgfx-skips-overlapping-vertical-copies-when-dma-is-unavailable"></a>
 ## GD14364 — VCGfx skips overlapping vertical copies when DMA is unavailable
 
 VCGfx treats DMA as optional: InitDMA() can fail, but its return value is ignored and the display driver continues initialization (arch/arm-native/soc/broadcom/2708/hidd/vcgfx/vcgfx_init.c:148-176). The bitmap CopyBox method selects its DMA path for a large-enough copy between its own framebuffer bitmaps (vcgfx_hiddclass.c:634-643). If vc4_dma_copy() returns false, it falls through to a CPU copy except when source and destination share a buffer and the vertical rectangles overlap; in that case it returns without copying (vcgfx_hiddclass.c:645-658).
@@ -17412,6 +17676,7 @@ When InitDMA() could not acquire a channel, it leaves vcsd_DMAChannel at -1 (vcg
 **Affected configuration and trigger:** the VCGfx HIDD packaged for ARM32 and AArch64 Raspberry Pi (arch/arm-raspi/boot/mmakefile.src:187; arch/aarch64-raspi/boot/mmakefile.src:226), when DMA initialization cannot provide a channel and a Copy-mode 32-bit copy between VCGfx buffers is at least 2,048 bytes with overlapping vertical ranges. No DMA resource, framebuffer, scroll, or build was exercised. **Confidence:** high for the optional initialization result, no-channel early return, and skipped fallback; occurrence depends on DMA availability and the stated copy. Source-only; see the [VCGfx no-DMA overlapping-copy pass](AROS-graphics-desktop-coverage.md#vcgfx-no-dma-overlapping-copy-pass).
 
 <a id="gd14365"></a>
+<a id="gd14365-generic-hidd-copybox-uses-signed-word-counters-and-coordinates-for-uword-extents"></a>
 ## GD14365 — Generic HIDD CopyBox uses signed WORD counters and coordinates for UWORD extents
 
 The Hidd_Gfx CopyBox method accepts UWORD width and height, but the generic implementation stores its pixel counters and loop sentinels in signed WORD variables and passes per-pixel coordinates through WORD GetPixel/DrawPixel interfaces (rom/hidds/gfx/gfx.conf:396,526; rom/hidds/gfx/gfx_hiddclass.c:972-979; rom/hidds/gfx/gfx_intern.h:431-441). In the forward direction it assigns endX = msg->width and endY = msg->height to those signed WORDs (gfx_hiddclass.c:991-1007). A forward extent of 32,768 cannot be represented by the signed loop sentinel. With width=32,768 and srcX >= destX, the forward loop starts at zero and increments x from 32,767, overflowing signed WORD before the loop can test the narrowed end sentinel again. The backward loop also fails for extents greater than 32,768: `width - 1` cannot be represented by signed WORD when assigned to `startX`, and its decrementing counter can overflow. Height has the corresponding forward and backward cases. On AROS two’s-complement targets the out-of-range sentinel/start conversion wraps; the subsequent signed counter overflow is undefined behavior and can lead to incorrect traversal or compiler-dependent behavior. Independently, coordinates can cross the signed WORD limit even for a small rectangle: with `srcX=32767` and `width=3`, the third source pixel expression `srcX + x` is 32769 before conversion to the WORD GetPixel argument, which wraps negative on these targets. The generic planar GetPixel then calculates a negative row-byte offset and a negative remainder used as a right-shift count (`rom/hidds/gfx/gfx_planarbitmapclass.c:396-422`), causing an invalid plane access and undefined shift behavior.
@@ -17422,6 +17687,7 @@ The affected code is the generic per-pixel fallback, reached when the direct-buf
 
 
 <a id="gd14366"></a>
+<a id="gd14366-generic-hidd-copybox-buffer-fast-paths-ignore-the-gc-color-mask"></a>
 ## GD14366 — Generic HIDD CopyBox buffer fast paths ignore the GC color mask
 
 `copybox_impl()` takes the direct chunky-buffer path whenever both bitmap buffers are exposed and the GC draw mode is Copy (`rom/hidds/gfx/gfx_hiddclass.c:1024-1045`). For matching pixel formats it calls `HIDD_BM_CopyMemBox8/16/24/32()` with no GC or color-mask argument (`:1050-1101`); for differing formats it calls `HIDD_BM_ConvertPixels()` with no mask (`:1103-1118`). These paths are selected without checking `GC_COLMASK(msg->gc)`. In the generic per-pixel fallback, the same Copy mode copies source pixels into `GC_FG` and then uses `DrawPixel()`, whose implementation preserves destination bits excluded by `GC_COLMASK` (`gfx_hiddclass.c:1152-1168,1177-1191`; `rom/hidds/gfx/gfx_bitmapclass.c:1447-1509`). The GC attribute documentation says ColorMask prevents selected color bits from changing (`rom/hidds/gfx/gfx.conf:622`).
@@ -17432,6 +17698,7 @@ There is a maintained caller. `BltBitMap()` combines the caller-supplied plane m
 
 
 <a id="gd14367"></a>
+<a id="gd14367-copybox-cursor-intersection-check-narrows-unsigned-extents-to-word"></a>
 ## GD14367 — CopyBox cursor-intersection check narrows unsigned extents to WORD
 
 Both CopyBox and CopyBoxMasked cursor de-masquerade wrappers compute source/destination intersection bounds through signed `WORD w = msg->width, h = msg->height`, then pass `x + w - 1` and `y + h - 1` as `WORD` endpoints to `GfxDisplay_CursorIntersects()` (`rom/hidds/gfx/gfx_hiddclass.c:1270-1276,1616-1624`; both method widths/heights are `UWORD`, `gfx.conf:396-397`). For a width of 32,768 at `destX=1`, `w` narrows to a negative value on AROS two’s-complement targets; the computed inclusive right edge then narrows to a negative `WORD` instead of the actual coordinate 32,768. `GfxDisplay_CursorIntersects()` rejects the rectangle when that right edge is less than the cursor's nonnegative bitmap-space X position (`rom/hidds/gfx/gfx_displayclass.c:296-310`). The same arithmetic applies to source checks and height.
@@ -17454,6 +17721,7 @@ The optional ATI Radeon `Hidd_Gfx::CopyBox` override packs `ya` and `yb` with `(
 
 
 <a id="gd14460"></a>
+<a id="gd14460-amigavideo-setbitmapnull-dereferences-the-detached-bitmap"></a>
 ## GD14460 — AmigaVideo `SetBitMap(NULL)` dereferences the detached bitmap
 
 `AmigaVideoBM__Hidd_PlanarBM__SetBitMap()` first forwards the request to its `CLID_Hidd_PlanarBM` superclass, then dereferences `msg->bitMap` in its layout comparison and again while refreshing cached width, height and depth (`arch/m68k-amiga/hidd/amigavideo/amigavideo_bitmapclass.c:1035-1067`). The generic `PBM_SetBitMap()` explicitly accepts NULL as a detach request: it frees the wrapper's pixel format, clears the stored bitmap, resets the bitmap attributes and returns TRUE (`rom/hidds/gfx/gfx_planarbitmapclass.c:265-283`). Therefore an AmigaVideo bitmap object receiving `HIDD_PlanarBM_SetBitMap(object, NULL)` reaches a NULL dereference after the superclass has already detached its backing bitmap and pixel format. The object is left with superclass state detached but AmigaVideo's cached `data->pbm` and layout state not updated. Guard the NULL detach path in the override and clear its cached bitmap/layout state consistently.
@@ -17463,6 +17731,7 @@ The optional ATI Radeon `Hidd_Gfx::CopyBox` override packs `ya` and `yb` with `(
 **Confidence:** high that the override dereferences NULL after its superclass accepts the request; medium that NULL-detach behavior is a required subclass contract, because the method interface does not separately document NULL semantics. No object, method call, display or build was exercised. Source-only; see the [SetBitMap caller and superclass trace](AROS-graphics-desktop-coverage.md#amigavideo-setbitmap-null-gd14460).
 
 <a id="gd14459"></a>
+<a id="gd14459-test-layers-scroll-command-dereferences-an-empty-layer-slot-after-reporting-it-missing"></a>
 ## GD14459 — `test-layers` scroll command dereferences an empty layer slot after reporting it missing
 
 `scrolllayer()` reads an interactive layer ID and checks whether `layers[i]` is NULL. When the slot is empty, it prints “No layer with id” but does not return (`developer/debug/test/layers/layerstest.c:354-362`). After asking for the scroll deltas, it dereferences `layers[i]->Flags` and passes the same pointer to `ScrollLayer()` (`:364-375`). Thus choosing a valid in-range slot 0–9 that has not been populated or was already deleted causes a NULL dereference after the warning. The unchecked out-of-range index is a separate existing finding, GD10889.
@@ -17470,6 +17739,7 @@ The optional ATI Radeon `Hidd_Gfx::CopyBox` override packs `ya` and `yb` with `(
 **Affected configuration and trigger:** explicitly buildable `test-layers` (`developer/debug/test/layers/mmakefile.src:3-7`), when a user selects an in-range empty layer slot in the `scrolllayer` command. **Consequence:** the diagnostic process faults instead of reporting that the requested layer does not exist. Return immediately from the NULL branch before prompting for deltas or using the slot. **Confidence:** high for the missing return and subsequent dereference; no command or layer operation was run. Source-only; see the [test-layers scroll command pass](AROS-graphics-desktop-coverage.md#test-layers-scrolllayer-empty-slot-gd14459).
 
 <a id="gd14458"></a>
+<a id="gd14458-mesa3dgl-drawable-size-subtraction-underflows-for-a-collapsed-window-layer"></a>
 ## GD14458 — Mesa3DGL drawable-size subtraction underflows for a collapsed window layer
 
 `MESA3DGLRecalculateBufferWidthHeight()` stores the visible RastPort dimensions, margins, and destination dimensions in `ULONG` fields/locals (`workbench/libs/mesa/mesa3dgl_types.h:26,44-47`; `mesa3dgl_support.c:303-323`). It subtracts `left` and `right` (and `top` and `bottom`) before checking whether the result is negative. Unsigned arithmetic wraps instead, so both `< 0` checks at `:325-326` can never clamp an undersized layer to zero. The implementation itself documents that a window can temporarily have layer bounds around one pixel while the window remains fully sized (`:314-319`); with nonzero window borders, subtracting those margins from the one-pixel layer dimensions wraps to a near-maximum `ULONG`.
@@ -17477,6 +17747,7 @@ The optional ATI Radeon `Hidd_Gfx::CopyBox` override packs `ya` and `yb` with `(
 **Trigger and consequence:** a Mesa3DGL context uses a window whose layer bounds are temporarily narrower/shorter than its left+right or top+bottom margins, a state explicitly noted in this source. `MESA3DGLCheckAndUpdateBufferSize()` calls this calculation during make-current, set-RastPort and swap-buffer updates (`mesa3dgl_gallium.c:312-324`; `mesa3dgl_glamakecurrent.c:43-50`; `mesa3dgl_glasetrast.c:52-74`; `mesa3dgl_glaswapbuffers.c:63-70`). The wrapped dimensions are stored in the framebuffer and passed to Gallium resource creation as `templ.width0/height0` (`mesa3dgl_gallium.c:181-185`). If the backend rejects those dimensions, validation still returns success without checking the created attachment (`:236-245`), leaving the render resource NULL; `glASwapBuffers()` then skips presentation (`mesa3dgl_glaswapbuffers.c:61-67`). **Affected configuration:** the explicitly buildable optional Mesa3DGL library, when a window-backed context is updated while its layer bounds are smaller than the configured margins. **Confidence:** high for the unsigned underflow and unchecked propagation; a failed resource allocation and lost presentation depend on the selected Gallium backend. Calculate in a signed type before clamping, then convert to `ULONG`. No context, window resize, resource allocation, or build was run; source-only; see the [drawable-size arithmetic recheck](AROS-graphics-desktop-coverage.md#mesa3dgl-drawable-size-arithmetic-gd14458).
 
 <a id="gd14461"></a>
+<a id="gd14461-amigavideo-loses-the-current-sprite-when-replacement-allocation-fails"></a>
 ## GD14461 — AmigaVideo loses the current sprite when replacement allocation fails
 
 `new_setsprite()` handles a sprite shape whose width or height differs from the stored shape by calling `new_resetsprite()` before allocating the replacement chip-memory buffer (`arch/m68k-amiga/hidd/amigavideo/amigavideo_chipset.c:938-945`). `new_resetsprite()` first redirects the sprite's copper pointer to the null sprite, frees the old buffer, and clears the stored dimensions (`:125-132`). If the subsequent `AllocMem()` fails, `new_setsprite()` returns `FALSE` without restoring the old buffer or shape (`:941-943`). The AmigaVideo `SetSpriteShape` method propagates that failure (`arch/m68k-amiga/hidd/amigavideo/amigavideo_hiddclass.c:980-1000`), and the selected m68k `ChangeExtSpriteA()` returns the failed method result to its caller (`arch/m68k-amiga/graphics/changeextspritea.c:31-49`). The legacy cursor converter has the same order: `setsprite()` calls `resetsprite()` and frees/nulls the current cursor buffer before allocating the new one, then returns `FALSE` on allocation failure (`amigavideo_chipset.c:858-863`; `resetsprite()` at `:116-122`). `AmigaVideoDisplay__Hidd_Display__SetCursorShape()` propagates this result, and `ChangeExtSpriteA()` uses that method for sprite number zero (`amigavideo_hiddclass.c:956-977`; `changeextspritea.c:84-89`).
@@ -17484,6 +17755,7 @@ The optional ATI Radeon `Hidd_Gfx::CopyBox` override packs `ya` and `yb` with `(
 **Trigger and consequence:** on the m68k Amiga AmigaVideo path, replace an existing cursor or hardware sprite with a different-sized shape while the required chip-memory allocation fails. The operation reports failure, but the previously installed shape has already been removed and the cursor/sprite points at the null data. Allocate the replacement before releasing the old buffer, then swap state only after successful initialization. **Confidence:** high for the ordering and failure propagation; requires an allocation failure during a size-changing shape replacement. No sprite or allocation failure was induced; source-only. See the [AmigaVideo replacement allocation trace](AROS-graphics-desktop-coverage.md#amigavideo-sprite-replacement-allocation-failure-gd14461).
 
 <a id="gd14462"></a>
+<a id="gd14462-amigavideo-selects-the-sprite-display-band-from-a-truncated-y-coordinate"></a>
 ## GD14462 — AmigaVideo selects the sprite display band from a truncated Y coordinate
 
 Both AmigaVideo position handlers copy the incoming `WORD` Y coordinate into `UBYTE cursy` while scanning `compositedbms` (`arch/m68k-amiga/hidd/amigavideo/amigavideo_hiddclass.c:1010-1058`). The assignment truncates the coordinate modulo 256 before the band comparison; optional interlace adjustment is then applied to this truncated value. The actual untruncated `msg->y` is later passed to `setspritepos()` or `new_setspritepos()`, so the coordinate used to choose `res` and `interlace` can refer to an earlier display band than the coordinate programmed into the sprite registers (`amigavideo_chipset.c:1007-1034`). The display-band list is built from screen `topedge` and `displayheight` (`amigavideo_chipset.c:1339-1359`), and the handlers stop at the first matching band.
@@ -17491,6 +17763,7 @@ Both AmigaVideo position handlers copy the incoming `WORD` Y coordinate into `UB
 **Trigger and consequence:** on the m68k Amiga AmigaVideo path, position a hardware cursor or sprite at a Y coordinate of 256 or greater while multiple vertically stacked composited displays have different resolution/interlace settings. The modulo-256 comparison can select an earlier band's settings, then program the actual lower-band coordinate using those settings, misplacing the sprite or selecting the wrong horizontal resolution/interlace encoding. Keep the comparison in a type wide enough for the incoming coordinate and band limits. **Confidence:** high for the narrowing and inconsistent coordinate use; visible mispositioning depends on the selected stacked-display modes and hardware. No sprite, display, or hardware operation was run; source-only. See the [AmigaVideo sprite-band coordinate trace](AROS-graphics-desktop-coverage.md#amigavideo-sprite-band-coordinate-gd14462).
 
 <a id="gd14463"></a>
+<a id="gd14463-amigavideo-shifts-negative-sprite-coordinates-as-signed-integers"></a>
 ## GD14463 — AmigaVideo shifts negative sprite coordinates as signed integers
 
 The AmigaVideo sprite position encoders keep X/Y in signed `WORD` locals and pack them using left shifts before assigning the result to `UWORD` register fields (`arch/m68k-amiga/hidd/amigavideo/amigavideo_chipset.c:987-1003,1017-1034`). In particular, `x <<= (2 - res)` shifts a negative promoted `int` when a sprite is positioned left of the physical display, and `y << 8` shifts a negative promoted `int` when positioned above it. Left-shifting a negative signed value is undefined in C. The public `MoveSprite()` and HIDD `SetCursorPos(WORD, WORD)` interfaces accept signed coordinates, and the display method describes them as positions relative to the physical origin without excluding off-screen positions (`rom/graphics/movesprite.c:24-35`; `rom/hidds/gfx/gfx.conf:462`). Both the cursor encoder and numbered-sprite encoder contain the same packing operations.
@@ -17498,6 +17771,7 @@ The AmigaVideo sprite position encoders keep X/Y in signed `WORD` locals and pac
 **Trigger and consequence:** on the m68k Amiga AmigaVideo path, pass a negative X or Y coordinate to position a hardware cursor or sprite, such as a partially off-screen position. The C implementation does not define the packed register value for that input; compiler optimization may alter the intended two's-complement bit-field encoding, causing incorrect placement. Convert to an unsigned register-width value before field shifts and mask the packed fields explicitly. **Confidence:** high for the signed-shift undefined behavior; the visible outcome depends on compiler and target. No negative-coordinate operation, hardware action or build was run; source-only. See the [AmigaVideo signed-coordinate packing trace](AROS-graphics-desktop-coverage.md#amigavideo-sprite-signed-coordinate-packing-gd14463).
 
 <a id="gd14464"></a>
+<a id="gd14464-amigavideo-accepts-wide-sprites-while-encoding-only-16-pixels"></a>
 ## GD14464 — AmigaVideo accepts wide sprites while encoding only 16 pixels
 
 The numbered-sprite `SetSpriteShape` method advertises and accepts width up to 64 whenever the detected chipset is AGA (`arch/m68k-amiga/hidd/amigavideo/amigavideo_hiddclass.c:982-1000`; `GetMaxSpriteSize()` uses the same `csd->aga` check at `:1002-1007`). But `new_setsprite()` switches to the 64-pixel fetch mode only when both `csd->aga` and `csd->aga_enabled` are true (`arch/m68k-amiga/hidd/amigavideo/amigavideo_chipset.c:930-935`). When AGA hardware is present but its features are disabled, it forces `width = 16` while retaining the original bitmap width separately (`:909,935-937`). The conversion loop therefore visits only 16 pixels per row even if the accepted input bitmap is wider (`:955-977`), then returns success after programming that truncated sprite.
@@ -17505,6 +17779,7 @@ The numbered-sprite `SetSpriteShape` method advertises and accepts width up to 6
 **Trigger and consequence:** on AGA hardware while `aga_enabled` is false, call the AmigaVideo numbered-sprite shape method with width 17–64. The public size query and method validation permit it, but the displayed hardware sprite contains only the leftmost 16 pixels while the method reports success. Reject widths above the active fetch capability or enable the required AGA fetch mode before accepting the shape. **Confidence:** high for the validation/conversion mismatch; the trigger requires an AGA-capable device before AGA mode has been enabled. No sprite, hardware operation or build was run; source-only. See the [AmigaVideo wide-sprite fetch-mode trace](AROS-graphics-desktop-coverage.md#amigavideo-wide-sprite-fetch-mode-gd14464).
 
 <a id="gd14465"></a>
+<a id="gd14465-amigavideo-uses-one-sprite-fetch-mode-for-buffers-with-different-layouts"></a>
 ## GD14465 — AmigaVideo uses one sprite fetch mode for buffers with different layouts
 
 `csd->fmode_spr` is shared state. Each call to `new_setsprite()` overwrites it from only the shape currently being installed: AGA-enabled shapes wider than 16 select mode 2, while other shapes select mode 0 (`arch/m68k-amiga/hidd/amigavideo/amigavideo_chipset.c:930-936`). Each sprite buffer is then allocated and populated using that call's `fetchsize` (`:938-977`). However, the VBlank handler writes every active sprite's control word at `p[1 << csd->fmode_spr]` using the one current global value (`:1844-1851`), and `setfmode()` likewise programs that shared sprite fetch mode into the copper list (`:134-145`). Thus later installing a different-width sprite changes the mode and control-word offset used for already allocated buffers.
@@ -17512,6 +17787,7 @@ The numbered-sprite `SetSpriteShape` method advertises and accepts width up to 6
 **Trigger and consequence:** on AGA-enabled AmigaVideo, install two numbered sprites with different widths such that one needs the 64-pixel fetch mode and the other uses 16 pixels. The second shape update changes the shared fetch mode; VBlank then uses its control-word offset for both buffers, which does not match at least one buffer's allocated layout. The wide sprite can be fetched in the wrong mode and the VBlank control-word write can overwrite image data instead of the control word. Keep a common buffer layout for all sprites at the active hardware fetch mode, or recalculate all buffers atomically when the shared mode changes. **Confidence:** high for the per-shape global update and global VBlank use; the visible/corrupt result requires mixed-width active sprites and was not exercised. No sprite, VBlank, hardware operation or build was run; source-only. See the [AmigaVideo shared sprite fetch-mode trace](AROS-graphics-desktop-coverage.md#amigavideo-shared-sprite-fetch-mode-gd14465).
 
 <a id="gd14466"></a>
+<a id="gd14466-amigavideo-never-publishes-numbered-sprite-buffers-into-the-copper-list"></a>
 ## GD14466 — AmigaVideo never publishes numbered sprite buffers into the copper list
 
 `initcustom()` initializes all eight hardware sprite pointer pairs in the startup copper list to `csd->sprite_null`, but records a patch location only for sprite 0 in `csd->copper1_spritept` (`arch/m68k-amiga/hidd/amigavideo/amigavideo_chipset.c:2004-2010`). Numbered sprites use a separate `csd->new_copper1_spritept[8]` array (`amigavideo_intern.h:149`). A source-wide search of the selected AmigaVideo implementation finds no assignment to any element of this array; its only uses are NULL checks and writes in `new_setnullsprite()` and `new_setspritevisible()` (`amigavideo_chipset.c:107-112,1070-1088`). Consequently, after a numbered sprite shape is converted and stored in `new_sprite[spritenum]`, `new_setspritevisible()` skips updating the copper-list pointer because the corresponding patch location is NULL. The initialized copper list continues to point that sprite channel at the null sprite. Position methods update the position/control registers but do not publish the sprite data pointer.
@@ -17549,6 +17825,7 @@ The caller checks only `d->copyApp`; when it is NULL, `CreateCopyDisplay()` retu
 
 
 <a id="gd14469"></a>
+<a id="gd14469-amigavideo-dereferences-a-missing-pixel-format-descriptor-for-truecolor-sprites"></a>
 ## GD14469 — AmigaVideo dereferences a missing pixel-format descriptor for truecolor sprites
 
 Both `setsprite()` and `new_setsprite()` read a truecolor shape bitmap's `aHidd_PixFmt_StdPixFmt`, pass it to `HIDD_DMEnum_GetPixFmt()`, and store the result without checking for NULL (`arch/m68k-amiga/hidd/amigavideo/amigavideo_chipset.c:842-848,922-928`). The generic DMEnum implementation returns NULL for the pseudo format `vHidd_StdPixFmt_Native` (`rom/hidds/gfx/gfx_dmenumclass.c:1321-1335`; the pseudo-format range is defined at `rom/hidds/gfx/include/gfx.h:205-216`). This is a valid descriptor for a truecolor HIDD pixel-format object; the Gfx HIDD's own documented truecolor format example uses `vHidd_StdPixFmt_Native` (`rom/hidds/gfx/gfx_hiddclass.c:309-326`). When the conversion reaches `ALPHA_COMP`, `RED_COMP`, `GREEN_COMP`, or `BLUE_COMP`, `GET_COLCOMP` dereferences the unchecked format pointer (`amigavideo_chipset.c:885-886,965-966`; `rom/hidds/gfx/include/gfx.h:299-305`). `ChangeExtSpriteA()` dispatches sprite number zero to `HIDD_Display_SetCursorShape()` and nonzero numbers to `HIDD_AMIGAGFX_SetSpriteShape()` (`arch/m68k-amiga/graphics/changeextspritea.c:80-95`), so both the legacy cursor and numbered-sprite paths reach the affected converters. `AllocSpriteDataA()` documents its truecolor HIDD source path and preserves the source bitmap as the friend so the created sprite bitmap takes its format (`rom/graphics/allocspritedataa.c:194-215,240-253`); the Gfx HIDD documented truecolor pixel-format example uses `vHidd_StdPixFmt_Native` (`rom/hidds/gfx/gfx_hiddclass.c:307-326`). **Affected configuration and trigger:** m68k-Amiga builds selecting the optional AmigaVideo HIDD, when `ChangeExtSpriteA()` receives a truecolor HIDD sprite bitmap whose pixel format uses the valid `Native` pseudo standard-format code. **Consequence:** sprite-shape conversion dereferences NULL and faults instead of converting the source or returning failure; the existing cursor/numbered sprite state may already have been reset if dimensions changed. **Confidence:** high for the valid pseudo format, NULL return, unchecked macro dereference, and selected public dispatch paths; occurrence requires the stated truecolor source format. Use the shape bitmap's actual `HIDDT_PixelFormat` object for component extraction or reject unsupported standard-format codes before processing. No sprite operation, fault, build, or hardware access was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
@@ -17590,6 +17867,7 @@ For a wrapped row, mNFT_GetEntry obtains the source entry, character offset, and
 **Trigger and consequence:** use the explicitly buildable NFloattext class with an entry that wraps to multiple lines, request a wrapped line through MUIM_List_GetEntry or MUIM_NFloattext_GetEntry, and have the temporary AllocVecShared allocation fail or need to grow and fail. The method returns the selected line plus the remaining original text instead of a NUL-terminated copy of that line; consumers can display or parse text belonging to subsequent wrapped rows as part of the selected entry. Return failure on allocation failure or provide a lifetime-safe terminated representation. **Affected configuration:** optional NFloattext MCC when used for wrapped entries. **Confidence:** high for the character-count copy and unbounded-tail fallback; no allocation failure or GUI operation was run. Source-only.
 
 <a id="gd14475"></a>
+<a id="gd14475---nlisttree-open-all-dereferences-the-table-of-an-empty-child-list"></a>
 ## GD14475 - NListtree Open-All dereferences the table of an empty child list
 
 **Indexed summary:** NListtree's Open-All method reads the first table entry before checking whether a non-root list is empty.
@@ -17765,6 +18043,7 @@ With `NEWER`, `VersionFind()` reads file data into a fixed 4096-byte allocation,
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#copy-command-full-body-and-close-metadata-version-review-gd14489-gd14491).
 <a id="gd14497-makedir-all-discards-create-error"></a>
 <a id="gd14497"></a>
+<a id="gd14497-makedir-all-clears-the-error-when-creating-a-path-component-fails"></a>
 ## GD14497 — MakeDir ALL clears the error when creating a path component fails
 
 `CreateDirAll()` attempts `CreateDir(name)` after locking a path component fails, but if that creation also fails it exits the loop without saving the resulting `IoErr()` (`workbench/c/MakeDir.c:145-164`). The common failure cleanup then calls `SetIoErr(error)` with the still-zero local value (`:208-220`). The same loss can occur when changing the new directory's mode fails and the retrying `Lock()` also fails (`:165-171`).
@@ -17772,6 +18051,7 @@ With `NEWER`, `VersionFind()` reads file data into a fixed 4096-byte allocation,
 **Trigger and consequence:** invoke `MakeDir ALL` for a path whose missing component cannot be created, for example because the parent is not writable or storage is exhausted. The command returns failure with `IoErr()` reset to zero, so scripts and callers cannot identify the actual cause and `PrintFault()` emits no useful fault text. Preserve the failing operation's error before cleanup. **Affected configuration:** explicit `workbench-c` builds when `ALL` is used and a component creation/permission retry fails. **Confidence:** high; no directory operation or filesystem error was induced; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#makedir-all-path-creation-and-error-preservation-pass-gd14497).
 
 <a id="gd14498"></a>
+<a id="gd14498-list-leaks-pattern-buffers-when-pattern-parsing-fails"></a>
 ## GD14498 — List leaks pattern buffers when pattern parsing fails
 
 For `SUB`, `main()` allocates `subpatternStr` and returns from the parse-error branch without freeing it (`workbench/c/List.c:1194-1204`). For `PAT`, it similarly allocates `parsedPattern` and omits its free when `ParsePatternNoCase()` returns `-1` (`:1215-1223`). The DOS parser documents `-1` on error and sets `IoErr()` for malformed syntax (`rom/dos/parsepattern.c:39-51`; `rom/dos/patternmatching.c:440-443,463-518`).
@@ -18152,6 +18432,7 @@ The optimized Copy-mode `PBM__Hidd_BitMap__FillRect()` stores its inclusive Y lo
 
 
 <a id="gd14539"></a>
+<a id="gd14539-iconx-resolves-workbench-arguments-relative-to-the-script-directory"></a>
 ## GD14539 — IconX resolves Workbench arguments relative to the script directory
 
 `main()` changes the process current directory to the script's `wa_Lock` before calling `BuildCommandLine()` (`workbench/c/IconX.c:241-244,299`). The builder then processes every Workbench argument from index 1 by calling `Lock(wa_Name)` without first switching to that argument's `wa_Lock` (`:155-168,181-197`). `WBArg` carries a separate lock and name for each argument (`compiler/include/workbench/startup.h:32-36`); the Workbench library duplicates the lock independently for each `WBOPENA_ArgLock` (`workbench/libs/workbench/openworkbenchobjecta.c:386-425`), and the AppWindow sender constructs each argument as `FilePart(path)` plus a lock to its containing directory (`workbench/libs/workbench/sendappwindowmessage.c:106-117`).
@@ -19186,6 +19467,7 @@ No mode switch, framebuffer failure, display operation, or build was run; source
 
 
 <a id="gd14653"></a>
+<a id="gd14653-truecolor-to-palette-cache-omits-alpha"></a>
 ## GD14653 — Truecolor-to-palette cache omits alpha
 
 `true_to_pal()` compares source alpha along with RGB when selecting the nearest colormap entry (`rom/hidds/gfx/gfx_bitmapconvertpixels.c:292-296,326-331`). `color_distance()` explicitly weights alpha differences four times more heavily (`rom/hidds/gfx/gfx_intern.h:396-414`). But the cached pen key contains only the top five bits of red, green, and blue (`gfx_bitmapconvertpixels.c:298-305`), so pixels with the same RGB and different alpha reuse one cached palette index. HIDD colormaps retain caller-supplied `HIDDT_Color` values, including alpha (`rom/hidds/gfx/gfx_colormapclass.c:234-275`), and ARGB source pixel formats provide per-pixel alpha.
@@ -19382,6 +19664,7 @@ The STDU CPU-backed plane update calls `vmw_bo_cpu_blit()` but explicitly discar
 
 
 <a id="gd14673"></a>
+<a id="gd14673-vmware-vmwgfx-logs-an-uninitialized-capability-string-for-an-empty-bitmap-optional-target"></a>
 ## GD14673 — VMware vmwgfx logs an uninitialized capability string for an empty bitmap [optional target]
 
 `vmw_print_bitmap()` initializes `offset` to zero but does not initialize `buf`. It only writes to `buf` inside the loop when a recognized capability bit is set, then always passes `buf` to `%s` (`workbench/hidds/vmwaresvga/drm/vmwgfx/vmwgfx_drv.c:323-342`). Therefore a zero capability bitmap, or one containing only unrecognized bits, causes the logger to read an uninitialized stack buffer as a C string. Both capability registers are passed to this helper during device load (`:876-883`).
@@ -19390,6 +19673,7 @@ The STDU CPU-backed plane update calls `vmw_bo_cpu_blit()` but explicitly discar
 
 
 <a id="gd14674"></a>
+<a id="gd14674-vmware-vmwgfx-vram-manager-allocation-failure-dereferences-a-missing-manager-optional-target"></a>
 ## GD14674 — VMware vmwgfx VRAM-manager allocation failure dereferences a missing manager [optional target]
 
 `ttm_range_man_init_nocheck()` allocates the range manager and returns `-ENOMEM` immediately if `kzalloc()` fails, before installing a manager in the TTM device (`workbench/hidds/vmwaresvga/drm/ttm/ttm_range_manager.c:180-203`). `vmw_vram_manager_init()` then unconditionally calls `ttm_resource_manager_set_used(ttm_manager_type(...), false)` regardless of that return value (`workbench/hidds/vmwaresvga/drm/vmwgfx/vmwgfx_drv.c:692-699`). With no installed manager, `set_used()` dereferences its argument while walking the LRU lists (`include/drm/ttm/ttm_resource.h:390-398`), so the allocation error becomes a null-pointer fault rather than the expected clean probe failure. The caller already checks the returned error and routes through initialization cleanup (`vmwgfx_drv.c:1053-1058`).
@@ -19397,6 +19681,7 @@ The STDU CPU-backed plane update calls `vmw_bo_cpu_blit()` but explicitly discar
 **Trigger and scope:** optional VMware SVGA probe when allocation of the VRAM range-manager object fails. **Consequence:** device initialization faults during an ordinary out-of-memory path instead of returning `-ENOMEM` cleanly. **Confidence:** high; the allocation return and unconditional dereference are directly connected. Only call `set_used()` after successful manager initialization. No allocation failure or probe was induced; source-only.
 
 <a id="gd14675"></a>
+<a id="gd14675-ttm-move-placeholder-failure-leaves-the-global-buffer-object-count-inflated"></a>
 ## GD14675 — TTM move-placeholder failure leaves the global buffer-object count inflated
 
 `ttm_buffer_object_transfer()` increments `ttm_glob.bo_count` after allocating a temporary placeholder. If reserving space for its fence fails, it unlocks and frees the placeholder but does not decrement that count (`workbench/hidds/vmwaresvga/drm/ttm/ttm_bo_util.c:236-265`). Normal destruction decrements the counter (`drm/ttm/ttm_bo.c:317`); the counter is exported through the TTM `buffer_objects` debugfs entry (`ttm_device.c:114-118`).
@@ -19404,6 +19689,7 @@ The STDU CPU-backed plane update calls `vmw_bo_cpu_blit()` but explicitly discar
 **Trigger and scope:** optional VMware vmwgfx moves or purges a buffer, placeholder allocation succeeds, then fence-storage reservation fails. **Consequence:** the global diagnostic buffer-object count remains one too high for each such failure and no longer reports live objects accurately. **Confidence:** high for the counter imbalance; impact is limited to diagnostics. Decrement the count on this failure path and finalize the temporary reservation object before freeing it. No allocation failure or move was induced; source-only.
 
 <a id="gd14676"></a>
+<a id="gd14676-vmware-legacy-cursor-snooping-reads-rows-beyond-its-fixed-mapping-for-a-padded-source-pitch-optional-target"></a>
 ## GD14676 — VMware legacy cursor snooping reads rows beyond its fixed mapping for a padded source pitch [optional target]
 
 The cursor snooper maps a fixed number of pages based on its 64×64 destination image (`workbench/hidds/vmwaresvga/drm/vmwgfx/vmwgfx_cursor_plane.c:379-390`). For a non-exact-width/pitch copy it then reads each source row using the command's `guest.pitch` (`:394-402`). The verifier calls the snooper after translating the source BO and checking/clamping only the DMA starting offset and suffix maximum against the BO size (`workbench/hidds/vmwaresvga/drm/vmwgfx/vmwgfx_execbuf.c:1528-1563`); it does not ensure the final row extent fits the mapped page count. Thus a padded pitch can place later row reads past the mapped window even when the backing BO contains the whole image. For example, a 512-byte pitch over 64 rows needs about 32 KiB, while the snooper maps 16 KiB.
@@ -19411,6 +19697,7 @@ The cursor snooper maps a fixed number of pages based on its 64×64 destination 
 **Trigger and scope:** optional VMware legacy cursor snooping receives a valid 64×64 cursor DMA with a source pitch larger than the tightly packed image pitch. **Consequence:** rows are copied from beyond the snooper's mapped window, so the software cursor image can contain unrelated data or the copy can fault; presentation may be corrupted. **Confidence:** medium-high for the fixed-map/variable-stride mismatch; the source path does not show an explicit stride constraint, though actual host/device command acceptance can depend on the cursor producer. Map the full validated source extent or reject/handle pitches whose last row is outside the mapping. No DMA command or cursor update was submitted; source-only.
 
 <a id="gd14677"></a>
+<a id="gd14677-ttm-fence-slot-allocation-failure-leaves-the-current-buffer-reservation-locked-optional-target"></a>
 ## GD14677 — TTM fence-slot allocation failure leaves the current buffer reservation locked [optional target]
 
 In `ttm_eu_reserve_buffers()`, the current BO is first successfully reserved, then `dma_resv_reserve_fences()` may fail (for example with `-ENOMEM`). The error path calls `ttm_eu_backoff_reservation_reverse(list, entry)`, whose `list_for_each_entry_continue_reverse()` begins at the entry before `entry`, so it releases only earlier BO reservations and skips the currently locked BO (`workbench/hidds/vmwaresvga/drm/ttm/ttm_execbuf_util.c:34-41, 89-129`). Since the reservation failure is not `-EDEADLK`, the slow path does not reacquire or release that current BO; the function returns the error while its reservation remains held. Active vmwgfx validation callers use this helper (`drm/vmwgfx/vmwgfx_validation.h:122`; `vmwgfx_resource.c:538`).
@@ -19418,6 +19705,7 @@ In `ttm_eu_reserve_buffers()`, the current BO is first successfully reserved, th
 **Trigger and scope:** optional vmwgfx multi-BO validation successfully locks one BO, then fence-slot growth for that BO fails. **Consequence:** that BO remains reserved after the call returns, so later operations can block or fail to reserve it and the caller cannot safely unwind the reservation list. **Confidence:** high for the skipped current entry and failure return; requires fence-reservation failure after a successful lock. Explicitly unlock the current BO on this path before returning. No fence allocation failure or validation was induced; source-only.
 
 <a id="gd14678"></a>
+<a id="gd14678-vmwgfx-frees-gmrmob-and-waitable-system-managers-after-failed-eviction-optional-target"></a>
 ## GD14678 — vmwgfx frees GMR/MOB and waitable-system managers after failed eviction [optional target]
 
 `vmw_gmrid_man_fini()` ignores the result of `ttm_resource_manager_evict_all()` and then cleans up the manager, removes it from the TTM device, destroys its ID allocator and frees the manager (`workbench/hidds/vmwaresvga/drm/vmwgfx/vmwgfx_gmrid_manager.c:190-204`). `vmw_sys_man_fini()` likewise ignores the eviction result before cleaning up, unregistering and freeing its manager (`vmwgfx_system_manager.c:78-90`). TTM's evict-all helper returns an error when an object cannot be evicted or its move fence wait fails (`drm/ttm/ttm_resource.c:559-578`); on that path it can leave resources on the manager's LRU. The finalizers still invalidate the manager that owns those resources.
@@ -19425,7 +19713,6 @@ In `ttm_eu_reserve_buffers()`, the current BO is first successfully reserved, th
 **Trigger and scope:** optional VMware vmwgfx device teardown or failed device initialization cleanup encounters a pinned, busy or otherwise unevictable BO in the GMR, MOB or waitable-system manager. **Consequence:** manager-owned resources remain after the manager is freed; later BO cleanup can access the removed manager/ID allocator, and the resource bookkeeping is no longer valid. **Confidence:** high for unchecked eviction failure followed by unconditional free; occurrence depends on teardown reaching the manager with an unevictable BO. Propagate/check the eviction result and preserve manager lifetime until its resources are gone. No device teardown or failed eviction was induced; source-only.
 
 
-<a id="gd14679"></a>
 <a id="gd14679"></a>
 ## GD14679 — vmwgfx fence submission can leave its output pointer unset on error
 
@@ -19958,6 +20245,7 @@ The AVX `BGRA32 -> BGR15` and `ARGB32 -> BGR15` kernels overwrite the extracted 
 
 
 <a id="gd14772"></a>
+<a id="gd14772-workbench-handler-dereferences-a-failed-close-relay-allocation"></a>
 ## GD14772 — Workbench handler dereferences a failed close-relay allocation
 
 In `__HandleIntuition_WB()`, the `WBENCHCLOSE` branch assigns `CreateIWBHM(WBHM_TYPE_HIDE, ...)` to `iwbhm` and immediately writes `iwbhm->iwbhm_Data.Hide.imsg` without checking for NULL (`workbench/libs/workbench/handler.c:401-406`). `CreateIWBHM()` returns NULL when its `AllocMessage()` allocation fails (`workbench/libs/workbench/support_messages.c:67-81`). The handler's Intuition-message loop invokes this function directly (`handler.c:180-184`) and relies on it to reply to the incoming message; on the successful close-relay path, the reply is intentionally deferred until the Workbench application responds (`handler.c:151-169,403-414`).
@@ -19966,6 +20254,7 @@ In `__HandleIntuition_WB()`, the `WBENCHCLOSE` branch assigns `CreateIWBHM(WBHM_
 
 
 <a id="gd14773"></a>
+<a id="gd14773-concurrent-closeworkbench-calls-can-dereference-a-disposed-screen"></a>
 ## GD14773 — Concurrent `CloseWorkBench()` calls can dereference a disposed screen
 
 `CloseWorkBench()` reads `IntuitionBase->WorkBench` before acquiring the public-screen-list lock, then calls `FireScreenNotifyMessage(..., SNOTIFY_BEFORE_CLOSEWB, ...)` before taking that lock (`rom/intuition/closeworkbench.c:53-59`). After acquiring the lock, it dereferences the saved pointer to read `pubScrNode` and `psn_VisitorCount` without checking whether the current `WorkBench` pointer still matches it (`:71-79`). Another task can complete a concurrent `CloseWorkBench()` in the notification/scheduling interval: its `CloseScreen()` path disposes the screen object (`rom/intuition/closescreen.c:290-291`) and clears `IntuitionBase->WorkBench` before releasing the same public-screen-list lock (`closeworkbench.c:94-113`). The first caller then resumes with a pointer to the disposed screen.
@@ -19981,6 +20270,7 @@ In `__HandleIntuition_WB()`, the `WBENCHCLOSE` branch assigns `CreateIWBHM(WBHM_
 
 
 <a id="gd14775"></a>
+<a id="gd14775-editor-include-path-parsing-writes-past-its-fixed-scratch-buffer-explicit-optional-target"></a>
 ## GD14775 — Editor include-path parsing writes past its fixed scratch buffer [explicit optional target]
 
 `GetIncludeFile()` composes the include path directly in the global `BufTxt` array (`workbench/tools/Edit/Utility.c:120-145`), declared as only 256 bytes (`Jed.c:32`). Angle-bracket includes start with `INCLUDE:` and then copy every remaining include-name byte; quoted includes first copy the entire directory prefix from `prj->path` and then copy the include-name bytes. Neither copy loop checks the remaining `BufTxt` capacity, and the terminating NUL is also written through the unbounded destination pointer (`Utility.c:137-145`). The line length comes from the loaded file: `load_file()` records the complete span up to each newline in `LINE.size` without a 256-byte limit (`DiskIO.c:392-416`). The selected Ctrl+Enter event path calls `GetIncludeFile()` on the current line and then tries to open the returned path (`Events.c:153-164`).
@@ -19991,6 +20281,7 @@ In `__HandleIntuition_WB()`, the `WBENCHCLOSE` branch assigns `CreateIWBHM(WBHM_
 
 
 <a id="gd14776"></a>
+<a id="gd14776-editor-selected-line-indentation-ignores-allocation-failures-explicit-optional-target"></a>
 ## GD14776 — Editor selected-line indentation ignores allocation failures [explicit optional target]
 
 In the selection branch of `indent_by()`, each applicable line is forced to `WHOLESEL` and passed to `add_char()`, but its Boolean result is discarded; the loop continues and then closes the undo group (`workbench/tools/Edit/Edit.c:376-389`). `add_char()` returns `FALSE` when growing a line buffer fails, without inserting the character (`workbench/tools/Edit/Memory.c:48-64,87-109`). The equivalent non-selection branch checks that result and reports `ERR_NOMEM` (`Edit.c:405-417`), but the selected branch does neither. After the loop, the function unconditionally updates the cursor byte position by `method` for nonzero positions (`:390-410`), even if insertion into the active line failed. Selected indentation is reachable from the Amiga-key+Space/Tab commands and menu Indent (`workbench/tools/Edit/Events.c:66-74,389-393`).
@@ -20012,6 +20303,7 @@ If the join allocation fails after the undo record was made, the original second
 
 
 <a id="gd14778"></a>
+<a id="gd14778-editor-case-conversion-dereferences-the-end-of-an-empty-file-explicit-optional-target"></a>
 ## GD14778 — Editor case conversion dereferences the end of an empty file [explicit optional target]
 
 `read_file()` leaves `args->buffer` NULL when the opened file has size zero, then returns success (`workbench/tools/Edit/DiskIO.c:341-380`). `load_file()` still creates one line and assigns its `stream` from the null `q` pointer with a zero size (`:392-430`); `load_in_project()` accepts that line list and makes it the current project (`workbench/tools/Edit/Project.c:80-95`). With no selection, `change_case()` unconditionally reads `ln->stream[p->nbc]` and passes the result to `change_casechar()` before writing it back (`workbench/tools/Edit/Edit.c:464-468`). The new project cursor starts at character offset zero, and the Editor exposes Upper/Lower/Toggle menu actions (`workbench/tools/Edit/Project.c:64-75,80-95`; `workbench/tools/Edit/Events.c:393-395`).
@@ -20022,6 +20314,7 @@ If the join allocation fails after the undo record was made, the original second
 
 
 <a id="gd14779"></a>
+<a id="gd14779-editor-case-conversion-bypasses-undo-and-modified-state-tracking-explicit-optional-target"></a>
 ## GD14779 — Editor case conversion bypasses undo and modified-state tracking [explicit optional target]
 
 `change_case()` mutates selected text through `replace_chars()` and a single character through `replace_char()` (`workbench/tools/Edit/Edit.c:438-468`). Both helpers write directly to line storage and do not record an undo operation (`workbench/tools/Edit/Memory.c:230-244`). Unlike normal `add_char()`/`rem_chars()` paths, case conversion does not call the undo registration helpers that run `PRE_CHECK` and set `MODIFIED` (`workbench/tools/Edit/UndoRedo.c:28-33,218-224`). The Upper/Lower/Toggle menu actions dispatch directly to `change_case()` (`workbench/tools/Edit/Events.c:393-395`). `close_project()` asks whether to save only through `warn_modif()`, which prompts only when `p->state & MODIFIED` is set (`workbench/tools/Edit/Project.c:480-495`; `Utility.c:324-343`).
@@ -20032,6 +20325,7 @@ If the join allocation fails after the undo record was made, the original second
 
 
 <a id="gd14780"></a>
+<a id="gd14780-editor-reload-clears-the-unsaved-marker-before-checking-whether-reload-succeeded-explicit-optional-target"></a>
 ## GD14780 — Editor Reload clears the unsaved marker before checking whether reload succeeded [explicit optional target]
 
 `reload_project()` saves the cursor position, calls `unset_modif_mark(p, TRUE)`, then ignores the return from `load_in_project(p, p->path)` (`workbench/tools/Edit/Project.c:189-201`). `unset_modif_mark()` commits and clears the undo state and sets `p->state = 0` (`:368-380`). `load_in_project()` changes the project contents only when `load_file()` succeeds (`:67-83`), so on a read or allocation error the old in-memory text remains while its dirty state and undo history have already been discarded. The Reload menu action is reachable from Open with Shift after `warn_modif()` (`workbench/tools/Edit/Events.c:311-320`). Closing a project prompts only when `MODIFIED` is set (`Project.c:480-495`; `Utility.c:324-343`).
@@ -20041,6 +20335,7 @@ If the join allocation fails after the undo record was made, the original second
 **Coverage:** [Editor project lifecycle pass](AROS-graphics-desktop-coverage.md#editor-project-lifecycle-and-file-io-pass-gd14780).
 
 <a id="gd14781"></a>
+<a id="gd14781-editor-save-as-clears-the-dirty-state-before-the-save-succeeds-explicit-optional-target"></a>
 ## GD14781 — Editor Save As clears the dirty state before the save succeeds [explicit optional target]
 
 When Save As or saving a project without a path obtains a destination, `save_project()` calls `set_project_name()` and immediately sets `p->state = 0` before calling `save_file()` (`workbench/tools/Edit/Project.c:263-293`). `save_file()` can fail opening the destination or report write errors and return false (`workbench/tools/Edit/DiskIO.c:232-285`); nevertheless, the project has already lost its `MODIFIED` flag. Closing checks that flag before prompting (`Project.c:480-495`; `Utility.c:324-343`).
@@ -20050,6 +20345,7 @@ When Save As or saving a project without a path obtains a destination, `save_pro
 **Coverage:** [Editor project lifecycle pass](AROS-graphics-desktop-coverage.md#editor-project-lifecycle-and-file-io-pass-gd14780).
 
 <a id="gd14782"></a>
+<a id="gd14782-editor-save-reports-success-after-a-write-failure-explicit-optional-target"></a>
 ## GD14782 — Editor save reports success after a write failure [explicit optional target]
 
 In `save_file()`, failures from buffered `FWrite()` calls jump to `wrterr`, display an error, and break the loop; the function then calls `FClose()` without checking its return and unconditionally sets `retval = 1` (`workbench/tools/Edit/DiskIO.c:263-282`). `myFClose()` itself returns false if the final buffered `Write()` fails (`:207-219`), but that result is discarded. The caller `save_project()` treats any nonzero result as success and clears the modified marker (`workbench/tools/Edit/Project.c:286-293`).
@@ -20059,6 +20355,7 @@ In `save_file()`, failures from buffered `FWrite()` calls jump to `wrterr`, disp
 **Coverage:** [Editor project lifecycle pass](AROS-graphics-desktop-coverage.md#editor-project-lifecycle-and-file-io-pass-gd14780).
 
 <a id="gd14783"></a>
+<a id="gd14783-editor-cut-deletes-selected-text-after-a-failed-clipboard-write-explicit-optional-target"></a>
 ## GD14783 — Editor Cut deletes selected text after a failed clipboard write [explicit optional target]
 
 `CBWriteFTXT()` checks that `OpenIFF()` succeeded, but ignores `PushChunk()`, every `WriteChunkBytes()`, `PopChunk()`, and `CloseIFF()` result, then returns `TRUE` (`workbench/tools/Edit/ClipLoc.c:115-155`). The IFF writer reports byte counts/errors from `WriteChunkBytes()`; other AROS callers check those results (for example `workbench/classes/datatypes/sound/dispatch.c:2385-2386`). The Cut menu action calls `del_block()` whenever `CBWriteFTXT()` returns true (`workbench/tools/Edit/Events.c:358-365`).
@@ -20068,6 +20365,7 @@ In `save_file()`, failures from buffered `FWrite()` calls jump to `wrterr`, disp
 **Coverage:** [Editor clipboard and cursor pass](AROS-graphics-desktop-coverage.md#editor-clipboard-and-cursor-pass-gd14783).
 
 <a id="gd14784"></a>
+<a id="gd14784-editor-join-and-strip-deletes-the-next-line-after-insertion-fails-explicit-optional-target"></a>
 ## GD14784 — Editor “join and strip” deletes the next line after insertion fails [explicit optional target]
 
 `join_strip()` attempts to append the non-whitespace part of the next line with `insert_str()`. On failure it displays an out-of-memory error, but then unconditionally calls `del_line()` on that next line and decrements `p->max_lines` (`workbench/tools/Edit/Cursor.c:464-487`). `insert_str()` returns false without inserting when line-buffer growth fails (`workbench/tools/Edit/Memory.c:117-139`).
@@ -20077,6 +20375,7 @@ In `save_file()`, failures from buffered `FWrite()` calls jump to `wrterr`, disp
 **Coverage:** [Editor clipboard and cursor pass](AROS-graphics-desktop-coverage.md#editor-clipboard-and-cursor-pass-gd14783).
 
 <a id="gd14785"></a>
+<a id="gd14785-editor-word-selection-reads-one-byte-past-an-unterminated-final-line-explicit-optional-target"></a>
 ## GD14785 — Editor word selection reads one byte past an unterminated final line [explicit optional target]
 
 Word-selection adjustment calls `backward_word(ln, find_nbc(ln, p->ccp.startsel))` without ensuring the resulting character index is less than the line length (`workbench/tools/Edit/Edit.c:109-112`). When the mouse endpoint is at or beyond the end of the line, `find_nbc()` returns `ln->size` (`Cursor.c:45-53`). `backward_word()` then forms `ln->stream + pos` and reads `TypeChar[*str]` before reducing the index (`Cursor.c:76-84`). Loaded lines are spans into the exact file buffer, and the final unterminated line ends at the buffer boundary (`DiskIO.c:392-430`).
@@ -20086,6 +20385,7 @@ Word-selection adjustment calls `backward_word(ln, find_nbc(ln, p->ccp.startsel)
 **Coverage:** [Editor clipboard and cursor pass](AROS-graphics-desktop-coverage.md#editor-clipboard-and-cursor-pass-gd14783).
 
 <a id="gd14786"></a>
+<a id="gd14786-editor-paste-reports-success-and-reads-uninitialized-line-counts-after-partial-insertion-failure-explicit-optional-target"></a>
 ## GD14786 — Editor paste reports success and reads uninitialized line counts after partial insertion failure [explicit optional target]
 
 `CBReadCHRS()` ignores the return from `add_string()`/`add_block()` and sets `ret = TRUE` regardless (`workbench/tools/Edit/ClipLoc.c:189-195`). `add_string()` can return false after inserting earlier parts of a multiline paste if a later `break_line()` or `insert_str()` fails; `buf[2]` is only assigned at the successful end of `add_string()` (`Memory.c:143-170`). The Paste handler trusts the true result, then adds `buf[2]` to `edit->max_lines` and uses the other output fields (`Events.c:367-380`).
@@ -20095,6 +20395,7 @@ Word-selection adjustment calls `backward_word(ln, find_nbc(ln, p->ccp.startsel)
 **Coverage:** [Editor clipboard and cursor pass](AROS-graphics-desktop-coverage.md#editor-clipboard-and-cursor-pass-gd14783).
 
 <a id="gd14787"></a>
+<a id="gd14787-editor-text-rendering-can-overrun-its-fixed-scratch-buffer-explicit-optional-target"></a>
 ## GD14787 — Editor text rendering can overrun its fixed scratch buffer [explicit optional target]
 
 The Editor's shared render buffer is `BufTxt[256]` (`workbench/tools/Edit/Jed.c:32`). Its `write_text()` implementation is in `Jed.c:397-440`. It writes visible text and expands tabs with `memset(buf, ' ', ts)` (`:426-434`), but bounds the loop only by `gui.nbcol` and remaining source bytes; it does not cap writes by the remaining `BufTxt` capacity. `gui.nbcol` is calculated from window width and selected font width (`workbench/tools/Edit/Gui.c:214-230`), while the window template allows widths up to `0xffff` and setup can size it to the screen (`Gui.c:127-141,448-461,537-547`). The fixed-width font requester has no width restriction and recalculates the viewport after selection (`Prefs.c:315-329,409-422`). Loaded line spans retain their full length without a 256-byte cap (`DiskIO.c:392-430`).
@@ -20104,6 +20405,7 @@ The Editor's shared render buffer is `BufTxt[256]` (`workbench/tools/Edit/Jed.c:
 **Coverage:** [Editor GUI, startup, preferences, printing and search pass](AROS-graphics-desktop-coverage.md#editor-gui-startup-preferences-print-and-search-pass-gd14787).
 
 <a id="gd14788"></a>
+<a id="gd14788-editor-whole-word-search-reads-past-an-unterminated-final-line-explicit-optional-target"></a>
 ## GD14788 — Editor whole-word search reads past an unterminated final line [explicit optional target]
 
 After a pattern match, `HilitePattern()` checks `TypeChar[search[len]]` to decide whether the following character is part of a word (`workbench/tools/Edit/Search.c:596-601`). A match that ends exactly at the end of an unterminated final line makes `search + len` point one byte beyond the file buffer: `load_file()` stores line spans directly into the exact-size read buffer and does not add a terminator (`workbench/tools/Edit/DiskIO.c:392-430`). This check is reached when whole-word matching is enabled.
@@ -20113,6 +20415,7 @@ After a pattern match, `HilitePattern()` checks `TypeChar[search[len]]` to decid
 **Coverage:** [Editor GUI, startup, preferences, printing and search pass](AROS-graphics-desktop-coverage.md#editor-gui-startup-preferences-print-and-search-pass-gd14787).
 
 <a id="gd14789"></a>
+<a id="gd14789-editor-bracket-matching-dereferences-the-cursor-position-without-checking-line-length-explicit-optional-target"></a>
 ## GD14789 — Editor bracket matching dereferences the cursor position without checking line length [explicit optional target]
 
 `match_bracket()` reads `p->edited->stream[p->nbc]` before checking whether the cursor is on a character (`workbench/tools/Edit/Search.c:679-687`). The cursor can validly sit at `p->edited->size` at end-of-line; horizontal End sets that position, and loaded final unterminated lines have no storage byte beyond their contents (`Cursor.c:341-360`; `DiskIO.c:392-430`). An empty line can also have a NULL stream.
@@ -20122,6 +20425,7 @@ After a pattern match, `HilitePattern()` checks `TypeChar[search[len]]` to decid
 **Coverage:** [Editor GUI, startup, preferences, printing and search pass](AROS-graphics-desktop-coverage.md#editor-gui-startup-preferences-print-and-search-pass-gd14787).
 
 <a id="gd14790"></a>
+<a id="gd14790-editor-preferences-always-replace-a-selected-parent-screen-with-the-default-public-screen-explicit-optional-target"></a>
 ## GD14790 — Editor preferences always replace a selected parent screen with the default public screen [explicit optional target]
 
 The parent-screen validation loop initializes both `list` and `first` to `IntuitionBase->ActiveScreen`, then uses `list && list != first` as its loop condition (`workbench/tools/Edit/Prefs.c:449-459`). Since `list == first` at initialization, the body never runs. `first` therefore remains non-NULL and the fallback locks the default public screen, assigning it to `tmpprefs.parent` (`:461-465`) even when the selected parent screen is still present. `update_prefs()` applies this modified preference structure to the Editor (`:487-500`).
@@ -20131,6 +20435,7 @@ The parent-screen validation loop initializes both `list` and `first` to `Intuit
 **Coverage:** [Editor GUI, startup, preferences, printing and search pass](AROS-graphics-desktop-coverage.md#editor-gui-startup-preferences-print-and-search-pass-gd14787).
 
 <a id="gd14791"></a>
+<a id="gd14791-editor-preferences-parser-trusts-field-lengths-from-the-file-explicit-optional-target"></a>
 ## GD14791 — Editor preferences parser trusts field lengths from the file [explicit optional target]
 
 `load_prefs()` walks the preference chunk using a 16-bit `ByteRead`, reads each record's field ID and byte length, and copies `src[1]` bytes into the destination selected by the field ID without validating either the record bounds or the destination field capacity (`workbench/tools/Edit/Prefs.c:204-227`). The known field sizes are available in `sizefields[]`, but the parser does not use them (`:68-76`). A short/corrupt record can also make the parser read the length or data beyond the allocated chunk.
@@ -20140,6 +20445,7 @@ The parent-screen validation loop initializes both `list` and `first` to `Intuit
 **Coverage:** [Editor GUI, startup, preferences, printing and search pass](AROS-graphics-desktop-coverage.md#editor-gui-startup-preferences-print-and-search-pass-gd14787).
 
 <a id="gd14792"></a>
+<a id="gd14792-editor-search-window-dereferences-gadgets-after-unchecked-allocation-failures-explicit-optional-target"></a>
 ## GD14792 — Editor search window dereferences gadgets after unchecked allocation failures [explicit optional target]
 
 `setup_winsearch()` checks whether `OpenWindowTags()` succeeds but does not check the results of `CreateContext()` or any `CreateGadget()` call. It immediately passes the first string-gadget pointer to `GetSI()`/`CopyMem()` and later dereferences checkbox gadget pointers (`workbench/tools/Edit/Search.c:170-171,192-204,212-231,240-253`). GadTools creation can fail under memory pressure.
@@ -20149,6 +20455,7 @@ The parent-screen validation loop initializes both `list` and `first` to `Intuit
 **Coverage:** [Editor GUI, startup, preferences, printing and search pass](AROS-graphics-desktop-coverage.md#editor-gui-startup-preferences-print-and-search-pass-gd14787).
 
 <a id="gd14793"></a>
+<a id="gd14793-editor-replace-all-can-loop-forever-when-deletion-fails-for-an-empty-replacement-explicit-optional-target"></a>
 ## GD14793 — Editor Replace All can loop forever when deletion fails for an empty replacement [explicit optional target]
 
 `ReplaceAllPat()` ignores the return from `rem_chars()` and, when the replacement string is empty, does not advance the cursor before searching again (`workbench/tools/Edit/Search.c:499-524`). `rem_chars()` records the removal before attempting a shrinking reallocation and returns false without changing the text if that allocation fails (`workbench/tools/Edit/Memory.c:247-260`). The next quiet `HilitePattern()` therefore finds the same occurrence again and leaves the cursor at the same offset (`Search.c:505-523,650-653`).
@@ -20159,6 +20466,7 @@ The parent-screen validation loop initializes both `list` and `first` to `Intuit
 
 
 <a id="gd14794"></a>
+<a id="gd14794-icon-35-writer-leaks-an-iffhandle-on-every-serialization-explicit-optional-target"></a>
 ## GD14794 — Icon 3.5 writer leaks an IFFHandle on every serialization [explicit optional target]
 
 `WriteIcon35()` allocates an `IFFHandle` with `AllocIFF()` and then returns from the function without calling `FreeIFF()` on any path after that allocation (`workbench/libs/icon/diskobj35io.c:947-1066`). `AllocIFF()` allocates and clears an `IntIFFHandle` with `AllocMem()` and documents that its default context node persists until `FreeIFF()` (`workbench/libs/iffparse/allociff.c:25-36,51-72`); `FreeIFF()` releases the context items and that allocation (`freeiff.c:48-75`). The selected `ProcessIcon35()` write hook calls `WriteIcon35()` when `WriteStruct()` serializes OS 3.5 icon data (`workbench/libs/icon/diskobjio.c:991`). The read counterpart frees its allocated handle at `diskobj35io.c:555`, while the writer has no corresponding cleanup.
@@ -20170,6 +20478,7 @@ The parent-screen validation loop initializes both `list` and `first` to `Intuit
 
 
 <a id="gd14795"></a>
+<a id="gd14795-diskfont-cache-entry-count-can-wrap-its-allocation-on-32-bit-builds"></a>
 ## GD14795 — Diskfont cache entry count can wrap its allocation on 32-bit builds
 
 `ReadDirEntry()` opens the cached font index and passes it to `StreamInFileList()` without validating the records first (`workbench/libs/diskfont/diskfontfunc.c:576-589`). The reader loads `fe2.Numentries` from the cache as a `ULONG` (`:413-416`), then allocates `fe2.Numentries * sizeof(struct TTextAttr)` bytes (`:420-423`). On a 32-bit target, that multiplication is performed at 32-bit width and can wrap to a small nonzero size. If the small allocation succeeds, the next loop still iterates the original count and writes `attrs[i].tta_Tags` for every entry (`:425-427`), overrunning the allocation before it checks whether the cache contains corresponding attribute records. The cache filename is `FONTS:fontcache` on the AROS path (`workbench/libs/diskfont/diskfont_intern.h:69-74`); `AllocVec()` can return a non-NULL block for a small nonzero wrapped size (`rom/exec/allocvec.c:40-65`).
@@ -20181,6 +20490,7 @@ The parent-screen validation loop initializes both `list` and `first` to `Intuit
 
 
 <a id="gd14796"></a>
+<a id="gd14796-diskfont-iterator-allocation-failure-leaves-the-font-semaphore-held"></a>
 ## GD14796 — Diskfont iterator allocation failure leaves the font semaphore held
 
 `AllocResources()` obtains `DiskfontBase->fontssemaphore` before allocating its `DF_Data` iterator state (`workbench/libs/diskfont/diskfontfunc.c:737-747`). If `AllocMem()` fails, it returns the still-NULL pointer without releasing the semaphore. `DF_IteratorInit()` propagates that NULL (`:895-906`). The selected `OpenDiskFont()` caller detects the failed initialization but only logs it and skips the iterator cleanup branch (`workbench/libs/diskfont/opendiskfont.c:112-117`); consequently no cleanup releases the semaphore. Other diskfont operations that need this semaphore can then remain blocked indefinitely.
@@ -20190,6 +20500,7 @@ The parent-screen validation loop initializes both `list` and `first` to `Intuit
 **Coverage:** [Diskfont iterator allocation and caller failure paths](AROS-graphics-desktop-coverage.md#diskfont-iterator-allocation-and-caller-failure-paths-gd14796).
 
 <a id="gd14797"></a>
+<a id="gd14797-diskfont-directory-enumeration-passes-failed-exall-allocations-to-dos"></a>
 ## GD14797 — Diskfont directory enumeration passes failed ExAll allocations to DOS
 
 `GetFileList()` allocates an `ExAllControl` and a 1,024-byte `ExAllData` buffer, then immediately writes `eac->eac_LastKey` and calls `ExAll()` without checking either allocation (`workbench/libs/diskfont/diskfontfunc.c:216-231`). `ReadDirEntry()` reaches `GetFileList()` for each font directory while building or refreshing the diskfont directory cache (`:534-573`). If either allocation fails, the function dereferences a NULL control structure or passes a NULL data buffer to `ExAll()` rather than returning a clean enumeration failure.
@@ -20199,6 +20510,7 @@ The parent-screen validation loop initializes both `list` and `first` to `Intuit
 **Coverage:** [Diskfont iterator allocation and caller failure paths](AROS-graphics-desktop-coverage.md#diskfont-iterator-allocation-and-caller-failure-paths-gd14796).
 
 <a id="gd14798"></a>
+<a id="gd14798-failed-diskfont-descriptor-reread-leaves-the-process-in-the-fonts-directory"></a>
 ## GD14798 — Failed diskfont descriptor reread leaves the process in the Fonts directory
 
 In the `DF_FONTSDATA` path, `DF_IteratorRememberOpen()` changes the task's current directory to the remembered font's directory before rereading its descriptor (`workbench/libs/diskfont/diskfontfunc.c:1157-1164`). If `ReadFontDescr()` fails, `RememberAttr` remains NULL and the function returns immediately (`:1164-1179`), bypassing the later `CurrentDir(olddir)` restoration and descriptor cleanup (`:1247-1257`). `OpenDiskFont()` calls this routine after selecting a disk font (`workbench/libs/diskfont/opendiskfont.c:145-153`). Thus a descriptor that cannot be reread after selection causes the caller's task to retain the font directory as its current directory after `OpenDiskFont()` returns.
@@ -20255,6 +20567,7 @@ The Find requester creates its string gadget with `GTST_MaxChars, 256` (`workben
 **Coverage:** [More selected companion sources: requesters, locale and menus](AROS-graphics-desktop-coverage.md#more-selected-companion-sources-requesters-locale-and-menus-gd14802).
 
 <a id="gd14804"></a>
+<a id="gd14804-sound-datatype-indexes-past-its-validity-flags-when-one-shot-playback-ends"></a>
 ## GD14804 — Sound datatype indexes past its validity flags when one-shot playback ends
 
 `SoundFunc()` uses `sfd->Sound` as an index into the two-element `Valid` array, then assigns `AHI_NOSOUND` to `snd` for non-continuous playback and immediately checks `sfd->Valid[snd]` (`workbench/classes/datatypes/sound/dispatch.c:3544-3552`). `AHI_NOSOUND` is `0xffff` (`workbench/devs/AHI/Include/C/devices/ahi.h:288`), so this terminal one-shot branch reads far beyond `Valid[2]` from the AHI sound callback. The callback is invoked when a sample reaches end of sound (`workbench/devs/AHI/Device/mixer.c:721-727`), and `PlayerProcAHI()` installs this hook for non-continuous samples with nonzero `SDTA_Cycles` (`dispatch.c:3958-3963`).
@@ -20275,6 +20588,7 @@ The Find requester creates its string gadget with `GTST_MaxChars, 256` (`workben
 
 
 <a id="gd14806"></a>
+<a id="gd14806-vc4-mesa-bo-cache-timeout-uses-adjustable-wall-time-conditional"></a>
 ## GD14806 — VC4 Mesa BO-cache timeout uses adjustable wall time [conditional]
 
 The Raspberry Pi Mesa shim defines `clock_gettime()` at `workbench/libs/mesa/aros_drm_shim.c:282-291`. It ignores `clk_id`, calls DOS `DateStamp()`, and converts that value into `timespec` (`:284-289`). `DateStamp()` obtains its value from `GetSysTime()` (`rom/dos/datestamp.c:59-68`), which is the settable system clock; AROS's POSIX implementation instead implements `CLOCK_MONOTONIC` with `GetUpTime()` (`compiler/crt/posixc/clock_gettime.c:78-86`), whose contract says it cannot be changed (`rom/timer/getuptime.c:34-41`). The shim itself says this clock is used for BO-cache timeout (`aros_drm_shim.c:275-276`).
@@ -20287,6 +20601,7 @@ The Raspberry Pi Mesa shim defines `clock_gettime()` at `workbench/libs/mesa/aro
 
 
 <a id="gd14807"></a>
+<a id="gd14807-mesa-stdc-base-resolver-races-across-concurrent-tasks-conditional"></a>
 ## GD14807 — Mesa StdC base resolver races across concurrent tasks [conditional]
 
 `__aros_getbase_StdCBase()` in `workbench/libs/mesa/aros_drm_shim.c:129-144` caches one `stdcbase` and one `stdctask` in unsynchronized static variables. When the caller changes, it opens a per-task `stdc.library` base and writes the two globals separately, then returns the shared `stdcbase`. There is no lock, interrupt exclusion, or per-task slot. This resolver is called by ordinary StdC functions such as `strtok()` and `rand()` (`compiler/crt/stdc/strtok.c:72-82`; `rand.c:42-47`), whose base contains task-specific state such as `last` and `srand_seed` (`compiler/crt/stdc/__stdc_intbase.h:45-51,73-75`). The shim comment says it exists to redirect Mesa's libc calls through the correct per-task base (`:118-127`).
@@ -21223,6 +21538,7 @@ Both root and non-root branches of `IconWindow__OM_NEW()` create `_newIconWin__I
 
 
 <a id="gd14931-adddatatypes-exclusion-pattern-overflows-parse-buffer"></a>
+<a id="gd14931-adddatatypes-ignores-an-undersized-exclusion-pattern-buffer-and-misses-x86_64-files"></a>
 ## GD14931 — AddDataTypes ignores an undersized exclusion-pattern buffer and misses `.x86_64` files
 
 `main()` clears `StackVars`, then parses the fixed `ExcludePattern` into `ExclPat` without checking the return value (`workbench/c/AddDataTypes.c:170-171,211-215,262-268`). The source pattern is 42 bytes long, and its parsed representation also needs 42 bytes including the final NUL: `#?` becomes one `P_ANY` token, the alternatives retain 31 literal bytes and six `P_ORNEXT` tokens, with `P_ORSTART`, `P_OREND`, the dot, and NUL. `ExclPat` is only `2*EXCL_LEN+3`, or 39 bytes, because `EXCL_LEN` is 18. The shared parser checks destination capacity and returns `-1` before writing past it (`rom/dos/patternmatching.c:439-442,633-635`). It has already reserved `P_OREND` in the last destination byte when it sees `(`, so that marker remains present when the final close token cannot fit; the emitted alternatives reach only `x86_` before the overflow.
