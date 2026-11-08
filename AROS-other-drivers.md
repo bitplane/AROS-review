@@ -41328,3 +41328,10 @@ Nouveau GK208 GPC firmware image structure pass (2026-11-08; no new finding; `wo
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/gpcgk208.fuc5.h` | 415 | Full 475-line image read; initializer, data layout, labels/offsets, padding and selected `gk208.c` consumer checked. Firmware instruction semantics remain unverified. |
+
+
+Nouveau GK208 hub firmware image structure pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/hubgk208.fuc5.h`; 918 physical lines, 837 `cloc 2.06` C code lines): confirmed selected inclusion by `gk208.c` and the code/data arrays referenced by `sizeof`-derived firmware descriptors. Read all data/state regions and the complete FUC5 instruction image, including MMIO seeds, queue/context setup, channel switch, interrupt, memory transfer routines, labeled offsets and zero padding. Initializers and labels match the generated word-array layout; no independent structural issue was established. The generated machine code has no source here for semantic verification. No firmware execution or build was run; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/hubgk208.fuc5.h` | 837 | Full 918-line image read; data layout, labels/offsets, padding and selected `gk208.c` consumer checked. Firmware instruction semantics remain unverified. |
