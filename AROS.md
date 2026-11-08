@@ -16924,7 +16924,7 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[OD11535](AROS-other-drivers.md#od11535-workqueue-list-race-execsmp) — DRM compatibility workqueue queue/list state is protected only by local `Disable()`, which does not serialize another CPU on ExecSMP. Conditional on cross-CPU queue and worker overlap in optional Nouveau or VMware targets; source-only.**
 
 
-**[OD11536](AROS-other-drivers.md#od11536-nouveau-log-flusher-creation-failure) — Nouveau logging retains its 2 MiB ring and reports initialization success when the log-flusher process cannot be created; ordinary buffered messages are then not flushed. Conditional on Exec process-creation failure during optional Nouveau startup; source-only.**
+**[OD11536](AROS-other-drivers.md#od11536-nouveau-log-flusher-creation-failure) — Nouveau logging retains its 2 MiB ring and reports initialization success when the log flusher cannot start after process-creation or signal-allocation failure; ordinary buffered messages are then not flushed. Conditional on flusher startup failure during optional Nouveau initialization; source-only.**
 
 
 **[OD2327](AROS-other-drivers.md#od2327-usb-configuration-descriptor-failure) — USB `Configure()` ignores failed configuration-descriptor transfers, derives a request size from an uninitialized stack field, and can report success while leaving the device unconfigured. Conditional on transfer failure and a positive allocatable residual length; source-only.**
