@@ -17122,6 +17122,8 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **OD11565 — PCIUSB can copy uninitialized input bounce data to the client when TD allocation fails before scheduling.** Conditional on a high-address input buffer and UHCI/EHCI descriptor-pool exhaustion during request setup; source-only. See [OD11565](AROS-other-drivers.md#od11565).
 
+**OD11566 — UHCI permanently loses allocated TDs when interrupt/bulk setup runs out of descriptors mid-chain.** A valid 8-byte-packet bulk request of 8,193 bytes needs 1,025 TDs but the pool has 1,024; the failed rollback returns only the QH, leaving the controller without TDs. Source-only. See [OD11566](AROS-other-drivers.md#od11566).
+
 **OD2136 — GamePort can dereference the list sentinel as a unit after a queued-event drain.** With multiple public opens and a stale per-open event cursor, the completed request can be removed while another event remains; iterator exhaustion leaves `ioreq` at the list sentinel before the empty-queue cleanup derives `gpUn` from it. Conditional on the two-opener/two-event request sequence; no event was run. See [OD2136](AROS-other-drivers.md#od2136).
 
 **OD9448 — GamePort can access a request's unit after replying it.** On ExecSMP, a client on another CPU can consume the reply and close/free its unit before the callback's post-reply `gpu_flags` read. Conditional on that completion/close overlap; no request was run. See [OD9448](AROS-other-drivers.md#od9448).
