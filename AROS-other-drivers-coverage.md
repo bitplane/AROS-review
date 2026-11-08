@@ -37437,3 +37437,10 @@ Nouveau NVKM display-head contract-header pass (2026-11-08; no new finding; `wor
 | File | `cloc 2.06` C/header code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/head.h` | 50 | Full 63-line header read; head state/callback contracts traced to generic lifecycle, scanout and representative generation implementations. No independent finding. Register semantics remain unverified. |
+
+
+Nouveau NVKM display IOR contract-header pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/ior.h`; 209 physical lines, 176 `cloc 2.06` C/header code lines): read the complete IOR state, typed resource enum, callback tables and generation declarations. Traced state bit widths and route/protocol decoding in NV50/GF119/GV100 implementations, head-mask use in selected display methods, resource construction and teardown through `ior.c`/`base.c`, and HDMI/DP/HDA callback consumers in `uoutp.c`. The 3-bit protocol field covers the declared enum values; the four-bit hardware protocol field holds the observed generation values; link and head fields match their decoded register widths. Optional callback pointers are checked by their consumers or installed as complete generation-specific tables for methods requiring them. No independent declaration, field-width or callback-contract defect established. Optional Nouveau source; no register, route, display method, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C/header code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/ior.h` | 176 | Full 209-line header read; state fields, function pointers and generation declarations traced to resource lifecycle, hardware state decoders and selected method consumers. No independent finding. Hardware register contracts remain unverified. |
