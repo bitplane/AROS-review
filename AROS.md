@@ -16863,7 +16863,6 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[GD14967](AROS-graphics-desktop.md#gd14967-ftmanager-cli-short-font-copy) — FTManager CLI `COPY` mode can treat a short filesystem write as a complete `.ttf` copy and leave the truncated target behind.** Conditional on a nonnegative short write; source-only.
 
-**[GD14968](AROS-graphics-desktop.md#gd14968-ftmanager-cli-fontdir-truncation) — FTManager CLI copies a long `FONTDIR` into an unterminated buffer before passing it to `AddPart()`, which reads it with `strlen()`.** Conditional on `FONTDIR` being at least 230 bytes; source-only.
 
 **[EK10926](AROS-exec-kernel.md#ek10926) — the PC Multiboot2 memory-map converter advances extended source entries by `entry_size` but emits a fixed-stride legacy list, so later map records are misread. Conditional on an extended entry-size tag; source-only.**
 
