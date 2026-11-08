@@ -22212,6 +22212,13 @@ The shared cleanup routine always exits zero, including when `openlibs()` fails 
 
 **Trigger and consequence:** reqtools.library cannot be opened. The string-requester demo prints an error but exits with success without displaying the requester. **Affected configuration:** the explicitly buildable `developer/demos/rtstring.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the error path and zero exit status. Return a failure code from cleanup. No library failure, requester operation or build was run; source-only.
 
+<a id="gd15029"></a>
+## GD15029 — RTPalette exits successfully when reqtools.library cannot open [conditional]
+
+`openlibs()` calls cleanup when reqtools.library fails to open, but cleanup always exits with status zero (`developer/demos/rtpalette.c:18-32`).
+
+**Trigger and consequence:** reqtools.library cannot be opened. The palette requester demo prints an error but exits successfully without showing its requester. **Affected configuration:** the explicitly buildable `developer/demos/rtpalette.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the failure branch and zero exit status. Return a failure code from cleanup. No library failure, requester operation or build was run; source-only.
+
 <a id="gd15018"></a>
 ## GD15018 — RealTime demo classifies every state-change callback as bogus [conditional]
 
