@@ -16891,3 +16891,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[OD4353](AROS-other-drivers.md#od4353) — PrintToTool fails to compile when its debug logging expands an undeclared `opened` identifier. Conditional on a debug-enabled build; source-only.**
 
 **[GD4436](AROS-graphics-desktop.md#gd4436) — Concurrent Decoration launches can publish duplicate permanent public services. Conditional on overlapping launch before either service registers; possible on single-CPU and ExecSMP builds. Source-only.**
+
+**[OD1467](AROS-other-drivers.md#od1467) — CAMD real-time MIDI queue cursors never wrap because `bufferend_rt` is left NULL, so sustained real-time output advances beyond the allocated ring. Conditional on an explicitly built/used CAMD target and enough real-time messages; source-only.**
