@@ -16905,3 +16905,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 
 **[EK10934](AROS-exec-kernel.md#ek10934) — Workbench skips loaded-segment, startup-message, argument-lock, and duplicated `NP_HomeDir` cleanup when `CreateNewProc()` fails. Conditional on a later process-setup failure during Workbench launch; source-only.**
+
+**[EK10935](AROS-exec-kernel.md#ek10935) — Timer’s generated link-library auto-init calls `OpenLibrary("timer.device")`, but Exec publishes the resident as an `NT_DEVICE` on DeviceList. Clients relying on `linklibs-timer` fail their required LIBS startup step; no checked-in consumer or default-image impact is claimed. Source-only.**
