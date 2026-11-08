@@ -37756,3 +37756,5 @@ Nouveau GM107 GPC FUC5 image and TPC strand data pass (2026-11-08; no new findin
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/hubgm107.fuc5.h` | 837 | Full 918-line image read; data/state layout, labels/offsets, padding and selected `gm107.c` FECS consumer checked. Firmware instruction semantics remain unverified. |
 
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgf119.c` | 477 | Full 527-line body read; ICMD/method/hub/GPC/TPC packs, sentinels, shared table/callback consumers and context descriptor checked. No independent finding. Hardware register semantics remain unverified. |
+
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/os.h` | 3 | Full 9-line header read; all error-code uses in firmware sources and host-side `gf100.c` dispatch traced. No independent finding. Firmware runtime behavior remains unverified. |
