@@ -15209,7 +15209,7 @@ Vulkan-Hpp function wrapper interval `23101-23700` (GD10223/GD10264 rechecked; n
 
 **[OD4454](AROS-other-drivers.md#od4454) — PTP startup reports success or publishes a volume after session-open failure.**
 
-**[OD4476](AROS-other-drivers.md#od4476) — PTP data-read error path frees the caller's buffer.**
+**[OD4476](AROS-other-drivers.md#od4476) — PTP response error cleanup frees or retains stale buffers.**
 
 **[OD4458](AROS-other-drivers.md#od4458) — PTP zero-length writes return the packet default instead of a byte count.**
 
