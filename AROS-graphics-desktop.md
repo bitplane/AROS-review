@@ -22453,3 +22453,17 @@ After opening a window, the demo returns directly when `commodities.library` can
 The result of `OpenLibrary("intuition.library", 39)` is assigned to `IntuitionBase` without a null check, and `OpenWindowTags()` is called immediately afterward (`developer/demos/cxtest.c:49-55`). If the library open fails, the window call uses an unavailable library base.
 
 **Trigger and consequence:** Intuition cannot be opened. The demo proceeds into its window-opening call without a valid Intuition library reference and can fail abnormally instead of reporting setup failure. **Affected configuration:** explicitly selected by `developer/demos/mmakefile.src:12-41,73`; parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the missing check and immediate call. Check the library result before calling Intuition and unwind cleanly on failure. No library failure or build was induced; source-only.
+
+<a id="gd15052"></a>
+## GD15052 — DemoWin setup failures bypass acquired-resource cleanup [conditional]
+
+After opening graphics.library and intuition.library, the console-device failure branch returns directly (`developer/demos/demowin.c:527-557`), leaving the library references open. After creating the frame, gadget, and opening the console device, the window-open failure branch also returns directly (`:560-616`), leaving the device, image objects, and libraries unclosed. The normal `end` path does close these resources.
+
+**Trigger and consequence:** opening `console.device` or the window fails after earlier acquisitions. The program exits with resources still acquired; the window-failure path also leaks both created image objects and the opened console device. **Affected configuration:** explicitly selected by `developer/demos/mmakefile.src:12-41,73`; parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the direct returns and cleanup present only at `end`. Route these failures through the existing cleanup path, guarding the device close with successful-open state. No setup failure or build was induced; source-only.
+
+<a id="gd15053"></a>
+## GD15053 — DemoWin reads an uninitialized key buffer when conversion yields no bytes [conditional]
+
+For each raw-key message, `buf` is an uninitialized local array and `RawKeyConvert()` fills it with `len` bytes (`developer/demos/demowin.c:635-646`). The function rejects only negative lengths, then tests `*buf` without checking for zero. If a key event converts to zero characters, it reads an uninitialized byte; if that byte happens to be ESC, the later exit check can also use it as though it were converted input.
+
+**Trigger and consequence:** a raw key converts to zero output bytes. The code still reads `buf[0]`, whose value is indeterminate. The subsequent exit check also evaluates that byte before checking `len == 1`, though the length condition prevents a zero-length result from exiting. **Affected configuration:** explicitly selected by `developer/demos/mmakefile.src:12-41,73`; parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the uninitialized read and missing `len > 0` guard; zero-byte conversion is a valid result for unmapped/nonprinting input. Check `len > 0` before examining `buf[0]`. No key event or build was run; source-only.

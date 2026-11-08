@@ -17069,3 +17069,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15049](AROS-graphics-desktop.md#gd15049) — `cxtest` never deletes its broker message port. Unconditional. Source-only.**
 **[GD15050](AROS-graphics-desktop.md#gd15050) — `cxtest` setup failures return without closing windows, libraries, or created objects. Conditional. Source-only.**
 **[GD15051](AROS-graphics-desktop.md#gd15051) — `cxtest` uses Intuition before checking its library open. Conditional. Source-only.**
+**[GD15052](AROS-graphics-desktop.md#gd15052) — DemoWin device/window setup failures bypass resource cleanup. Conditional. Source-only.**
+**[GD15053](AROS-graphics-desktop.md#gd15053) — DemoWin reads an uninitialized key byte when raw-key conversion yields no output. Conditional. Source-only.**
