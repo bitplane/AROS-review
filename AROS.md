@@ -16895,3 +16895,6 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[OD1467](AROS-other-drivers.md#od1467) — CAMD real-time MIDI queue cursors never wrap because `bufferend_rt` is left NULL, so sustained real-time output advances beyond the allocated ring. Conditional on an explicitly built/used CAMD target and enough real-time messages; source-only.**
 
 **[EK10933](AROS-exec-kernel.md#ek10933) — `SystemTagList()` CLI startup unlocks the explicit `NP_CurrentDir` lock while retaining it in the child process, then attempts to unlock it again on exit. The in-tree Network Preferences Mount caller reaches this path when configured servers are launched; source-only.**
+
+
+**[OD10195](AROS-other-drivers.md#od10195-hosted-oss-wrong-base) — The hosted OSS AHI driver shadows its OSS library base with the AHI module base, so callbacks and cleanup pass the wrong base and leave `oss.library` open. Conditional on the hosted OSS driver; source-only.**
