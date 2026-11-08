@@ -37402,3 +37402,10 @@ Nouveau NV04 display-generation head/vblank full-body and caller pass (2026-11-0
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/nv04.c` | 91 | Full 130-line body read; legacy head registers, vblank status/ack, head-count setup, scanout caller and linked-head teardown checked. No independent finding. Hardware register behavior remains unverified. |
+
+
+Nouveau VGA port helper full-body and BIOS opcode caller pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/vga.c`; 205 physical lines, 143 `cloc 2.06` C lines): read port/register helpers, legacy VGA lock and owner accessors, and the selected BIOS INIT port-operation bridge (`nvkm/subdev/bios/init.c:205-225`). Traced read/write/indexed-port calls and card-generation branches. The duplicated 0x03c2 case appears in both the input-status and miscellaneous-output address groups, with the first branch winning in each helper; however the selected caller takes port values from external VBIOS scripts and this source pass does not establish the hardware alias semantics or a checked-in script that reaches the disputed write case. Kept that hardware/BIOS contract question open and did not promote it as a defect. Other port mappings and owner/lock return behavior had no independently established mismatch. Optional Nouveau source; no VBIOS, register, display, or build was used; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/vga.c` | 143 | Full 205-line body read; generation-specific port maps, indexed VGA accesses, lock/owner helpers and selected BIOS opcode bridge checked. The duplicated 0x03c2 mapping remains an unverified hardware/BIOS contract question, not a finding. |
