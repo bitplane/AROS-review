@@ -37563,3 +37563,10 @@ Nouveau GF108 GR context register lists and attribute generation full-body pass 
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgf108.c` | 752 | Full 807-line body read; register-array and pack sentinels, command list selection, attribute offsets and generic callers checked. No independent finding. Hardware register semantics remain unverified. |
+
+
+Nouveau GF110 GR context register-list full-body pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgf110.c`; 357 physical lines, 318 `cloc 2.06` C code lines): confirmed active manifest selection at `sources.drm.mak:303`, the GF110 generation table's `gf110_grctx` pointer, and device-table selection. Read the complete ICMD list, method class lists for 9097/9197/9297 and shared classes, GPC setup list, pack sentinels and function table. Traced the class tables to the shared method-pack iterator and the TPC/hub/GPC packs to shared context generation. The class method list has a fixed 128-entry register run plus two scalar entries; no count exceeds the shared list representation. ICMD uses sequenced repeated command addresses by design; this source alone does not establish those device-specific values as incorrect. No source-level sentinel, count or selected-table mismatch established. No GPU, context generation or build was exercised; hardware register semantics remain unverified.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgf110.c` | 318 | Full 357-line body read; command/method/register list shape, generation table, sentinels and shared consumers checked. No independent finding. Hardware register semantics remain unverified. |
