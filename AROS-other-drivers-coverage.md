@@ -37500,3 +37500,10 @@ Nouveau GT215 display generation full-body and HDA/HDMI caller pass (2026-11-08;
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gt215.c` | 201 | Full 267-line body read; HDA payload cap, HDMI control and infoframe paths, DP audio, backlight interface, callbacks and generation selection checked. No independent finding. Register behavior remains unverified. |
+
+
+Nouveau NVKM display private generation-interface header pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/priv.h`; 90 physical lines, 72 `cloc 2.06` C/header code lines): read the full generation function table, constructor and lifecycle declarations, resource counters, interrupt callbacks, and flexible user-class array. Matched signatures to definitions and generation assignments; traced constructor ownership and event/workqueue setup in `base.c`, sentinel-based class enumeration in `udisp.c`, and sentinel lookup in `chan.c`. Selected display tables terminate their user-class arrays with a zero entry, and class enumeration returns `-EINVAL` at that sentinel. The GSP R535 constructor declaration matches the selected backend implementation. No independent function-table, sentinel or declaration mismatch established. Optional Nouveau source; no display engine, event, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C/header code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/priv.h` | 72 | Full 90-line header read; generation callback, constructor, flexible class-table and lifecycle contracts traced to selected implementations and consumers. No independent finding. Hardware behavior remains unverified. |
