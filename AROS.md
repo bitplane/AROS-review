@@ -17041,3 +17041,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15022](AROS-graphics-desktop.md#gd15022) — RoundWindow reports success after setup failures. Conditional on a failed setup call. Source-only.**
 **[GD15023](AROS-graphics-desktop.md#gd15023) — ReqEZRequest demo exits successfully when reqtools.library cannot open. Conditional on library-open failure. Source-only.**
 **[GD15024](AROS-graphics-desktop.md#gd15024) — RTFile exits successfully when its requester cannot be allocated, displayed, or library cannot open. Conditional on request failure. Source-only.**
+**[GD15025](AROS-graphics-desktop.md#gd15025) — RTFont exits successfully if its requester cannot be allocated/displayed or its library cannot open. Conditional on requester failure. Source-only.**

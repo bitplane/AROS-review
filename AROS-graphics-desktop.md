@@ -22184,6 +22184,13 @@ The common cleanup routine closes reqtools.library if available and always calls
 
 **Trigger and consequence:** request allocation fails, the file requester returns FALSE, or reqtools.library cannot open. The program provides no failure status and exits successfully despite not completing the requested demo operation. **Affected configuration:** the explicitly buildable `developer/demos/rtfile.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for ignored results and zero exit status. Report failure and return a nonzero status when requester setup/display fails. No requester or build was run; source-only.
 
+<a id="gd15025"></a>
+## GD15025 — RTFont exits successfully if font requester setup fails [conditional]
+
+`action()` silently skips the font requester when `rtAllocRequestA()` returns NULL and discards the BOOL result from `rtFontRequestA()` (`developer/demos/rtfont.c:31-45`). The shared cleanup exits with status zero, including after reqtools.library open failure (`:18-28,49-55`).
+
+**Trigger and consequence:** request allocation fails, requester display/handling returns FALSE, or reqtools.library cannot open. The utility gives no failure status and exits successfully without completing the font-requester demonstration. **Affected configuration:** the explicitly buildable `developer/demos/rtfont.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for ignored returns and the zero exit status. Propagate requester setup/display failures and return nonzero. No requester operation or build was run; source-only.
+
 <a id="gd15018"></a>
 ## GD15018 — RealTime demo classifies every state-change callback as bogus [conditional]
 
