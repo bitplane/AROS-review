@@ -37570,3 +37570,10 @@ Nouveau GF110 GR context register-list full-body pass (2026-11-08; no new findin
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgf110.c` | 318 | Full 357-line body read; command/method/register list shape, generation table, sentinels and shared consumers checked. No independent finding. Hardware register semantics remain unverified. |
+
+
+Nouveau GF117 GR context topology/ROP mapping full-body pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgf117.c`; 308 physical lines, 242 `cloc 2.06` C code lines): confirmed `ctxgf117` selection through `gf117.c` and the active manifest. Read all hub/GPC/TPC/PPC register lists, attribute partitioning, ROP tile-map packing, distance-skip writes and context function table. Traced `gr->tile[]` production through the shared topology setup and checked all 32 packed tile entries against the fixed `TPC_MAX` array; its entries are masked to three bits before packing. The ROP modulo calculation normalizes the total TPC count to a divisor with bit 4 set; a zero-count input would not terminate, but selected initialization already depends on nonzero topology for zcull divisor calculations, and no supported zero-TPC configuration was established. Attribute offsets advance over active PPC topology and use the configured per-TPC maxima. All local init/pack arrays carry sentinels consumed by the common walkers. No independent source-backed defect established; arithmetic/register semantics remain hardware-dependent. No topology read, context generation, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgf117.c` | 242 | Full 308-line body read; topology production, tile-array bounds, ROP packing, attribute offsets, register-list sentinels and generation selection checked. No independent finding. Device topology semantics remain unverified. |
