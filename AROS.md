@@ -17033,3 +17033,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15014](AROS-graphics-desktop.md#gd15014) — RegionTest accepts ID 10 for its ten-element region array. Conditional on entering the boundary ID. Source-only.**
 **[GD15015](AROS-graphics-desktop.md#gd15015) — RegionTest reads command tokens into a fixed buffer without a width limit. Conditional on long input. Source-only.**
 **[GD15016](AROS-graphics-desktop.md#gd15016) — RegionTest spins on failed or EOF command input. Conditional on input failure. Source-only.**
+**[GD15017](AROS-graphics-desktop.md#gd15017) — Register demo reports successful exit after setup failures. Conditional on a failed setup call. Source-only.**

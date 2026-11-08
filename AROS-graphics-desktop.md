@@ -22135,6 +22135,13 @@ If `OpenLibrary("intuition.library", 0L)` fails, `main()` prints an error and ca
 
 **Trigger and consequence:** intuition.library cannot be opened. The utility reports successful termination despite failing before its demonstration. **Affected configuration:** the explicitly buildable `developer/demos/mxgads.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the error branch and zero exit status. Exit with a failure code. No library failure, program launch or build was induced; source-only.
 
+<a id="gd15017"></a>
+## GD15017 — Register demo reports success after setup failures [conditional]
+
+The shared `cleanup(msg)` routine prints any initialization diagnostic, releases acquired windows/screen/library resources, and unconditionally calls `exit(0)` (`developer/demos/register.c:52-72`). It is used for failures opening intuition.library or graphics.library, locking the public screen, obtaining DrawInfo, or opening the window (`:77-95,368-382`).
+
+**Trigger and consequence:** one of those setup operations fails while the demo is run from a caller that checks its process status. The demo exits successfully despite not displaying or operating the register control. **Affected configuration:** the explicitly buildable `developer/demos/register.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the unconditional success exit and reachable failures. Return a failure status from error cleanup. No resource failure, GUI operation or build was induced; source-only.
+
 <a id="gd15009"></a>
 ## GD15009 — Notify demo waits forever if StartNotify fails [conditional]
 
