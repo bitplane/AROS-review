@@ -16549,7 +16549,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 
 
-**[OD11453](AROS-other-drivers.md#od11453) — Virtual Bluetooth returns a fixed HID SDP record for every classic fake device.** Conditional on service enumeration of the virtual phone or searches for non-HID UUIDs; record class/PSM conflicts with the phone's advertised service UUID. The virtual device is selected by the active Bluetooth aggregate on x86-64 PC and OpenSBI RISC-V64. Source-only.
+**[OD11453](AROS-other-drivers.md#od11453) — Virtual Bluetooth returns a fixed HID SDP record for every classic fake device.** The selected AROS host searches for L2CAP and publishes the returned fixed HID profile when it connects to the virtual phone; connection/workload remains conditional. The virtual device is selected by the active Bluetooth aggregate on x86-64 PC and OpenSBI RISC-V64. Source-only.
 
 **[OD11454](AROS-other-drivers.md#od11454) — Virtual Bluetooth miscorrelates Configure Responses and treats them as success.** It compares the peer Source CID against the host CID, then falls back to the first configuring channel; overlapping transactions can advance the wrong channel, and non-success results are also accepted. The virtual device is selected by the active Bluetooth aggregate on x86-64 PC and OpenSBI RISC-V64. Source-only.
 
