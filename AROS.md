@@ -17117,3 +17117,6 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **OD2136 — GamePort can dereference the list sentinel as a unit after a queued-event drain.** With multiple public opens and a stale per-open event cursor, the completed request can be removed while another event remains; iterator exhaustion leaves `ioreq` at the list sentinel before the empty-queue cleanup derives `gpUn` from it. Conditional on the two-opener/two-event request sequence; no event was run. See [OD2136](AROS-other-drivers.md#od2136).
 
 **OD9448 — GamePort can access a request's unit after replying it.** On ExecSMP, a client on another CPU can consume the reply and close/free its unit before the callback's post-reply `gpu_flags` read. Conditional on that completion/close overlap; no request was run. See [OD9448](AROS-other-drivers.md#od9448).
+
+
+**[EK10938](AROS-exec-kernel.md#ek10938) — `CreatePool()` can pass a zero size into `AllocMemHeader()` after unchecked overhead arithmetic wraps. A matching plain header can return an unconsumed zero-size chunk that is rewritten as a bogus oversized header, corrupting the parent free list. Conditional on mixed managed/plain matching memory headers; source-only.**
