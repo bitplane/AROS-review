@@ -17138,3 +17138,6 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 
 **[OD2907](AROS-other-drivers.md#od2907) — USB control/bulk transfer methods can leak a task signal when paired signal allocation partially fails; UHCI can also report success without submitting the transfer. Conditional on signal exhaustion; the false-success enumeration path additionally requires optional UHCI hardware. Source-only.**
+
+
+**[OD11563](AROS-other-drivers.md#od11563) — USB NAK timeout deadlines can expire early when their 32-bit frame counter wraps.** Selected PCIUSB and PCI xHCI paths add the timeout to a 32-bit frame counter and later compare with ordinary `>`; a request admitted shortly before rollover can be aborted before its configured timeout. Poseidon enumeration uses a 1-second timeout. Source-only; no device or transfer was run.
