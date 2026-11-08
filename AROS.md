@@ -16854,3 +16854,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[OD11528](AROS-other-drivers.md#od11528-sb128-extra-cards-have-no-shipped-audio-mode) — SB128 initializes multiple supported cards but its shipped mode IDs select only card zero.** Conditional on multiple supported cards being found; source-only.
 
 **[OD11529](AROS-other-drivers.md#od11529-via-ac97-interrupt-header-tests-wrong-os4-macro) — VIA-AC97 declares incompatible interrupt prototypes on AmigaOS 4 because the header checks the wrong case of the OS macro.** AmigaOS 4 driver builds fail at compile time; source-only.
+
+**[OD11530](AROS-other-drivers.md#od11530-pci-express-capability-cycle-hangs-query) — a cyclic PCIe extended-capability pointer chain makes the HIDD capability query loop indefinitely.** Conditional on malformed PCI configuration; the checked-in PCITool caller can hang while displaying that device; source-only.
