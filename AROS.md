@@ -17144,3 +17144,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15073 — Vulkan-Hpp shader-module identifier comparison trusts an unchecked length](AROS-graphics-desktop.md#gd15073):** identifier equality/order comparisons trust `identifierSize` beyond the wrapper's fixed array capacity. Trigger requires a malformed wrapper value; no in-tree consumer found.
 
 **[GD15074 — Vulkan-Hpp legacy submit setters can desynchronize wait arrays](AROS-graphics-desktop.md#gd15074):** `SubmitInfo::setWaitSemaphores()` and `setWaitDstStageMask()` independently update shared `waitSemaphoreCount`; mismatched setter inputs leave invalid paired arrays. Optional Vulkan-Hpp API; no in-tree consumer found.
+
+**[GD15075 — Vulkan-Hpp swapchain time-domain setters can desynchronize arrays](AROS-graphics-desktop.md#gd15075):** setting `timeDomains` and `timeDomainIds` independently overwrites their shared `timeDomainCount`; unequal supplied output buffers can leave an invalid extent. Optional enhanced Vulkan-Hpp extension API; no in-tree consumer found.
