@@ -37367,3 +37367,10 @@ Nouveau display user-connector full-body/caller pass (OD11539 added; 2026-11-08;
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/uconn.c` | 188 | Full 258-line body read; object construction, connector-type mapping, event validation/registration, callback masks and destructor locking checked. OD11539 added. External DP/GSP hardware behavior remains unverified. |
+
+
+Nouveau display user-head full-body and scanout caller pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/uhead.c`; 127 physical lines, 84 `cloc 2.06` C lines): read the full user-head constructor, VBlank event registration/destructor, and SCANOUTPOS method. Traced user-head class selection and head lookup through `udisp.c`/`head.c`; matched the zero-payload VBlank subscription with `nvif_head_vblank_event_ctor()` and the display VBlank event; traced scanout output/timestamp handling through the selected `nouveau_display_scanoutpos_head()` retry and DRM fallback path. Checked the missing-total error path before time/position outputs are consumed, and the single-user-object lock/publication/teardown pair. No independent defect established. This is optional Nouveau source coverage; the aggregate workbench-drivers edge is disabled. No display, VBlank event, device, or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/uhead.c` | 84 | Full 127-line body read; class publication/locking, VBlank event setup, scanout-position output and error handling checked. No independent finding. Hardware and runtime timing remain unverified. |
