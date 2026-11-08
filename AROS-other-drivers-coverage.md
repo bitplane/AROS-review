@@ -37804,3 +37804,5 @@ Nouveau GM107 GPC FUC5 image and TPC strand data pass (2026-11-08; no new findin
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/gv100.c` | 258 | Full 342-line body reread; dual-SM trap, topology arrays/SCG arithmetic and cleanup, TPC remap, firmware/descriptor paths checked. Reconfirms OD11191 sparse-PPC prefix issue; zero-TPC divide remains unsupported-topology dependent; no new finding. |
 
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/tu102.c` | 179 | Full 225-line body reread; TPC/FS/Z-cull loops, shared sparse-PPC remap, VEID converter return, GSP gate and TU10x firmware manifests checked. Reconfirms OD11191/OD11193/OD11195; no new finding. |
+
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/priv.h` | 24 | Full 47-line header read; GR base vtable signatures, flexible class list, includes and implementation consumers checked. No independent finding. |
