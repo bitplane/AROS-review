@@ -22220,6 +22220,12 @@ The shared cleanup routine always exits zero, including when `openlibs()` fails 
 **Trigger and consequence:** reqtools.library cannot be opened. The palette requester demo prints an error but exits successfully without showing its requester. **Affected configuration:** the explicitly buildable `developer/demos/rtpalette.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the failure branch and zero exit status. Return a failure code from cleanup. No library failure, requester operation or build was run; source-only.
 
 <a id="gd15031"></a>
+## GD15034 — Text speed demo never releases the font opened for its RastPort [conditional]
+
+When the window opens, `main()` obtains a font with `OpenFont(&ta)` and assigns it to the window RastPort with `SetFont()`, but closes the window without a corresponding `CloseFont(tf)` (`developer/demos/test_text.c:51-91`). The selected implementation increments a font's accessor count on successful `OpenFont()` (`rom/graphics/openfont.c:83-88`) and `CloseFont()` decrements it (`rom/graphics/closefont.c:72-79`).
+
+**Trigger and consequence:** the window opens and `OpenFont()` succeeds. The font reference is retained after the demo exits; a non-ROM font can remain resident because its accessor count never returns to zero. **Affected configuration:** the explicitly buildable `developer/demos/test_text.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the unmatched successful open and implementation reference accounting. Release the font after the window no longer uses it. No font/window operation or build was run; source-only.
+
 ## GD15033 — SimpleTimer uses an uninitialized saved time when timer setup fails [conditional]
 
 `main()` ignores the return from `get_sys_time(&oldtimeval)` and immediately reads `oldtimeval.tv_secs` to compute a new time; it later passes the same structure's seconds to `set_new_time()` to restore the clock (`developer/demos/simple_timer.c:105-126`). `get_sys_time()` returns `-1` without writing the output when `create_timer()` fails (`:221-228`).
