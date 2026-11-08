@@ -2,6 +2,8 @@
 
 ## Exec/Kernel findings reconciled into the index (2026-11-02)
 
+**[EK30](AROS-exec-kernel.md#ek30) — MungWall overhead addition can make `AllocMem()`, `AllocAbs()`, or plain-pool `AllocPooled()` reserve only a byte before writing wall metadata using the original near-maximum size. Conditional on MungWall, the corresponding large request, and successful small allocation; `AllocPooled()` additionally requires a non-managed pool. Source-only.**
+
 **EK10163 — m68kemu formatting thunks pass a null argument stream after allocation failure:** Locale `FormatString`, Utility `VSNPrintf`, DOS `VPrintf`, and DOS `VFPrintf` can pass the failed converter allocation to a formatter that reads its argument stream. Trigger requires an argument-bearing format and temporary allocation failure; literal-only formats are excluded. See [EK10163](AROS-exec-kernel.md#ek10163) and the [format-stream caller census](AROS-exec-kernel-coverage.md#L8572). Source-only.
 
 **[EK10609](AROS-exec-kernel.md#ek10609) - m68kemu `PropChunks()`, `StopChunks()`, and `CollectionChunks()` read guest big-endian FourCC pairs as native little-endian `LONG`s.** Requested IFF chunks can be missed or registered with reversed IDs. Optional emulator target; no maintained emulated caller was found. See the [chunk-array trace](AROS-exec-kernel-coverage.md#iffparse-chunk-array-endian-trace-ek10609). Source-only.
