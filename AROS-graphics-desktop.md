@@ -22481,3 +22481,24 @@ For each raw-key message, `buf` is an uninitialized local array and `RawKeyConve
 After `datatypes.library` opens, the results of opening intuition.library, graphics.library, and utility.library are not checked (`developer/demos/dto.c:109-114`). The code immediately creates a DataType object and later calls Intuition operations including `LockPubScreen()` and `OpenWindowTags()`.
 
 **Trigger and consequence:** any of those required library opens fails. The demo continues into object creation or APIs that depend on the missing library base, rather than stopping and unwinding. **Affected configuration:** explicitly selected by `developer/demos/mmakefile.src:12-41,73`; parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the unchecked opens and subsequent dependent calls. Check each result before continuing and close only successfully opened libraries. No library failure or build was induced; source-only.
+
+<a id="gd15056"></a>
+## GD15056 — Window decorator uses an unallocated gradient row after allocation failure [conditional]
+
+When gradient rendering is enabled, `windecor_draw_winborder()` allocates a one-pixel-wide RGB row but does not check the result before calling `DFillMemoryBufferRGBGradient()` and later passing the row to `DHorizRepeatBuffer()` (`workbench/c/Decoration/windowdecorclass.c:964-988`). The fill helper returns immediately for a NULL buffer (`workbench/libs/decorator/drawfuncs.c:644-680`), but the repeat helper's truecolor path dereferences the row while copying it into the blit buffer (`:809-845`).
+
+**Trigger and consequence:** allocation of `window->Height * 3` bytes fails while `UseGradients` and truecolor rendering are active. Border drawing passes NULL to `DHorizRepeatBuffer()`, which reads from it and can fault the rendering task. **Affected configuration:** Decoration window decorator selected by `workbench/c/Decoration/mmakefile.src` on a direct-color screen with gradient frame rendering. **Confidence:** high for the unchecked allocation and helper dereference chain. Skip the truecolor blits or use a safe fallback when row allocation fails. No allocation failure, rendering operation or build was run; source-only.
+
+<a id="gd15057"></a>
+## GD15057 — Window decorator copies a title after title-cache allocation failure [conditional]
+
+When a window title length changes, `CacheTitleBar()` frees the prior copy and assigns a new `AllocVec()` result to `cached->title`, then calls `strncpy()` without checking it (`workbench/c/Decoration/windowdecorclass.c:206-226`). `DrawPartialTitleBar()` reaches this function after rendering a title bar (`:690-695`).
+
+**Trigger and consequence:** the title-cache allocation fails for a nonempty window title whose length differs from the previous cache. `strncpy()` writes through NULL during window-border drawing. **Affected configuration:** selected Decoration window decorator for windows with a visible title bar. **Confidence:** high for the missing check and reachable caller. Preserve the old cache or stop caching when allocation fails before copying. No allocation failure, redraw or build was run; source-only.
+
+<a id="gd15058"></a>
+## GD15058 — Window decorator returns rounded shapes after a failed rectangle union [conditional allocation failure]
+
+The rounded-shape branch accumulates each `OrRectRegion()` result into `success` but never checks it, and returns `newshape` regardless (`workbench/c/Decoration/windowdecorclass.c:1903-1957`). `OrRectRegion()` explicitly returns FALSE on out-of-memory (`rom/graphics/orrectregion.c:34-46`).
+
+**Trigger and consequence:** any of the rectangle unions runs out of memory while building the window outline. The returned region contains only part of the intended corner geometry and is handed to the shape-hook caller, which adopts it as the new window shape (`rom/intuition/intuition_misc.c:1204-1224`). **Affected configuration:** rounded window shapes are enabled in the selected Decoration configuration. **Confidence:** high for the ignored failure and adopted partial result. Dispose the partial region and report failure or return a documented fallback when any union fails. No region allocation failure, resize or build was induced; source-only.
