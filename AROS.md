@@ -17134,17 +17134,3 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 
 **[GD15069](AROS-graphics-desktop.md#gd15069) — Disabling generic GFX fast paths exposes a `DRAWPIXEL` fallback that dispatches to `PutPixel` and a `GETIMAGE` fallback with the wrong argument count. Conditional on disabling those currently hard-enabled optimizations; source-only.**
-
-**[GD15070 — Vulkan-Hpp semaphore wait setters can desynchronize parallel arrays](AROS-graphics-desktop.md#gd15070):** `setSemaphores()` and `setValues()` each change `semaphoreCount` without checking the other array, despite constructor length validation. Affected only enhanced-mode Vulkan-Hpp callers; no in-tree consumer found.
-
-**[GD15071 — Vulkan-Hpp descriptor-buffer offset setters can desynchronize parallel arrays](AROS-graphics-desktop.md#gd15071):** enhanced `setBufferIndices()` and `setOffsets()` each replace shared `setCount` without checking the other array, despite constructor validation. Optional `VK_EXT_descriptor_buffer` C++ API; no in-tree consumer found.
-
-**[GD15072 — Vulkan-Hpp shader-info comparison can pass a null name to `strcmp`](AROS-graphics-desktop.md#gd15072):** comparing `ShaderCreateInfoEXT` with one default-null `pName` and one nonnull name invokes `strcmp` with null. Optional C++ comparison operators; no in-tree consumer found.
-
-**[GD15073 — Vulkan-Hpp shader-module identifier comparison trusts an unchecked length](AROS-graphics-desktop.md#gd15073):** identifier equality/order comparisons trust `identifierSize` beyond the wrapper's fixed array capacity. Trigger requires a malformed wrapper value; no in-tree consumer found.
-
-**[GD15074 — Vulkan-Hpp legacy submit setters can desynchronize wait arrays](AROS-graphics-desktop.md#gd15074):** `SubmitInfo::setWaitSemaphores()` and `setWaitDstStageMask()` independently update shared `waitSemaphoreCount`; mismatched setter inputs leave invalid paired arrays. Optional Vulkan-Hpp API; no in-tree consumer found.
-
-**[GD15075 — Vulkan-Hpp swapchain time-domain setters can desynchronize arrays](AROS-graphics-desktop.md#gd15075):** setting `timeDomains` and `timeDomainIds` independently overwrites their shared `timeDomainCount`; unequal supplied output buffers can leave an invalid extent. Optional enhanced Vulkan-Hpp extension API; no in-tree consumer found.
-
-**[GD15076 — Vulkan-Hpp AV1 tile setters can desynchronize tile arrays](AROS-graphics-desktop.md#gd15076):** enhanced `setTileOffsets()` and `setTileSizes()` independently change shared `tileCount`; mismatched AV1 tile arrays can reach decode. Optional AV1 Vulkan-Hpp API; no in-tree consumer found.
