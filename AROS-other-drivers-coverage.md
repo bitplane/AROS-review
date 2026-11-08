@@ -37430,3 +37430,10 @@ Nouveau DisplayPort register-definition header pass (2026-11-08; no new finding;
 | File | `cloc 2.06` C/header code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/dp.h` | 91 | Full 102-line header read; DPCD masks/offsets traced to the native DP training consumer and public function declarations matched to callers. No independent finding. Hardware DPCD semantics remain unverified. |
+
+
+Nouveau NVKM display-head contract-header pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/head.h`; 63 physical lines, 50 `cloc 2.06` C/header code lines): read the complete head/state layout, lifecycle and lookup declarations, generation constructor interfaces, callback table and logging macros. Matched list insertion/deletion and lookup in `head.c`, zero-initialized state allocation, scanout's state/total guards in `uhead.c`, and representative NV04/NV50/GF119/GV100 callbacks. Callback tables provide required state and position methods on the selected constructors; `rgclk` is optional and only used by the generations that install it. Head IDs are range-filtered by generation-specific count/constructor paths before vblank events are sized. No independent structure, callback or lifetime mismatch established. Optional Nouveau source; no display register access, event, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C/header code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/head.h` | 50 | Full 63-line header read; head state/callback contracts traced to generic lifecycle, scanout and representative generation implementations. No independent finding. Register semantics remain unverified. |
