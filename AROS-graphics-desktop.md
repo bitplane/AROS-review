@@ -22510,3 +22510,32 @@ The public HIDD `CopyBox` and `CopyBoxMasked` methods declare `width` and `heigh
 
 **Affected configuration and trigger:** `kernel-layers`, on a successful ordinary `OpenWindow()` call from a task other than Intuition's InputDeviceTask. **Consequence:** the InputDeviceTask retains the window layer lock after publishing the window. When the application later enters `BeginRefresh()`, its `LockLayer()` blocks behind that permanent owner. Release the construction lock after list publication and visibility setup, before returning the layer. **Confidence:** high for the unmatched recursive acquisition, the selected synchronous dispatch to InputDeviceTask, and the `BeginRefresh()` lock attempt; the cross-task wait requires a refresh call. No window, task, or lock operation was run; source-only.
 
+
+<a id="gd15060"></a>
+## GD15060 — LeakWatch permanently consumes snapshot storage [conditional]
+
+LeakWatch allocates snapshot nodes and strings from fixed global arrays. The corresponding `release_orn()`, `release_tr()`, and `StrFree()` functions are empty, and `DeleteResourcesState()` calls them after removing the nodes (`workbench/c/LeakWatch.c:115-118,154-165,173-186,210-231,463-488`). Each resource snapshot therefore advances `next_orn` and `next_str` permanently, including snapshots displayed by Ctrl+D and snapshots subsequently deleted after Ctrl+F/Ctrl+E. Once `MAX_ORN` is reached, `get_orn()` returns NULL, the resource enumeration fails, and `NewResourcesState()` returns NULL; the main loop then exits with status 0 on its snapshot-failure branches (`:166-171,441-460,741-779,809`). Before that limit, `StaticStrDup()` can reach `MAX_STR` and return NULL, but the enumeration helpers store that result without checking it (`:210-226,251-385`); a later diff can pass that NULL name to `strcmp()` (`:543-560`).
+
+**Trigger and consequence:** leave the command running and request enough snapshots to exhaust its fixed node or string storage. It eventually terminates successfully without completing a requested snapshot, or a string-pool exhaustion can feed a NULL name into `strcmp()`. The number of snapshots depends on the live resource count and name lengths. **Affected configuration:** `LeakWatch` is listed in the `workbench-c` `FILES` manifest (`workbench/c/mmakefile.src:5-58`); the parent `workbench` aggregate edge is disabled (`:86-97`; `config/mmakefile.src:16-18`), so this is an explicitly selected command target rather than a claim about default images. **Confidence:** high for monotonic pool consumption and the unchecked exhaustion paths. Recycle entries/strings when snapshots are deleted, or detect exhaustion before publishing a partial snapshot. No command, pool exhaustion, or build was run; source-only.
+
+<a id="gd15061"></a>
+## GD15061 — LeakWatch dereferences a NULL diff after its fixed diff pool is exhausted [conditional]
+
+`get_rd()` returns NULL once its 300-entry static pool has been consumed, and `release_rd()` does not return entries to it (`workbench/c/LeakWatch.c:118,188-197`). `NewStateDiff()` propagates that NULL (`:530-540`), but both Ctrl+E and Ctrl+F call `DisplayStateDiff(rd, ...)` without checking the result (`:749-763,765-779`). `DisplayStateDiff()` immediately dereferences `rd->memLost` (`:596-603`). Thus, after 300 completed diff attempts in one process, the next comparison reaches a NULL dereference, even if no modified-resource nodes were needed.
+
+**Trigger and consequence:** perform 301 Ctrl+E/Ctrl+F diff requests in one LeakWatch process. Because diff records are never recycled, the final request can terminate the command at `rd->memLost` instead of displaying a report. **Affected configuration:** explicitly selected `workbench-c` command as described for GD15060. **Confidence:** high; the pool limit, non-recycling release function, propagated NULL, and immediate dereference are all direct. Recycle diff records or handle a failed diff before displaying it. No key sequence or build was run; source-only.
+
+<a id="gd15062"></a>
+## GD15062 — LeakWatch's copied baseline drops every resource type [conditional]
+
+`CopyResourcesNode()` copies the name, address, and count but never copies `src->type` (`workbench/c/LeakWatch.c:651-660`). `CopyResourcesState()` uses this helper to create the initial Ctrl+E baseline (`:662-687`). For an existing resource whose open count changes, `NewStateDiff()` assigns the report type from that copied old node (`:554-570`), and `DisplayStateDiff()` passes the resulting NULL type to the `%s` format conversion (`:596-619`). Static storage starts zero-initialized, so the copied type is NULL rather than the original "Library", "Device", etc.; the displayed category is consequently missing or formatter-dependent for changed baseline resources.
+
+**Trigger and consequence:** after startup, change the open count of a resource present in the initial snapshot and request Ctrl+E. Its diff entry loses the resource category because the copied baseline node has no type. **Affected configuration:** explicitly selected `workbench-c` command as described for GD15060. **Confidence:** high that the field is omitted and becomes NULL; exact display behavior of a NULL `%s` is formatter-specific. Copy the type field when duplicating a resource node. No resource-count change or build was run; source-only.
+
+<a id="gd15063"></a>
+## GD15063 — LeakWatch dereferences GadToolsBase when its library open fails [conditional]
+
+`open_libs()` stores the result of `OpenLibrary("gadtools.library", 0L)` without checking it (`workbench/c/LeakWatch.c:692-695`). The first call to `NewResourcesState()` invokes `AddOpenedResources()`, which unconditionally casts and dereferences `GadToolsBase` to read each GadTools class pointer (`:395-437,441-455`). If the library open fails, the command reaches that dereference during startup rather than reporting an unavailable snapshot source.
+
+**Trigger and consequence:** `gadtools.library` cannot be opened. LeakWatch proceeds into its initial snapshot and dereferences a NULL library base while collecting class counts. **Affected configuration:** explicitly selected `workbench-c` command as described for GD15060. **Confidence:** high for the unchecked open result and unconditional dereference. Check the open result and either skip GadTools classes or exit through normal cleanup. No library failure or build was induced; source-only.
+

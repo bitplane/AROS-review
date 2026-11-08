@@ -17084,3 +17084,8 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15054](AROS-graphics-desktop.md#gd15054) — dto uses DataType attributes after a failed or partial query. Conditional. Source-only.**
 **[GD15055](AROS-graphics-desktop.md#gd15055) — dto continues after dependent library opens fail. Conditional. Source-only.**
 **[GD15056](AROS-graphics-desktop.md#gd15056) — Decoration Screen and Window object disposal skips the superclass, leaking per-screen objects. Unconditional for those classes. Source-only.**
+
+**[GD15060](AROS-graphics-desktop.md#gd15060) — LeakWatch permanently consumes snapshot storage.** Conditional on repeated snapshots exhausting fixed pools; source-only.
+**[GD15061](AROS-graphics-desktop.md#gd15061) — LeakWatch dereferences a NULL diff after its fixed diff pool is exhausted.** Conditional on more than 300 diff requests in one process; source-only.
+**[GD15062](AROS-graphics-desktop.md#gd15062) — LeakWatch's copied baseline drops every resource type.** Conditional on a changed resource count in the startup baseline; source-only.
+**[GD15063](AROS-graphics-desktop.md#gd15063) — LeakWatch dereferences GadToolsBase when its library open fails.** Conditional on GadTools library-open failure; source-only.
