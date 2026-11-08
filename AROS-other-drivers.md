@@ -41223,3 +41223,10 @@ Nouveau GM20B GR custom context sequence pass (2026-11-08; no new finding; `work
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgm20b.c` | 53 | Full 91-line body read; custom initialization sequence, GPC mask packing, shared SM-ID helper and callback contracts checked. No independent finding. Hardware timing remains unverified. |
+
+
+Nouveau GP100 GR callback topology and attribute allocation pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgp100.c`; 151 physical lines, 107 `cloc 2.06` C code lines): confirmed active manifest selection at `sources.drm.mak:314`, GP100 device selection, and the selected six-GPC/five-TPC/two-PPC limits. Read the full file, including pagepool setup, PPC attribute partitioning, attribute-buffer size calculation, SM-ID packing and function descriptor. Traced callbacks through shared context creation and topology initialization. The SM distribution array accommodates `TPC_MAX`; the GPC/partition map uses the selected six GPCs and five TPCs per GPC; the attribute-buffer allocation reserves the per-GPC, per-PPC maximum region used by the callback. No independent indexing or size-accounting defect established. No GPU, context generation or build was run; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgp100.c` | 107 | Full 151-line body read; six-GPC/five-TPC topology, SM-ID packing, PPC attribute regions and callback-buffer sizing checked. No independent finding. Hardware topology remains unverified. |
