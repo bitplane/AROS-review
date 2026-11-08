@@ -16928,3 +16928,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[OD11537](AROS-other-drivers.md#od11537-pc-irq-chain-smp-race) — PC IRQ dispatch uses a shared traversal cursor and omits the SMP lock that serializes handler-list mutation, allowing concurrent dispatch or registration/removal to corrupt the walk. Conditional on cross-CPU IRQ activity in an SMP PC build; source-only.**
 
 **[OD2327](AROS-other-drivers.md#od2327-usb-configuration-descriptor-failure) — USB `Configure()` ignores failed configuration-descriptor transfers, derives a request size from an uninitialized stack field, and can report success while leaving the device unconfigured. Conditional on transfer failure and a positive allocatable residual length; source-only.**
+
+**[OD4035](AROS-other-drivers.md#od4035-vmware-threaded-irq-work-teardown) — VMware IRQ teardown frees the compatibility entry without draining queued threaded work; normal unload also frees the fence manager before IRQ uninstall, which a pending fence callback uses. Conditional on IRQ work pending during unload; source-only.**
