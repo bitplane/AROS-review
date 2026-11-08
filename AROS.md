@@ -17013,3 +17013,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD14994](AROS-graphics-desktop.md#gd14994) — Font2C writes character-spacing data from the kerning table. Conditional on a font with character spacing. Source-only.**
 **[GD14995](AROS-graphics-desktop.md#gd14995) — Font2C copies unbounded command arguments into fixed-size buffers. Conditional on long/malformed input. Source-only.**
 **[GD14996](AROS-graphics-desktop.md#gd14996) — Font2C returns success after font/output failures. Conditional on failed conversion or output I/O. Source-only.**
+**[GD14997](AROS-graphics-desktop.md#gd14997) — GadTools demo double-frees its gadget list after final gadget construction failure. Conditional on allocation failure. Source-only.**

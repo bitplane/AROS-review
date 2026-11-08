@@ -22051,6 +22051,13 @@ After opening `datatypes.library`, the program attempts to open intuition.librar
 
 **Trigger and consequence:** intuition.library fails to open while datatypes.library and the DataType object operations succeed far enough to reach display setup. The demo calls Intuition APIs without a successfully opened Intuition base, so window setup cannot proceed reliably and may fault through the missing library base. **Affected configuration:** the explicitly buildable `developer/demos/dto.c` target (`developer/demos/mmakefile.src:12-41,73`); the parent aggregate edge is disabled (`config/mmakefile.src:16-18`). **Confidence:** high that the open result is unchecked and later Intuition calls are reached; exact failure manifestation depends on the vector call path. Check all required library opens before using their APIs. No library failure, program launch, GUI operation or build was induced; source-only.
 
+<a id="gd14997"></a>
+## GD14997 — GadTools demo frees its gadget list twice after construction failure [conditional]
+
+If the final listview `CreateGadget()` returns NULL, `makegadgets()` calls `FreeGadgets(glist)` and returns NULL (`developer/demos/gtdemo.c:381-392`). `main()` then enters its error branch and unconditionally calls `gt_end()`, which calls `FreeGadgets(glist)` again without clearing the global pointer (`:537-541`; `gt_end()` at `:261-272`). The selected `FreeGadgets()` implementation walks and frees each gadget and the context node but does not update the caller's pointer (`workbench/libs/gadtools/freegadgets.c:52-105`).
+
+**Trigger and consequence:** construction of the final listview gadget fails after a context/list has been created. The already-freed list is traversed and freed again during `gt_end()`, causing use-after-free/double-free behavior in the demo's failure cleanup. **Affected configuration:** the explicitly buildable `developer/demos/gtdemo.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the repeated call and freeing implementation. Let `gt_end()` own the single cleanup, or clear the list pointer after freeing. No allocation failure, GUI operation or build was induced; source-only.
+
 <a id="gd14993"></a>
 ## GD14993 — Async requester error is reported as the third button [conditional]
 
