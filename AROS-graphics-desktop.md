@@ -22114,6 +22114,13 @@ When `AvailFonts()` succeeds, `afh` points to the final `AllocMem()` buffer and 
 
 **Trigger and consequence:** any run where the buffer allocation and `AvailFonts()` succeed. The returned font-list storage remains allocated after `main()` exits, leaking the allocation to Exec. **Affected configuration:** the explicitly buildable `developer/demos/listfonts.c` command target. **Confidence:** high for the allocation ownership and missing successful-path free. Free `afh` with its final `afsize` after enumeration. No font enumeration or build was run; source-only.
 
+<a id="gd15006"></a>
+## GD15006 — MenuDemo ignores failure to install its menu strip [conditional]
+
+`MakeWin()` ignores the BOOL result from `SetMenuStrip(win, menus)` and continues to the event loop (`developer/demos/menudemo.c:132-151`). The selected Intuition implementation can return FALSE if it cannot ensure the default menu handler (`rom/intuition/setmenustrip.c:54-60`), before assigning `window->MenuStrip`. The demo then waits for `IDCMP_MENUPICK` events from a window with no installed menu.
+
+**Trigger and consequence:** `SetMenuStrip()` fails after window/menu construction, for example when default menu-handler setup fails. The demo continues but the menu demonstrations are unavailable and it provides no diagnostic. **Affected configuration:** the explicitly buildable `developer/demos/menudemo.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the ignored return and failure branch. Check the result and unwind/report when the menu cannot be installed. No menu operation or build was run; source-only.
+
 <a id="gd14993"></a>
 ## GD14993 — Async requester error is reported as the third button [conditional]
 

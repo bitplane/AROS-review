@@ -17022,3 +17022,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15003](AROS-graphics-desktop.md#gd15003) — Lens mode maps collected layer pieces to one destination origin. Conditional on a region split with LENS enabled. Source-only.**
 **[GD15004](AROS-graphics-desktop.md#gd15004) — ListFonts reports success when its result buffer allocation fails. Conditional on allocation failure. Source-only.**
 **[GD15005](AROS-graphics-desktop.md#gd15005) — ListFonts does not free the successful AvailFonts buffer. Conditional on a successful enumeration. Source-only.**
+**[GD15006](AROS-graphics-desktop.md#gd15006) — MenuDemo ignores failure to install its menu strip. Conditional on SetMenuStrip failure. Source-only.**
