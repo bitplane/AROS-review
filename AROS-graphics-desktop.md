@@ -22149,6 +22149,27 @@ After `StartNotify(nr)` succeeds and the signal arrives, `main()` prints success
 
 **Trigger and consequence:** a monitored file is created and the wait completes. The demo exits with its allocated request and notification registration still active, retaining resources after the program has finished. **Affected configuration:** the explicitly buildable `developer/demos/notify.c` target. **Confidence:** high for successful registration, the normal return, and absent teardown. Call `EndNotify()` and free the request before returning. No file creation, notification or build was run; source-only.
 
+<a id="gd15011"></a>
+## GD15011 — ReadIcon never closes icon.library [conditional]
+
+`main()` opens `icon.library` and stores the successful reference in `IconBase`, but no path closes it before return (`developer/demos/readicon.c:120-135,228-244`). This remains true after a failed argument parse, a missing icon, and the normal `FreeDiskObject()` path.
+
+**Trigger and consequence:** icon.library opens successfully. The utility returns while retaining its open library reference, preventing normal library expunge and leaking the reference after each run. **Affected configuration:** the explicitly buildable `developer/demos/readicon.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the open and absence of any close. Close `IconBase` on all return paths. No icon operation or build was run; source-only.
+
+<a id="gd15012"></a>
+## GD15012 — ReadIcon returns success when writing the demonstration icon fails [conditional]
+
+When `PutDiskObject("readicon", dobj)` fails, `main()` prints the fault but does not set `rc` to failure (`developer/demos/readicon.c:218-222`). The function then displays the icon, frees it, and ultimately returns the initial zero status.
+
+**Trigger and consequence:** the current directory cannot create or update `readicon.info` (for example, because of write protection or storage failure). The utility reports a successful exit despite failing its icon-write operation. **Affected configuration:** the explicitly buildable `developer/demos/readicon.c` utility. **Confidence:** high for the unchecked failure-status path. Set `rc` when `PutDiskObject()` fails. No disk write or build was run; source-only.
+
+<a id="gd15013"></a>
+## GD15013 — ReadIcon does not propagate icon-window setup failures [conditional]
+
+`DoWindow()` reports failures opening graphics.library, intuition.library, or the display window, then returns `void` (`developer/demos/readicon.c:24-58,70-91`). `main()` ignores those failures and leaves `rc` unchanged before returning (`:224-244`).
+
+**Trigger and consequence:** icon details were read successfully, but a library or window needed for the graphical demonstration cannot be opened. The demo prints an error yet exits successfully. **Affected configuration:** the explicitly buildable `developer/demos/readicon.c` utility. **Confidence:** high for the printed failure paths and missing status propagation. Return a status from `DoWindow()` and propagate failure through `main()`. No library/window failure or build was induced; source-only.
+
 <a id="gd14993"></a>
 ## GD14993 — Async requester error is reported as the third button [conditional]
 
