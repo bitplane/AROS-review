@@ -37178,3 +37178,12 @@ Controller HIDD port-message ownership and disposal pass (OD11532 added; 2026-11
 
 
 Sam440 EMAC multicast-range update and RX-filter recheck (no new OD or body/path/LOC credit; 2026-11-08): traced `S2_ADDMULTICASTADDRESS(S)` and `S2_DELMULTICASTADDRESS(S)` dispatch through `AddMulticastRange()`/`RemMulticastRange()` and `AddressFilter()` (`workbench/devs/networks/emac/handler.c:156-160,556-605`; `emac_unit.c:360-385,924-1026`). `BeginIO()` either handles requests while holding `eu_Lock` or queues them for the unit task, which obtains the same semaphore, serializing the two range-mutating commands (`emac_init.c:210-227`; `emac_unit.c:795-798`). Duplicate range additions increment a per-range reference count; only transition to/from the first distinct range changes `eu_RangeCount` and hardware all-multicast mode. RX filtering applies inclusive lower/upper bounds and preserves broadcast/unicast. Local `Disable()` protects list link changes on the selected Sam440 path; no independent range-count/filter defect was established. Concurrent IRQ timing and hardware register behavior remain source-only boundaries; no range operation, packet, hardware or build was run.
+
+
+### Nouveau AROS PCI bridge failure-cleanup pass
+
+| File | Reviewed slice | Remaining scope |
+|---|---|---|
+| `workbench/hidds/nouveau/drm-aros/drm_aros_pci.c` | Full 219-line body read (168 C code lines by `cloc 2.06`); `drm_aros_pci_init()` failure path traced through `nouveau_init_findcard()` and `nouveau_init_probe()`; OD11533 | Optional target only: parent HIDD aggregate edge is disabled. PCI HIDD object creation and allocation failure were not exercised; broader device probing and hardware contracts remain open. |
+
+Nouveau PCI bridge initialization failure-path review (OD11533 added; 2026-11-08): reconciled the selected `drm-aros/drm_aros_pci.c` source-list entry (`workbench/hidds/nouveau/sources.drm.mak:74-75`) with its successful-base acquisition, failed `CLID_Hidd_PCI` object creation, and shutdown release path. Traced the error to `nouveau_init_findcard()` and the null-device early return in `nouveau_init_probe()`; neither invokes bridge shutdown. Confirmed `OOP_ObtainAttrBase()` increments each nonzero bucket reference (`rom/oop/obtainattrbase.c:130-134`). This credits one complete 168-code-line path; the Nouveau module remains an explicitly invoked optional target with its aggregate edge disabled. No allocation failure, PCI object, device, or build was run; source-only.
