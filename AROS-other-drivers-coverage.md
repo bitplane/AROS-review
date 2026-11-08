@@ -37668,3 +37668,10 @@ Nouveau TU102 GR custom bundle and context callback pass (2026-11-08; no new fin
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxtu102.c` | 65 | Full 94-line body read; bundle-init pack, unknown-buffer lifecycle, non-PES SM-ID mapping and six-GPC topology checked. No independent finding. Hardware register semantics remain unverified. |
+
+
+Nouveau NV10 GR interface header pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/nv10.h`; 14 physical lines, 7 `cloc 2.06` C code lines): read the entire declaration header and checked its consumers in the NV10/NV15/NV17 generation implementations. Constructor, init, interrupt, tile and channel constructor signatures match their implementations and shared GR interfaces; no independent declaration mismatch established. The consumers are the selected legacy Nouveau GR paths. No hardware or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/nv10.h` | 7 | Full 14-line header read; all five declarations matched to NV10/NV15/NV17 consumers. No independent finding. |
