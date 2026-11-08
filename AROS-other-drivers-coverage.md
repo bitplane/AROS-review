@@ -24779,7 +24779,7 @@ PCI ATA probe full-body and selected caller pass (OD9487/OD10000 rechecked; 2026
 
 | Manifest path (`rom/hidds/ata_pci/mmakefile.src`) | Body coverage and current disposition |
 | --- | --- |
-| `class_init.c` | Full 113-line body; OD10001 and OD10002 added for selected failure rollback paths. |
+| `class_init.c` | Full 113-line body; OD10001 detail restored and OD10002 retained for selected failure rollback paths. | OD10001 follows the wrong release-array offset through the selected `__OOP_NOATTRBASES__`/`__OOP_NOMETHODBASES__` build and `OOP_ReleaseAttrBasesArray`; it can release unowned PCI IID refs and overwrite adjacent kernel/OOP base fields. OD10002 remains the storage-root leak on later init failure. |
 | `probe.c` | Full 684-line body; OD9487 and OD10000 rechecked; no additional finding. |
 | `ata_pci_controllerclass.c` | Full 54-line body; OD10000 rechecked. |
 | `ata_pci_busclass.c` | Full 428-line body; OD2661, OD3011, OD3684 and OD9851 rechecked. |

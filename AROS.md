@@ -14137,7 +14137,7 @@ Apple Silicon CreateSegList ignored-protection-result caller pass (EK712 expande
 
 **[OD10000](AROS-other-drivers.md#od10000) — PCI ATA can retain ownership of a claimed controller when all channels are rejected or their probe records cannot be allocated, leaving no ATA bus and preventing other drivers from claiming the PCI device.** Applies to selected i386-PC, x86-64-PC, and Sam440 PCI ATA HIDD builds.
 
-**[OD10001](AROS-other-drivers.md#od10001) — PCI ATA's method-base failure cleanup releases the wrong four OOP attribute-base IDs, risking live PCI base-reference loss while leaking ATA/HW references.** Conditional on method-base acquisition failure in the selected PCI ATA module.
+**[OD10001](AROS-other-drivers.md#od10001) — PCI ATA method-base failure cleanup releases two PCI IID buckets it did not acquire and clears adjacent kernel/OOP base fields. Conditional on selected module method-base acquisition failure.**
 
 **[OD10002](AROS-other-drivers.md#od10002) — PCI ATA initialization leaks its storage-root object when a later setup step fails.** Applies to the selected module's failure rollback after root creation.
 
