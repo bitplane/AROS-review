@@ -16938,6 +16938,8 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[EK10935](AROS-exec-kernel.md#ek10935) — Timer’s generated link-library auto-init calls `OpenLibrary("timer.device")`, but Exec publishes the resident as an `NT_DEVICE` on DeviceList. Clients relying on `linklibs-timer` fail their required LIBS startup step; no checked-in consumer or default-image impact is claimed. Source-only.**
 
+**[EK10936](AROS-exec-kernel.md#ek10936) — MinGW accepts a zero or nonnumeric `vblank=` value, then divides by zero while starting the host timer. The default frequency is unaffected. Source-only.**
+
 
 **[OD11535](AROS-other-drivers.md#od11535-workqueue-list-race-execsmp) — DRM compatibility workqueue queue/list state is protected only by local `Disable()`, which does not serialize another CPU on ExecSMP. Conditional on cross-CPU queue and worker overlap in optional Nouveau or VMware targets; source-only.**
 
