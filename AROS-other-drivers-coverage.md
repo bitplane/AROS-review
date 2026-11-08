@@ -37782,3 +37782,5 @@ Nouveau GM107 GPC FUC5 image and TPC strand data pass (2026-11-08; no new findin
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/gk208.c` | 164 | Full 211-line body read; generation-specific and shared MMIO pack ranges/sentinel, firmware descriptors, callbacks and selected device entries checked. No independent finding. Hardware/firmware semantics remain unverified. |
 
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/gk20a.c` | 254 | Full 346-line body read; AV/AIV/method conversion, return/error propagation, firmware load and init/context consumers traced. **OD11542:** converter errors are discarded by `gk20a_gr_load_net()`, allowing absent packs to be reported as successful firmware initialization. **OD11543:** the sixteenth method class is rejected by an off-by-one bound check. No firmware blob or device was exercised. |
+
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/gm107.c` | 378 | Full 446-line body read; MMIO tables, BIOS P0260/BIT P parsing and callback order, GPC MMU setup, firmware descriptors and selected device entries checked. No independent finding. BIOS/register semantics remain unverified. |
