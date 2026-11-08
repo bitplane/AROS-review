@@ -37556,3 +37556,10 @@ Nouveau GF104 GR context register-list full-body pass (2026-11-08; no new findin
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgf104.c` | 73 | Full 109-line body read; register-list sentinels, TPC pack composition, selected GF104 table and shared consumer checked. No independent finding. Hardware register semantics remain unverified. |
+
+
+Nouveau GF108 GR context register lists and attribute generation full-body pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgf108.c`; 807 physical lines, 752 `cloc 2.06` C code lines): read the entire file in source order, including ICMD, 9097/9197 method, hub, GPC, TPC, PE, WWDX, TPCCS register arrays, all pack tables, attribute patch generation and the GF108 function table. Confirmed `gf108_grctx` is selected by `gf108.c`; traced pack/list sentinel traversal through the shared GF100 context loader and traced attribute generation and callback-buffer sizing through generic context construction and first-load paths. Checked each local array and pack has its expected zero sentinel; register-list counts/pitches use the shared walker contract. Attribute offsets advance once per active topology-derived TPC and remain within the fixed per-TPC maxima used by the callback-size function. Repeated ICMD address writes are sequenced commands in one list; no source evidence established an invalid repeated write. No independent structural, indexing or propagation defect established. Register values/device semantics remain hardware-dependent; no context, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgf108.c` | 752 | Full 807-line body read; register-array and pack sentinels, command list selection, attribute offsets and generic callers checked. No independent finding. Hardware register semantics remain unverified. |
