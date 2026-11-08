@@ -22220,6 +22220,12 @@ The shared cleanup routine always exits zero, including when `openlibs()` fails 
 **Trigger and consequence:** reqtools.library cannot be opened. The palette requester demo prints an error but exits successfully without showing its requester. **Affected configuration:** the explicitly buildable `developer/demos/rtpalette.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the failure branch and zero exit status. Return a failure code from cleanup. No library failure, requester operation or build was run; source-only.
 
 <a id="gd15031"></a>
+## GD15033 — SimpleTimer uses an uninitialized saved time when timer setup fails [conditional]
+
+`main()` ignores the return from `get_sys_time(&oldtimeval)` and immediately reads `oldtimeval.tv_secs` to compute a new time; it later passes the same structure's seconds to `set_new_time()` to restore the clock (`developer/demos/simple_timer.c:105-126`). `get_sys_time()` returns `-1` without writing the output when `create_timer()` fails (`:221-228`).
+
+**Trigger and consequence:** timer port/request allocation or timer-device opening fails during the initial clock read. The demo computes and sets system time from an uninitialized value, then attempts to restore another uninitialized value, potentially leaving the system clock incorrect. **Affected configuration:** the explicitly buildable `developer/demos/simple_timer.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the unchecked failure return and read of output that is not written on failure. Abort the clock-changing sequence if the initial read fails; check later timer calls too. No timer operation or clock change was run; source-only.
+
 ## GD15032 — Sift reports success after input or parse failures [conditional]
 
 Every path through `main()` ends at `exit(RETURN_OK)` (`developer/demos/sift.c:105-118,252-261`). This includes failure to open `iffparse.library`, allocate the IFF handle, open the clipboard/file, and any `OpenIFF()` or `ParseIFF()` error. The latter is printed as “File scan aborted” but still produces a successful process status.

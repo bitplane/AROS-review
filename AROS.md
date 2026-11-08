@@ -17049,3 +17049,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15030](AROS-graphics-desktop.md#gd15030) — ScreenModeReq exits successfully when ASL library/request allocation fails. Conditional on setup failure. Source-only.**
 **[GD15031](AROS-graphics-desktop.md#gd15031) — ShadowBorder exits successfully if intuition.library cannot open. Conditional on library-open failure. Source-only.**
 **[GD15032](AROS-graphics-desktop.md#gd15032) — Sift returns success after input or IFF parse failures. Conditional on setup, I/O, or parse failure. Source-only.**
+**[GD15033](AROS-graphics-desktop.md#gd15033) — SimpleTimer uses uninitialized time if timer setup fails before changing/restoring the system clock. Conditional on timer setup failure. Source-only.**
