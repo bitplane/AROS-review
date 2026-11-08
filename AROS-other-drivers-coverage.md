@@ -37388,3 +37388,10 @@ Nouveau display user-root full-body and class-enumeration pass (2026-11-08; no n
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/udisp.c` | 76 | Full 114-line body read; root-object lifetime, fixed and generation-specific class enumeration, mask construction, and selected consumers checked. No independent finding. Hardware and runtime behavior remain unverified. |
+
+
+Nouveau GP100 display-generation full-body and SOR caller pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gp100.c`; 85 physical lines, 55 `cloc 2.06` C lines): read the complete GP100 SOR function table, audio-capability register selection, SOR constructor, display callback/class table, and constructor wrapper. Matched the selected source-list entry and later GP102 reuse of `gp100_sor_new()`; compared the generation-specific HDA capability fallback with adjacent GM200/GV100 code and confirmed all callers pass the SOR index returned by the selected generation counter. Reconciled the class table's sentinel and channel callbacks with the shared display-channel constructor paths. No independent source mismatch established; register semantics and chipset behavior cannot be validated from the local source alone. Optional Nouveau source; no MMIO, display, or build was used; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gp100.c` | 55 | Full 85-line body read; SOR HDA capability selection, caller index, function/class mapping, and GP102 reuse checked. No independent finding. Hardware register behavior remains unverified. |
