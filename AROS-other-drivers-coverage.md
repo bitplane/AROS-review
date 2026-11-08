@@ -37786,3 +37786,5 @@ Nouveau GM107 GPC FUC5 image and TPC strand data pass (2026-11-08; no new findin
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/gm107.c` | 378 | Full 446-line body read; MMIO tables, BIOS P0260/BIT P parsing and callback order, GPC MMU setup, firmware descriptors and selected device entries checked. No independent finding. BIOS/register semantics remain unverified. |
 
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/gm200.c` | 230 | Full 296-line body reread; ACR descriptor callbacks, fixed tile maps/fallback, firmware manifest/loader and constructor checked. Confirms OD11193/OD11195 through shared software-pack loading for GM200-family and downstream `gm200_gr_load()` clients; no new finding. No ACR or device was exercised. |
+
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/gm20b.c` | 140 | Full 188-line body reread; 64-bit Falcon descriptor write/patch, MMU setup, firmware load errors and constructor checked. Confirms shared `gk20a_gr_load_sw()` path for OD11193/OD11195; no new finding. No ACR/device operation was exercised. |
