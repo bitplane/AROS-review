@@ -16871,6 +16871,8 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[GD14970](AROS-graphics-desktop.md#gd14970-ftmanager-font-scan-list-publication-race) — On ExecSMP, FTManager scan-task publication and disposal use only local `Forbid()` around a shared list, allowing null-node removal or a freed-record traversal. Conditional on cross-CPU scheduling; source-only.**
 
+**[GD14971](AROS-graphics-desktop.md#gd14971-vulkan-query-result-reads-unavailable-output) — Vulkan-Hpp returns an indeterminate scalar from its single-query helper when a query is unavailable and `VK_NOT_READY` is accepted. Conditional on a nonblocking query read; source-only.**
+
 
 **[EK10926](AROS-exec-kernel.md#ek10926) — the PC Multiboot2 memory-map converter advances extended source entries by `entry_size` but emits a fixed-stride legacy list, so later map records are misread. Conditional on an extended entry-size tag; source-only.**
 
