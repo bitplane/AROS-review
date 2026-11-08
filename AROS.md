@@ -15712,7 +15712,7 @@ Vulkan-Hpp function wrapper interval `23101-23700` (GD10223/GD10264 rechecked; n
 
 
 <a id="gd14808"></a>**[GD14808](AROS-graphics-desktop.md#gd14808) — chunky pixel writes can read before their source array after clipping.** The shared renderer stores a clipped source offset in signed `WORD`, then forms a pointer from it; offsets above 32767 can wrap negative, so `WritePixelArray8()`, `WriteChunkyPixels()`, and `WritePixels8()` can pass a pointer before the caller's data to the generic HIDD reader. No in-tree caller with this extreme clipping offset was established. See the [source-offset and HIDD trace](AROS-graphics-desktop-coverage.md#graphics-chunky-pixel-write-clipped-source-offset-gd14808). Source-only.
-**GD14809 — Vulkan-Hpp scalar query-result helper accepts `queryCount > 1` while providing only one `DataType` object as output storage.** A scalar caller can ask the Vulkan command to write several results through that single object. Optional downstream Vulkan-Hpp clients only; no in-tree caller found. See [GD14809](AROS-graphics-desktop.md#gd14809) and its [source/contract trace](AROS-graphics-desktop-coverage.md#vulkan-query-pool-scalar-result-capacity-gd14809).
+**GD14809 — Vulkan-Hpp scalar query-result helper passes one object for arbitrary `queryCount` and can copy an unwritten scalar when an unavailable query returns `VK_NOT_READY`.** Optional downstream Vulkan-Hpp clients only; no in-tree caller found. See [GD14809](AROS-graphics-desktop.md#gd14809) and its [source/contract trace](AROS-graphics-desktop-coverage.md#vulkan-query-pool-scalar-result-capacity-gd14809).
 
 **[EK10768](AROS-exec-kernel.md#ek10768) — `SetTaskPri()`, `SetTaskAffinity()`, or `Signal()` may pass a freed affinity mask to `KrnScheduleCPU()` if a remotely running task terminates after the caller drops its lock. Conditional on ExecSMP, finite task affinity, and concurrent removal. Source-only; see the [lifetime trace](AROS-exec-kernel-coverage.md#settaskpri-remote-affinity-mask-ek10768).
 
@@ -16871,7 +16871,6 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[GD14970](AROS-graphics-desktop.md#gd14970-ftmanager-font-scan-list-publication-race) — On ExecSMP, FTManager scan-task publication and disposal use only local `Forbid()` around a shared list, allowing null-node removal or a freed-record traversal. Conditional on cross-CPU scheduling; source-only.**
 
-**[GD14971](AROS-graphics-desktop.md#gd14971-vulkan-query-result-reads-unavailable-output) — Vulkan-Hpp returns an indeterminate scalar from its single-query helper when a query is unavailable and `VK_NOT_READY` is accepted. Conditional on a nonblocking query read; source-only.**
 
 
 **[EK10926](AROS-exec-kernel.md#ek10926) — the PC Multiboot2 memory-map converter advances extended source entries by `entry_size` but emits a fixed-stride legacy list, so later map records are misread. Conditional on an extended entry-size tag; source-only.**
