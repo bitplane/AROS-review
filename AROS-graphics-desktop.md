@@ -22107,6 +22107,13 @@ The first `AllocMem(afsize, ...)` result is tested only to decide whether to cal
 
 **Trigger and consequence:** allocation of the initial or resized AvailFonts buffer fails. The demo prints no font list and exits with success, so callers cannot distinguish an incomplete run from a successful empty listing. **Affected configuration:** the explicitly buildable `developer/demos/listfonts.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the allocation/loop/status sequence. Report allocation failure and return `RETURN_FAIL`. No allocation failure, font enumeration or build was induced; source-only.
 
+<a id="gd15005"></a>
+## GD15005 — ListFonts never frees the successful AvailFonts buffer [conditional]
+
+When `AvailFonts()` succeeds, `afh` points to the final `AllocMem()` buffer and the demo walks its entries, but it never calls `FreeMem()` on that buffer before closing diskfont.library and returning (`developer/demos/listfonts.c:34-69`). The shortage retry path frees each superseded buffer, but not the successful final one.
+
+**Trigger and consequence:** any run where the buffer allocation and `AvailFonts()` succeed. The returned font-list storage remains allocated after `main()` exits, leaking the allocation to Exec. **Affected configuration:** the explicitly buildable `developer/demos/listfonts.c` command target. **Confidence:** high for the allocation ownership and missing successful-path free. Free `afh` with its final `afsize` after enumeration. No font enumeration or build was run; source-only.
+
 <a id="gd14993"></a>
 ## GD14993 — Async requester error is reported as the third button [conditional]
 
