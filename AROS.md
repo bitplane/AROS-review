@@ -16951,4 +16951,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **[OD1544](AROS-other-drivers.md#od1544) — Filesave left-shifts negative signed 8-bit samples while converting them to 16-bit recording samples. The C result is undefined and may vary with compiler/optimization; conditional on the optional Filesave record path. Source-only.**
 
-**[OD11540](AROS-other-drivers.md#od11540-nouveau-display-error-handler-dereferences-an-empty-channel-slot) — Nouveau display error handling can dereference an empty channel slot while decoding method 0x080.** Conditional on an error interrupt for an unregistered channel, including teardown timing; applies to GP102 and shared GF119/NV50 handlers. Optional Nouveau target; source-only.
+**[OD11540](AROS-other-drivers.md#od11540-nouveau-display-error-handler-dereferences-an-empty-channel-slot-conditional-optional-target) — Nouveau display error handling can dereference an empty channel slot while decoding method 0x080.** Conditional on an error interrupt for an unregistered channel, including teardown timing; applies to GP102 and shared GF119/NV50 handlers. Optional Nouveau target; source-only.
