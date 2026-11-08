@@ -37451,3 +37451,10 @@ Nouveau NVKM output contract-header pass (2026-11-08; no new finding; `workbench
 | File | `cloc 2.06` C/header code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/outp.h` | 103 | Full 127-line header read; output/IOR ownership, DP fixed-array/count state, callback table and declarations traced to lifecycle, NVIF and host callers. No independent finding. Firmware and hardware contracts remain unverified. |
+
+
+Nouveau NVIF output-method bridge full-body/caller pass (OD10028 rechecked; OD10064 added; 2026-11-08 reconciliation): confirmed `uoutp.c` is selected by `sources.drm.mak:255` and installed as the output user-class constructor by `udisp.c`. Read all 665 physical lines / 527 `cloc 2.06` C code lines, covering method dispatch under the supervisor mutex; DP AUX/rate/train/SST/MST methods; HDMI infoframes/SCDC and HDA ELD; LVDS state; backlight, acquire/release, load-detect, EDID and detection; output construction and destruction. Rechecked the R535 DP SST return path and `INHERIT` protocol validation. Added OD10064 for invalid protocol values: the default branch sets `-EINVAL` but continues, reserves the active IOR for the user, writes response fields, then returns failure. The selected host wrappers pass only defined protocol constants, so in-tree trigger likelihood is low; a failed NVIF call can leave the output acquired. Traced sizes, variable payload caps, rate-array bounds, head lookup, acquire guards, callback tables and teardown; no further independent issue established. No NVIF method, output resource, EDID, AUX transfer, GPU or build was run; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/uoutp.c` | 527 | Full 665-line body read; selected methods, payload/count bounds, locking, callbacks, constructor/destructor and host callers checked. OD10064 recorded. Optional Nouveau target; firmware, output and GPU behavior remain unverified. |
