@@ -22220,6 +22220,12 @@ The shared cleanup routine always exits zero, including when `openlibs()` fails 
 **Trigger and consequence:** reqtools.library cannot be opened. The palette requester demo prints an error but exits successfully without showing its requester. **Affected configuration:** the explicitly buildable `developer/demos/rtpalette.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the failure branch and zero exit status. Return a failure code from cleanup. No library failure, requester operation or build was run; source-only.
 
 <a id="gd15031"></a>
+## GD15035 — TurboPrint demo ignores print-request failure [conditional]
+
+The demo sends `PRD_TPEXTDUMPRPORT` synchronously with `DoIO()` but discards its result, then closes the device and ultimately returns zero (`developer/demos/turboprint.c:159-180,187-189`). A failed print request therefore has no reported failure status or diagnostic.
+
+**Trigger and consequence:** TurboPrint is detected, but the printer request fails. The example silently exits successfully although the requested bitmap was not printed. **Affected configuration:** the explicitly buildable `developer/demos/turboprint.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the unchecked synchronous request result and unconditional success return. Check and report the `DoIO()` result and return failure when printing fails. No printer operation or build was run; source-only.
+
 ## GD15034 — Text speed demo never releases the font opened for its RastPort [conditional]
 
 When the window opens, `main()` obtains a font with `OpenFont(&ta)` and assigns it to the window RastPort with `SetFont()`, but closes the window without a corresponding `CloseFont(tf)` (`developer/demos/test_text.c:51-91`). The selected implementation increments a font's accessor count on successful `OpenFont()` (`rom/graphics/openfont.c:83-88`) and `CloseFont()` decrements it (`rom/graphics/closefont.c:72-79`).

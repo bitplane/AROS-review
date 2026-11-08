@@ -17051,3 +17051,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15032](AROS-graphics-desktop.md#gd15032) — Sift returns success after input or IFF parse failures. Conditional on setup, I/O, or parse failure. Source-only.**
 **[GD15033](AROS-graphics-desktop.md#gd15033) — SimpleTimer uses uninitialized time if timer setup fails before changing/restoring the system clock. Conditional on timer setup failure. Source-only.**
 **[GD15034](AROS-graphics-desktop.md#gd15034) — Text speed demo leaks its successfully opened font reference. Conditional on successful OpenFont. Source-only.**
+**[GD15035](AROS-graphics-desktop.md#gd15035) — TurboPrint ignores a failed print request and exits successfully. Conditional on request failure. Source-only.**
