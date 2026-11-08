@@ -41506,6 +41506,14 @@ The trigger is supported by the public custom-stream API: `InitIFF()` accepts ca
 **Trigger and consequence:** a caller uses `InitIFF()` with a forward-only stream, then `ParseIFF()` skips an unread chunk remainder whose size is not a multiple of 10,000 bytes. The fallback reads too far or reports `IFFERR_SEEK`; otherwise parsing resumes at the wrong stream offset and can miss or misinterpret subsequent chunks. **Affected configuration:** external or future `IFFParse` custom-stream clients with neither seek flag set; the checked-in DOS/clipboard convenience initializers default to random-seek mode. **Confidence:** high for the fixed-size final read and parser scan-accounting mismatch; no maintained in-tree nonseekable caller or runtime stream was found. Pass the remaining `offset` to the final `ReadStream()` call. No stream, IFF file or build was used; source-only.
 
 
+<a id="od11546-iffparse-entryhandler-leaks-on-prop-scope-error"></a>
+## OD11546 — `EntryHandler()` leaks its item when PROP scope is unavailable [conditional]
+
+`EntryHandler()` allocates an `IFFLCI_ENTRYHANDLER` local context item, fills its `HandlerInfo`, then returns the result of `StoreLocalItem()` without releasing the item on failure (`workbench/libs/iffparse/entryhandler.c:73-99`). `IFFSLI_PROP` is a documented supported position (`compiler/include/libraries/iffparse.h:104-106`). For that position, `StoreLocalItem()` calls `FindPropContext()` and returns `IFFERR_NOSCOPE` when there is no enclosing FORM or LIST (`storelocalitem.c:87-103`; `findpropcontext.c:57-75`). The allocated item is then neither linked into a context nor freed, and its user-data allocation is leaked. Repeated failed registrations accumulate Exec allocations.
+
+**Trigger and consequence:** a caller invokes the public `EntryHandler()` with `IFFSLI_PROP` while the IFF handle has no enclosing FORM/LIST context. Each call returns `IFFERR_NOSCOPE` but leaks the allocated local item and `HandlerInfo`. **Affected configuration:** external or future IFFParse clients; repository callers found for `EntryHandler()` use `IFFSLI_TOP`, so no maintained in-tree trigger was identified. **Confidence:** high for the allocation/error-path leak; caller reachability is conditional. Free the local item if `StoreLocalItem()` returns an error. No allocation failure, parser run or build was exercised; source-only.
+
+
 <a id="od11545-iffparse-closeiff-retains-freed-buffered-stream"></a>
 ## OD11545 — `CloseIFF()` leaves a failed buffered stream pointed at freed storage [conditional]
 
