@@ -22226,6 +22226,12 @@ The shared cleanup routine always exits zero, including when `openlibs()` fails 
 
 **Trigger and consequence:** shape allocation succeeds. The demo retains the region allocation through process cleanup instead of disposing it after the window is closed. **Affected configuration:** the explicitly buildable `developer/demos/winshape.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for allocation and the disabled matching disposal; caller must release the region after its use. Dispose `shape` after `CloseWindow()`. No window operation or build was run; source-only.
 
+## GD15039 — German NList option reverses partial-character behavior [unconditional localization]
+
+The German `MSG_PARTIAL_CHARS_DRAWN` label says partial characters are drawn, and its help text says enabled characters that are not fully visible “will ... still be displayed at least partially” (`workbench/classes/zune/nlist/nlistviews_mcp/locale/german.po:437-447`). The English source defines the opposite behavior: when enabled, characters not fully visible at the left/right edge will **not** be drawn partially.
+
+**Trigger and consequence:** a German-speaking user configures the NList partial-character option. The label and help explain the inverse of the option's actual behavior, leading users to choose the wrong setting or misunderstand clipped text. **Affected configuration:** the selected German NListviews MCP catalog. **Confidence:** high; the translation reverses the source condition. Correct the label/help to describe suppression of partial glyph drawing. No locale generation or GUI operation was run; source-only.
+
 ## GD15038 — Czech NList help text describes a different pointer feature [unconditional localization]
 
 The Czech translation of `MSG_SELECT_POINTER_HELP` says that the pointer changes when moved over the column-width resize area (`workbench/classes/zune/nlist/nlistviews_mcp/locale/czech.po:514-520`). Its English source says the option changes the pointer while an NList object is in character-wise selection mode. The localized help therefore describes a different feature from the setting it accompanies.

@@ -17055,3 +17055,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15036](AROS-graphics-desktop.md#gd15036) — WindowShape demo does not dispose its caller-owned shape region. Conditional on successful region allocation. Source-only.**
 **[GD15037](AROS-graphics-desktop.md#gd15037) — WindowShape exits successfully after initialization failures. Conditional on setup failure. Source-only.**
 **[GD15038](AROS-graphics-desktop.md#gd15038) — Czech NList preferences help describes the wrong pointer behavior. Unconditional for Czech catalog users. Source-only.**
+**[GD15039](AROS-graphics-desktop.md#gd15039) — German NList partial-character option help reverses the setting’s behavior. Unconditional for German catalog users. Source-only.**
