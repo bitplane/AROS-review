@@ -37584,3 +37584,10 @@ Nouveau GK104 GR context tables and generated-state pass (2026-11-08; no new fin
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgk104.c` | 919 | Full 1,002-line body read; list sentinels, packed topology masks, generation parameters and shared consumers checked. No independent finding. Hardware register semantics remain unverified. |
+
+
+Nouveau GK110 GR context tables and PPC topology pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgk110.c`; 867 physical lines, 810 `cloc 2.06` C code lines): confirmed active manifest selection at `sources.drm.mak:307`, the GK110 generation table’s `gk110_grctx` pointer, and the selected two-PPC topology. Read the complete ICMD and A197 method lists, hub/GPC/TPC/PPC packs, GK110 register-generation hooks, and context function table. Traced shared list/pack walkers, attribute and bundle sizing, and topology masks/counts through common initialization. Checked the GK110-specific two-PPC pack selection and inherited alpha/beta mask generation against its PPC arrays and GPC-packed 64-bit writes; no local count, index, sentinel, or callback mismatch established. Fixed register values remain hardware-dependent. No context generation, GPU operation or build was run; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgk110.c` | 810 | Full 867-line body read; selected two-PPC topology, register-list sentinels, generation hooks and shared consumers checked. No independent finding. Hardware register semantics remain unverified. |
