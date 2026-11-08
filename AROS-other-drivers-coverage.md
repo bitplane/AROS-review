@@ -37493,3 +37493,10 @@ Nouveau HDMI infoframe packing contract-header pass (OD10055 rechecked; 2026-11-
 | File | `cloc 2.06` C/header code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/hdmi.h` | 13 | Full 16-line header read; packed layout and declaration traced through packer, NVIF variable payload and generation callbacks. OD10055 rechecked; no additional finding. Hardware packing remains unverified. |
+
+
+Nouveau GT215 display generation full-body and HDA/HDMI caller pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gt215.c`; 267 physical lines, 201 `cloc 2.06` C code lines): confirmed selection in `sources.drm.mak:241` and ten device-table entries. Read the full SOR HDA ELD/HPD, DP audio, HDMI AVI/VSI/control, backlight, callback tables and display class configuration. Traced ELD size through the selected NVIF method's 0x60-byte cap before conversion to the callback's `u8`; the hardware loop pads up to 0x60 and does not exceed it on the selected path. Backlight callers constrain levels to their 0–100 interface range; output divisor/register semantics remain hardware-defined. HDMI max-packet/rekey values are checked by `uoutp.c`, and infoframe payload length is bounded by the method transport and existing OD10055 packer review. No independent source-backed defect established. Optional Nouveau generation; no audio/HDMI/backlight operation, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gt215.c` | 201 | Full 267-line body read; HDA payload cap, HDMI control and infoframe paths, DP audio, backlight interface, callbacks and generation selection checked. No independent finding. Register behavior remains unverified. |
