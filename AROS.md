@@ -16875,3 +16875,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[OD2648](AROS-other-drivers.md#od2648) — OpenSBI M41T11 accepts malformed BCD/calendar data; an invalid `0xFF` year becomes 2165 and wraps `Date2Amiga()`'s 32-bit seconds result instead of using the cached time. Conditional on corrupted RTC data; source-only.**
 
 **[GD5167](AROS-graphics-desktop.md#gd5167) — PSI uses an imported fixed-width public-screen name in unbounded EditWindow concatenation and Copy-action `strcpy()` into an equally sized stack buffer. Conditional on a malformed `.mps` record; source-only.**
+
+**[EK10931](AROS-exec-kernel.md#ek10931) — `NewCreateTaskA()` discards the documented `TASKTAG_FLAGS` value. Conditional on an external caller using the tag; source-only.**

@@ -10468,3 +10468,13 @@ For a nonempty command line, `__initcommandline()` allocates and fills `__args`,
 **Trigger and consequence:** a CLI-started program has a nonzero `__argsize`, the copied argument-buffer allocation succeeds, and the subsequent pointer-array allocation fails. Startup aborts before the program runs but leaves the copied argument buffer allocated. **Affected configuration:** C startup using the autoinit command-line entry (`compiler/autoinit/mmakefile.src:15-24`; startup imports it unless `__nocommandline` is supplied, `compiler/startup/startup.c:42-46`). Workbench launches and the zero-argument branch do not take this two-allocation path. **Confidence:** high for the allocation/early-return/cleanup ordering and selected startup path; occurrence requires the second allocation to fail after the first succeeds. Free `__args` before returning on `__argv` allocation failure. No allocation failure or process was run; source-only.
 
 **Coverage evidence:** [startup entry ordering and command-line allocation-failure trace](AROS-exec-kernel-coverage.md#startup-entry-order-and-command-line-allocation-failure-ek10930).
+
+
+<a id="ek10931"></a>
+### EK10931 — `NewCreateTaskA()` discards `TASKTAG_FLAGS` [conditional]
+
+`NewCreateTaskA()` documents `TASKTAG_FLAGS` as the initial value for `tc_Flags` and saves the supplied value, then assigns it to the newly allocated task before calling `NewAddTask()` (`rom/exec/newcreatetaska.c:71,154-156,238-256`). `NewAddTask()` unconditionally resets `task->tc_Flags` to zero before initialization and publication (`rom/exec/newaddtask.c:236-240`); it later adds only the flags needed for stack checking, switching, and launch (`:263-266,312-317`). Thus the caller-supplied initial flags never reach the created task. The implementation itself labels this tag as ignored in the `NewCreateTaskA()` BUGS documentation (`newcreatetaska.c:83-88`). A repository-wide search found no maintained `TASKTAG_FLAGS` call site, so impact through checked-in callers is not established.
+
+**Trigger and consequence:** an external `NewCreateTaskA()` caller supplies a nonzero `TASKTAG_FLAGS` value and relies on the documented initial `tc_Flags`; the task starts without those bits. **Affected configuration:** all targets using the shared `NewCreateTaskA()`/`NewAddTask()` implementation; caller-visible impact requires a client that uses the tag. **Confidence:** high that the value is discarded; no maintained in-tree caller or concrete user-visible failure was established. Preserve the requested flags while adding the internal task-state bits. No task was created and no build was run; source-only.
+
+**Coverage evidence:** [NewCreateTaskA flag-tag implementation review](AROS-exec-kernel-coverage.md#newcreatetaska-flags-ek10931).
