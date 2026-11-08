@@ -16850,3 +16850,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[EK833](AROS-exec-kernel.md#ek833) — AROS `sched_yield()` only changes and restores the current task's priority; `SetTaskPri()` compares the task against itself and requests no handoff. Contended pthread spin-lock callers can keep polling until ordinary scheduling runs another task. Optional pthread link library; source-only.**
 
 **[OD11527](AROS-other-drivers.md#od11527-cmi8738-non-aros-pci-wrapper-includes-missing-backend) — CMI8738 non-AROS builds select absent PCI backend source files and cannot compile `pci_wrapper.c`.** Conditional on non-AROS CMI8738 builds; the AROS-selected backend is present; source-only.
+
+**[OD11528](AROS-other-drivers.md#od11528-sb128-extra-cards-have-no-shipped-audio-mode) — SB128 initializes multiple supported cards but its shipped mode IDs select only card zero.** Conditional on multiple supported cards being found; source-only.
