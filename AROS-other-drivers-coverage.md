@@ -37790,3 +37790,5 @@ Nouveau GM107 GPC FUC5 image and TPC strand data pass (2026-11-08; no new findin
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/gm20b.c` | 140 | Full 188-line body reread; 64-bit Falcon descriptor write/patch, MMU setup, firmware load errors and constructor checked. Confirms shared `gk20a_gr_load_sw()` path for OD11193/OD11195; no new finding. No ACR/device operation was exercised. |
 
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/gp100.c` | 123 | Full 165-line body read; descriptor/callbacks, ZBC index-to-register packing against allocator bounds, ROP mask and shared firmware loader checked. Reconfirms OD11193/OD11195 applicability; no new finding. No GPU or ZBC operation was exercised. |
+
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/gp102.c` | 123 | Full 161-line body read; stencil-ZBC allocation/clear bounds, six-GPC PES mask packing, descriptor, firmware and shared loader checked. Reconfirms OD11193/OD11195 applicability; no new finding. No GPU/ZBC operation was exercised. |
