@@ -37752,3 +37752,5 @@ Nouveau GM107 GPC FUC5 image and TPC strand data pass (2026-11-08; no new findin
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/gpcgm107.fuc5.h` | 543 | Full 607-line image read; GPC data, TPC strand entries, labels/offsets, padding and selected `gm107.c` consumer checked. Firmware instruction semantics remain unverified. |
+
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/hubgm107.fuc5.h` | 837 | Full 918-line image read; data/state layout, labels/offsets, padding and selected `gm107.c` FECS consumer checked. Firmware instruction semantics remain unverified. |
