@@ -37542,3 +37542,10 @@ Nouveau GP102 GR context and attribute-buffer pass (2026-11-08; no new finding; 
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgp102.c` | 86 | Full 125-line body read; topology loops, size calculation, allocation and callback consumers checked. No independent finding. Hardware context format remains unverified. |
+
+
+Nouveau GF100 GR context-interface header pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgf100.h`; 276 physical lines, 208 `cloc 2.06` C/header code lines): read the full generation context callback structure and the init-pack, generation-function and context-list declarations. Matched callback field signatures to common call sites in `ctxgf100.c`/`gf100.c` and GA102/GP102 context tables; checked that optional hooks are guarded by the common context-generation consumers, while required pagepool/bundle/attribute hooks are installed by the selected generation tables. The context pack declarations are consumed by the shared init-list machinery; detailed value-table bodies remain separate file paths in the ledger. No declaration/signature or header-level ownership mismatch established. Optional Nouveau GR code; no context generation, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C/header code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgf100.h` | 208 | Full 276-line header read; callback and register-pack declaration contracts matched to common consumers and generation tables. No independent finding. Detailed context-table implementations remain separately tracked. |
