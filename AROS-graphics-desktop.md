@@ -22121,6 +22121,13 @@ When `AvailFonts()` succeeds, `afh` points to the final `AllocMem()` buffer and 
 
 **Trigger and consequence:** `SetMenuStrip()` fails after window/menu construction, for example when default menu-handler setup fails. The demo continues but the menu demonstrations are unavailable and it provides no diagnostic. **Affected configuration:** the explicitly buildable `developer/demos/menudemo.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the ignored return and failure branch. Check the result and unwind/report when the menu cannot be installed. No menu operation or build was run; source-only.
 
+<a id="gd15007"></a>
+## GD15007 — ModelClass demo continues after cleanup on initialization failure [conditional]
+
+`cleanup(msg)` releases currently acquired objects/window and closes intuition.library, but returns normally instead of terminating or reporting failure to its caller (`developer/demos/modelclassdemo.c:52-73`). Every initialization check calls it and then falls through; for example, failed intuition.library open returns from `openlibs()` to `main()`, which immediately calls `makegadgets()` (`:77-81,211-218`). Failed object/gadget creation likewise continues within `makegadgets()` after disposing partial state and closing the library (`:87-141`).
+
+**Trigger and consequence:** intuition.library, model/iclass/gadget construction, or window creation fails. Control continues after cleanup and uses missing objects or a closed/missing Intuition base, so a diagnostic cleanup can be followed by further invalid API calls or another failure. **Affected configuration:** the explicitly buildable `developer/demos/modelclassdemo.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the non-terminating cleanup and direct fallthrough. Make failure cleanup return a status that stops the caller, or terminate after cleanup. No setup failure, GUI operation or build was induced; source-only.
+
 <a id="gd14993"></a>
 ## GD14993 — Async requester error is reported as the third button [conditional]
 
