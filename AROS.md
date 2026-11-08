@@ -17004,3 +17004,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD14985](AROS-graphics-desktop.md#gd14985) — Console demo checks its message ports instead of the returned I/O requests after allocation. Conditional on request allocation failure; explicit demo target. Source-only.**
 **[GD14986](AROS-graphics-desktop.md#gd14986) — Console charmap demo fails to detect I/O request allocation failures. Conditional on request allocation failure; explicit demo target. Source-only.**
 **[GD14987](AROS-graphics-desktop.md#gd14987) — CoolButton demo reports successful exit after setup failures. Conditional on a failed setup call; explicit demo target. Source-only.**
+**[GD14988](AROS-graphics-desktop.md#gd14988) — CxTest misses window, broker, and message-port cleanup on failure and normal shutdown. Conditional on setup failures; explicit demo target. Source-only.**
