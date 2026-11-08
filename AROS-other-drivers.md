@@ -38860,6 +38860,12 @@ The bridge acquires the device enumerator and playback endpoint during COM setup
 
 Sources: COM setup/acquisitions and early-only `CoUninitialize()` calls in `workbench/devs/AHI/Drivers/WASAPI/WASAPI-bridge/WASAPI.c:57-150`; sole endpoint release in `:182-189`; mixer/client/volume acquisition and empty cleanup in `:195-255`; render-service acquisition and empty drop in `:289-320`; AHI control open/free callers in `workbench/devs/AHI/Drivers/WASAPI/WASAPI-main.c:119-165`; library cleanup in `WASAPI-init.c:44-54`. Source-only review.
 
+## OD9957 — VUSBHCI accepts undersized Open requests and claims the unit [conditional]
+
+`Open()` checks the request message length and sets `IOERR_BADLENGTH` when it is smaller than `sizeof(struct IOUsbHWReq)`, but does not return from that branch. It then continues to the unit allocation check; if the unit is free, it sets `unit->allocated`, publishes the unit pointer in the request, marks the message replied, clears `io_Error`, and returns TRUE (`rom/usb/vusbhc/vusbhci_device.c:156-195`). Exec's `OpenDevice()` treats the TRUE return as a successful open and clears the request error (`rom/exec/opendevice.c:91-112`).
+
+**Trigger and consequence:** a client calls OpenDevice for unit 0 with a request shorter than the required `IOUsbHWReq` and the unit is not already allocated. The device accepts the short request, consumes the only unit, and reports success instead of `IOERR_BADLENGTH`; subsequent clients see the unit as busy until the accepted request is closed. **Scope:** explicitly built optional VUSBHCI target. **Confidence:** high for the unchecked error branch and Exec's success handling; no request was issued. Return FALSE immediately on the short-length path before claiming the unit. No device, request, or build was used; source-only.
+
 <a id="od9958"></a>
 ## OD9958 — Optional VUSBHCI string descriptor handling repeats the header and treats byte length as a UTF-16 count [optional VUSBHCI target]
 
