@@ -20244,3 +20244,6 @@ Vulkan-Hpp ray-tracing cluster configuration wrapper recheck (2026-11-08; `workb
 
 
 Vulkan-Hpp KHR ray-tracing shader-group wrapper recheck (2026-11-08; `workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:139235-139402`, 168 physical lines; no whole-file/path/LOC credit): completed `RayTracingShaderGroupCreateInfoKHR`. Compared default unused-shader sentinels, group type and shader indices, capture-replay handle constness, setters, native conversions, reflection/equality, `CppType`, and local layout assertions; no independent mismatch established. `RayTracingPipelineInterfaceCreateInfoKHR` begins at line 139403 and remains open. No pipeline was created and no build was run; source-only.
+
+
+Vulkan-Hpp KHR ray-tracing pipeline-interface wrapper (2026-11-08; `workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:139403-139525`, 123 physical lines; no whole-file/path/LOC credit): completed `RayTracingPipelineInterfaceCreateInfoKHR`. Compared ray-payload and hit-attribute sizes, `pNext`, defaults, setters, native conversions, reflection/equality, `CppType` and local layout assertions; no independent mismatch established. `RayTracingPipelineCreateInfoKHR` begins at line 139526 and remains open. No pipeline was created and no build was run; source-only.
