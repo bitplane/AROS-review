@@ -22411,3 +22411,17 @@ When a font has `tf_CharSpace`, `font2c()` emits the `charspace` array but passe
 The active `CON:` path only enters its output loop when `Open()` succeeds, then returns 0 unconditionally (`developer/demos/consoledemo.c:44-61`). A failed open is silent, and failures from `FPuts()` or `Flush()` are not propagated, so the demo's process status cannot distinguish a successful console test from a failed one.
 
 **Trigger and consequence:** opening the console stream fails, or one of the writes/flushes fails. The demo still exits with success status and provides no error report for the failed open. **Affected configuration:** explicitly selected by `developer/demos/mmakefile.src:12-41,73`; parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for ignored return values and unconditional success return. Report the failed operation and return a nonzero status. No console failure or build was induced; source-only.
+
+<a id="gd15046"></a>
+## GD15046 — Console demo checks the port instead of each IORequest allocation [conditional allocation failure]
+
+After each `CreateStdIO()` call, the demo checks `consoleWritePort` or `consoleReadPort` again rather than checking the returned request pointer (`developer/demos/cons.c:231-240`). Since the corresponding port was already checked, a failed request allocation passes through. `OpenConsole()` immediately dereferences both request pointers (`:406-413`), causing a null-pointer access on either allocation failure.
+
+**Trigger and consequence:** either `CreateStdIO()` allocation fails while its port exists. The demo proceeds with a null request and dereferences it during console setup. **Affected configuration:** explicitly selected by `developer/demos/mmakefile.src:12-41,73`; parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high; `CreateStdIO()` returns NULL on allocation failure and the wrong variables are tested. Test `consoleWriteMsg` and `consoleReadMsg` respectively before continuing. No allocation failure or build was induced; source-only.
+
+<a id="gd15047"></a>
+## GD15047 — Console demo discards device write errors [conditional I/O failure]
+
+`ConPutChar()`, `ConWrite()`, and `ConPutStr()` call `DoIO()` and then return 0 without checking its error result (`developer/demos/cons.c:431-469`). Their many callers also ignore return values, so a failed console write is silently presented as a successful feature demonstration.
+
+**Trigger and consequence:** any synchronous console `CMD_WRITE` fails. The demo continues its sequence and exits as though the output operation succeeded. **Affected configuration:** explicitly selected by `developer/demos/mmakefile.src:12-41,73`; parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the discarded `DoIO()` result and helper return values. Return and propagate the I/O error, or report failure before continuing. No console I/O failure or build was induced; source-only.

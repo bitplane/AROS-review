@@ -17063,3 +17063,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **[GD15044](AROS-graphics-desktop.md#gd15044) — `consoledemo` returns before reaching its `console.device` I/O example. Unconditional for the selected target. Source-only.**
 **[GD15045](AROS-graphics-desktop.md#gd15045) — `consoledemo` reports success when opening or writing its console stream fails. Conditional. Source-only.**
+**[GD15046](AROS-graphics-desktop.md#gd15046) — `cons` checks ports instead of IORequest allocations, then dereferences NULL on allocation failure. Conditional. Source-only.**
+**[GD15047](AROS-graphics-desktop.md#gd15047) — `cons` discards synchronous console write errors. Conditional. Source-only.**
