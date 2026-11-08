@@ -17099,3 +17099,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[OD137](AROS-other-drivers.md#od137) — Replacing an active software DSP echo loses its prior delay buffer.** Conditional on an AHI client reconfiguring an active software echo; source-only.
 
 **OD11556 — Amithlon AHI gateway disables CPU-overload protection:** its `PreTimer` wrapper always returns false, bypassing the configured mixer-load threshold used by other gateways. Scoped to Amithlon builds and drivers using the callback; impact depends on workload. See [OD11556](AROS-other-drivers.md#od11556). Source-only; no audio workload was run.
+
+**OD11557 — AHI public headers label `AHIDB_OutputArg` as an input index although the API consumes an output index.** A client following the comment can query a wrong/invalid output when counts differ. Scoped to clients using that tag; no in-tree misuse found. See [OD11557](AROS-other-drivers.md#od11557). Source-only.
