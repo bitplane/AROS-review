@@ -16867,6 +16867,8 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[GD14967](AROS-graphics-desktop.md#gd14967-ftmanager-cli-short-font-copy) — FTManager CLI `COPY` mode can treat a short filesystem write as a complete `.ttf` copy and leave the truncated target behind.** Conditional on a nonnegative short write; source-only.
 
+**[GD14972](AROS-graphics-desktop.md#gd14972-ftmanager-cli-failed-copy-replaces-existing-font) — FTManager CLI opens an existing copied font with `MODE_NEWFILE` before transfer; a later read/write error can destroy the previous usable target. Conditional on overwriting a font and an I/O error; source-only.**
+
 **[GD14969](AROS-graphics-desktop.md#gd14969-ftmanager-cli-readargs-leak) — FTManager CLI does not call `FreeArgs()` after successful `ReadArgs()`, retaining the parser state and buffers on every CLI invocation.** Source-only.
 
 **[GD14970](AROS-graphics-desktop.md#gd14970-ftmanager-font-scan-list-publication-race) — On ExecSMP, FTManager scan-task publication and disposal use only local `Forbid()` around a shared list, allowing null-node removal or a freed-record traversal. Conditional on cross-CPU scheduling; source-only.**

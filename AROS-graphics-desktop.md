@@ -21880,6 +21880,13 @@ The FTManager listview maps `MUIA_Listview_DoubleClick` to an application return
 
 **Coverage evidence:** [FTManager CLI copy short-write trace](AROS-graphics-desktop-coverage.md#ftmanager-cli-copy-short-write-gd14967).
 
+<a id="gd14972-ftmanager-cli-failed-copy-replaces-existing-font"></a>
+## GD14972 — FTManager CLI failed font copy destroys an existing target [conditional]
+
+`copy_file()` opens its destination with `MODE_NEWFILE` before copying (`workbench/system/ftmanager/cli.c:117-145`). DOS documents that this mode deletes an existing file and creates a new one (`rom/dos/open.c:37-48`); it does not preserve the old contents while the copy is in progress. If a subsequent source `Read()` fails or destination `Write()` returns `-1`, `copy_file_handle()` returns FALSE (`cli.c:94-112`), and `copy_file()` attempts to delete the destination as cleanup (`:135-145`). The previous target has already been replaced by the new, incomplete file, so a failed CLI copy can leave no usable version of that font. This is independent of GD14967, where a nonnegative short write is incorrectly treated as success and the truncated copy is retained.
+
+**Trigger and consequence:** run FTManager CLI with `COPY` enabled and a destination file of the same basename already present; after `Open(..., MODE_NEWFILE)` replaces it, the source read or destination write fails. The copy reports failure but the previously valid target is lost; cleanup may delete the incomplete replacement. **Affected configuration:** FTManager CLI `COPY/S` path when overwriting an existing target and the filesystem reports a read/write error. **Confidence:** high for `MODE_NEWFILE` replacement semantics and the failure cleanup path; occurrence depends on an I/O error after the destination opens. Copy to a temporary sibling and replace the destination only after successful transfer and close. No file, copy operation, error, or build was exercised; source-only.
+
 <a id="gd14969-ftmanager-cli-readargs-leak"></a>
 <a id="gd14970-ftmanager-font-scan-list-publication-race"></a>
 ## GD14970 — FTManager scan-task list publication and disposal race on ExecSMP [conditional]
