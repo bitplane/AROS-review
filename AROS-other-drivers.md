@@ -41209,3 +41209,10 @@ Nouveau GM107 GR context tables and generated attribute state pass (2026-11-08; 
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgm107.c` | 923 | Full 992-line body read; two-PPC attribute allocation, callback-buffer sizing, pack sentinels and shared consumers checked. No independent finding. Hardware register semantics remain unverified. |
+
+
+Nouveau GM200 GR SM-ID and topology-generation pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgm200.c`; 130 physical lines, 92 `cloc 2.06` C code lines): confirmed active manifest selection at `sources.drm.mak:312`, GM200 device-table use, and the selected four-TPC/two-PPC per-GPC function parameters. Read the full file, including SM-ID distribution and GPC maps, TPC-mask packing, distribution-skip construction, register hooks and function descriptor. Traced `sm[]` production to the topology walk and the callback order to shared context generation. The SM distribution buffer has 64 words for at most `TPC_MAX` entries, and the eight-word GPC map is indexed by bounded GPC IDs; selected GM200 devices expose at most four TPCs per GPC, matching the byte-packed GPC map. No independent array-bound or callback defect established. No GPU, topology read or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgm200.c` | 92 | Full 130-line body read; topology inputs, SM/GPC packing, TPC mask and selected four-TPC/two-PPC limits checked. No independent finding. Hardware topology remains unverified. |
