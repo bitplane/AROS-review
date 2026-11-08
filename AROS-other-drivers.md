@@ -41195,3 +41195,10 @@ Nouveau GK208 GR context tables and one-PPC specialization pass (2026-11-08; no 
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgk208.c` | 520 | Full 572-line body read; selected one-PPC topology, list sentinels, pack composition, callbacks and shared consumers checked. No independent finding. Hardware register semantics remain unverified. |
+
+
+Nouveau GK20A GR custom context initialization pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgk20a.c`; 90 physical lines, 53 `cloc 2.06` C code lines): confirmed active manifest selection at `sources.drm.mak:310`, GK20A device-table use, and the GK20A GR function table’s dedicated `.main` callback. Read the complete file and traced its sequence through the shared MMIO, idle-wait, attribute-buffer, attribute, floorsweep, method, ICMD, pagepool and bundle helpers. The custom path saves and restores the prior idle-timeout register value around the TPC-count programming, and uses the selected context descriptor’s size/callback fields. No independent ordering, cleanup, or callback defect established; register semantics and hardware timing remain unverified. No GPU or build was run; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgk20a.c` | 53 | Full 90-line body read; custom main sequence and every shared helper/callback traced. No independent finding. Hardware timing and register semantics remain unverified. |
