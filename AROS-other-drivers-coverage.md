@@ -38000,3 +38000,8 @@ IFFParse `AllocIFF()`/`FreeIFF()` full-body handle-lifecycle pass (2026-11-08; t
 IFFParse `FindLocalItem()` full-body/context-search pass (2026-11-08; `workbench/libs/iffparse/findlocalitem.c`, 132 physical lines / 77 `cloc 2.06` C code lines): read the complete selected body and checked traversal from the top context through the embedded default context, then each context's local-item list. The search compares all three documented key fields (`type`, `id`, `ident`) and returns the first match or NULL; sentinel traversal and head-first precedence are consistent with the initialized MinLists and `StoreItemInContext()` insertion order. No independent lookup or termination defect established. NULL/invalid IFF handles are outside the documented valid-handle input; no lookup or build was run; source-only.
 
 | `workbench/libs/iffparse/findlocalitem.c` | 77 | Full 132-line body read; selected `FUNCS` entry, context/LCI sentinel traversal and three-key match checked. No independent defect. |
+
+
+IFFParse `CurrentChunk()` full-body state-query pass (2026-11-08; `workbench/libs/iffparse/currentchunk.c`, 63 physical lines / 16 `cloc 2.06` C code lines): read the complete selected body and compared its `iff_Depth` test with `AllocIFF()`'s depth-zero embedded default context and the parser's push/pop depth updates. It returns the top context only while a non-default context is active and NULL at depth zero, matching the documented public result and internal note. No independent state/query defect established. No handle or build was exercised; source-only.
+
+| `workbench/libs/iffparse/currentchunk.c` | 16 | Full 63-line body read; selected `FUNCS` entry and depth/default-context relationship checked. No independent defect. |
