@@ -16992,3 +16992,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[FS-086](AROS-filesystems.md#fs-086) — CDVDFS `cdcontrol dataext` and `resourceext` copy arbitrary command strings into 17-byte HFS extension fields.** Conditional on an extension longer than 16 bytes; the handler base state is overwritten. Source-only.
 
 **[FS-087](AROS-filesystems.md#fs-087) — CDVDFS `cdcontrol unicodetable` is advertised and dispatched by the utility, but the handler rejects the command as unknown.** Conditional on using the explicit `cdcontrol` utility; source-only.
+
+**[GD14978](AROS-graphics-desktop.md#gd14978) — ChildWindow leaves its parent window open if opening the child window fails. Conditional on child creation failure after the parent succeeds; explicit demo target. Source-only.**
+
+**[GD14979](AROS-graphics-desktop.md#gd14979) — ChildWindow exits with status zero after initialization failures; parent-window creation failure is silent. Conditional on a failed setup call; explicit demo target. Source-only.**
