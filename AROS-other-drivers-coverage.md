@@ -37661,3 +37661,10 @@ Nouveau GV100 GR context generation and topology mapping pass (2026-11-08; no ne
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgv100.c` | 173 | Full 222-line body read; VEID pack, non-PES TPC translation, attribute sizing and tile-map bounds checked. No independent finding. Hardware topology remains unverified. |
+
+
+Nouveau TU102 GR custom bundle and context callback pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxtu102.c`; 94 physical lines, 65 `cloc 2.06` C code lines): confirmed active manifest selection at `sources.drm.mak:321`, TU102 device-table use, and the selected six-GPC/six-TPC/three-PPC parameters. Read all callbacks, the software 64-bit bundle-init list and the function descriptor. Traced the bundle-init pack and unknown buffer patch through common context generation; the selected descriptor allocates the unknown buffer before applying its address/size patches, and selects the non-PES-aware SM-ID and Volta/Turing topology paths. One zero-mask register update is a no-op; no observable state change or independent correctness defect is established from it. Hardware-specific size/register meaning remains unverified. No GPU or build was run; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxtu102.c` | 65 | Full 94-line body read; bundle-init pack, unknown-buffer lifecycle, non-PES SM-ID mapping and six-GPC topology checked. No independent finding. Hardware register semantics remain unverified. |
