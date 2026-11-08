@@ -22198,6 +22198,13 @@ The demo's `cleanup(msg)` closes reqtools.library if open and always exits with 
 
 **Trigger and consequence:** reqtools.library cannot be opened. The long-requester demo exits successfully without showing its requester. **Affected configuration:** the explicitly buildable `developer/demos/rtlong.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the error branch and exit status. Return a failure code from cleanup. No library failure, requester operation or build was run; source-only.
 
+<a id="gd15027"></a>
+## GD15027 — RTScreen exits successfully when reqtools.library cannot open [conditional]
+
+`cleanup(msg)` prints an error, closes the library if available, and always exits with status zero (`developer/demos/rtscreen.c:18-25`). `openlibs()` uses it when reqtools.library fails to open (`:27-32`).
+
+**Trigger and consequence:** reqtools.library cannot be opened. The screen-mode requester demo exits successfully without displaying its requester. **Affected configuration:** the explicitly buildable `developer/demos/rtscreen.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the failure branch and zero exit status. Return a nonzero status from cleanup. No library failure, requester operation or build was run; source-only.
+
 <a id="gd15018"></a>
 ## GD15018 — RealTime demo classifies every state-change callback as bogus [conditional]
 
