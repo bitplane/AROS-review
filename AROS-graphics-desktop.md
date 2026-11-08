@@ -22425,3 +22425,10 @@ After each `CreateStdIO()` call, the demo checks `consoleWritePort` or `consoleR
 `ConPutChar()`, `ConWrite()`, and `ConPutStr()` call `DoIO()` and then return 0 without checking its error result (`developer/demos/cons.c:431-469`). Their many callers also ignore return values, so a failed console write is silently presented as a successful feature demonstration.
 
 **Trigger and consequence:** any synchronous console `CMD_WRITE` fails. The demo continues its sequence and exits as though the output operation succeeded. **Affected configuration:** both explicitly selected `developer/demos/cons.c` and `developer/demos/cons_charmap.c` targets (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the discarded `DoIO()` result and helper return values. Return and propagate the I/O error, or report failure before continuing. No console I/O failure or build was induced; source-only.
+
+<a id="gd15048"></a>
+## GD15048 — CoolButton demo exits successfully after setup errors [conditional]
+
+Every setup failure passes a diagnostic string to `cleanup()`, but `cleanup()` unconditionally calls `exit(0)` (`developer/demos/coolbutton.c:28-54`). This includes failures opening required libraries, locking the public screen, obtaining draw info, initializing the class, creating a gadget, or opening the window.
+
+**Trigger and consequence:** any of those setup operations fails. The demo prints an error but returns a success status to its launcher or script. **Affected configuration:** `coolbutton` is explicitly selected by `developer/demos/mmakefile.src:12-41,73`; the parent aggregate edge is disabled (`config/mmakefile.src:16-18`). **Confidence:** high; all failure calls pass a non-NULL message, and the exit status is fixed at zero. Pass a failure status through cleanup and return it after releasing resources. No setup failure or build was induced; source-only.
