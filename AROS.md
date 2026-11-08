@@ -17000,3 +17000,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD14981](AROS-graphics-desktop.md#gd14981) — ColorWheel demo exits with status zero after setup failures. Conditional on a failed setup call; explicit demo target. Source-only.**
 **[GD14982](AROS-graphics-desktop.md#gd14982) — ComplexImage’s fourth image draw reuses the second image’s coordinates. Conditional on running the explicit AROS demo target. Source-only.**
 **[GD14983](AROS-graphics-desktop.md#gd14983) — ComplexImage exits successfully when setup fails. Conditional on a failed setup call; explicit demo target. Source-only.**
+**[GD14984](AROS-graphics-desktop.md#gd14984) — Console demo returns before its console.device test and event loop. Explicit demo target. Source-only.**
