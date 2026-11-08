@@ -21443,6 +21443,8 @@ When replacing an existing table, `makePartitionTable()` first frees every child
 
 `main()` prints the initialization error when `initEnv()` fails, then performs cleanup and unconditionally returns `0` (`workbench/tools/HDToolBox/main.c:103-117`). `initEnv()` returns distinct nonzero `ERR_*` values for failures opening required libraries or creating the GUI (`:35-55`).
 
+The selected C startup stores `main()`'s return in `__startup_error` and returns that value from its program entry (`compiler/startup/startup.c:127-142,86-118`). DOS `CallEntry()` returns the entry's result (`rom/dos/exit.c:101-130`), and `RunCommand()` returns it to the Shell (`rom/dos/runcommand.c:154-167,185-187`). The maintained Shell caller stores it in `cli_ReturnCode` (`workbench/c/Shell/Shell.c:555-556`), so the zero result is observable as command success through that path.
+
 **Trigger and consequence:** launch HDToolBox when a required library or GUI resource cannot be initialized. The tool reports the failure text but exits with a success status, so scripts or callers cannot distinguish startup failure from a normal exit using the process result. **Affected configuration:** explicitly buildable HDToolBox target on startup failure. **Confidence:** high for the failure return and unconditional process status; no startup failure was induced. Return a nonzero result when initialization fails.
 
 **Coverage evidence:** [HDToolBox startup, locale and GUI class-lifecycle audit](AROS-graphics-desktop-coverage.md#hdtoolbox-startup-locale-class-lifecycle-audit-gd14955-gd14956).
