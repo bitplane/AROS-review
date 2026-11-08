@@ -41216,3 +41216,10 @@ Nouveau GM200 GR SM-ID and topology-generation pass (2026-11-08; no new finding;
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgm200.c` | 92 | Full 130-line body read; topology inputs, SM/GPC packing, TPC mask and selected four-TPC/two-PPC limits checked. No independent finding. Hardware topology remains unverified. |
+
+
+Nouveau GM20B GR custom context sequence pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgm20b.c`; 91 physical lines, 53 `cloc 2.06` C code lines): confirmed active source selection, GM20B device-table use, and the selected one-PPC function table. Read the full file and traced its custom main sequence through shared MMIO, idle waits, attribute setup, floorsweep, SM-ID mapping, method/ICMD setup, and pagepool/bundle generation. Checked its four-bit GPC TPC-mask packing against GM20B topology limits and the separate SM-ID configuration helper against topology arrays. It preserves and restores the prior idle-timeout value; no independent sequencing, bounds, or callback defect established. No GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgm20b.c` | 53 | Full 91-line body read; custom initialization sequence, GPC mask packing, shared SM-ID helper and callback contracts checked. No independent finding. Hardware timing remains unverified. |
