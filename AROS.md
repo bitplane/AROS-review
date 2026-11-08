@@ -16877,3 +16877,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[GD5167](AROS-graphics-desktop.md#gd5167) — PSI uses an imported fixed-width public-screen name in unbounded EditWindow concatenation and Copy-action `strcpy()` into an equally sized stack buffer. Conditional on a malformed `.mps` record; source-only.**
 
 **[EK10931](AROS-exec-kernel.md#ek10931) — `NewCreateTaskA()` discards the documented `TASKTAG_FLAGS` value. Conditional on an external caller using the tag; source-only.**
+
+**[EK10932](AROS-exec-kernel.md#ek10932) — `NewCreateTaskA()` can wrap task and stack size tags before allocation. Conditional on extreme external tag values; source-only.**
