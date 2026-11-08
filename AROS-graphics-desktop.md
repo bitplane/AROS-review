@@ -22142,6 +22142,20 @@ The shared `cleanup(msg)` routine prints any initialization diagnostic, releases
 
 **Trigger and consequence:** one of those setup operations fails while the demo is run from a caller that checks its process status. The demo exits successfully despite not displaying or operating the register control. **Affected configuration:** the explicitly buildable `developer/demos/register.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the unconditional success exit and reachable failures. Return a failure status from error cleanup. No resource failure, GUI operation or build was induced; source-only.
 
+<a id="gd15019"></a>
+## GD15019 — RoundShape dereferences a failed region allocation during resize [conditional]
+
+`renderwin()` stores the result of `NewRectRegion()` in `shape` and immediately passes it to `OrRectRegion()` without checking for NULL (`developer/demos/roundshape.c:126-135`). The selected `OrRectRegion()` implementation reads the region fields directly (`rom/graphics/orrectregion.c:70-78`). The path runs on initial render and every size change that changes the window dimensions (`roundshape.c:122-125,210-225`).
+
+**Trigger and consequence:** region allocation fails during initial shape construction or a later resize. The next region operation dereferences NULL, interrupting the demo instead of handling the allocation failure. **Affected configuration:** the explicitly buildable `developer/demos/roundshape.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the unchecked allocation and dereferencing implementation. Check region construction before adding rectangles or changing the window shape. No allocation failure or resize was run; source-only.
+
+<a id="gd15020"></a>
+## GD15020 — RoundShape reports success after setup failures [conditional]
+
+The shared cleanup routine prints a diagnostic and releases acquired resources but always exits with status zero (`developer/demos/roundshape.c:32-47`). It is called for library-open, screen-lock, and window-open failures (`:52-74,219-221`).
+
+**Trigger and consequence:** one of those setup steps fails while the demo is run from a caller that checks its process result. It exits successfully despite failing to construct or display the shaped window. **Affected configuration:** the explicitly buildable `developer/demos/roundshape.c` target. **Confidence:** high for the unconditional success exit and reachable error paths. Return a failure status from cleanup. No resource failure, window operation or build was induced; source-only.
+
 <a id="gd15018"></a>
 ## GD15018 — RealTime demo classifies every state-change callback as bogus [conditional]
 
