@@ -37577,3 +37577,10 @@ Nouveau GF117 GR context topology/ROP mapping full-body pass (2026-11-08; no new
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgf117.c` | 242 | Full 308-line body read; topology production, tile-array bounds, ROP packing, attribute offsets, register-list sentinels and generation selection checked. No independent finding. Device topology semantics remain unverified. |
+
+
+Nouveau GK104 GR context tables and generated-state pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgk104.c`; 1,002 physical lines, 919 `cloc 2.06` C code lines): confirmed active manifest selection at `sources.drm.mak:306`, the GK104 generation table’s `gk104_grctx` pointer, and selected device records. Read the complete ICMD and A097 method list, hub/GPC/TPC/PPC packs, topology-generated alpha/beta masks, LTC patch, bundle/pagepool overrides, and context function table. Traced list sentinels and stride/count use through the common GF100 walkers, attribute and bundle sizing through their consumers, and topology inputs through `gf100_gr_oneinit()`. Checked the alpha/beta mask’s packed GPC writes against its 64-bit word layout and the selected family’s PPC mask/count representation; no local index, shift, or callback-contract defect established. Hardware register semantics remain unverified. No context generation, GPU operation or build was run; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgk104.c` | 919 | Full 1,002-line body read; list sentinels, packed topology masks, generation parameters and shared consumers checked. No independent finding. Hardware register semantics remain unverified. |
