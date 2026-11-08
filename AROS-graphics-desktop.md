@@ -22128,6 +22128,13 @@ When `AvailFonts()` succeeds, `afh` points to the final `AllocMem()` buffer and 
 
 **Trigger and consequence:** intuition.library, model/iclass/gadget construction, or window creation fails. Control continues after cleanup and uses missing objects or a closed/missing Intuition base, so a diagnostic cleanup can be followed by further invalid API calls or another failure. **Affected configuration:** the explicitly buildable `developer/demos/modelclassdemo.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the non-terminating cleanup and direct fallthrough. Make failure cleanup return a status that stops the caller, or terminate after cleanup. No setup failure, GUI operation or build was induced; source-only.
 
+<a id="gd15008"></a>
+## GD15008 — MXGads reports success if intuition.library cannot open [conditional]
+
+If `OpenLibrary("intuition.library", 0L)` fails, `main()` prints an error and calls `exit(0)` (`developer/demos/mxgads.c:237-242`). A caller checking the process result therefore receives success even though the demo never opens its window or exercises gadget mutual exclusion.
+
+**Trigger and consequence:** intuition.library cannot be opened. The utility reports successful termination despite failing before its demonstration. **Affected configuration:** the explicitly buildable `developer/demos/mxgads.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the error branch and zero exit status. Exit with a failure code. No library failure, program launch or build was induced; source-only.
+
 <a id="gd14993"></a>
 ## GD14993 — Async requester error is reported as the third button [conditional]
 

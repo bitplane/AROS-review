@@ -17024,3 +17024,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15005](AROS-graphics-desktop.md#gd15005) — ListFonts does not free the successful AvailFonts buffer. Conditional on a successful enumeration. Source-only.**
 **[GD15006](AROS-graphics-desktop.md#gd15006) — MenuDemo ignores failure to install its menu strip. Conditional on SetMenuStrip failure. Source-only.**
 **[GD15007](AROS-graphics-desktop.md#gd15007) — ModelClass demo continues initialization after cleanup has closed acquired resources. Conditional on setup failure. Source-only.**
+**[GD15008](AROS-graphics-desktop.md#gd15008) — MXGads reports successful exit if intuition.library cannot open. Conditional on library-open failure. Source-only.**
