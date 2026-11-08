@@ -38035,3 +38035,8 @@ IFFParse `StoreLocalItem()` full-body scope-dispatch pass (OD11546 caller path r
 IFFParse `FindProp()` full-body property lookup pass (2026-11-08; `workbench/libs/iffparse/findprop.c`, 72 physical lines / 24 `cloc 2.06` C code lines): read the complete selected body and traced its `FindLocalItem()` query for matching type/ID and `IFFLCI_PROP`, followed by `LocalItemData()` return. A missing item returns NULL as documented; stored properties are allocated with `StoredProperty` userdata by `PropFunc()`. Context precedence is inherited from the reviewed top-to-root `FindLocalItem()` traversal. No independent lookup or result-layout defect established. No parse or build was run; source-only.
 
 | `workbench/libs/iffparse/findprop.c` | 24 | Full 72-line body read; selected `FUNCS` entry, item class key, NULL behavior and StoredProperty userdata producer checked. No independent defect. |
+
+
+IFFParse `FindCollection()` full-body collection lookup pass (2026-11-08; `workbench/libs/iffparse/findcollection.c`, 76 physical lines / 27 `cloc 2.06` C code lines): read the complete selected body and traced its type/ID query for `IFFLCI_COLLECTION` through `FindLocalItem()`, then its `CIPtr.FirstCI` result extraction. A missing item returns NULL as documented; `CollectionFunc()` creates the `CIPtr` userdata and the purge hook frees the linked collection. Search precedence and list semantics match the reviewed `FindLocalItem()` implementation. No independent lookup or result-layout defect established. No parse or build was run; source-only.
+
+| `workbench/libs/iffparse/findcollection.c` | 27 | Full 76-line body read; selected `FUNCS` entry, class key, NULL behavior and `CIPtr.FirstCI` producer/cleanup checked. No independent defect. |
