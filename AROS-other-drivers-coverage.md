@@ -38050,3 +38050,8 @@ IFFParse `GoodID()` full-body validator pass (2026-11-08; `workbench/libs/iffpar
 IFFParse `GoodType()` full-body validator pass (2026-11-08; `workbench/libs/iffparse/goodtype.c`, 92 physical lines / 41 `cloc 2.06` C code lines): read the complete selected body and followed its `GoodID()` gate and four-octet checks. It restricts bytes to the implemented uppercase/digit/space set and rejects punctuation, lowercase, and bytes above `Z`; `PushChunk()` and `PushContextNode()` use this helper before accepting a chunk type. The all-space value is accepted by the written character rules and no conflicting local API rule was found. No independent type-validation defect established. No validator tests or build were run; source-only.
 
 | `workbench/libs/iffparse/goodtype.c` | 41 | Full 92-line body read; selected `FUNCS` entry, GoodID prerequisite, character ranges and parser callers checked. No independent defect. |
+
+
+IFFParse `IDtoStr()` full-body byte-order/termination pass (2026-11-08; `workbench/libs/iffparse/idtostr.c`, 82 physical lines / 25 `cloc 2.06` C code lines): read the complete selected body and verified both compile-time endian paths emit the ID's four bytes in display order, append a NUL at byte four, and return the caller's buffer. The documented output capacity is five bytes, and `dmkid()`/debug callers use equivalent four-byte extraction. A NULL or undersized output buffer is outside the documented input contract. No independent conversion or termination defect established. No build was run; source-only.
+
+| `workbench/libs/iffparse/idtostr.c` | 25 | Full 82-line body read; selected `FUNCS` entry, endian branches, NUL termination, return pointer and documented buffer size checked. No independent defect. |
