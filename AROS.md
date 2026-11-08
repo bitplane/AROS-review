@@ -16861,6 +16861,8 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[GD14966](AROS-graphics-desktop.md#gd14966-ftmanager-empty-list-press-dereferences-null-entry) — FTManager's configured list press action can reach the font-window handler with no active font entry, which it dereferences. Conditional on an empty list; source-only.**
 
+**[GD14967](AROS-graphics-desktop.md#gd14967-ftmanager-cli-short-font-copy) — FTManager CLI `COPY` mode can treat a short filesystem write as a complete `.ttf` copy and leave the truncated target behind.** Conditional on a nonnegative short write; source-only.
+
 **[EK10926](AROS-exec-kernel.md#ek10926) — the PC Multiboot2 memory-map converter advances extended source entries by `entry_size` but emits a fixed-stride legacy list, so later map records are misread. Conditional on an extended entry-size tag; source-only.**
 
 **[OD11531](AROS-other-drivers.md#od11531-ahi-v2-close-reads-v4-private-tail) — with AHI debug level Low or higher, closing a short V2 `AHI_NO_UNIT` request reads V4-only private data beyond the accepted request length. Conditional on a legacy short-structure client; source-only.**
