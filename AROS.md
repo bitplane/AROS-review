@@ -2357,7 +2357,7 @@ Hyperlayers `EndUpdate()` full-body and direct-caller pass (GD5775/GD6172/GD6175
 | Selected C body | `cloc 2.06` code lines | Review status |
 |---|---:|---|
 | `rom/hyperlayers/basicfuncs.c` | 1007 | Full body reviewed. |
-| `rom/hyperlayers/createlayertaglist.c` | 281 | Full body and creation/cleanup ordering rechecked; GD6181-GD6182 remain, and GD15059 records the retained layer-lock nesting on successful return. GD5474 and GD4662 rechecked. |
+| `rom/hyperlayers/createlayertaglist.c` | 281 | Full body and creation/cleanup ordering rechecked; GD6181-GD6182 remain, and GD15059 records the retained layer-lock nesting plus the OpenWindow DoSyncAction-to-BeginRefresh cross-task caller path. GD5474 and GD4662 rechecked. |
 | `rom/hyperlayers/movesizelayer.c` | 262 | Full body reviewed. |
 | `rom/hyperlayers/collectpixelslayer.c` | 195 | Full body reviewed. |
 | `rom/hyperlayers/sortlayercr.c` | 176 | Full body reviewed; MoveRaster caller and cliprect-order contract traced; no independent defect established. |
