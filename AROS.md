@@ -17120,6 +17120,8 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **OD11564 — PCIUSB queues high-address transfers after low-address bounce allocation fails.** On 64-bit builds, UHCI/OHCI/EHCI can program descriptors from a NULL bounce-buffer result instead of rejecting the request. Conditional on allocation failure and controller DMA limits; hardware outcome unverified. See [OD11564](AROS-other-drivers.md#od11564).
 
+**OD11565 — PCIUSB can copy uninitialized input bounce data to the client when TD allocation fails before scheduling.** Conditional on a high-address input buffer and UHCI/EHCI descriptor-pool exhaustion during request setup; source-only. See [OD11565](AROS-other-drivers.md#od11565).
+
 **OD2136 — GamePort can dereference the list sentinel as a unit after a queued-event drain.** With multiple public opens and a stale per-open event cursor, the completed request can be removed while another event remains; iterator exhaustion leaves `ioreq` at the list sentinel before the empty-queue cleanup derives `gpUn` from it. Conditional on the two-opener/two-event request sequence; no event was run. See [OD2136](AROS-other-drivers.md#od2136).
 
 **OD9448 — GamePort can access a request's unit after replying it.** On ExecSMP, a client on another CPU can consume the reply and close/free its unit before the callback's post-reply `gpu_flags` read. Conditional on that completion/close overlap; no request was run. See [OD9448](AROS-other-drivers.md#od9448).
