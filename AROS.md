@@ -16879,6 +16879,7 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[OD11532](AROS-other-drivers.md#od11532-controller-dispose-frees-queued-port-messages) — Controller HIDD disposal frees port-message storage while previously delivered event messages may still be queued at the client port. Conditional on disposing a port-mode consumer before all messages are replied; source-only.**
 
 **[OD11533](AROS-other-drivers.md#od11533-nouveau-pci-attrbase-leak-on-bus-object-failure) — Nouveau PCI bridge initialization leaks its device and driver attribute-base references when PCI bus-object creation fails. Conditional on optional target initialization under allocation failure; source-only.**
+**[OD11534](AROS-other-drivers.md#od11534-threaded-irq-accepts-null-primary-handler) — threaded IRQ registration accepts a NULL primary handler, then calls through it when an interrupt arrives. Conditional on external/future thread-only API use in the optional Nouveau or VMware target; source-only.**
 **[EK10927](AROS-exec-kernel.md#ek10927) — the public Multiboot2 module-alignment header type incorrectly includes framebuffer fields, making it 20 bytes instead of the specified 8-byte tag. Conditional on an external image producer using the type; no in-tree use found. Source-only.**
 
 **[EK10928](AROS-exec-kernel.md#ek10928) — ARM unwind lookup treats linker-defined `.ARM.exidx` boundary symbols as table data, so exception lookup can receive an invalid table pointer and count. Included by the checked-in GNU ARM target link specs; source-only.**
