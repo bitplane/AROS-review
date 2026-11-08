@@ -37381,3 +37381,10 @@ Nouveau display IOR registry helper full-body and caller pass (2026-11-08; no ne
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/ior.c` | 45 | Full 72-line body read; type/name mapping, constructor callers, typed/wildcard lookup and teardown traced. No independent finding. Hardware and runtime contracts remain unverified. |
+
+
+Nouveau display user-root full-body and class-enumeration pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/udisp.c`; 114 physical lines, 76 `cloc 2.06` C lines): read root-object publication/destruction, subclass enumeration, and connector/output/head mask construction. Traced generic class enumeration through `nvkm_ioctl_sclass_()` and its sentinel-driven loop, and matched the three fixed user classes to the selected `uconn.c`, `uoutp.c`, and `uhead.c` constructors; generation-specific classes follow the display function table's sentinel. Matched the 32-bit masks with `nvif_disp_v0` and their selected DRM consumers; no supported index-overflow trigger was established in this pass. Root publication and teardown use the display client lock. No independent source defect established. Optional Nouveau source; no device, ioctl, build or runtime behavior was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/udisp.c` | 76 | Full 114-line body read; root-object lifetime, fixed and generation-specific class enumeration, mask construction, and selected consumers checked. No independent finding. Hardware and runtime behavior remain unverified. |
