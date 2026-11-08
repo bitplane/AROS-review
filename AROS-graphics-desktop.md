@@ -22170,6 +22170,13 @@ The shared `cleanup(msg)` routine prints a diagnostic, releases acquired resourc
 
 **Trigger and consequence:** one of those setup operations fails while the demo is run from a caller that checks process status. The demo exits successfully despite failing to create the shaped window. **Affected configuration:** the explicitly buildable `developer/demos/roundwindow.c` target. **Confidence:** high for the unconditional success exit and reachable failure paths. Return a failure status from cleanup. No resource failure, window operation or build was induced; source-only.
 
+<a id="gd15023"></a>
+## GD15023 — ReqEZRequest demo exits successfully when reqtools.library cannot open [conditional]
+
+The common cleanup routine closes reqtools.library if available and always calls `exit(0)` (`developer/demos/rtezrequest.c:18-25`). `openlibs()` uses it when `OpenLibrary("reqtools.library", 0)` fails (`:27-32`).
+
+**Trigger and consequence:** reqtools.library cannot be opened. The demo prints an error but returns a successful process status without displaying either requester. **Affected configuration:** the explicitly buildable `developer/demos/rtezrequest.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the error path and zero exit status. Return a failure status from cleanup. No library failure, requester or build was run; source-only.
+
 <a id="gd15018"></a>
 ## GD15018 — RealTime demo classifies every state-change callback as bogus [conditional]
 
