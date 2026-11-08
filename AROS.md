@@ -70,7 +70,6 @@
 
 **[GD4631](AROS-graphics-desktop.md#gd4631) — Generic Gfx HIDD `MapColor()` uses a 16-bit index against an `ULONG` palette count, so a 65,536-entry indexed ColorMap makes the scan wrap and loop forever. The ColorMap constructor accepts the count and only logs the >256 condition; in-tree caller reachability is not established. Source-only.**
 
-**[GD14484](AROS-graphics-desktop.md#gd14484) — HIDD ColorMap `SetColors()` can wrap `firstColor + numColors`, skip growing the palette, then write at the unchecked starting index. The method exposes full-width `ULONG` arguments, but the checked-in callers found do not establish this overflow trigger. See the [range trace](AROS-graphics-desktop-coverage.md#colormap-setcolors-overflow-gd14484). Source-only.**
 
 **[GD14485](AROS-graphics-desktop.md#gd14485) — Display `Show()` ignores failures while copying a bitmap ColorMap into the framebuffer or old bitmap. If expanding the destination map fails, colors remain stale while the display transition continues. See the [palette-copy trace](AROS-graphics-desktop-coverage.md#display-show-palette-copy-failure-gd14485). Source-only.**
 
