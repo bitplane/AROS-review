@@ -21973,3 +21973,17 @@ The shared `cleanup(msg)` routine prints a diagnostic when `msg` is non-NULL, re
 The shared `cleanup(msg)` routine prints a diagnostic when `msg` is non-NULL, releases any window, gadgets, pens, screen resources and libraries already acquired, then always calls `exit(0)` (`developer/demos/colorwheel.c:43-69`). It is used when opening libraries, locking the public screen, obtaining DrawInfo or pens, constructing either gadget, or opening the window fails (`:76-112,154-192,222-246`).
 
 **Trigger and consequence:** one of these setup operations fails while the demo is run from a caller that checks its process result. The demo exits successfully despite not completing setup. **Affected configuration:** the explicitly buildable `developer/demos/colorwheel.c` program (`developer/demos/mmakefile.src:12-41,73`); the parent `demos` aggregate edge is disabled (`config/mmakefile.src:16-18`), so no default-image inclusion is claimed. **Confidence:** high for the unconditional success exit and reachable error cleanup calls. Return a failure status from error cleanup. No resource failure, program launch, GUI operation or build was induced; source-only.
+
+<a id="gd14982"></a>
+## GD14982 — ComplexImage draws its fourth image over the second image [conditional]
+
+On the AROS path, `main()` draws the image at `(20, 50)`, `(100, 50)`, then `(20, 100)`. After changing `PlaneOnOff` to `0x1`, it says to draw at a different location but calls `DrawImage()` again at `(100, 50)` (`developer/demos/compleximage.c:183-203`). That repeats the second draw's coordinates instead of placing the fourth variant at a new location.
+
+**Trigger and consequence:** run the demo on AROS; the fourth example image overlaps the second rather than appearing at its stated separate location, so the four plane-selection examples are not independently visible. **Affected configuration:** the explicitly buildable AROS `developer/demos/compleximage.c` target (`developer/demos/mmakefile.src:12-41,73`); the parent `demos` aggregate edge is disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the repeated coordinates and mismatch with the source comment; the intended alternative coordinate is not inferred. Change the final draw coordinates to the intended distinct location. No GUI operation or build was run; source-only.
+
+<a id="gd14983"></a>
+## GD14983 — ComplexImage exits successfully when setup fails [conditional]
+
+`main()` proceeds only when `OpenLibrary()`, `OpenScreenTags()` and `OpenWindowTags()` succeed, but every failed branch simply skips its nested block and eventually returns `0` (`developer/demos/compleximage.c:137-225`). No diagnostic or nonzero status distinguishes an unsuccessful setup from completion.
+
+**Trigger and consequence:** any of those setup calls fails while the demo is run from a caller that checks its process result. The demo reports success despite failing to create the screen/window or draw the example. **Affected configuration:** the explicitly buildable AROS `developer/demos/compleximage.c` target (`developer/demos/mmakefile.src:12-41,73`); the parent `demos` aggregate edge is disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the success return on each setup failure path. Report setup failures and return a failure status. No resource failure, program launch, GUI operation or build was induced; source-only.
