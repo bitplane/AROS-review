@@ -37724,3 +37724,10 @@ Nouveau GK110 GPC microcode image structure pass (2026-11-08; no new finding; `w
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/gpcgk110.fuc3.h` | 479 | Full 539-line image read; data layout, labels/offsets, padding and selected `gk110.c` consumer checked. Firmware instruction semantics remain unverified. |
+
+
+Nouveau GK110 hub microcode image structure pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/hubgk110.fuc3.h`; 1,046 physical lines, 965 `cloc 2.06` C code lines): confirmed selected inclusion by `gk110.c` and `sizeof`-based code/data firmware descriptors. Read the full hub data and instruction arrays, including state/data regions, MMIO-list seed, labeled init/channel-switch/context-transfer/interrupt paths, labels and padding. Array structure and labeled offsets are consistent with the generated word layout, with no independent initializer or data-layout defect established. The instruction stream has no source here for semantic verification. No firmware execution or build was run; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/hubgk110.fuc3.h` | 965 | Full 1,046-line image read; data layout, labels/offsets, padding and selected `gk110.c` consumer checked. Firmware instruction semantics remain unverified. |
