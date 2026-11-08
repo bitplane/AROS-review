@@ -16925,7 +16925,6 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[OD11536](AROS-other-drivers.md#od11536-nouveau-log-flusher-creation-failure) — Nouveau logging retains its 2 MiB ring and reports initialization success when the log-flusher process cannot be created; ordinary buffered messages are then not flushed. Conditional on Exec process-creation failure during optional Nouveau startup; source-only.**
 
-**[OD11537](AROS-other-drivers.md#od11537-pc-irq-chain-smp-race) — PC IRQ dispatch uses a shared traversal cursor and omits the SMP lock that serializes handler-list mutation, allowing concurrent dispatch or registration/removal to corrupt the walk. Conditional on cross-CPU IRQ activity in an SMP PC build; source-only.**
 
 **[OD2327](AROS-other-drivers.md#od2327-usb-configuration-descriptor-failure) — USB `Configure()` ignores failed configuration-descriptor transfers, derives a request size from an uninitialized stack field, and can report success while leaving the device unconfigured. Conditional on transfer failure and a positive allocatable residual length; source-only.**
 
