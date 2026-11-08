@@ -22219,6 +22219,13 @@ The shared cleanup routine always exits zero, including when `openlibs()` fails 
 
 **Trigger and consequence:** reqtools.library cannot be opened. The palette requester demo prints an error but exits successfully without showing its requester. **Affected configuration:** the explicitly buildable `developer/demos/rtpalette.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the failure branch and zero exit status. Return a failure code from cleanup. No library failure, requester operation or build was run; source-only.
 
+<a id="gd15031"></a>
+## GD15031 — ShadowBorder exits successfully when intuition.library cannot open [conditional]
+
+If `OpenLibrary("intuition.library", 37)` fails, `main()` skips the entire window/drawing path and returns zero (`developer/demos/shadowborder.c:92-96,162-166`). No diagnostic or failure status is produced.
+
+**Trigger and consequence:** intuition.library cannot be opened. The border demo exits successfully despite never drawing its example. **Affected configuration:** the explicitly buildable `developer/demos/shadowborder.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the guarded path and unconditional zero return. Report the failure and return nonzero. No library failure, window operation or build was run; source-only.
+
 <a id="gd15030"></a>
 ## GD15030 — ScreenModeReq exits successfully when ASL setup fails [conditional]
 
