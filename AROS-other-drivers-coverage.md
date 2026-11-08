@@ -37465,3 +37465,10 @@ Nouveau GM107 display generation full-body/caller pass (2026-11-08; no new findi
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gm107.c` | 81 | Full 113-line body read; DP pattern mapping, SOR callback composition, chipset selection and user-class mapping checked. No independent finding. Hardware register behavior remains unverified. |
+
+
+Nouveau GM200 display generation exact-path coverage reconciliation (OD10062 rechecked; 2026-11-08; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gm200.c`; 196 physical lines, 148 `cloc 2.06` C code lines): re-read the full source body and matched it to the existing OD10062 review. Confirmed `sources.drm.mak:237` and GM200/GM204/GM206 device-table selection. Rechecked DP drive lane/parameter indexing against the selected training caller and lane map; HDMI SCDC/control callbacks; SOR route set/get and the zero-sublink path; HDA selection; and display class/function composition. The route helper reads an uninitialized `sor[1]` when `outp->info.sorconf.link` is zero, and the inherited-route caller can consume the returned resource index; OD10062 already documents this with valid-ROM exposure explicitly unverified. No separate finding added. Hardware register values and VBIOS validity remain open; no GPU, ROM or build was used.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gm200.c` | 148 | Full 196-line body read; DP drive, HDMI SCDC, SOR route read/write, constructor and class mapping checked. OD10062 rechecked. VBIOS zero-mask validity and hardware behavior remain unverified. |
