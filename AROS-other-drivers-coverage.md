@@ -37528,3 +37528,10 @@ Nouveau GA102 GR full-body firmware and generation pass (OD11193 rechecked; OD11
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ga102.c` | 286 | Full 358-line body read; firmware reference paths, converter errors, netlist handling, callbacks and device selection checked. OD11193 rechecked; OD11541 added. Firmware and hardware behavior remain unverified. |
+
+
+Nouveau GA102 GR context-generation pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxga102.c`; 77 physical lines, 48 `cloc 2.06` C code lines): confirmed selection through `ga102_grctx` in `ga102.c` and the active `ctxga102` manifest entry. Read the complete GA102 SM-ID remap, unknown-register setup, ROP context register helper and context sizing/function table. Traced SM-ID callbacks through the shared context generator's actual SM iteration and `gv100_gr_nonpes_aware_tpc()` mapping; the generator invokes it with topology-derived GPC/TPC pairs. Compared the fixed bundle/pagepool/attribute/alpha/GFXP sizes with shared allocation and setup consumers; values are generation parameters rather than caller-provided sizes. No independent bounds, topology-index or lifecycle defect established. Optional Nouveau generation; no context generation, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxga102.c` | 48 | Full 77-line body read; topology-index mapping, fixed context sizing and callback callers checked. No independent finding. Hardware context semantics remain unverified. |
