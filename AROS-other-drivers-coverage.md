@@ -37472,3 +37472,10 @@ Nouveau GM200 display generation exact-path coverage reconciliation (OD10062 rec
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gm200.c` | 148 | Full 196-line body read; DP drive, HDMI SCDC, SOR route read/write, constructor and class mapping checked. OD10062 rechecked. VBIOS zero-mask validity and hardware behavior remain unverified. |
+
+
+Nouveau GP102 display channel/error path full-body and caller pass (OD11540 added; 2026-11-08; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gp102.c`; 200 physical lines, 150 `cloc 2.06` C code lines): confirmed source selection in `sources.drm.mak` and GP102-family device-table entries. Read the full DMA/core channel initialization, channel-function/user tables, error callback and display function table. Traced channel IDs from the 32-bit error-status `ffs()` in `gf119_disp_intr()`, channel object slot assignment/removal in `chan.c`, and method decoding in `nv50_disp_chan_mthd()`. Added OD11540: the error handler's `chid < ARRAY_SIZE` check does not check `disp->chan[chid]` before the `0x080` branch calls a helper that dereferences it; destruction clears the slot. The shared GF119 and NV50 error handlers have the same unchecked pattern. Hardware reporting of an empty slot and a matching method remains conditional. Also checked the fixed channel controls and init timeout propagation; no further independent local issue established. No interrupt, DMA channel, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gp102.c` | 150 | Full 200-line body read; channel setup, control IDs, timeout path, interrupt ID/method handling and selected callers checked. OD11540 added; hardware trigger remains conditional. |
