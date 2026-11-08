@@ -37796,3 +37796,5 @@ Nouveau GM107 GPC FUC5 image and TPC strand data pass (2026-11-08; no new findin
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/gp104.c` | 75 | Full 102-line body read; GP104/GP106 device selection, descriptor, callback implementations, ZBC path and paired firmware manifests checked. Reconfirms OD11193/OD11195 shared-loader applicability; no new finding. |
 
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/gp107.c` | 63 | Full 91-line body read; two-GPC descriptor, mask/ZBC callback bounds, selected device entry and firmware manifest/loader checked. Reconfirms OD11193/OD11195; no new finding. |
+
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/gp108.c` | 67 | Full 98-line body read; v2 ACR descriptor field widths/callback pair, firmware manifest, reused GP107 descriptor and GM200 loader checked. Reconfirms OD11193/OD11195; no new finding. No ACR/device was exercised. |
