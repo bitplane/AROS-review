@@ -16877,3 +16877,13 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[GD5167](AROS-graphics-desktop.md#gd5167) — PSI uses an imported fixed-width public-screen name in unbounded EditWindow concatenation and Copy-action `strcpy()` into an equally sized stack buffer. Conditional on a malformed `.mps` record; source-only.**
 
 **[EK10931](AROS-exec-kernel.md#ek10931) — `NewCreateTaskA()` discards the documented `TASKTAG_FLAGS` value. Conditional on an external caller using the tag; source-only.**
+
+**[OD76](AROS-other-drivers.md#od76) — PrintToFile and PrintToTool can strand a unit semaphore after a drawer-lock failure. Conditional on the selected drawer becoming un-lockable; source-only.**
+
+**[OD77](AROS-other-drivers.md#od77) — PrintToFile and PrintToTool leak the selected drawer lock after restoring the current directory. Conditional on selecting a drawer; source-only.**
+
+**[OD873](AROS-other-drivers.md#od873) — Closing one PrintToFile or PrintToTool opener invalidates the shared unit handle for remaining openers. Conditional on overlapping open lifetimes; source-only.**
+
+**[OD874](AROS-other-drivers.md#od874) — PrintToFile and PrintToTool open a destination before rejecting an unsupported first command. Conditional on a direct client sending that command; source-only.**
+
+**[OD4353](AROS-other-drivers.md#od4353) — PrintToTool fails to compile when its debug logging expands an undeclared `opened` identifier. Conditional on a debug-enabled build; source-only.**
