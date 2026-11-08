@@ -17034,3 +17034,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15015](AROS-graphics-desktop.md#gd15015) — RegionTest reads command tokens into a fixed buffer without a width limit. Conditional on long input. Source-only.**
 **[GD15016](AROS-graphics-desktop.md#gd15016) — RegionTest spins on failed or EOF command input. Conditional on input failure. Source-only.**
 **[GD15017](AROS-graphics-desktop.md#gd15017) — Register demo reports successful exit after setup failures. Conditional on a failed setup call. Source-only.**
+**[GD15018](AROS-graphics-desktop.md#gd15018) — RealTime demo falls through from PM_STATE and labels it bogus. Conditional on a state callback. Source-only.**

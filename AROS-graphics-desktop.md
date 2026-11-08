@@ -22142,6 +22142,13 @@ The shared `cleanup(msg)` routine prints any initialization diagnostic, releases
 
 **Trigger and consequence:** one of those setup operations fails while the demo is run from a caller that checks its process status. The demo exits successfully despite not displaying or operating the register control. **Affected configuration:** the explicitly buildable `developer/demos/register.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the unconditional success exit and reachable failures. Return a failure status from error cleanup. No resource failure, GUI operation or build was induced; source-only.
 
+<a id="gd15018"></a>
+## GD15018 — RealTime demo classifies every state-change callback as bogus [conditional]
+
+The `PM_STATE` case prints the old state but has no `break`, so execution falls through to `default` and prints an “Error: Bogus message” line for the same valid state message (`developer/demos/realtdemo.c:94-108`).
+
+**Trigger and consequence:** the player hook receives a `PM_STATE` notification, such as when conductor state changes. The demo emits a false bogus-message diagnostic after correctly identifying the state change. **Affected configuration:** the explicitly buildable `developer/demos/realtdemo.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the switch fallthrough. Add a `break` after the state-change case. No player or callback was run; source-only.
+
 <a id="gd15009"></a>
 ## GD15009 — Notify demo waits forever if StartNotify fails [conditional]
 
