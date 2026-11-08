@@ -37745,3 +37745,10 @@ Nouveau GK208 hub firmware image structure pass (2026-11-08; no new finding; `wo
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/hubgk208.fuc5.h` | 837 | Full 918-line image read; data layout, labels/offsets, padding and selected `gk208.c` consumer checked. Firmware instruction semantics remain unverified. |
+
+
+Nouveau GM107 GPC FUC5 image and TPC strand data pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/gpcgm107.fuc5.h`; 607 physical lines, 543 `cloc 2.06` C code lines): confirmed selected inclusion by `gm107.c` and code/data arrays used by `sizeof`-based firmware descriptors. Read the complete image, including its initialized GPC data, queue/context routines, GPC initialization, TPC strand wait/init routines, context transfer and interrupt paths, labels and zero padding. The added TPC strand entries have coherent labeled word offsets and remain within the instruction array; no independently demonstrable layout defect established. The generated machine code has no source here for semantic validation. No firmware execution or build was run; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/gpcgm107.fuc5.h` | 543 | Full 607-line image read; GPC data, TPC strand entries, labels/offsets, padding and selected `gm107.c` consumer checked. Firmware instruction semantics remain unverified. |
