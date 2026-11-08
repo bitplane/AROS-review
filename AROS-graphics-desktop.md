@@ -22079,6 +22079,27 @@ The common `cleanup(msg)` routine prints an error if supplied, releases acquired
 
 **Trigger and consequence:** one of these setup operations fails while the demo is run by a caller that checks its process result. The program reports success despite failing setup. **Affected configuration:** the explicitly buildable `developer/demos/gtmultiselect.c` target. **Confidence:** high for the unconditional success exit and reachable failure calls. Return a failure status from error cleanup. No setup failure, GUI operation or build was induced; source-only.
 
+<a id="gd15001"></a>
+## GD15001 — Lens demo does not handle region allocation failure [conditional]
+
+`DoLens()` uses the result of `NewRegion()` without checking it, passing it to `OrRectRegion()` and then `CollectPixelsLayer()` (`developer/demos/lens.c:175-206`). The selected `OrRectRegion()` implementation immediately reads `Reg->RegionRectangle` (`rom/graphics/orrectregion.c:70-78`), so a NULL allocation result is dereferenced before the collection call.
+
+**Trigger and consequence:** region allocation fails during initial display or a mouse-move refresh. The demo dereferences NULL and cannot complete the lens redraw. **Affected configuration:** the explicitly buildable `developer/demos/lens.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the unchecked allocation and selected consumer. Check `NewRegion()` and skip or report the redraw on failure. No allocation failure, callback or GUI operation was run; source-only.
+
+<a id="gd15002"></a>
+## GD15002 — Lens mode uses an unchecked scaling bitmap [conditional]
+
+`MakeWin()` stores `AllocBitMap()` directly in `scalebitmap` without checking for failure, then proceeds into `DoLens()` (`developer/demos/lens.c:219-231`). When the `LENS` switch is selected, `LensCallback()` passes `scalebitmap` to `BitMapScale()` and then `BltBitMapRastPort()` without a NULL guard (`:132-168`).
+
+**Trigger and consequence:** bitmap allocation fails while running the demo with `LENS/S`. The callback uses the absent destination bitmap during scaling and blitting, faulting or failing the lens draw instead of handling the resource failure. **Affected configuration:** the explicitly buildable `developer/demos/lens.c` target with its optional `LENS` argument. **Confidence:** high for the unchecked allocation and use on the lens branch. Check `AllocBitMap()` before entering lens mode and report/fall back if it fails. No allocation failure, callback, GUI operation or build was run; source-only.
+
+<a id="gd15003"></a>
+## GD15003 — Lens scaling callback maps every collected piece to the same destination origin [conditional]
+
+In `LENS` mode, each `CollectPixelsLayer()` callback scales its source piece to destination `(0,0)` and blits that piece from `(0,0)` to `(0,0)` (`developer/demos/lens.c:139-168`). It does not incorporate each callback's source or destination offset when placing the scaled region. `CollectPixelsLayer()` can invoke the hook for multiple source layers/pieces in the requested region (existing coverage at `AROS-graphics-desktop-coverage.md#collectpixelslayer-complete-body-and-screen-background-callback-contract-pass`).
+
+**Trigger and consequence:** the requested lens region is split into multiple callbacks while `LENS/S` is active. Every piece overwrites the same top-left destination area, so the zoomed output does not preserve the source region's spatial layout. **Affected configuration:** the explicitly buildable `developer/demos/lens.c` target with `LENS/S`. **Confidence:** high for the constant-zero destination mapping; the overwrite consequence follows from the callback's repeated blit coordinates. Map each piece to its corresponding relative destination coordinates. No callback or GUI operation was run; source-only.
+
 <a id="gd14993"></a>
 ## GD14993 — Async requester error is reported as the third button [conditional]
 
