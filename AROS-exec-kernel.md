@@ -2742,6 +2742,13 @@ The selected in-tree `smpaffinity` test clears its output mask before each query
 
 **Confidence:** High for additive output and stale-bit retention; no query was run.
 
+<a id="ek291"></a>
+### EK291 — MinGW processor expunge leaks its per-CPU power-information buffer [conditional]
+
+When the optional `wincpu.dll` loads successfully, `wincpu_hostlib_init()` gets the host processor count and allocates `cpucount * 6 * sizeof(ULONG)` bytes into the static `wincpu_pppi` pointer (`arch/all-mingw32/processor/processor_hostlib.c:72-85`). The corresponding expunge hook closes the DLL but never frees or clears `wincpu_pppi` (`:89-100`). The pointer is used as the output buffer passed to the DLL's `win_getcpufreq()` wrapper (`:36-40`); repository search found no separate release or reassignment cleanup.
+
+**Trigger and consequence:** the DLL loads, reports a positive CPU count, the buffer allocation succeeds, and the processor module is later expunged. The expunge releases the DLL but leaves the per-CPU buffer allocated; a subsequent module load allocates another buffer and overwrites the only stored pointer. The same leak occurs if a later processor-library initialization step fails and generated init rollback invokes this expunge hook (`compiler/autoinit/functions.c:42-72`). **Scope:** MinGW32 processor module when `Libs\Host\wincpu.dll` is available; the DLL build dependency is commented in `arch/all-mingw32/processor/mmakefile.src:22-23`, so no default DLL packaging is claimed. **Confidence:** high for the allocation and missing release; module reload/runtime was not exercised. Free `wincpu_pppi` with the matching allocation size on expunge and clear the pointer. No Windows host, module expunge, reload, or build was run; source-only.
+
 <a id="ek9066"></a>
 ### EK9066 — The MinGW processor loader leaks allocated HostLib error strings on both lookup failures.
 

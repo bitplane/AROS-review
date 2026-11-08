@@ -12478,6 +12478,8 @@ GD5421 security.library removal-entrypoint recheck (2026-10-31): the selected ro
 **EK9064 — `TaskTag_CPUAffinity` can leave stale bits in a reused output mask:** the query adds each allowed CPU bit but never clears caller storage; all selected CPU-mask helpers are additive. The in-tree test clears its buffer, so the trigger is a client reusing a nonzero buffer. See [EK9064](AROS-exec-kernel.md#ek9064) and the [caller/output-buffer contract pass](AROS-exec-kernel-coverage.md#L34). Source-only; no query was run.
 
 
+**[EK291](AROS-exec-kernel.md#ek291) — MinGW processor expunge closes `wincpu.dll` but leaves its per-CPU power-information buffer allocated; reloads can accumulate the leaked buffer. Conditional on successful DLL load/allocation and later module expunge; optional MinGW32 backend. Source-only.**
+
 **EK9066 — MinGW processor initialization leaks allocated HostLib error strings:** both DLL-open and symbol-lookup failures omit `HostLib_FreeErrorStr()`; the Windows backend allocates the message with `FormatMessage` and releases it with `LocalFree`. Conditional on either loader failure in the MinGW processor module. See [EK9066](AROS-exec-kernel.md#ek9066) and the [MinGW HostLib ownership trace](AROS-exec-kernel-coverage.md#L4055). Source-only; no Windows host or loader failure was run.
 
 
