@@ -22100,6 +22100,13 @@ In `LENS` mode, each `CollectPixelsLayer()` callback scales its source piece to 
 
 **Trigger and consequence:** the requested lens region is split into multiple callbacks while `LENS/S` is active. Every piece overwrites the same top-left destination area, so the zoomed output does not preserve the source region's spatial layout. **Affected configuration:** the explicitly buildable `developer/demos/lens.c` target with `LENS/S`. **Confidence:** high for the constant-zero destination mapping; the overwrite consequence follows from the callback's repeated blit coordinates. Map each piece to its corresponding relative destination coordinates. No callback or GUI operation was run; source-only.
 
+<a id="gd15004"></a>
+## GD15004 — ListFonts reports success when its result buffer allocation fails [conditional]
+
+The first `AllocMem(afsize, ...)` result is tested only to decide whether to call `AvailFonts()`. If allocation returns NULL, `afshortage` remains zero, the loop exits, output is skipped, and `main()` still returns `RETURN_OK` (`developer/demos/listfonts.c:30-69`). The same silent success occurs if an expanded-buffer allocation fails after `AvailFonts()` reported a shortage.
+
+**Trigger and consequence:** allocation of the initial or resized AvailFonts buffer fails. The demo prints no font list and exits with success, so callers cannot distinguish an incomplete run from a successful empty listing. **Affected configuration:** the explicitly buildable `developer/demos/listfonts.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the allocation/loop/status sequence. Report allocation failure and return `RETURN_FAIL`. No allocation failure, font enumeration or build was induced; source-only.
+
 <a id="gd14993"></a>
 ## GD14993 — Async requester error is reported as the third button [conditional]
 

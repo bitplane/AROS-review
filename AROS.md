@@ -17020,3 +17020,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15001](AROS-graphics-desktop.md#gd15001) — Lens demo dereferences a failed region allocation during redraw. Conditional on NewRegion failure. Source-only.**
 **[GD15002](AROS-graphics-desktop.md#gd15002) — Lens mode uses its scaling bitmap without checking allocation. Conditional on bitmap allocation failure with LENS enabled. Source-only.**
 **[GD15003](AROS-graphics-desktop.md#gd15003) — Lens mode maps collected layer pieces to one destination origin. Conditional on a region split with LENS enabled. Source-only.**
+**[GD15004](AROS-graphics-desktop.md#gd15004) — ListFonts reports success when its result buffer allocation fails. Conditional on allocation failure. Source-only.**
