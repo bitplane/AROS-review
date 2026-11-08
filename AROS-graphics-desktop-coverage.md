@@ -8230,7 +8230,7 @@ Caller search found no checked-in use of `CheckBoxObject` or the Reaction-specif
 |---|---|---|
 | `workbench/classes/reaction/button/mmakefile.src` | Manifest read | Optional target selects `buttonclass`, `button_init`, and `getclass`; parent dependency edges are commented. |
 | `workbench/classes/reaction/button/button.conf` | Full class/vector/method definition read | Confirms Button version 44.2, FRBUTTONCLASS superclass and render/input/domain methods; generated output remains unbuilt. |
-| `workbench/classes/reaction/button/buttonclass.c` | Full 553-line body read | Reviewed tag set/get, text and underscore rendering, selected/disabled images, glyph/bevel ownership, input delegation, and domain sizing. Added GD10017-GD10020. |
+| `workbench/classes/reaction/button/buttonclass.c` | Full 553-line body read; focused tag recheck (2026-11-08) | Reviewed tag set/get, text and underscore rendering, selected/disabled images, glyph/bevel ownership, input delegation, and domain sizing. Added GD10017-GD10020. Rechecked `BUTTON_TextPadding` against its Boolean public-header description: accepted as a no-op; already captured with other inert style/pen tags in GD5535. No maintained caller found. |
 | `workbench/classes/reaction/button/button_init.c` | Full 37-line body read | Traced bevel.image open fallback and cleanup; class init intentionally continues without dependency, causing frame omission if image class lookup also fails. |
 | `workbench/classes/reaction/button/button_intern.h` | Full 56-line private header read | Matched tag fields, cached image pointers and ownership to all implementation paths. |
 | `workbench/classes/reaction/button/getclass.c` | Full 33-line body read | Class getter vector read; no separate issue established. |
