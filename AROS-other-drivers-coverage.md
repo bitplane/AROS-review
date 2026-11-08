@@ -37514,3 +37514,10 @@ Nouveau DMA engine private-header pass (2026-11-08; no new finding; `workbench/h
 | File | `cloc 2.06` C/header code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/dma/priv.h` | 15 | Full 19-line header read; generation callback and DMA-object bind contracts checked against selected common dispatch. No independent finding. Hardware DMA behavior remains unverified. |
+
+
+Nouveau NV04 FIFO register-definition header pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/fifo/regsnv04.h`; 133 physical lines, 131 `cloc 2.06` C/header code lines): read the full NV03/NV04/NV10/NV40/NV50 FIFO register offsets, interrupt bits, context-table fields, cache1 channel masks, DMA-fetch trigger/size/request encodings and endian selector. Matched symbols to selected legacy FIFO consumers in `nv04.c`, `nv10.c`, `nv17.c` and `nv40.c`; generic interrupt, pause, RAMFC and error handling were already reviewed in those body passes. The fetch trigger values advance in eight-byte increments through 256; size encodings advance in 32-byte increments; declared masks cover their enumerated values. No independent source-level definition/consumer mismatch established. Register behavior remains hardware-dependent; no FIFO access, GPU or build was performed.
+
+| File | `cloc 2.06` C/header code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/fifo/regsnv04.h` | 131 | Full 133-line header read; legacy FIFO register/bit definitions reconciled with selected NV04/NV10/NV17/NV40 consumers. No independent finding. Hardware register semantics remain unverified. |
