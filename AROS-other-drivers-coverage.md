@@ -38065,3 +38065,8 @@ IFFParse `InitIFF()` full-body configuration pass (OD11544 stream-flag contract 
 IFFParse `InitIFFasDOS()` full-body wrapper pass (2026-11-08; `workbench/libs/iffparse/initiffasdos.c`, 59 physical lines / 12 `cloc 2.06` C code lines): read the complete selected body and confirmed it installs the DOS stream hook and adds `IFFF_RSEEK` through `InitIFF()`. The autodoc requires the caller to set `iff_Stream` to a DOS file handle and permits callers to change seek flags before `OpenIFF()`; this matches the handler's Open/Read/Write/Seek/Cleanup dispatch and DOS `Seek()` support. Reinitialization on a handle carrying stale flags is not specified, so no standalone defect established. No DOS handle or build was used; source-only.
 
 | `workbench/libs/iffparse/initiffasdos.c` | 12 | Full 59-line body read; selected `FUNCS` entry, DOS hook, default random-seek flag, stream assignment and documented flag override checked. No independent defect. |
+
+
+IFFParse `InitIFFasClip()` full-body wrapper pass (2026-11-08; `workbench/libs/iffparse/initiffasclip.c`, 56 physical lines / 12 `cloc 2.06` C code lines): read the complete selected body and confirmed it installs the clipboard hook with `IFFF_RSEEK`; the documented caller contract separately requires assigning an `OpenClipboard()` handle to `iff_Stream`. Compared the wrapper with the selected clipboard handler's random-access read/write and cleanup paths and the generic `InitIFF()` flag handling. No independent initialization or handler mismatch established. No clipboard handle or build was used; source-only.
+
+| `workbench/libs/iffparse/initiffasclip.c` | 12 | Full 56-line body read; selected `FUNCS` entry, clipboard hook, random-seek flag and stream assignment contract checked. No independent defect. |
