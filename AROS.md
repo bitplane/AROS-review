@@ -17095,3 +17095,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[OD3628](AROS-other-drivers.md#od3628) — WirelessManager leaks its SANA-II event request on teardown.** Conditional on successful SANA-II interface initialization and teardown; source-only.
 
 **[OD1577](AROS-other-drivers.md#od1577) — DSP echo cancellation can free state still in use by the playback mixer.** Conditional on ExecSMP software mixing and concurrent cancellation of active echo; source-only.
+
+**[OD137](AROS-other-drivers.md#od137) — Replacing an active software DSP echo loses its prior delay buffer.** Conditional on an AHI client reconfiguring an active software echo; source-only.
