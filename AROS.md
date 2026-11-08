@@ -16799,6 +16799,8 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **OD11525 — [Nouveau ICCSense one-init leaks its parsed BIOS rail table](AROS-other-drivers.md#od11525-nouveau-iccsense-oneinit-leaks-parsed-bios-rail-table).**
 
+**OD11526 — [Nouveau ICCSense power calculation can overflow signed arithmetic](AROS-other-drivers.md#od11526-nouveau-iccsense-power-calculation-overflows-signed-int).** Intermediate per-rail multiplication and aggregate accumulation are unchecked; the internal API has no in-tree caller, so use remains conditional on a direct client. Optional Nouveau target; source-only.
+
 **OD2319 — [RTL8139 failed-startup cleanup can signal a reclaimed worker task](AROS-other-drivers.md#od2319-rtl8139-failed-startup-can-signal-reclaimed-worker).** On ExecSMP, a failed worker setup can let the child exit and be reclaimed before parent rollback signals its saved process pointer. Optional RTL8139 target; source-only.
 
 **OD2436 — [e1000 shutdown passes a signal number where Exec needs a mask](AROS-other-drivers.md#od2436-e1000-shutdown-signal-is-a-bit-number-not-mask).** On normal worker signal allocation, the shutdown notification misses the wait set, leaving the worker and its timer/ports alive while teardown releases its unit state. Selected x86 PC e1000 target; source-only.
