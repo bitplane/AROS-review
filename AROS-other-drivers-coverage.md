@@ -37995,3 +37995,8 @@ IFFParse `AllocIFF()`/`FreeIFF()` full-body handle-lifecycle pass (2026-11-08; t
 
 | `workbench/libs/iffparse/allociff.c` | 27 | Full 86-line body read; allocation size/flags, default context initialization, depth and FreeIFF pairing checked. No independent defect. |
 | `workbench/libs/iffparse/freeiff.c` | 23 | Full 66-line body read; NULL guard, default-context LCI purge hooks and allocation-size pairing checked. Open-handle cleanup contract is not explicit; no independent defect established. |
+
+
+IFFParse `FindLocalItem()` full-body/context-search pass (2026-11-08; `workbench/libs/iffparse/findlocalitem.c`, 132 physical lines / 77 `cloc 2.06` C code lines): read the complete selected body and checked traversal from the top context through the embedded default context, then each context's local-item list. The search compares all three documented key fields (`type`, `id`, `ident`) and returns the first match or NULL; sentinel traversal and head-first precedence are consistent with the initialized MinLists and `StoreItemInContext()` insertion order. No independent lookup or termination defect established. NULL/invalid IFF handles are outside the documented valid-handle input; no lookup or build was run; source-only.
+
+| `workbench/libs/iffparse/findlocalitem.c` | 77 | Full 132-line body read; selected `FUNCS` entry, context/LCI sentinel traversal and three-key match checked. No independent defect. |
