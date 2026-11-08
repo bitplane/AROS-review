@@ -37486,3 +37486,10 @@ Nouveau NVKM display-channel contract-header pass (2026-11-08; no new finding; `
 | File | `cloc 2.06` C/header code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/chan.h` | 110 | Full 139-line header read; channel object/API, ID publication, callback and method-map contracts traced to constructors and generation implementations. No independent finding. Hardware and runtime channel behavior remain unverified. |
+
+
+Nouveau HDMI infoframe packing contract-header pass (OD10055 rechecked; 2026-11-08; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/hdmi.h`; 16 physical lines, 13 `cloc 2.06` C/header code lines): read the packed five-word hardware layout and packer declaration. Matched the implementation's 17-byte maximum/truncation behavior and byte-to-word assembly to generation callers in `gk104.c` and `gv100.c`, plus the NVIF variable-tail caller in `uoutp.c`. The host request has a bounded fixed-size payload and selected generations install both infoframe callbacks when exposing HDMI infoframe methods. The signed-shift behavior for bytes in the high bit remains covered by OD10055; no separate layout or length defect established. Optional Nouveau source; no infoframe, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C/header code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/hdmi.h` | 13 | Full 16-line header read; packed layout and declaration traced through packer, NVIF variable payload and generation callbacks. OD10055 rechecked; no additional finding. Hardware packing remains unverified. |
