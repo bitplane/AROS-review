@@ -1,4 +1,8 @@
 <a id="usergroup-setlastlog-vector-arity-od11555"></a>
+### UserGroup public vector argument-count/register census (2026-11-08)
+
+Compared the 39 function-list entries in `workbench/libs/usergroup/usergroup.conf` with their direct `AROS_LH` definitions in the selected source set. Entry counts and configured register sequences match except `setlastlog`, recorded as OD11555. This census does not claim generated-header output, target compiler behavior, external call-site compatibility, or full type-equivalence verification; no build was run.
+
 ### UserGroup `setlastlog` public vector arity (OD11555 added; 2026-11-08)
 
 Compared the `setlastlog` function-list entry with generated prototype/call behavior and its source LVO body (`workbench/libs/usergroup/usergroup.conf:72-73`; `tools/genmodule/writeincclib.c:39-49`; `tools/genmodule/functionhead.c:287-310`; `compiler/arossupport/include/libcall.h:602-611`; `workbench/libs/usergroup/getutent.c:367-375,419-436,456-462`). The function list emits a three-argument public prototype and an LVO call passing `(D0,A0,A1)`; the implementation at LVO 42 reads `(D0,A0,A1,A2)` as uid/name/console/host. The generated client's `host` is consumed as `con`, and the implementation reads an unprovided A2 as `host`. Rechecked the repository's `setlastlog` references: only its declaration/documentation and definition are present, with no maintained in-tree call. Added OD11555 as a conditional public API ABI candidate. No generated header, build or call was run; source-only.
