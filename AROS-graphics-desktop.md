@@ -22220,6 +22220,12 @@ The shared cleanup routine always exits zero, including when `openlibs()` fails 
 **Trigger and consequence:** reqtools.library cannot be opened. The palette requester demo prints an error but exits successfully without showing its requester. **Affected configuration:** the explicitly buildable `developer/demos/rtpalette.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the failure branch and zero exit status. Return a failure code from cleanup. No library failure, requester operation or build was run; source-only.
 
 <a id="gd15031"></a>
+## GD15032 — Sift reports success after input or parse failures [conditional]
+
+Every path through `main()` ends at `exit(RETURN_OK)` (`developer/demos/sift.c:105-118,252-261`). This includes failure to open `iffparse.library`, allocate the IFF handle, open the clipboard/file, and any `OpenIFF()` or `ParseIFF()` error. The latter is printed as “File scan aborted” but still produces a successful process status.
+
+**Trigger and consequence:** any setup or input/parser operation fails. Scripts and callers relying on the exit status cannot distinguish a completed scan from a failed or aborted scan. **Affected configuration:** the explicitly buildable `developer/demos/sift.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the unconditional success exit and the preceding error paths. Track a failure status and return it after cleanup. No file/clipboard operation, parser error or build was induced; source-only.
+
 ## GD15031 — ShadowBorder exits successfully when intuition.library cannot open [conditional]
 
 If `OpenLibrary("intuition.library", 37)` fails, `main()` skips the entire window/drawing path and returns zero (`developer/demos/shadowborder.c:92-96,162-166`). No diagnostic or failure status is produced.
