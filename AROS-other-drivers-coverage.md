@@ -37507,3 +37507,10 @@ Nouveau NVKM display private generation-interface header pass (2026-11-08; no ne
 | File | `cloc 2.06` C/header code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/priv.h` | 72 | Full 90-line header read; generation callback, constructor, flexible class-table and lifecycle contracts traced to selected implementations and consumers. No independent finding. Hardware behavior remains unverified. |
+
+
+Nouveau DMA engine private-header pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/dma/priv.h`; 19 physical lines, 15 `cloc 2.06` C/header code lines): read the DMA-object bind callback and engine constructor/function-table declarations. Matched `class_new` to the selected generation engines and common dispatch in `base.c`; traced returned object publication and the common DMA-object binding path. Callback signatures and constructor ownership match their implementations; no independent header contract defect established. Optional Nouveau engine; no DMA object, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C/header code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/dma/priv.h` | 15 | Full 19-line header read; generation callback and DMA-object bind contracts checked against selected common dispatch. No independent finding. Hardware DMA behavior remains unverified. |
