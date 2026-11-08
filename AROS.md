@@ -17136,4 +17136,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15069](AROS-graphics-desktop.md#gd15069) — Disabling generic GFX fast paths exposes a `DRAWPIXEL` fallback that dispatches to `PutPixel` and a `GETIMAGE` fallback with the wrong argument count. Conditional on disabling those currently hard-enabled optimizations; source-only.**
 
 
-**[OD11562](AROS-other-drivers.md#od11562) — UHCI control/bulk transfers return success without queueing when per-transfer signal allocation fails, and can leak one signal bit. Conditional on optional UHCI hardware and task signal exhaustion; enumeration can advance with an unread descriptor. Source-only.**
+
+**[OD2907](AROS-other-drivers.md#od2907) — USB control/bulk transfer methods can leak a task signal when paired signal allocation partially fails; UHCI can also report success without submitting the transfer. Conditional on signal exhaustion; the false-success enumeration path additionally requires optional UHCI hardware. Source-only.**
