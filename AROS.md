@@ -56,6 +56,8 @@
 
 **[EK733](AROS-exec-kernel.md#ek733) — GenModule forms out-of-object suffix pointers for short argument-taking function names in its inline and defines writers. The selected `kernel-exec` include-generation target reaches `Wait` and `SetSR`; manifestation is host/compiler dependent. Source-only; no generation or build was run.**
 
+**[EK8901](AROS-exec-kernel.md#ek8901) — GenModule dereferences an unchecked variadic-alias allocation while generating selected Exec inline/defines headers if host memory allocation fails. The include-generation target then fails; no runtime impact is claimed. Source-only.**
+
 ## Graphics/Desktop findings reconciled into the index (2026-11-02)
 
 **[GD6336](AROS-graphics-desktop.md#gd6336) — The selected m68k Workbench VMM module omits the assembly objects defining `TrapHandler30/40/60`; the unresolved references are expected to block the m68k Workbench aggregate build. The source and active target chain are confirmed; no build/link was run.**
