@@ -22058,6 +22058,27 @@ If the final listview `CreateGadget()` returns NULL, `makegadgets()` calls `Free
 
 **Trigger and consequence:** construction of the final listview gadget fails after a context/list has been created. The already-freed list is traversed and freed again during `gt_end()`, causing use-after-free/double-free behavior in the demo's failure cleanup. **Affected configuration:** the explicitly buildable `developer/demos/gtdemo.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the repeated call and freeing implementation. Let `gt_end()` own the single cleanup, or clear the list pointer after freeing. No allocation failure, GUI operation or build was induced; source-only.
 
+<a id="gd14998"></a>
+## GD14998 — MultiSelect demo uses a missing label after allocation failure [conditional]
+
+`makegadgets()` allocates each list-entry label with `strdup()` and stores the result directly in `lvnode[i].ln_Name` without checking it (`developer/demos/gtmultiselect.c:221-225`). The list is then passed to the GadTools ListView; its render hook unconditionally calls `strlen(node->ln_Name)` and `TextFit()` on the label (`:136-143`).
+
+**Trigger and consequence:** any one of the 40 label allocations fails. The corresponding list node still enters the list with a NULL name, and rendering that entry passes NULL to string functions, faulting instead of reporting allocation failure. **Affected configuration:** the explicitly buildable `developer/demos/gtmultiselect.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the unchecked allocation and later unconditional string use. Check each allocation before publishing the node, and unwind earlier labels on failure. No allocation failure, GUI operation or build was induced; source-only.
+
+<a id="gd14999"></a>
+## GD14999 — MultiSelect demo uses an invalid pen if ObtainBestPen fails [conditional]
+
+`getvisual()` assigns `ObtainBestPen()` to `greenpen` but does not test the returned value (`developer/demos/gtmultiselect.c:83-90`). The API can return -1 when no pen can be found (`rom/graphics/obtainbestpena.c:44-47,107-123`), while the custom listview renderer later passes `greenpen` to `SetAPen()` when drawing a selected entry (`gtmultiselect.c:176-180`).
+
+**Trigger and consequence:** the colormap cannot provide or match a pen and `ObtainBestPen()` returns -1, followed by rendering a selected list entry. The renderer uses an invalid pen index for the checkmark. **Affected configuration:** the explicitly buildable `developer/demos/gtmultiselect.c` target. **Confidence:** high for the unchecked error sentinel and use site. Fall back to a valid DrawInfo pen or disable the checkmark when acquisition fails. No pen allocation, GUI operation or build was run; source-only.
+
+<a id="gd15000"></a>
+## GD15000 — MultiSelect demo reports successful exit after setup errors [conditional]
+
+The common `cleanup(msg)` routine prints an error if supplied, releases acquired resources and always terminates with `exit(0)` (`developer/demos/gtmultiselect.c:36-58`). It is used when opening required libraries, locking the public screen, obtaining DrawInfo/VisualInfo, creating the list gadget, or opening the window fails (`:61-93,245-279`).
+
+**Trigger and consequence:** one of these setup operations fails while the demo is run by a caller that checks its process result. The program reports success despite failing setup. **Affected configuration:** the explicitly buildable `developer/demos/gtmultiselect.c` target. **Confidence:** high for the unconditional success exit and reachable failure calls. Return a failure status from error cleanup. No setup failure, GUI operation or build was induced; source-only.
+
 <a id="gd14993"></a>
 ## GD14993 — Async requester error is reported as the third button [conditional]
 

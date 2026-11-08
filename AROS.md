@@ -17014,3 +17014,6 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD14995](AROS-graphics-desktop.md#gd14995) — Font2C copies unbounded command arguments into fixed-size buffers. Conditional on long/malformed input. Source-only.**
 **[GD14996](AROS-graphics-desktop.md#gd14996) — Font2C returns success after font/output failures. Conditional on failed conversion or output I/O. Source-only.**
 **[GD14997](AROS-graphics-desktop.md#gd14997) — GadTools demo double-frees its gadget list after final gadget construction failure. Conditional on allocation failure. Source-only.**
+**[GD14998](AROS-graphics-desktop.md#gd14998) — MultiSelect demo leaves NULL labels in list nodes after allocation failure. Conditional on label allocation failure. Source-only.**
+**[GD14999](AROS-graphics-desktop.md#gd14999) — MultiSelect renderer uses an invalid pen if pen acquisition fails. Conditional on ObtainBestPen returning -1. Source-only.**
+**[GD15000](AROS-graphics-desktop.md#gd15000) — MultiSelect demo exits successfully after setup errors. Conditional on a failed setup call. Source-only.**
