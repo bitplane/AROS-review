@@ -37521,3 +37521,10 @@ Nouveau NV04 FIFO register-definition header pass (2026-11-08; no new finding; `
 | File | `cloc 2.06` C/header code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/fifo/regsnv04.h` | 131 | Full 133-line header read; legacy FIFO register/bit definitions reconciled with selected NV04/NV10/NV17/NV40 consumers. No independent finding. Hardware register semantics remain unverified. |
+
+
+Nouveau GA102 GR full-body firmware and generation pass (OD11193 rechecked; OD11541 added; 2026-11-08; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ga102.c`; 358 physical lines, 286 `cloc 2.06` C code lines): confirmed selection in `sources.drm.mak:299,323` and GA102–GA107 device-table use. Read all ZBC, FECS/GPCCS reset, interrupt-vector, MMU and function-table code; the netlist parser, register-conversion loop, signed-firmware transfer path, firmware interface fallback and constructor caller. Rechecked OD11193: converter errors are dropped by the region switch. Added OD11541: after `nvkm_firmware_get("gr/NET_img")`, either ACR signed-image load error returns without `nvkm_firmware_put()`; the wrapper's no-firmware fallback or forced-version error does not free that reference. Traced `nvkm_firmware_put()` to `release_firmware()` and the `nvkm_firmware_load()` retry/fallback behavior. Netlist region count/offset validation is absent, but did not promote arbitrary firmware corruption as a supported trigger; vendor firmware structure validity remains an external contract. No firmware, GPU, ACR operation or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ga102.c` | 286 | Full 358-line body read; firmware reference paths, converter errors, netlist handling, callbacks and device selection checked. OD11193 rechecked; OD11541 added. Firmware and hardware behavior remain unverified. |
