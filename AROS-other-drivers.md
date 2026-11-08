@@ -41168,6 +41168,7 @@ The selected DRM client installs an AUX transfer for every DisplayPort/eDP conne
 Sources: `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/uconn.c:94-149`; `.../disp/dp.c:645-657`; `.../disp/uoutp.c:620-653`; `.../nvkm/core/uevent.c:125-132`; `.../nvkm/core/event.c:170-185`; `.../nvkm/subdev/gpio/base.c:129-143`; `workbench/hidds/nouveau/drm/nouveau/nouveau_connector.c:1204-1212,1401-1409,1432-1443`; `workbench/hidds/nouveau/drm/nouveau/nouveau_dp.c:483-521`. Source-only review.
 
 
+<a id="od11540-nouveau-display-error-handler-dereferences-an-empty-channel-slot-conditional-optional-target"></a>
 ## OD11540 — Nouveau display error handler dereferences an empty channel slot [conditional optional target]
 
 The GP102 display error handler checks only that the reported channel ID fits `disp->chan`; when the reported method is `0x080`, it passes `disp->chan[chid]` to `nv50_disp_chan_mthd()` without checking whether the slot contains a channel (`workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gp102.c:159-163`). The helper immediately reads `chan->disp` (`nv50.c:480-484`), so an empty slot faults while processing the interrupt. Channel destruction clears its slot (`chan.c:150-158`), and the shared GF119 and NV50 error callbacks have the same unchecked call (`gf119.c:1086-1090`; `nv50.c:1456-1460`).
@@ -41175,6 +41176,7 @@ The GP102 display error handler checks only that the reported channel ID fits `d
 Trigger: a display error interrupt reports method `0x080` for a channel ID whose software slot is empty, including a pending report racing channel destruction. Consequence: a null dereference in the display interrupt handler can prevent normal error acknowledgment and interrupt processing. The source establishes the empty-slot state and unchecked dereference; it does not establish how often hardware reports this combination. Affected build-selected Nouveau display targets using these error handlers, including GP102 and GF119-derived configurations. Confidence: high for the code-path failure, conditional for hardware/teardown reachability. Source-only; no hardware interrupt or build was exercised.
 
 
+<a id="od11541-ga102-gr-firmware-reference-is-released-only-on-success-conditional-optional-target"></a>
 ## OD11541 — GA102 GR firmware reference is released only on success [conditional optional target]
 
 `ga102_gr_load()` acquires the `NET_img` firmware with `nvkm_firmware_get()` and releases it only after both FECS and GPCCS ACR transfers succeed (`workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ga102.c:283-285,320-341`). Either transfer error returns directly without `nvkm_firmware_put()`. `nvkm_firmware_get()` obtains a firmware reference and its paired put calls `release_firmware()` (`nvkm/core/firmware.c:73-110`); the GR firmware-selection wrapper may then try the no-firmware fallback or fail a forced-version initialization, but neither releases the leaked reference.
