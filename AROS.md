@@ -17127,3 +17127,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15066](AROS-graphics-desktop.md#gd15066) — When the optional VMM swap bitmap is full, slot allocation returns slot zero as if it were free; a dirty resident frame without a prior slot can overwrite the saved contents of another page. Conditional on a full paging area and that eviction state; AROS startup defects separately limit practical reachability. Source-only.**
 
 **[GD15067](AROS-graphics-desktop.md#gd15067) — VMM swap-bitmap code shifts signed one into bit 31 in padding, allocation, and free masks on 32-bit integer targets. This is undefined C behavior; bitmap corruption depends on compiler behavior. Optional VMM only; source-only.**
+
+**[GD15068](AROS-graphics-desktop.md#gd15068) — VMM page-file fallback converts a failed `Seek()` result to a huge unsigned size, skips preallocation, then reports the configured size. Conditional on `SetFileSize()` and `Seek()` both failing in file mode; source-only.**
