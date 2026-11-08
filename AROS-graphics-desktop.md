@@ -22467,3 +22467,17 @@ After opening graphics.library and intuition.library, the console-device failure
 For each raw-key message, `buf` is an uninitialized local array and `RawKeyConvert()` fills it with `len` bytes (`developer/demos/demowin.c:635-646`). The function rejects only negative lengths, then tests `*buf` without checking for zero. If a key event converts to zero characters, it reads an uninitialized byte; if that byte happens to be ESC, the later exit check can also use it as though it were converted input.
 
 **Trigger and consequence:** a raw key converts to zero output bytes. The code still reads `buf[0]`, whose value is indeterminate. The subsequent exit check also evaluates that byte before checking `len == 1`, though the length condition prevents a zero-length result from exiting. **Affected configuration:** explicitly selected by `developer/demos/mmakefile.src:12-41,73`; parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the uninitialized read and missing `len > 0` guard; zero-byte conversion is a valid result for unmapped/nonprinting input. Check `len > 0` before examining `buf[0]`. No key event or build was run; source-only.
+
+<a id="gd15054"></a>
+## GD15054 — DataType demo uses attributes after an unsuccessful query [conditional]
+
+`name`, `nomwidth`, and `nomheight` are uninitialized locals, and the return from `GetDTAttrs()` is used only as a print guard (`developer/demos/dto.c:120-142`). Execution continues regardless; the code later prints `name`, passes it as `WA_Title`, and reads both dimensions when constructing the window (`:188-211`). If the query fails or returns without setting all requested attributes, those uses consume indeterminate values.
+
+**Trigger and consequence:** a DataType object does not provide all requested attributes. The demo can print or pass an invalid title pointer and choose window dimensions from uninitialized values. **Affected configuration:** explicitly selected by `developer/demos/mmakefile.src:12-41,73`; parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the uninitialized locals and ignored query result; incomplete attribute retrieval is possible because the result is explicitly checked. Initialize the outputs and stop or supply defaults when required attributes are absent. No DataType object or build was run; source-only.
+
+<a id="gd15055"></a>
+## GD15055 — DataType demo calls dependent APIs after unchecked library opens [conditional]
+
+After `datatypes.library` opens, the results of opening intuition.library, graphics.library, and utility.library are not checked (`developer/demos/dto.c:109-114`). The code immediately creates a DataType object and later calls Intuition operations including `LockPubScreen()` and `OpenWindowTags()`.
+
+**Trigger and consequence:** any of those required library opens fails. The demo continues into object creation or APIs that depend on the missing library base, rather than stopping and unwinding. **Affected configuration:** explicitly selected by `developer/demos/mmakefile.src:12-41,73`; parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the unchecked opens and subsequent dependent calls. Check each result before continuing and close only successfully opened libraries. No library failure or build was induced; source-only.

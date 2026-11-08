@@ -17071,3 +17071,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15051](AROS-graphics-desktop.md#gd15051) — `cxtest` uses Intuition before checking its library open. Conditional. Source-only.**
 **[GD15052](AROS-graphics-desktop.md#gd15052) — DemoWin device/window setup failures bypass resource cleanup. Conditional. Source-only.**
 **[GD15053](AROS-graphics-desktop.md#gd15053) — DemoWin reads an uninitialized key byte when raw-key conversion yields no output. Conditional. Source-only.**
+**[GD15054](AROS-graphics-desktop.md#gd15054) — dto uses DataType attributes after a failed or partial query. Conditional. Source-only.**
+**[GD15055](AROS-graphics-desktop.md#gd15055) — dto continues after dependent library opens fail. Conditional. Source-only.**
