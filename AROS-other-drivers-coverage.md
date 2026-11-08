@@ -38015,3 +38015,8 @@ IFFParse `AllocLocalItem()` full-body allocation-failure pass (2026-11-08; `work
 IFFParse `LocalItemData()` full-body accessor pass (2026-11-08; `workbench/libs/iffparse/localitemdata.c`, 56 physical lines / 16 `cloc 2.06` C code lines): read the complete selected body and matched its null-item behavior and returned user-data pointer to the `AllocLocalItem()` allocation contract. NULL input returns NULL; a valid LCI returns its owned user-data pointer, which may itself be NULL when allocated with zero data size. No independent accessor defect established. No caller or build was exercised; source-only.
 
 | `workbench/libs/iffparse/localitemdata.c` | 16 | Full 56-line body read; selected `FUNCS` entry, NULL input and optional-data behavior checked. No independent defect. |
+
+
+IFFParse `SetLocalItemPurge()` full-body ownership-contract pass (2026-11-08; `workbench/libs/iffparse/setlocalitempurge.c`, 60 physical lines / 14 `cloc 2.06` C code lines): read the complete selected body and traced its hook assignment into `PurgeLCI()`, replacement in `StoreItemInContext()`, and the property/collection purge-hook users. `PurgeLCI()` first unlinks the LCI, invokes its configured callback with `IFFCMD_PURGELCI`, and relies on that callback to call `FreeLocalItem()` as documented; the built-in property and collection callbacks follow that ownership contract. The setter assumes a valid allocated LCI, consistent with its API description. No independent ownership or hook-installation defect established. No purge callback or build was run; source-only.
+
+| `workbench/libs/iffparse/setlocalitempurge.c` | 14 | Full 60-line body read; selected `FUNCS` entry, PurgeLCI callback contract and built-in property/collection users checked. No independent defect. |
