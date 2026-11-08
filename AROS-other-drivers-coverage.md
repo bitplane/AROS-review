@@ -37395,3 +37395,10 @@ Nouveau GP100 display-generation full-body and SOR caller pass (2026-11-08; no n
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gp100.c` | 55 | Full 85-line body read; SOR HDA capability selection, caller index, function/class mapping, and GP102 reuse checked. No independent finding. Hardware register behavior remains unverified. |
+
+
+Nouveau NV04 display-generation head/vblank full-body and caller pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/nv04.c`; 130 physical lines, 91 `cloc 2.06` C lines): read both legacy head register callbacks, vblank enable/disable, the two-head constructor, and display interrupt dispatch. Matched the selected source-list path and NV04 chipset registrations in the device table; the constructor creates heads 0 and 1, matching interrupt status/ack registers and the generic vblank event's head-index range. Traced scanout state through the `uhead.c` vtotal/htotal zero rejection before blank-end values are consumed, and confirmed generic display teardown walks and frees linked heads. The PVIDEO status path acknowledges only observed bits. No independent local mismatch established; register, timing and interrupt semantics remain hardware-dependent. Optional Nouveau source; no MMIO, interrupt, allocation failure, or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/nv04.c` | 91 | Full 130-line body read; legacy head registers, vblank status/ack, head-count setup, scanout caller and linked-head teardown checked. No independent finding. Hardware register behavior remains unverified. |
