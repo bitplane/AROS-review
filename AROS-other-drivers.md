@@ -39010,6 +39010,20 @@ The VUSBHCI handler sends its startup signal immediately on entry, before creati
 
 **Trigger and consequence:** handler message-port or I/O-request allocation fails, or opening `timer.device` fails, after the child has sent its startup signal. Init proceeds as if the worker were running and publishes the unit. Later non-root transfer requests can remain queued indefinitely without completion because the worker has exited. **Scope:** explicitly built VUSBHCI; conditional on one of the worker's post-signal setup failures and a subsequent non-root transfer request. **Confidence:** high for the signal-before-setup ordering, setup-failure exit, and queue/worker ownership; no failure or request was induced. Signal readiness only after worker setup succeeds, and report startup failure to Init so it can reject and unwind the unit. No allocation failure, device, request, or build was exercised; source-only.
 
+<a id="od9962-vusbhci-does-not-enumerate-preconnected-host-devices"></a>
+## OD9962 — VUSBHCI does not enumerate host USB devices already connected at startup [conditional]
+
+The libusb hotplug callback is registered for arrival and departure events with callback flags set to zero (`rom/usb/vusbhc/vusbhci_bridge.c:229-238`). The callback only handles arrivals when `unit->allocated` is true (`:30-47`), and the unit becomes allocated later in VUSBHCI's Open path (`rom/usb/vusbhci_device.c:156-195`). The registration does not request libusb's enumeration of devices already attached. The later Open/reset path initializes the emulated root hub but does not scan existing host devices (`rom/usb/vusbhc/vusbhci_commands.c:114-124`; selected Poseidon enumeration caller `rom/usb/poseidon/poseidon.library.c:4098-4145,4272-4305`).
+
+**Trigger and consequence:** a host USB device is already connected when VUSBHCI registers its callback, or its arrival callback is consumed before the unit is allocated. With no later physical unplug/replug to generate another arrival event, VUSBHCI does not attach that backing device to the emulated root hub. **Scope:** explicitly built VUSBHCI on a hosted target with libusb hotplug support; optional backend. **Confidence:** high for registration flags and the callback's allocation gate; host-device enumeration behavior follows the libusb callback contract and is conditional on its implementation. Request enumeration of already attached devices or scan them when the unit becomes active. No host device, callback, root-hub request, or build was used; source-only.
+
+<a id="od9963-vusbhci-skips-interface-claim-when-no-kernel-driver-active"></a>
+## OD9963 — VUSBHCI skips claiming USB interfaces with no active host kernel driver [conditional]
+
+For each interface in the active configuration, VUSBHCI calls `libusb_claim_interface()` only inside a branch where `libusb_kernel_driver_active()` returns 1 (`rom/usb/vusbhc/vusbhci_bridge.c:73-113`). If no host kernel driver is active, the code only logs and proceeds without claiming the interface. The later asynchronous endpoint paths submit transfers using the open device handle without claiming the corresponding interface (`:465-589`). The libusb interface contract requires an interface to be claimed before transferring through it.
+
+**Trigger and consequence:** VUSBHCI opens a non-SuperSpeed host device with an interface that has no active host kernel driver. The callback leaves that interface unclaimed, then endpoint transfers targeting it are submitted anyway and can fail as unclaimed-interface requests, preventing the emulated device from operating. **Scope:** explicitly built VUSBHCI on a hosted target; conditional on a backing device/interface with no active kernel driver. **Confidence:** high for the local branch and transfer ordering; the claim-before-transfer requirement is the libusb API contract. Claim each interface after any required detach, including when no kernel driver was active. No device, transfer, callback, or build was run; source-only.
+
 <a id="od9966-vusbhci-init-failure-leaves-host-library-open"></a>
 ## OD9966 — VUSBHCI initialization failure leaves the host libusb library open [conditional]
 
