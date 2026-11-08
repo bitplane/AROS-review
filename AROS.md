@@ -17005,3 +17005,6 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD14986](AROS-graphics-desktop.md#gd14986) — Console charmap demo fails to detect I/O request allocation failures. Conditional on request allocation failure; explicit demo target. Source-only.**
 **[GD14987](AROS-graphics-desktop.md#gd14987) — CoolButton demo reports successful exit after setup failures. Conditional on a failed setup call; explicit demo target. Source-only.**
 **[GD14988](AROS-graphics-desktop.md#gd14988) — CxTest misses window, broker, and message-port cleanup on failure and normal shutdown. Conditional on setup failures; explicit demo target. Source-only.**
+**[GD14989](AROS-graphics-desktop.md#gd14989) — DemoWin examines an uninitialized raw-key buffer when conversion returns zero. Conditional on a zero-length raw-key conversion. Source-only.**
+**[GD14990](AROS-graphics-desktop.md#gd14990) — DemoWin ignores console.device open failure and reads an uninitialized request field. Conditional on OpenDevice failure. Source-only.**
+**[GD14991](AROS-graphics-desktop.md#gd14991) — DemoWin skips acquired-resource cleanup on console-device/window setup failures. Conditional on a failed setup call. Source-only.**
