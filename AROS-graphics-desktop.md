@@ -21879,3 +21879,12 @@ The FTManager listview maps `MUIA_Listview_DoubleClick` to an application return
 **Trigger and consequence:** run FTManager CLI with `COPY` enabled and a DOS filesystem returns a nonnegative count smaller than the requested chunk length. The copy helper reports success and leaves a truncated font file in the target directory; a later FreeType rejection still leaves that file behind. **Affected configuration:** the FTManager CLI `COPY/S` path and a filesystem that returns a short `Write()` result. **Confidence:** high for the unchecked byte count, success propagation, and missing partial-file cleanup; occurrence depends on a short nonnegative filesystem write. Require the full requested byte count and remove the partial target on failure. No copy, file write, font parse, or build was run; source-only.
 
 **Coverage evidence:** [FTManager CLI copy short-write trace](AROS-graphics-desktop-coverage.md#ftmanager-cli-copy-short-write-gd14967).
+
+<a id="gd14969-ftmanager-cli-readargs-leak"></a>
+## GD14969 — FTManager CLI does not release successful ReadArgs allocations
+
+`ftmanager_cli()` calls `ReadArgs(..., NULL)`, which allocates the `RDArgs` structure and parser buffers and marks the structure as owned by ReadArgs (`workbench/system/ftmanager/cli.c:172`; `rom/dos/readargs.c:238-250,936-941`). After a successful parse, the function has several error returns and a normal return, but none calls `FreeArgs()`. The FreeArgs contract and implementation release the argument buffers, internal list, and ReadArgs-allocated structure (`rom/dos/freeargs.c:23-35,55-81`). Parse failures are cleaned within ReadArgs and are not included.
+
+**Trigger and consequence:** run FTManager in CLI mode with arguments that parse successfully. Each invocation retains the parser structure and its allocations after returning, including early failures after parsing. **Affected configuration:** FTManager's CLI entry path (`argc > 1`); the GUI path does not call `ftmanager_cli()` (`ftmanager.c:389-397`). **Confidence:** high for successful allocation and missing cleanup; no command or memory-pressure scenario was run. Call `FreeArgs(rdargs)` on all post-parse exits after the argument values are no longer needed. Source-only review.
+
+**Coverage evidence:** [FTManager CLI ReadArgs ownership trace](AROS-graphics-desktop-coverage.md#ftmanager-cli-readargs-ownership-gd14969).
