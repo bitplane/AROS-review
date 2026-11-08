@@ -16864,3 +16864,4 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[EK10926](AROS-exec-kernel.md#ek10926) — the PC Multiboot2 memory-map converter advances extended source entries by `entry_size` but emits a fixed-stride legacy list, so later map records are misread. Conditional on an extended entry-size tag; source-only.**
 
 **[OD11531](AROS-other-drivers.md#od11531-ahi-v2-close-reads-v4-private-tail) — with AHI debug level Low or higher, closing a short V2 `AHI_NO_UNIT` request reads V4-only private data beyond the accepted request length. Conditional on a legacy short-structure client; source-only.**
+**[EK10927](AROS-exec-kernel.md#ek10927) — the public Multiboot2 module-alignment header type incorrectly includes framebuffer fields, making it 20 bytes instead of the specified 8-byte tag. Conditional on an external image producer using the type; no in-tree use found. Source-only.**
