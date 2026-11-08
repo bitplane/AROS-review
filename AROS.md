@@ -16898,3 +16898,6 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 
 **[OD10195](AROS-other-drivers.md#od10195-hosted-oss-wrong-base) — The hosted OSS AHI driver shadows its OSS library base with the AHI module base, so callbacks and cleanup pass the wrong base and leave `oss.library` open. Conditional on the hosted OSS driver; source-only.**
+
+
+**[EK10934](AROS-exec-kernel.md#ek10934) — Workbench leaks its duplicated `NP_HomeDir` lock when `CreateNewProc()` fails after lock duplication. Conditional on a later process-setup failure during Workbench launch; source-only.**
