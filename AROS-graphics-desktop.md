@@ -22226,6 +22226,12 @@ The shared cleanup routine always exits zero, including when `openlibs()` fails 
 
 **Trigger and consequence:** shape allocation succeeds. The demo retains the region allocation through process cleanup instead of disposing it after the window is closed. **Affected configuration:** the explicitly buildable `developer/demos/winshape.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for allocation and the disabled matching disposal; caller must release the region after its use. Dispose `shape` after `CloseWindow()`. No window operation or build was run; source-only.
 
+## GD15040 — Greek NList help places the partial-column mark on the wrong side [unconditional localization]
+
+The Greek `MSG_PARTIAL_COL_MARK_HELP` says the special mark is drawn on the left side of the column (`workbench/classes/zune/nlist/nlistviews_mcp/locale/greek.po:406-411`), while the English source says it is drawn at the right side. The option concerns a visible overflow marker, so this direction is the core guidance for locating it.
+
+**Trigger and consequence:** a Greek-speaking user enables the partial-column mark and follows the help text. They look for the indicator on the wrong edge of the column. **Affected configuration:** the selected Greek NListviews MCP catalog. **Confidence:** high; the translated side contradicts the source. Correct the translation to say right side. No locale generation or GUI operation was run; source-only.
+
 ## GD15039 — German NList option reverses partial-character behavior [unconditional localization]
 
 The German `MSG_PARTIAL_CHARS_DRAWN` label says partial characters are drawn, and its help text says enabled characters that are not fully visible “will ... still be displayed at least partially” (`workbench/classes/zune/nlist/nlistviews_mcp/locale/german.po:437-447`). The English source defines the opposite behavior: when enabled, characters not fully visible at the left/right edge will **not** be drawn partially.
