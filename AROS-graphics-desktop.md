@@ -22226,6 +22226,12 @@ The shared cleanup routine always exits zero, including when `openlibs()` fails 
 
 **Trigger and consequence:** shape allocation succeeds. The demo retains the region allocation through process cleanup instead of disposing it after the window is closed. **Affected configuration:** the explicitly buildable `developer/demos/winshape.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for allocation and the disabled matching disposal; caller must release the region after its use. Dispose `shape` after `CloseWindow()`. No window operation or build was run; source-only.
 
+## GD15038 — Czech NList help text describes a different pointer feature [unconditional localization]
+
+The Czech translation of `MSG_SELECT_POINTER_HELP` says that the pointer changes when moved over the column-width resize area (`workbench/classes/zune/nlist/nlistviews_mcp/locale/czech.po:514-520`). Its English source says the option changes the pointer while an NList object is in character-wise selection mode. The localized help therefore describes a different feature from the setting it accompanies.
+
+**Trigger and consequence:** the NListviews preferences MCP is displayed in Czech and the user reads this help text. They are given incorrect guidance about when the custom selection pointer appears. **Affected configuration:** the Czech catalog selected by the NListviews MCP locale rule (`workbench/classes/zune/nlist/nlistviews_mcp/mmakefile.src` and `locale/czech.po`). **Confidence:** high; the Czech wording refers to column resizing, which is not in the source message. Correct the translation to describe character-wise selection mode. No locale generation or GUI operation was run; source-only.
+
 ## GD15037 — WindowShape exits successfully after setup failures [conditional]
 
 The shared `cleanup(msg)` prints any setup error but unconditionally calls `exit(0)` (`developer/demos/winshape.c:28-43`). It is used for library, screen, draw-info, region, and window setup failures as well as normal shutdown.
