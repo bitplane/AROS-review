@@ -41321,3 +41321,10 @@ Nouveau GK110 hub microcode image structure pass (2026-11-08; no new finding; `w
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/hubgk110.fuc3.h` | 965 | Full 1,046-line image read; data layout, labels/offsets, padding and selected `gk110.c` consumer checked. Firmware instruction semantics remain unverified. |
+
+
+Nouveau GK208 GPC firmware image structure pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/gpcgk208.fuc5.h`; 475 physical lines, 415 `cloc 2.06` C code lines): confirmed selected inclusion by `gk208.c` and code/data arrays bound to `sizeof`-based firmware descriptors. Read the complete FUC5 GPC data block and instruction image, including queue, context, init, interrupt and transfer routines, all labels and trailing padding. The image structure and labeled word offsets are consistent, with no independent malformed initializer or layout defect established. The generated instruction semantics have no source here for review. No firmware execution or build was run; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/gpcgk208.fuc5.h` | 415 | Full 475-line image read; initializer, data layout, labels/offsets, padding and selected `gk208.c` consumer checked. Firmware instruction semantics remain unverified. |
