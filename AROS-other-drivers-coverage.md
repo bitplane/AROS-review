@@ -37423,3 +37423,10 @@ Nouveau NVKM display connector contract-header pass (2026-11-08; no new finding;
 | File | `cloc 2.06` C/header code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/conn.h` | 24 | Full 31-line header read; connector state, constructor/deletion contract and logging macro callers checked. No independent finding. Hardware GPIO behavior remains unverified. |
+
+
+Nouveau DisplayPort register-definition header pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/dp.h`; 102 physical lines, 91 `cloc 2.06` C/header code lines): read the full API declarations and DPCD receiver capability, link configuration/status, sink power and LTTPR address/mask definitions. Matched the training code in `dp.c` against these definitions, including lane status/adjust field packing, repeater address stride, training pattern masks and sink-rate register. The only indexed macro whose argument is unused (`DPCD_RC10_SUPPORTED_LINK_RATES(i)`) denotes the base of a 16-byte rate array and has no in-tree invocation in this header; no independent source mismatch established. Traced exported enable/disable functions to output lifecycle callers and the DP constructor to `nv50.c`; no declaration/definition mismatch found. Optional Nouveau source; no DP sink, AUX transfer, link training, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C/header code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/dp.h` | 91 | Full 102-line header read; DPCD masks/offsets traced to the native DP training consumer and public function declarations matched to callers. No independent finding. Hardware DPCD semantics remain unverified. |
