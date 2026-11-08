@@ -37549,3 +37549,10 @@ Nouveau GF100 GR context-interface header pass (2026-11-08; no new finding; `wor
 | File | `cloc 2.06` C/header code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgf100.h` | 208 | Full 276-line header read; callback and register-pack declaration contracts matched to common consumers and generation tables. No independent finding. Detailed context-table implementations remain separately tracked. |
+
+
+Nouveau GF104 GR context register-list full-body pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgf104.c`; 109 physical lines, 73 `cloc 2.06` C code lines): confirmed active source selection in `sources.drm.mak:301` and `gf104_grctx` assignment in the GF104 generation table. Read all texture/L1 cache/SM register-init arrays, TPC pack composition and context function parameters. Traced the pack and init-list sentinels into shared GF100 register-list iteration, and confirmed the selected engine's topology-derived TPC iteration supplies the TPC instances. No source-level sentinel, address-stride or callback mismatch established. Register values and device-specific semantics remain hardware questions; no context generation, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgf104.c` | 73 | Full 109-line body read; register-list sentinels, TPC pack composition, selected GF104 table and shared consumer checked. No independent finding. Hardware register semantics remain unverified. |
