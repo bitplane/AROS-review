@@ -41293,3 +41293,10 @@ Nouveau GF117 hub microcode image structure pass (2026-11-08; no new finding; `w
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/hubgf117.fuc3.h` | 965 | Full 1,049-line image read; initializer, data layout, labels/offsets, padding and selected `gf117.c` consumer checked. Firmware instruction semantics remain unverified. |
+
+
+Nouveau GK104 GPC microcode image structure pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/gpcgk104.fuc3.h`; 539 physical lines, 479 `cloc 2.06` C code lines): confirmed inclusion by selected `gk104.c` and code/data array descriptors with `sizeof`-derived byte lengths. Read the full generated image, including initial GPC/TPC data, queue and context-transfer code, init/interrupt labels and trailing zeros. The initializer is well-formed and labeled code offsets match the word-array layout; no source-visible structure or data-layout defect established. The generated instruction stream has no source here for semantic verification. No firmware execution or build was run; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/gpcgk104.fuc3.h` | 479 | Full 539-line image read; initializer, data layout, labels/offsets, padding and selected `gk104.c` consumer checked. Firmware instruction semantics remain unverified. |
