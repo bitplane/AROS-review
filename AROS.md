@@ -17008,3 +17008,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD14989](AROS-graphics-desktop.md#gd14989) — DemoWin examines an uninitialized raw-key buffer when conversion returns zero. Conditional on a zero-length raw-key conversion. Source-only.**
 **[GD14990](AROS-graphics-desktop.md#gd14990) — DemoWin ignores console.device open failure and reads an uninitialized request field. Conditional on OpenDevice failure. Source-only.**
 **[GD14991](AROS-graphics-desktop.md#gd14991) — DemoWin skips acquired-resource cleanup on console-device/window setup failures. Conditional on a failed setup call. Source-only.**
+**[GD14992](AROS-graphics-desktop.md#gd14992) — DTO demo continues into Intuition calls without checking that intuition.library opened. Conditional on library-open failure. Source-only.**
