@@ -37479,3 +37479,10 @@ Nouveau GP102 display channel/error path full-body and caller pass (OD11540 adde
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gp102.c` | 150 | Full 200-line body read; channel setup, control IDs, timeout path, interrupt ID/method handling and selected callers checked. OD11540 added; hardware trigger remains conditional. |
+
+
+Nouveau NVKM display-channel contract-header pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/chan.h`; 139 physical lines, 110 `cloc 2.06` C/header code lines): read the complete channel layout, constructor declarations, generation callback tables and method-list structures. Traced common channel allocation and ID bounds in `chan.c`, pushbuffer allocation and cleanup, publication/removal under the client lock, and init/fini interrupt callbacks to NV50/GF119/GP102/GV100 implementations. Matched channel class tables and method-list sentinel consumers to selected generation definitions. The GSP RM subobject is used by the selected R535 display-channel implementation; ordinary paths keep it zero-initialized. The callback declarations match their definitions and generation assignments. No independent header contract or ownership defect established. Optional Nouveau source; no channel, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C/header code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/chan.h` | 110 | Full 139-line header read; channel object/API, ID publication, callback and method-map contracts traced to constructors and generation implementations. No independent finding. Hardware and runtime channel behavior remain unverified. |
