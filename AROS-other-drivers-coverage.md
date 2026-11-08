@@ -37416,3 +37416,10 @@ Nouveau display output-resource helper full-body and caller pass (2026-11-08; no
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/outp.c` | 300 | Full 423-line body read; protocol mapping, OR acquire/release and routing, HPD/backlight paths, inherited state, constructor cleanup, and selected callers checked. No independent finding. VBIOS validity and hardware routing remain unverified. |
+
+
+Nouveau NVKM display connector contract-header pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/conn.h`; 31 physical lines, 24 `cloc 2.06` C/header lines): read the complete connector structure and constructor/deletion declarations plus the diagnostic macros. Matched the copied `nvbios_connE` state and HPD-line normalization in `conn.c`, caller allocation and error handling in `nv50.c`, display-owned list teardown in `base.c`, and the NVIF connector wrapper. The object is linked only after successful allocation; connector initialization deliberately leaves HPD unused when BIOS GPIO lookup fails, while the later event path validates that state. The log macros dereference the parent display, which the selected constructor supplies. No independent header-contract or ownership defect established. Optional Nouveau source; no BIOS, GPIO, connector event, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C/header code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/conn.h` | 24 | Full 31-line header read; connector state, constructor/deletion contract and logging macro callers checked. No independent finding. Hardware GPIO behavior remains unverified. |
