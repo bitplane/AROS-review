@@ -17010,3 +17010,6 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD14991](AROS-graphics-desktop.md#gd14991) — DemoWin skips acquired-resource cleanup on console-device/window setup failures. Conditional on a failed setup call. Source-only.**
 **[GD14992](AROS-graphics-desktop.md#gd14992) — DTO demo continues into Intuition calls without checking that intuition.library opened. Conditional on library-open failure. Source-only.**
 **[GD14993](AROS-graphics-desktop.md#gd14993) — EasyReq maps asynchronous requester errors to its third successful choice. Conditional on a requester handling error. Source-only.**
+**[GD14994](AROS-graphics-desktop.md#gd14994) — Font2C writes character-spacing data from the kerning table. Conditional on a font with character spacing. Source-only.**
+**[GD14995](AROS-graphics-desktop.md#gd14995) — Font2C copies unbounded command arguments into fixed-size buffers. Conditional on long/malformed input. Source-only.**
+**[GD14996](AROS-graphics-desktop.md#gd14996) — Font2C returns success after font/output failures. Conditional on failed conversion or output I/O. Source-only.**

@@ -22057,3 +22057,24 @@ After opening `datatypes.library`, the program attempts to open intuition.librar
 The asynchronous requester offers three choices, then reports result 1 as “Incredible”, 2 as “Great”, and every other result as “Not bad” (`developer/demos/easyreq.c:59-76`). `SysReqHandler()` documents 0 as either the rightmost button or an error (`rom/intuition/sysreqhandler.c:36-42`), so an error is indistinguishable from selecting the third button and is printed as that successful choice.
 
 **Trigger and consequence:** requester handling returns 0 due to an error rather than a button selection. The demo falsely reports that “Not bad” was selected. **Affected configuration:** the explicitly buildable `developer/demos/easyreq.c` target (`developer/demos/mmakefile.src:12-41,73`); the parent aggregate edge is disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the documented ambiguous return and unconditional mapping. Distinguish the error condition where available or avoid presenting the result as a confirmed choice. No requester operation or build was run; source-only.
+
+<a id="gd14994"></a>
+## GD14994 — Font2C writes character spacing data from the kerning array [conditional]
+
+When a font has `tf_CharSpace`, `font2c()` emits the `charspace` array but passes `tf_CharKern` to `print_word_array()` instead of `tf_CharSpace` (`developer/demos/font2c.c:249-254`). The generated font therefore receives kerning values in its character-spacing field; if spacing exists while kerning is NULL, the array printer dereferences NULL.
+
+**Trigger and consequence:** convert a font with a character-spacing table. The generated C has incorrect spacing data, or conversion faults if the optional kerning table is absent. **Affected configuration:** the explicitly buildable `developer/demos/font2c.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the mismatched field and nullable source pointer. Pass `tf_CharSpace` to the character-spacing array printer. No font conversion or build was run; source-only.
+
+<a id="gd14995"></a>
+## GD14995 — Font2C copies command arguments into fixed buffers without bounds [conditional malformed/long input]
+
+`NAME`, `OUTFILE`, and optional `PRESTRING` are copied with `strcpy()` into 200-byte arrays; the optional prefix then receives another `strcat()` underscore (`developer/demos/font2c.c:29-31,52-59`). The font name is later extended with `.font` when needed, also without checking remaining capacity (`:72-81`). `ReadArgs()` supplies pointers to command arguments, not buffers limited to these local array sizes.
+
+**Trigger and consequence:** provide a filename or prefix too long for its destination, or a font name with insufficient remaining space for the appended suffix. The copy/append writes beyond the local array and the converter's behavior is undefined. **Affected configuration:** the explicitly buildable `developer/demos/font2c.c` command-line utility. **Confidence:** high for the fixed capacities and unchecked copies/appends. Bound each copy and suffix append before writing. No long argument or program launch was used; source-only.
+
+<a id="gd14996"></a>
+## GD14996 — Font2C reports success when font loading or output creation fails [conditional]
+
+`error` is initialized to `RETURN_OK` and changed only for argument parsing/validation failures (`developer/demos/font2c.c:38-68`). Later failures to open graphics.library, diskfont.library, the output file, or the font only print a message and leave `error` unchanged (`:83-115`); unsupported color fonts also print a message and continue (`:121-130`). The output writes and `fclose()` result are not checked (`:219-314` and `main:135-136`), so a write failure can likewise leave a partial file while returning success.
+
+**Trigger and consequence:** any of these operations fails after valid arguments, including an output write error. The utility can leave no/partial generated source and still return `RETURN_OK`. **Affected configuration:** the explicitly buildable `developer/demos/font2c.c` utility. **Confidence:** high for the unchanged status and unchecked output operations. Set failure status for failed conversion/open/write/close paths. No font conversion, disk error or build was induced; source-only.
