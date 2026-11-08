@@ -37598,3 +37598,10 @@ Nouveau GK110B GR context TPC specialization pass (2026-11-08; no new finding; `
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgk110b.c` | 73 | Full 107-line body read; specialized TPC list, shared GK110 pack selection, sentinels and selected device table checked. No independent finding. Hardware register semantics remain unverified. |
+
+
+Nouveau GK208 GR context tables and one-PPC specialization pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgk208.c`; 572 physical lines, 520 `cloc 2.06` C code lines): confirmed active manifest selection at `sources.drm.mak:309`, GK208 device-table records, and `.ppc_nr = 1` in the selected GR function table. Read the full ICMD, hub/GPC/TPC/PPC tables and function descriptor. Traced shared GPC/TPC/PPC pack traversal, bundle/pagepool sizing, and the inherited GK110 method and GK104 generation callbacks to their common consumers. All local lists and packs have terminators; the declared one-PPC topology matches its selected table, with no independent count, sentinel or callback mismatch established. Fixed register semantics remain hardware-dependent. No context generation, GPU operation or build was run; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgk208.c` | 520 | Full 572-line body read; selected one-PPC topology, list sentinels, pack composition, callbacks and shared consumers checked. No independent finding. Hardware register semantics remain unverified. |
