@@ -16940,6 +16940,8 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[EK10936](AROS-exec-kernel.md#ek10936) — MinGW accepts invalid `vblank=` frequencies: zero divides by zero during timer startup, while values above 1,000 Hz produce a one-shot timer and stop recurring VBlank delivery. The default frequency is unaffected. Source-only.**
 
+**[EK10937](AROS-exec-kernel.md#ek10937) — m68k-Amiga `Wait()` re-enables Paula interrupts before committing the current task to `TaskWait`; an IRQ-side matching `Signal()` in the transition can strand the waiter or unlink it before list insertion completes. Conditional on the interrupt timing and handler signaling the waiter; source-only.**
+
 
 **[OD11535](AROS-other-drivers.md#od11535-workqueue-list-race-execsmp) — DRM compatibility workqueue queue/list state is protected only by local `Disable()`, which does not serialize another CPU on ExecSMP. Conditional on cross-CPU queue and worker overlap in optional Nouveau or VMware targets; source-only.**
 
