@@ -22220,6 +22220,18 @@ The shared cleanup routine always exits zero, including when `openlibs()` fails 
 **Trigger and consequence:** reqtools.library cannot be opened. The palette requester demo prints an error but exits successfully without showing its requester. **Affected configuration:** the explicitly buildable `developer/demos/rtpalette.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the failure branch and zero exit status. Return a failure code from cleanup. No library failure, requester operation or build was run; source-only.
 
 <a id="gd15031"></a>
+## GD15036 — WindowShape demo never disposes its input shape region [conditional]
+
+`makeshape()` allocates `shape` with `NewRectRegion()` and passes it to the window and `ChangeWindowShape()`, but `cleanup()` has the matching `DisposeRegion(shape)` commented out (`developer/demos/winshape.c:78-100,201-213`). Closing the window does not release this caller-owned input region.
+
+**Trigger and consequence:** shape allocation succeeds. The demo retains the region allocation through process cleanup instead of disposing it after the window is closed. **Affected configuration:** the explicitly buildable `developer/demos/winshape.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for allocation and the disabled matching disposal; caller must release the region after its use. Dispose `shape` after `CloseWindow()`. No window operation or build was run; source-only.
+
+## GD15037 — WindowShape exits successfully after setup failures [conditional]
+
+The shared `cleanup(msg)` prints any setup error but unconditionally calls `exit(0)` (`developer/demos/winshape.c:28-43`). It is used for library, screen, draw-info, region, and window setup failures as well as normal shutdown.
+
+**Trigger and consequence:** any guarded initialization step fails. The demo reports an error yet returns success to its caller, preventing scripts from distinguishing setup failure from normal completion. **Affected configuration:** the explicitly buildable `developer/demos/winshape.c` target. **Confidence:** high for the unconditional status and error call sites. Return a failure status when `msg` is non-NULL. No failure was induced or build run; source-only.
+
 ## GD15035 — TurboPrint demo ignores print-request failure [conditional]
 
 The demo sends `PRD_TPEXTDUMPRPORT` synchronously with `DoIO()` but discards its result, then closes the device and ultimately returns zero (`developer/demos/turboprint.c:159-180,187-189`). A failed print request therefore has no reported failure status or diagnostic.

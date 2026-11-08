@@ -17052,3 +17052,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15033](AROS-graphics-desktop.md#gd15033) — SimpleTimer uses uninitialized time if timer setup fails before changing/restoring the system clock. Conditional on timer setup failure. Source-only.**
 **[GD15034](AROS-graphics-desktop.md#gd15034) — Text speed demo leaks its successfully opened font reference. Conditional on successful OpenFont. Source-only.**
 **[GD15035](AROS-graphics-desktop.md#gd15035) — TurboPrint ignores a failed print request and exits successfully. Conditional on request failure. Source-only.**
+**[GD15036](AROS-graphics-desktop.md#gd15036) — WindowShape demo does not dispose its caller-owned shape region. Conditional on successful region allocation. Source-only.**
+**[GD15037](AROS-graphics-desktop.md#gd15037) — WindowShape exits successfully after initialization failures. Conditional on setup failure. Source-only.**
