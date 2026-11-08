@@ -64,6 +64,8 @@
 
 ## Graphics/Desktop findings reconciled into the index (2026-11-02)
 
+**[GD9833](AROS-graphics-desktop.md#gd9833) — Generic ChunkyBM template and masked-pattern helpers read a `UWORD` past an exact mask row when the last requested pixel consumes bit 15. Conditional on a word-boundary row and the generic HIDD method; source-only.**
+
 **[GD6336](AROS-graphics-desktop.md#gd6336) — The selected m68k Workbench VMM module omits the assembly objects defining `TrapHandler30/40/60`; the unresolved references are expected to block the m68k Workbench aggregate build. The source and active target chain are confirmed; no build/link was run.**
 
 **[GD6068](AROS-graphics-desktop.md#gd6068) — ExecuteStartup leaks DiskObjects for successfully loaded WBStartup icons that are neither tools nor projects.** Conditional on those icon types appearing in the startup scan; source-only.
@@ -6648,7 +6650,7 @@ Generic bitmap memory-blit body pass (GD9832 added; 2026-10-26): read the comple
 
 | Selected path | `cloc 2.06` code lines | Status |
 |---|---:|---|
-| `rom/hidds/gfx/gfx_bitmapmemblit.c` | 2,088 | Full body read; copy direction/alignment, conversion, template and pattern paths reviewed; GD9832 added. |
+| `rom/hidds/gfx/gfx_bitmapmemblit.c` | 2,088 | Full body read and re-reviewed; copy direction/alignment, conversion, template and pattern-mask paths covered; GD9832/GD9833. |
 
 
 Generic bitmap template boundary/caller pass (GD9833 added; 2026-10-26; no new source-body credit): traced `BltTemplate()` through `blttemplate_render()` into the selected generic ChunkyBM `PutMemTemplate` override and compared its `srcMod` contract with `AllocRaster()`'s exact `RASSIZE()` allocation. Confirmed all four generic pixel-width helpers fetch another `UWORD` immediately after consuming bit 15, even when that was the final requested bit. A 16×1 raster allocated by `AllocRaster(16, 1)` has a two-byte row, so `BltTemplate(..., xSrc=0, srcMod=2, ..., xSize=16, ySize=1)` on a generic ChunkyBM destination reads the next two bytes beyond its raster. Added GD9833 for the unused final-word overread; no draw or raster allocation was run. Source-only.
