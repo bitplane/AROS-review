@@ -37458,3 +37458,10 @@ Nouveau NVIF output-method bridge full-body/caller pass (OD10028 rechecked; OD10
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/uoutp.c` | 527 | Full 665-line body read; selected methods, payload/count bounds, locking, callbacks, constructor/destructor and host callers checked. OD10064 recorded. Optional Nouveau target; firmware, output and GPU behavior remain unverified. |
+
+
+Nouveau GM107 display generation full-body/caller pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gm107.c`; 113 physical lines, 81 `cloc 2.06` C code lines): confirmed source selection in `sources.drm.mak:236` and device-table use of `gm107_disp_new()` for the relevant chipset records. Read the full DP pattern writer, SOR callbacks, display function table and constructor. Traced DP training pattern values 0–4 from `dp.c`; unsupported values warn and return without a write, while supported values map to the programmed byte patterns. The selected DP link path constrains the SOR lane/link state used for register bank selection; generation SOR definitions install matching state/power/HDMI/DP/HDA callbacks. Checked class IDs and user constructors against the host core-channel class map and generic display channel path. No independent source-backed defect established; register encodings remain hardware-dependent. Optional Nouveau target; no DP training, MMIO, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gm107.c` | 81 | Full 113-line body read; DP pattern mapping, SOR callback composition, chipset selection and user-class mapping checked. No independent finding. Hardware register behavior remains unverified. |
