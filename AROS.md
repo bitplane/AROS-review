@@ -16887,3 +16887,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[OD874](AROS-other-drivers.md#od874) — PrintToFile and PrintToTool open a destination before rejecting an unsupported first command. Conditional on a direct client sending that command; source-only.**
 
 **[OD4353](AROS-other-drivers.md#od4353) — PrintToTool fails to compile when its debug logging expands an undeclared `opened` identifier. Conditional on a debug-enabled build; source-only.**
+
+**[GD4436](AROS-graphics-desktop.md#gd4436) — Concurrent Decoration launches can publish duplicate permanent public services. Conditional on overlapping launch before either service registers; possible on single-CPU and ExecSMP builds. Source-only.**
