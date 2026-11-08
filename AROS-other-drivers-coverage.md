@@ -37374,3 +37374,10 @@ Nouveau display user-head full-body and scanout caller pass (2026-11-08; no new 
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/uhead.c` | 84 | Full 127-line body read; class publication/locking, VBlank event setup, scanout-position output and error handling checked. No independent finding. Hardware and runtime timing remain unverified. |
+
+
+Nouveau display IOR registry helper full-body and caller pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/ior.c`; 72 physical lines, 45 `cloc 2.06` C lines): read the full type-name table, typed/list IOR lookup, deletion, and allocation/publication helper. Traced all `nvkm_ior_new_()` callers across the selected display generations; each passes DAC, SOR or PIOR, matching the three name entries and valid enum range. Traced wildcard/explicit lookup consumers in `outp.c` and `nv50.c` and destruction callers through generation teardown. `snprintf()` bounds the diagnostic name; the selected IOR ids and names fit the field. No independent bounds, ownership, or list-lifecycle defect established. Optional Nouveau source; no IOR, GPU, or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/ior.c` | 45 | Full 72-line body read; type/name mapping, constructor callers, typed/wildcard lookup and teardown traced. No independent finding. Hardware and runtime contracts remain unverified. |
