@@ -17093,3 +17093,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15064](AROS-graphics-desktop.md#gd15064) — KMS leaks a loaded segment when OpenKeymap rejects a non-HUNK file.** Conditional on a loadable non-HUNK file being supplied as a keymap; source-only.
 
 **[OD3628](AROS-other-drivers.md#od3628) — WirelessManager leaks its SANA-II event request on teardown.** Conditional on successful SANA-II interface initialization and teardown; source-only.
+
+**[OD1577](AROS-other-drivers.md#od1577) — DSP echo cancellation can free state still in use by the playback mixer.** Conditional on ExecSMP software mixing and concurrent cancellation of active echo; source-only.
