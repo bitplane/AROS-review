@@ -16878,4 +16878,4 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[EK10931](AROS-exec-kernel.md#ek10931) — `NewCreateTaskA()` discards the documented `TASKTAG_FLAGS` value. Conditional on an external caller using the tag; source-only.**
 
-**[EK10932](AROS-exec-kernel.md#ek10932) — `NewCreateTaskA()` can wrap task and stack size tags before allocation. Conditional on extreme external tag values; source-only.**
+**[EK10932](AROS-exec-kernel.md#ek10932) — `NewCreateTaskA()` can wrap task-size addition on 32-bit targets and stack-size alignment on 32- and 64-bit targets. Conditional on extreme external tag values; source-only.**
