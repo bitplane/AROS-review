@@ -37682,3 +37682,10 @@ Nouveau GF100 GPC microcode image structure pass (2026-11-08; no new finding; `w
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/gpcgf100.fuc3.h` | 477 | Full 532-line generated image read; initializer, labels/offsets, data prefix, padding and selected `gf100.c` consumer checked. Firmware instruction semantics remain unverified. |
+
+
+Nouveau GF100 hub microcode image structure pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/hubgf100.fuc3.h`; 1,049 physical lines, 965 `cloc 2.06` C code lines): confirmed selected inclusion by `gf100.c` and code/data array descriptors with `sizeof`-derived byte sizes. Read the complete hub data block and instruction image, including MMIO-list seeds, channel/context state, labeled init/context-switch/interrupt routines, labels/offsets and zero padding. Data offsets and labeled code entry offsets are consistent with the word-array layout; the firmware payload is structurally well-formed. The instruction stream has no accompanying source here, so semantic behavior cannot be validated from this header alone. No firmware execution or build was run; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/hubgf100.fuc3.h` | 965 | Full 1,049-line image read; data layout, labels/offsets, padding, and selected `gf100.c` consumer checked. Firmware instruction semantics remain unverified. |
