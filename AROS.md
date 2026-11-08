@@ -16967,6 +16967,8 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **[OD11544](AROS-other-drivers.md#od11544-iffparse-forward-only-seek-overreads) — IFFParse simulates a forward-only seek by reading 10,000 bytes for the final remainder, so it can fail or misalign parsing. Conditional on a custom stream with no seek flags; source-only.**
 
+**[OD11545](AROS-other-drivers.md#od11545-iffparse-closeiff-retains-freed-buffered-stream) — After a buffered write failure, `CloseIFF()` frees the buffer but leaves the handle redirected to that freed storage and skips the original stream cleanup. Conditional on custom nonseekable streams and a close-time buffer failure; source-only.**
+
 **[OD3614](AROS-other-drivers.md#od3614) — BWFM can leave an `S2_ONEVENT` request pending after the requested online/offline level is reached.** The state check and event-list insertion are separated; a concurrent transition can be dispatched in the gap and is not latched. Requires concurrent direct SANA-II callers on the explicitly selected BWFM device; WirelessManager's checked path is serialized. Source-only.
 **[GD14973](AROS-graphics-desktop.md#gd14973) — `SetIPrefs()` passes a failed V39 pointer construction to `InstallPointer()`.** The NULL object is dereferenced by OOP attribute dispatch while the Intuition base lock is held, which can leave later Intuition operations blocked. Conditional on pointer allocation failure; source-only.
 **[GD14974](AROS-graphics-desktop.md#gd14974) — Histogram object survives failed entry-pool construction.** A later public `AddColorEntry` call passes the NULL pool to `AllocPooled()`. Conditional on pool allocation failure and a subsequent caller; source-only.
