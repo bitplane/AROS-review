@@ -1,3 +1,5 @@
+**OD11455 — speech.device can release shared audio after a concurrent open on ExecSMP:** the last Close observes `lib_OpenCnt == 1` and begins releasing shared audio while a concurrent Open on another CPU can still succeed; Exec's Forbid is processor-local on SMP and speech Open does not reject closing state. Conditional on an overlapping open/last-close interleaving in an ExecSMP build. See [OD11455](AROS-other-drivers.md#od11455) and the [dispatch and locking trace](AROS-other-drivers-coverage.md#speech-device-last-closeopen-smp-interleaving-od11455-added-2026-11-08). Source-only.
+
 ## Exec/Kernel findings reconciled into the index (2026-11-02)
 
 **EK10163 — m68kemu formatting thunks pass a null argument stream after allocation failure:** Locale `FormatString`, Utility `VSNPrintf`, DOS `VPrintf`, and DOS `VFPrintf` can pass the failed converter allocation to a formatter that reads its argument stream. Trigger requires an argument-bearing format and temporary allocation failure; literal-only formats are excluded. See [EK10163](AROS-exec-kernel.md#ek10163) and the [format-stream caller census](AROS-exec-kernel-coverage.md#L8572). Source-only.

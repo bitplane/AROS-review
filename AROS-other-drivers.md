@@ -1,3 +1,10 @@
+<a id="od11455"></a>
+## OD11455 — speech.device can release shared audio after a concurrent open on ExecSMP [conditional]
+
+The generated device Open wrapper calls the speech `Open` method and only then increments `lib_OpenCnt`; the generated Close wrapper calls speech `Close` and decrements the count afterward (`tools/genmodule/writestart.c:1250-1255,1465-1467`). Exec's `OpenDevice()` and `CloseDevice()` wrap their vector calls in `Forbid()`/`Permit()`, but Exec documents that on `__AROSEXEC_SMP__` these calls prevent task switches only on the local processor; they do not serialize another CPU (`rom/exec/opendevice.c:92-114,130-131`; `closedevice.c:64-75,93-94`; `forbid.c:58-59`). The speech device does not add a lock around the open count transition.
+
+When the last close observes `lib_OpenCnt == 1`, it starts a worker handshake that sets `sb_Closing`, cancels current speech, and releases shared audio resources (`workbench/devs/speech/speech.c:582-600`; worker release handling at `:488-497`). A concurrent Open on another CPU can pass the unit/size checks (`:562-573`) and increment the count after that observation; Open does not check `sb_Closing`. The new opener can therefore be reported successful while the last-close handshake tears down audio state, leaving a live open with shared audio released. **Trigger and consequence:** overlapping OpenDevice and last CloseDevice on an ExecSMP build, with Close observing the last reference before Open increments it; the new client may lose the shared audio resources during its open lifetime. **Affected configuration:** ExecSMP builds that include `speech.device`; ordinary uniprocessor task serialization does not provide this interleaving. **Confidence:** medium-high from the checked dispatch and locking paths; no task scheduling or audio operation was run. Serialize the device reference transition and closing state under a common SMP-safe lock, or reject opens while closing. Source-only.
+
 <a id="od1467"></a>
 ## OD1467 — CAMD real-time MIDI ring cursors do not wrap at the allocated buffer end [conditional]
 
