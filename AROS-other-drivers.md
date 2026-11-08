@@ -40480,7 +40480,7 @@ The selected lookup path makes the stale state observable: `GetByNameCmd` and `G
 
 **Trigger and consequence:** a NetInfo database is parsed successfully, then `StartNotify()` fails because the path cannot be resolved, memory allocation fails, or notification handler registration fails; the database is subsequently changed. The parsed cache remains stale for the lifetime of the device instance because no retry is attempted. Retry registration after failure and clear the marker unless registration succeeds.
 
-**Affected configuration:** NetInfo device and selected usergroup lookup callers; conditional on a `StartNotify()` failure after successful parsing and a later database change. **Confidence:** high for marker ordering, ignored failure, and missing retry; stale lookup consequence follows the selected caller path. No notification failure or database change was induced; source-only.
+**Affected configuration:** explicitly built/installed NetInfo device; the selected usergroup library contains lookup callers but has no dependency on the device target in the checked-in aggregate graph. Conditional on a `StartNotify()` failure after successful parsing and a later database change. **Confidence:** high for marker ordering, ignored failure, and missing retry; stale lookup consequence follows the selected caller path. No notification failure or database change was induced; source-only.
 
 <a id="od9852-controller-axis-normalization-can-overflow"></a>
 ## OD9852 — Controller axis normalization can overflow signed arithmetic
