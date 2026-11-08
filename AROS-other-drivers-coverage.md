@@ -37444,3 +37444,10 @@ Nouveau NVKM display IOR contract-header pass (2026-11-08; no new finding; `work
 | File | `cloc 2.06` C/header code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/ior.h` | 176 | Full 209-line header read; state fields, function pointers and generation declarations traced to resource lifecycle, hardware state decoders and selected method consumers. No independent finding. Hardware register contracts remain unverified. |
+
+
+Nouveau NVKM output contract-header pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/outp.h`; 127 physical lines, 103 `cloc 2.06` C/header code lines): read the complete output ownership/state layout, DP rate and training fields, function table and API declarations. Traced allocation/publication/rollback and teardown through `outp.c` and `nv50.c`; shared private/user acquisition bits and IOR association against the lifecycle helpers; DP state transfer from the NVIF method and the selected host training caller; and optional callbacks against generation tables. The fixed rate array and host parser limits are covered by the earlier source review; the scalar LTTPR count comes from the selected host capability parser, while native and R535 paths consume it as the inclusive repeater index. The unused `lttpr[6]` storage does not participate in these paths. No independent header-layout, callback or ownership defect established. Optional Nouveau source; no output acquisition, AUX, link, GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C/header code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/outp.h` | 103 | Full 127-line header read; output/IOR ownership, DP fixed-array/count state, callback table and declarations traced to lifecycle, NVIF and host callers. No independent finding. Firmware and hardware contracts remain unverified. |
