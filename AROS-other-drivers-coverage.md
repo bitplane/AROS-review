@@ -37591,3 +37591,10 @@ Nouveau GK110 GR context tables and PPC topology pass (2026-11-08; no new findin
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgk110.c` | 810 | Full 867-line body read; selected two-PPC topology, register-list sentinels, generation hooks and shared consumers checked. No independent finding. Hardware register semantics remain unverified. |
+
+
+Nouveau GK110B GR context TPC specialization pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgk110b.c`; 107 physical lines, 73 `cloc 2.06` C code lines): confirmed active manifest selection at `sources.drm.mak:308`, GK110B device-table selection, and the function table’s reuse of GK110 hub/GPC/PPC/ICMD/method packs with a dedicated TPC SM register list. Read the complete file and traced the specialized TPC pack into the common context generator; the list terminator and callback/size fields match the shared contracts. Its sole SM-list register-value difference is hardware-specific and no source evidence establishes it as erroneous. No independent defect found. No GPU, context generation or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgk110b.c` | 73 | Full 107-line body read; specialized TPC list, shared GK110 pack selection, sentinels and selected device table checked. No independent finding. Hardware register semantics remain unverified. |
