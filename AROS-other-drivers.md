@@ -41244,3 +41244,10 @@ Nouveau GP107 GR context descriptor and inherited topology callback pass (2026-1
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgp107.c` | 29 | Full 58-line body read; two-GPC/three-TPC/one-PPC descriptor and inherited callback contracts checked. No independent finding. Hardware behavior remains unverified. |
+
+
+Nouveau GV100 GR context generation and topology mapping pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgv100.c`; 222 physical lines, 173 `cloc 2.06` C code lines): confirmed active manifest selection at `sources.drm.mak:318`, GV100 device-table selection, and the six-GPC/seven-TPC/three-PPC parameters. Read the complete VEID bundle-init pack, PPC attribute allocation and callback sizing, ROP/tile mapping, non-PES-aware SM-ID mapping, register hooks and function table. Traced VEID pack consumption and callback order through shared context generation, and non-PES TPC translation against PPC TPC masks. The mapping register loop reads within the fixed `tile[TPC_MAX]` storage, including zero-padded unused entries; GPC/TPC iteration follows selected topology limits. No independent indexing, allocation or callback defect established. No GPU or build was exercised; hardware topology remains unverified; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgv100.c` | 173 | Full 222-line body read; VEID pack, non-PES TPC translation, attribute sizing and tile-map bounds checked. No independent finding. Hardware topology remains unverified. |
