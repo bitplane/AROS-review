@@ -16352,6 +16352,8 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 - [GD14878 — AmigaVideo blitter drops oversized operations while reporting success](AROS-graphics-desktop.md#gd14878)
 
+- [GD15057 — AmigaVideo narrows HIDD CopyBox extents to signed words](AROS-graphics-desktop.md#gd15057)
+
 - [GD14879 — Radeon PCI size queries overwrite a 32-bit stack local on 64-bit targets](AROS-graphics-desktop.md#gd14879)
 
 - [GD14880 — Generic masked-copy fallback writes an IPTR past its 32-bit pixel-format local](AROS-graphics-desktop.md#gd14880)
