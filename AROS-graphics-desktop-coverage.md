@@ -20241,3 +20241,6 @@ Vulkan-Hpp global-priority and queue-family property wrapper recheck (GD10250 re
 
 
 Vulkan-Hpp ray-tracing cluster configuration wrapper recheck (2026-11-08; `workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:139116-139234`, 119 physical lines; no whole-file/path/LOC credit): completed `RayTracingPipelineClusterAccelerationStructureCreateInfoNV`. Checked its KHR pipeline-create extension mapping, mutable `pNext`, allow flag, defaults, setter, native views, reflection/equality, `CppType`, and local size/layout assertions; no independent mismatch established. `RayTracingShaderGroupCreateInfoKHR` begins at line 139235 and remains open. No ray-tracing pipeline was created and no build was run; source-only.
+
+
+Vulkan-Hpp KHR ray-tracing shader-group wrapper recheck (2026-11-08; `workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:139235-139402`, 168 physical lines; no whole-file/path/LOC credit): completed `RayTracingShaderGroupCreateInfoKHR`. Compared default unused-shader sentinels, group type and shader indices, capture-replay handle constness, setters, native conversions, reflection/equality, `CppType`, and local layout assertions; no independent mismatch established. `RayTracingPipelineInterfaceCreateInfoKHR` begins at line 139403 and remains open. No pipeline was created and no build was run; source-only.
