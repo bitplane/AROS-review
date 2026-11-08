@@ -37535,3 +37535,10 @@ Nouveau GA102 GR context-generation pass (2026-11-08; no new finding; `workbench
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxga102.c` | 48 | Full 77-line body read; topology-index mapping, fixed context sizing and callback callers checked. No independent finding. Hardware context semantics remain unverified. |
+
+
+Nouveau GP102 GR context and attribute-buffer pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgp102.c`; 125 physical lines, 86 `cloc 2.06` C code lines): confirmed the active `ctxgp102` source entry and `gp102_grctx` selection from `gp102.c`. Read the complete attribute patch loop, callback-buffer sizing, generation function table and register override. Traced buffer sizing/allocation and callback invocation through `gf100.c`; sizes use fixed generation constants and probed TPC/PPC topology counts. The loop's GPC/PPC indices are bounded by the GR function-table counts, skips masked PPCs, and increments the output register index only through those bounded loops. Compared the generated callback size rounding to the 128-byte allocation alignment. No independent arithmetic, indexing or state-size defect established. Optional Nouveau GPU generation; no context allocation, GPU operation or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgp102.c` | 86 | Full 125-line body read; topology loops, size calculation, allocation and callback consumers checked. No independent finding. Hardware context format remains unverified. |
