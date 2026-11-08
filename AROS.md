@@ -16845,3 +16845,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[EK664](AROS-exec-kernel.md#ek664) — DynModule glue frees a public interface-port name before unlinking its port. A concurrent `FindPort()` can compare against the freed string during teardown. Explicit optional target; source-only.**
 
 **[OD11527](AROS-other-drivers.md#od11527) — USB HID keyboard truncates a 32-bit descriptor array count to 8 bits, then copies the full count into a smaller key buffer. Conditional on an accepted descriptor and report; source-only.**
+
+**[EK833](AROS-exec-kernel.md#ek833) — AROS `sched_yield()` only changes and restores the current task's priority; `SetTaskPri()` compares the task against itself and requests no handoff. Contended pthread spin-lock callers can keep polling until ordinary scheduling runs another task. Optional pthread link library; source-only.**
