@@ -16867,3 +16867,5 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[EK10927](AROS-exec-kernel.md#ek10927) — the public Multiboot2 module-alignment header type incorrectly includes framebuffer fields, making it 20 bytes instead of the specified 8-byte tag. Conditional on an external image producer using the type; no in-tree use found. Source-only.**
 
 **[EK10928](AROS-exec-kernel.md#ek10928) — ARM unwind lookup treats linker-defined `.ARM.exidx` boundary symbols as table data, so exception lookup can receive an invalid table pointer and count. Included by the checked-in GNU ARM target link specs; source-only.**
+
+**[EK10929](AROS-exec-kernel.md#ek10929) — the static C++ `operator new` shim returns `AllocVec()`'s NULL result on failure and for zero-size requests instead of following throwing-new behavior. Conditional on static C++ links; source-only.**
