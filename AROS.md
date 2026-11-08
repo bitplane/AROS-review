@@ -16996,3 +16996,4 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD14978](AROS-graphics-desktop.md#gd14978) — ChildWindow leaves its parent window open if opening the child window fails. Conditional on child creation failure after the parent succeeds; explicit demo target. Source-only.**
 
 **[GD14979](AROS-graphics-desktop.md#gd14979) — ChildWindow exits with status zero after initialization failures; parent-window creation failure is silent. Conditional on a failed setup call; explicit demo target. Source-only.**
+**[GD14980](AROS-graphics-desktop.md#gd14980) — ChildChild exits with status zero after initialization errors. Conditional on a failed setup call; explicit demo target. Source-only.**
