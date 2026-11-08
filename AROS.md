@@ -17073,6 +17073,3 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15053](AROS-graphics-desktop.md#gd15053) — DemoWin reads an uninitialized key byte when raw-key conversion yields no output. Conditional. Source-only.**
 **[GD15054](AROS-graphics-desktop.md#gd15054) — dto uses DataType attributes after a failed or partial query. Conditional. Source-only.**
 **[GD15055](AROS-graphics-desktop.md#gd15055) — dto continues after dependent library opens fail. Conditional. Source-only.**
-**[GD15056](AROS-graphics-desktop.md#gd15056) — window decorator dereferences an unallocated gradient row on allocation failure. Conditional. Source-only.**
-**[GD15057](AROS-graphics-desktop.md#gd15057) — window decorator copies a title through a failed cache allocation. Conditional. Source-only.**
-**[GD15058](AROS-graphics-desktop.md#gd15058) — window decorator adopts a partial rounded region after union allocation fails. Conditional. Source-only.**
