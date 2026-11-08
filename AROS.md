@@ -17108,6 +17108,8 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **OD11560 — RPiHDMI output changes do not retarget active playback.** The control reports a new output, but a running DMA chain retains the old SoC setup and Stop later targets the new SoC pointer. Conditional on a multi-output BCM2711/BCM2712 system and an active output change; no in-tree active-switch caller was found. See [OD11560](AROS-other-drivers.md#od11560).
 
+**OD11561 — AHI_SetEffect can return its subdriver fallback sentinel for an unsupported effect code.** On software-mixing paths, an unrecognized selector falls through without translating `AHIS_UNKNOWN` to a public `AHIE_*` error. Conditional on an invalid/unsupported effect selector; no in-tree caller was found. See [OD11561](AROS-other-drivers.md#od11561).
+
 **OD2136 — GamePort can dereference the list sentinel as a unit after a queued-event drain.** With multiple public opens and a stale per-open event cursor, the completed request can be removed while another event remains; iterator exhaustion leaves `ioreq` at the list sentinel before the empty-queue cleanup derives `gpUn` from it. Conditional on the two-opener/two-event request sequence; no event was run. See [OD2136](AROS-other-drivers.md#od2136).
 
 **OD9448 — GamePort can access a request's unit after replying it.** On ExecSMP, a client on another CPU can consume the reply and close/free its unit before the callback's post-reply `gpu_flags` read. Conditional on that completion/close overlap; no request was run. See [OD9448](AROS-other-drivers.md#od9448).
