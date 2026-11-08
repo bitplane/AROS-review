@@ -22177,6 +22177,13 @@ The common cleanup routine closes reqtools.library if available and always calls
 
 **Trigger and consequence:** reqtools.library cannot be opened. The demo prints an error but returns a successful process status without displaying either requester. **Affected configuration:** the explicitly buildable `developer/demos/rtezrequest.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the error path and zero exit status. Return a failure status from cleanup. No library failure, requester or build was run; source-only.
 
+<a id="gd15024"></a>
+## GD15024 — RTFile reports success when requester setup or display fails [conditional]
+
+`action()` ignores both failure cases: a NULL `rtAllocRequestA()` simply skips the requester, and the BOOL result of `rtFileRequestA()` is discarded (`developer/demos/rtfile.c:31-45`). The common cleanup always exits zero, including when reqtools.library fails to open (`:18-28,50-55`).
+
+**Trigger and consequence:** request allocation fails, the file requester returns FALSE, or reqtools.library cannot open. The program provides no failure status and exits successfully despite not completing the requested demo operation. **Affected configuration:** the explicitly buildable `developer/demos/rtfile.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for ignored results and zero exit status. Report failure and return a nonzero status when requester setup/display fails. No requester or build was run; source-only.
+
 <a id="gd15018"></a>
 ## GD15018 — RealTime demo classifies every state-change callback as bogus [conditional]
 
