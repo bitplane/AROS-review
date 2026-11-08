@@ -22219,6 +22219,13 @@ The shared cleanup routine always exits zero, including when `openlibs()` fails 
 
 **Trigger and consequence:** reqtools.library cannot be opened. The palette requester demo prints an error but exits successfully without showing its requester. **Affected configuration:** the explicitly buildable `developer/demos/rtpalette.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the failure branch and zero exit status. Return a failure code from cleanup. No library failure, requester operation or build was run; source-only.
 
+<a id="gd15030"></a>
+## GD15030 — ScreenModeReq exits successfully when ASL setup fails [conditional]
+
+`main()` prints an error if asl.library cannot open, but returns zero afterward (`developer/demos/screenmodereq.c:196-208`). Within each requester demonstration, failed `AllocAslRequest()` is also only printed and does not affect the process result (`:169-190`).
+
+**Trigger and consequence:** asl.library or a requester allocation fails. The utility may skip one or all screen-mode requester demonstrations yet report successful exit. **Affected configuration:** the explicitly buildable `developer/demos/screenmodereq.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the error branches and unconditional zero return. Track failures and return a nonzero status when setup fails. No requester operation or build was run; source-only.
+
 <a id="gd15018"></a>
 ## GD15018 — RealTime demo classifies every state-change callback as bogus [conditional]
 
