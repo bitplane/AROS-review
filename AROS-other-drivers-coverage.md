@@ -37675,3 +37675,10 @@ Nouveau NV10 GR interface header pass (2026-11-08; no new finding; `workbench/hi
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/nv10.h` | 7 | Full 14-line header read; all five declarations matched to NV10/NV15/NV17 consumers. No independent finding. |
+
+
+Nouveau GF100 GPC microcode image structure pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/gpcgf100.fuc3.h`; 532 physical lines, 477 `cloc 2.06` C code lines): confirmed the header is included by selected `gf100.c` and its GPC ucode descriptor uses the generated code/data arrays with `sizeof`-derived byte lengths. Read the complete generated image, including the MMIO-list seed data, labeled instruction entry offsets, queue/context routines, error/interrupt paths and trailing zero padding. The labeled entry offsets follow the code-word positions and the image initializer is well-formed. No source for this generated instruction stream is present here to establish semantic correctness of the microcode itself; no structural defect was identified. No firmware execution or build was run; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/fuc/gpcgf100.fuc3.h` | 477 | Full 532-line generated image read; initializer, labels/offsets, data prefix, padding and selected `gf100.c` consumer checked. Firmware instruction semantics remain unverified. |
