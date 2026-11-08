@@ -22397,3 +22397,17 @@ When a font has `tf_CharSpace`, `font2c()` emits the `charspace` array but passe
 `error` is initialized to `RETURN_OK` and changed only for argument parsing/validation failures (`developer/demos/font2c.c:38-68`). Later failures to open graphics.library, diskfont.library, the output file, or the font only print a message and leave `error` unchanged (`:83-115`); unsupported color fonts also print a message and continue (`:121-130`). The output writes and `fclose()` result are not checked (`:219-314` and `main:135-136`), so a write failure can likewise leave a partial file while returning success.
 
 **Trigger and consequence:** any of these operations fails after valid arguments, including an output write error. The utility can leave no/partial generated source and still return `RETURN_OK`. **Affected configuration:** the explicitly buildable `developer/demos/font2c.c` utility. **Confidence:** high for the unchanged status and unchecked output operations. Set failure status for failed conversion/open/write/close paths. No font conversion, disk error or build was induced; source-only.
+
+<a id="gd15044"></a>
+## GD15044 — Console device demo exits before its device I/O path [unconditional]
+
+`main()` returns immediately after the DOS `CON:` file test (`developer/demos/consoledemo.c:44-61`). The following `Init()` branch that opens a window and `console.device`, sends `CMD_WRITE`, and processes events (`:64-79`) is unreachable. As built, the demo never exercises the console.device request path implemented in the same file.
+
+**Trigger and consequence:** run the `consoledemo` target. It opens the DOS console stream and exits before the device-request example can execute. **Affected configuration:** explicitly selected by `developer/demos/mmakefile.src:12-41,73`; its parent aggregate edge is disabled at `config/mmakefile.src:16-18`. **Confidence:** high; the unconditional return dominates the later branch. Remove or relocate the return so the intended device path can run. No demo or device operation was run; source-only.
+
+<a id="gd15045"></a>
+## GD15045 — Console demo reports success when its console test fails [conditional]
+
+The active `CON:` path only enters its output loop when `Open()` succeeds, then returns 0 unconditionally (`developer/demos/consoledemo.c:44-61`). A failed open is silent, and failures from `FPuts()` or `Flush()` are not propagated, so the demo's process status cannot distinguish a successful console test from a failed one.
+
+**Trigger and consequence:** opening the console stream fails, or one of the writes/flushes fails. The demo still exits with success status and provides no error report for the failed open. **Affected configuration:** explicitly selected by `developer/demos/mmakefile.src:12-41,73`; parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for ignored return values and unconditional success return. Report the failed operation and return a nonzero status. No console failure or build was induced; source-only.

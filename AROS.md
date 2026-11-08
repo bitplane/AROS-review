@@ -17060,3 +17060,6 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15041](AROS-graphics-desktop.md#gd15041) — Italian NList labels smooth scrolling as fast scrolling. Unconditional for Italian catalog users. Source-only.**
 **[GD15042](AROS-graphics-desktop.md#gd15042) — Polish NList partial-character option help reverses the setting’s behavior. Unconditional for Polish catalog users. Source-only.**
 **[GD15043](AROS-graphics-desktop.md#gd15043) — Russian NListviews catalog has no translated messages and falls back to English. Unconditional for Russian catalog users. Source-only.**
+
+**[GD15044](AROS-graphics-desktop.md#gd15044) — `consoledemo` returns before reaching its `console.device` I/O example. Unconditional for the selected target. Source-only.**
+**[GD15045](AROS-graphics-desktop.md#gd15045) — `consoledemo` reports success when opening or writing its console stream fails. Conditional. Source-only.**
