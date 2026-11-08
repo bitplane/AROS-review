@@ -41202,3 +41202,10 @@ Nouveau GK20A GR custom context initialization pass (2026-11-08; no new finding;
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgk20a.c` | 53 | Full 90-line body read; custom main sequence and every shared helper/callback traced. No independent finding. Hardware timing and register semantics remain unverified. |
+
+
+Nouveau GM107 GR context tables and generated attribute state pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgm107.c`; 992 physical lines, 923 `cloc 2.06` C code lines): confirmed active manifest selection at `sources.drm.mak:311`, GM107 device-table use, and the selected two-PPC function-table contract. Read the complete ICMD, B097 method, hub/GPC/TPC/PPC lists, custom bundle/pagepool/attribute/SM-ID callbacks and final descriptor. Traced pack traversal, callback-buffer sizing and topology arrays through common GF100 initialization and context generation. Checked attribute offsets and per-PPC register indices against the two-PPC topology, the per-GPC active-PPC mask, and TPC-derived allocation sizes; inactive PPC entries do not advance allocation offsets, and no independent bounds or accounting defect was established. All local list and pack sentinels are present. Register contracts remain hardware-dependent. No GPU, context generation or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgm107.c` | 923 | Full 992-line body read; two-PPC attribute allocation, callback-buffer sizing, pack sentinels and shared consumers checked. No independent finding. Hardware register semantics remain unverified. |
