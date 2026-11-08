@@ -13,7 +13,7 @@ The repository-wide inventory located 186 C files (about 116,600 source lines) i
 | AFS/FFS | ROM handler; volume mount, validator, cache, files and enumeration | 6 |
 | PFS3 | Three ROM handler variants plus PFSDoctor; LRU, allocation, metadata, repair I/O | 13 |
 | SFS | ROM handler plus SFScheck/SFSDefrag and formatter interface; transactions, bitmap, device I/O | 6 |
-| Optical | Native CDVDFS ISO/Joliet/HFS/Rock Ridge and separately defined CDFS ISO handler | 9 |
+| Optical | Native CDVDFS ISO/Joliet/HFS/Rock Ridge and separately defined CDFS ISO handler | 11 |
 | RAM and DOS handlers | RAM, CON, PIPE, AUX, debug, port, speak, and `rom/filesystem` facade | 9 |
 | Hosted filesystem | Shared emul handler and Unix/Windows/Android backends | 4 |
 | SMBFS | Optional network share handler and SMB transport/metadata | 4 |
@@ -628,6 +628,23 @@ Counts are the number of findings primarily attributed to each area; a finding c
 - **Consequence:** A failed NTFS handler is accepted as started. The handler never assigned `devnode->dol_Task` or entered its packet loop, yet DOS can return its dead process's message port as the device port; subsequent filesystem requests can be sent to a process that has already exited and remain unanswered.
 - **Scope:** Workbench NTFS handler target (`workbench-fs-ntfs`), when a required startup operation fails after the startup packet is received. This is independent of FS-084's notification-port NULL dereference.
 - **Confidence/limits:** High source confidence for the unconditional success reply and DOS caller interpretation. The exact failure depends on a required startup operation failing; no failure or mount was induced.
+
+
+### FS-086 — CDVDFS copies user-selected HFS fork extensions past fixed fields
+
+- **Source:** `rom/filesys/CDVDFS/src/cdcontrol.c:203-220`; `rom/filesys/CDVDFS/src/device.c:584-596`; `rom/filesys/CDVDFS/src/devsupp.c:347-370`; `rom/filesys/CDVDFS/src/globals.h:72-76`.
+- **Trigger/trace:** the explicitly buildable `cdcontrol` utility passes `argv[3]` unchanged for the `dataext` and `resourceext` commands (`cdcontrol.c:117-125,138-143,203-220`). It sends that pointer in an `ACTION_USER` packet; the CDVDFS handler dispatches the packet to `Handle_Control_Packet()`. Both command cases call `strcpy()` into a 17-byte field with no length check (`devsupp.c:365-370`). The ACTION_USER route is accepted even when no disc is inserted (`device.c:557-565`).
+- **Consequence:** an extension longer than 16 bytes writes beyond its field into adjacent CDVDFS state in the handler base. The overrun occurs while setting the option; later HFS directory lookup and enumeration also append the stored extension to names (`hfs.c:544-552,830-845`).
+- **Scope:** native CDVDFS with the explicitly buildable/installed `cdcontrol` utility, when either HFS extension command receives more than 16 bytes. The `cdcontrol` aggregate Workbench-C edge is disabled in the manifest, so no default-image inclusion is claimed.
+- **Confidence/limits:** High source confidence for the unchecked fixed-size copies and command-to-handler path. No command or handler was run.
+
+### FS-087 — CDVDFS `cdcontrol unicodetable` command is never handled
+
+- **Source:** `rom/filesys/CDVDFS/src/cdcontrol.c:126,138-160,203-220`; `rom/filesys/CDVDFS/src/cdcontrol.h:5-14`; `rom/filesys/CDVDFS/src/device.c:584-596`; `rom/filesys/CDVDFS/src/devsupp.c:347-374`.
+- **Trigger/trace:** `cdcontrol` advertises `unicodetable <name>` and maps it to `CDCMD_UNICODETABLE` (`cdcontrol.c:126,138-160`; `cdcontrol.h:5-14`). The handler forwards every `ACTION_USER` to `Handle_Control_Packet()`, but that switch handles only command values through `CDCMD_RESOURCEEXT`; `CDCMD_UNICODETABLE` reaches the default branch and returns 999 (`devsupp.c:347-374`). The device then replies with `DOSFALSE` and `ERROR_ACTION_NOT_KNOWN` (`device.c:1110-1117`); the utility reports the failure.
+- **Consequence:** the documented command always fails, so callers cannot change the Joliet Unicode conversion table through `cdcontrol`, including selecting the built-in default with `none`.
+- **Scope:** native CDVDFS when the explicitly buildable/installed `cdcontrol` utility is used. The aggregate Workbench-C edge is disabled in the manifest; no default-image impact is claimed.
+- **Confidence/limits:** High source confidence for the command mapping and missing handler case. No command or Unicode table was loaded.
 
 ## Coverage boundaries
 
