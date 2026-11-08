@@ -16221,7 +16221,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[OD11415](AROS-other-drivers.md#od11415) — Serial reads larger than 65,535 bytes wrap their receive offset.** The interrupt callback uses a 16-bit destination index for a full-width request length, so a sufficiently large read can overwrite the start of its buffer and remain pending. Conditional on the explicitly buildable serial.device and a read above 65,535 bytes; source-only.
 
-**[OD11416](AROS-other-drivers.md#od11416) — Hosted Ethernet can free its shutdown message before it is dequeued.** The I/O task posts its exit message then frees it; a lower/equal-priority Close task may consume the freed queue node. Conditional on receiver scheduling during shutdown; source-only.
+**[OD11416](AROS-other-drivers.md#od11416) — Hosted Ethernet and TAP can free their shutdown messages before dequeue.** Both I/O tasks post the exit message then free it; a lower/equal-priority Close task may consume the freed queue node. Conditional on receiver scheduling during shutdown; source-only.
 
 **[OD928](AROS-other-drivers.md#od928) — EMAC can start without registered MAL interrupt handlers.** On the Sam440 PPC target, if the RX end-of-buffer handler cannot be allocated, the interface still starts without receive completion processing. Conditional on kernel interrupt-node allocation failure; source-only.
 
