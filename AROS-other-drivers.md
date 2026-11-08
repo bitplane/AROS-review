@@ -41230,3 +41230,10 @@ Nouveau GP100 GR callback topology and attribute allocation pass (2026-11-08; no
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgp100.c` | 107 | Full 151-line body read; six-GPC/five-TPC topology, SM-ID packing, PPC attribute regions and callback-buffer sizing checked. No independent finding. Hardware topology remains unverified. |
+
+
+Nouveau GP104 GR context descriptor and inherited callback pass (2026-11-08; no new finding; `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgp104.c`; 50 physical lines, 28 `cloc 2.06` C code lines): confirmed manifest selection at `sources.drm.mak:316`, GP104-family device-table use, and the selected six-GPC/five-TPC/three-PPC parameters. Read the complete descriptor and traced its inherited GM107 bundle/SM-ID, GP100 pagepool/attribute-buffer, GP102 attribute and GM200 topology callbacks to their consumers. The declared callback sizes and topology descriptor match the expected shared APIs; no local wiring or parameter defect established. Hardware callback semantics remain unverified. No GPU or build was exercised; source-only.
+
+| File | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ctxgp104.c` | 28 | Full 50-line body read; selected three-PPC descriptor and inherited callback contracts checked. No independent finding. Hardware behavior remains unverified. |
