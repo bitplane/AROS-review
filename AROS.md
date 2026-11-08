@@ -17066,3 +17066,6 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15046](AROS-graphics-desktop.md#gd15046) — `cons` checks ports instead of IORequest allocations, then dereferences NULL on allocation failure. Conditional. Source-only.**
 **[GD15047](AROS-graphics-desktop.md#gd15047) — `cons` discards synchronous console write errors. Conditional. Source-only.**
 **[GD15048](AROS-graphics-desktop.md#gd15048) — CoolButton setup errors still produce a successful process exit. Conditional. Source-only.**
+**[GD15049](AROS-graphics-desktop.md#gd15049) — `cxtest` never deletes its broker message port. Unconditional. Source-only.**
+**[GD15050](AROS-graphics-desktop.md#gd15050) — `cxtest` setup failures return without closing windows, libraries, or created objects. Conditional. Source-only.**
+**[GD15051](AROS-graphics-desktop.md#gd15051) — `cxtest` uses Intuition before checking its library open. Conditional. Source-only.**

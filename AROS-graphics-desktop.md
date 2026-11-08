@@ -22432,3 +22432,24 @@ After each `CreateStdIO()` call, the demo checks `consoleWritePort` or `consoleR
 Every setup failure passes a diagnostic string to `cleanup()`, but `cleanup()` unconditionally calls `exit(0)` (`developer/demos/coolbutton.c:28-54`). This includes failures opening required libraries, locking the public screen, obtaining draw info, initializing the class, creating a gadget, or opening the window.
 
 **Trigger and consequence:** any of those setup operations fails. The demo prints an error but returns a success status to its launcher or script. **Affected configuration:** `coolbutton` is explicitly selected by `developer/demos/mmakefile.src:12-41,73`; the parent aggregate edge is disabled (`config/mmakefile.src:16-18`). **Confidence:** high; all failure calls pass a non-NULL message, and the exit status is fixed at zero. Pass a failure status through cleanup and return it after releasing resources. No setup failure or build was induced; source-only.
+
+<a id="gd15049"></a>
+## GD15049 — Commodities demo never releases its broker message port [unconditional]
+
+The demo creates a port and assigns it to `brok.nb_Port` (`developer/demos/cxtest.c:68`), but no path calls `DeleteMsgPort()` for it. This includes normal shutdown after `DeleteCxObjAll(myBroker)` and every later error return. `CxBroker()` stores the supplied port in the broker object (`workbench/libs/commodities/createcxobj.c:163`); deleting the broker tree does not delete the caller-owned port.
+
+**Trigger and consequence:** run `cxtest`, including its normal Ctrl+C shutdown, or any later setup failure. The allocated message port remains live after the demo exits. **Affected configuration:** explicitly selected by `developer/demos/mmakefile.src:12-41,73`; parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high; the port is created here, passed to the broker, and never deleted, while the checked in-tree broker caller explicitly deletes its port after deleting the broker (`developer/debug/test/serial/serialmousetest.c:421-450`). Drain/reply queued messages as required and delete the port after broker teardown. No broker operation or build was run; source-only.
+
+<a id="gd15050"></a>
+## GD15050 — Commodities demo returns from setup failures without releasing acquired objects [conditional]
+
+After opening a window, the demo returns directly when `commodities.library` cannot be opened, when `CxBroker()` or `CxFilter()` fails, or when `CxTranslate()` fails (`developer/demos/cxtest.c:70-118`). Those paths do not close the window or Intuition library; paths after successful broker/filter creation also leave the created broker object tree undeleted. The broker message port leak is tracked separately in GD15049.
+
+**Trigger and consequence:** any of those library/object creation calls fails. Window and acquired library references remain open until process termination, and the post-broker paths also leave Commodities objects allocated. **Affected configuration:** explicitly selected by `developer/demos/mmakefile.src:12-41,73`; parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the direct returns and omitted cleanup calls. Route each failure through a cleanup path that deletes existing objects and closes acquired resources. No failure was induced; source-only.
+
+<a id="gd15051"></a>
+## GD15051 — Commodities demo calls Intuition before checking that it opened [conditional]
+
+The result of `OpenLibrary("intuition.library", 39)` is assigned to `IntuitionBase` without a null check, and `OpenWindowTags()` is called immediately afterward (`developer/demos/cxtest.c:49-55`). If the library open fails, the window call uses an unavailable library base.
+
+**Trigger and consequence:** Intuition cannot be opened. The demo proceeds into its window-opening call without a valid Intuition library reference and can fail abnormally instead of reporting setup failure. **Affected configuration:** explicitly selected by `developer/demos/mmakefile.src:12-41,73`; parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the missing check and immediate call. Check the library result before calling Intuition and unwind cleanly on failure. No library failure or build was induced; source-only.
