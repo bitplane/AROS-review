@@ -17130,6 +17130,8 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **OD11569 — RTBTCore v2 fallback selects the first nonmatching ECO snippet.** If the controller rejects it, firmware loading is marked handled and HCI bring-up continues without retrying, potentially leaving the controller on ROM firmware. Device impact depends on its firmware. Conditional on optional Realtek v2 firmware contents; source-only. See [OD11569](AROS-other-drivers.md#od11569).
 
+**OD11570 — Nouveau leaks temporary mode-tag arrays after registration.** Each selected connector mode adds an outer-list and nested-tag allocation that is not released after the generic enumerator consumes the tags. Conditional on Nouveau graphics-object construction; optional target; source-only. See [OD11570](AROS-other-drivers.md#od11570-nouveau-mode-enumerator-leaks-temporary-tag-arrays).
+
 **OD2136 — GamePort can dereference the list sentinel as a unit after a queued-event drain.** With multiple public opens and a stale per-open event cursor, the completed request can be removed while another event remains; iterator exhaustion leaves `ioreq` at the list sentinel before the empty-queue cleanup derives `gpUn` from it. Conditional on the two-opener/two-event request sequence; no event was run. See [OD2136](AROS-other-drivers.md#od2136).
 
 **OD9448 — GamePort can access a request's unit after replying it.** On ExecSMP, a client on another CPU can consume the reply and close/free its unit before the callback's post-reply `gpu_flags` read. Conditional on that completion/close overlap; no request was run. See [OD9448](AROS-other-drivers.md#od9448).
