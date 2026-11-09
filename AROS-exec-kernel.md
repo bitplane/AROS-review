@@ -9541,7 +9541,7 @@ The `__path_u2a()` filter uses `strncmp(upath, "/.attbin", 8)` and returns NULL/
 <a id="ek10805"></a>
 ### EK10805 — withdrawn: terminal `..` conversion does not overrun its buffer
 
-A source-order recheck of `__path_normalstuff_u2a()` disproved the claimed output expansion. For input `..`, `S_DOT2` sees NUL, sets a slash separator, and moves to `S_SLASH`; that state emits one `/`, after which the function writes NUL. The result is `/` (two bytes including NUL), while `__path_u2a()` requested `strlen("..") + 1`, or three bytes (`compiler/crt/posixc/__upath.c:93-103,387-431`). For `dir/..`, the same transitions produce `dir//`, five bytes including NUL for a seven-byte request. The state machine removes dot components or emits separators in place of consumed input; this does not establish an output longer than the input. No out-of-bounds write is retained. Source-only; no path or allocation was run.
+A source-order recheck of `__path_normalstuff_u2a()` disproved the claimed output expansion. For input `..`, `S_DOT2` sees NUL, sets a slash separator, and moves to `S_SLASH`; that state emits one `/`, after which the function writes NUL. The result is `/` (two bytes including NUL), while `__path_u2a()` requested `strlen("..") + 1`, or three bytes (`compiler/crt/posixc/__upath.c:93-103,387-431`). For `dir/..`, the same transitions produce `dir//`, six bytes including NUL for a seven-byte request. The state machine removes dot components or emits separators in place of consumed input; this does not establish an output longer than the input. No out-of-bounds write is retained. Source-only; no path or allocation was run.
 
 <a id="ek10806"></a>
 ### EK10806 — POSIXC `realpath()` accepts a missing final path component [conditional]
