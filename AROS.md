@@ -17167,8 +17167,6 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **[OD9543](AROS-other-drivers.md#od9543) — Speechcore can read before the phoneme arrays when a custom rewrite rule skips left context at the initial sentinel.** The unsigned index wraps and matching reads outside the arrays. Requires a custom decoded speech resource; source-only.
 
-**[OD9643](AROS-other-drivers.md#od9643) — Bluetooth shutdown can free pending HCI request objects and ACL buffers after its drain timeout.** Conditional on an HCI device leaving requests outstanding after `CMD_FLUSH`; no maintained in-tree provider was shown to trigger it. Source-only.
-
 
 Workbench C and Preferences scope correction (2026-11-09; no source-body/LOC credit): traced `AROS -> workbench-complete -> workbench-c` and `workbench-prefs` through `workbench/mmakefile.src:9-25`, `workbench/c/mmakefile.src:86-109`, and the active local `#MM-` declarations. The ordinary `workbench-c` manifest, `workbench-c-sh`, RequestString, Eval, Say, and other active C dependencies are selected by the full Workbench target. The Preferences applications described in the affected findings are selected through active per-application `workbench-prefs` edges; the two earlier notes that called Time and Trackdisk explicit-only are superseded. Updated corresponding detailed findings. Exceptions checked: `MonEd` uses `##MM-` and remains excluded from `workbench-prefs`; CPUInfo and Logger have named targets but no edge from `workbench-c`; AROSTCP SysLog is under its separate `contrib` target with an ignored `##MM-` edge. These target-graph results do not establish installation in every produced image or runtime use. Source-only.
 
