@@ -17126,7 +17126,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **OD11568 — PCI xHCI ring exhaustion can strand a request and endpoint after partially queueing TRBs.** Multi-TRB setup stops on a full ring without rolling back the prefix, then requeues the request while leaving its endpoint busy. Affected by requests larger than available ring capacity; source-only. See [OD11568](AROS-other-drivers.md#od11568).
 
-**OD11569 — RTBTCore v2 fallback selects the first nonmatching ECO snippet.** If a supported ROM version has no exact snippet, the wrong fallback may prevent radio initialization. Conditional on optional Realtek v2 firmware contents; source-only. See [OD11569](AROS-other-drivers.md#od11569).
+**OD11569 — RTBTCore v2 fallback selects the first nonmatching ECO snippet.** If the controller rejects it, firmware loading is marked handled and HCI bring-up continues without retrying, potentially leaving the controller on ROM firmware. Device impact depends on its firmware. Conditional on optional Realtek v2 firmware contents; source-only. See [OD11569](AROS-other-drivers.md#od11569).
 
 **OD2136 — GamePort can dereference the list sentinel as a unit after a queued-event drain.** With multiple public opens and a stale per-open event cursor, the completed request can be removed while another event remains; iterator exhaustion leaves `ioreq` at the list sentinel before the empty-queue cleanup derives `gpUn` from it. Conditional on the two-opener/two-event request sequence; no event was run. See [OD2136](AROS-other-drivers.md#od2136).
 
