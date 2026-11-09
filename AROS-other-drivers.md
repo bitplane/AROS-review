@@ -40694,7 +40694,7 @@ The default Mesa 26 AROS patch stores the current GL dispatch table and context 
 
 **Trigger and consequence:** two ordinary Exec tasks use separate Mesa GL contexts without being pthread-created. Making one context current overwrites the other task's GLAPI current-context/dispatch slots; subsequent GL calls can use the wrong context or dispatch table. **Affected configuration:** Mesa 26.0.0, the default selected version (`workbench/libs/mesa/mesa.cfg:12-36`), when multiple non-pthread Exec tasks call the GL API. The Mesa 20/21 integrations use the separate `TaskLocalStorage` keyed directly by `FindTask()` and are not covered by this finding. **Confidence:** high for the TLS alias; practical exposure depends on multi-task clients, which this checkout does not demonstrate. Use Exec-task-specific storage or assign each Exec task a distinct pthread TLS record. No GL call, context switch, or build was run; source-only.
 
-<a id="od11499"></a>
+<a id="od11499-nouveau-mode-enumeration-dereferences-failed-allocations"></a>
 ## OD11499 — Withdrawn as duplicate of GD10134
 
 This Other Drivers entry is withdrawn because the same Nouveau mode-tag allocation behavior is already documented in Graphics/Desktop finding GD10134. No separate Other Drivers finding is retained. The Nouveau source review and coverage credit remain intact.
@@ -41802,7 +41802,7 @@ Both `speech.device` and `narrator.device` load `DEVS:Speech/speech.iff` through
 **Trigger and consequence:** synthesis reaches a first-phoneme rewrite rule whose left context is the zero sentinel and whose bit-3 skip flag is set. The wrapped index causes out-of-bounds reads during matching; synthesis may fault or choose a rewrite from unrelated data. **Affected configuration:** speechcore clients using a custom decoded voice with that rule shape, including the selected speech/narrator device resource-loading paths if their resource is replaced. **Confidence:** high for the unsigned-index wrap, unchecked reads, and decoder acceptance; no matching custom resource or synthesis run was used. Reject the sentinel/skip combination or guard the left-context decrement before accessing the arrays. Source-only.
 
 
-<a id="od11570"></a>
+<a id="od11570-nouveau-mode-enumerator-leaks-temporary-tag-arrays"></a>
 ## OD11570 — Withdrawn as duplicate of GD10135
 
 This Other Drivers entry is withdrawn because the same Nouveau mode-tag allocation behavior is already documented in Graphics/Desktop finding GD10135. No separate Other Drivers finding is retained. The Nouveau source review and coverage credit remain intact.
