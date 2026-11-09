@@ -17158,3 +17158,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[OD9477](AROS-other-drivers.md#od9477) — Bluetooth GATT CCCD rejection can leave notification-backed reads pending indefinitely.** After a peer rejects CCCD setup, the stack marks the endpoint configured and does not retry or fail queued reads. Conditional on a GATT peer returning an ATT error; optional Bluetooth stack/client path. Source-only.
 
 **[OD9392](AROS-other-drivers.md#od9392) — eaudio can abort a queued write while leaving its request node linked in the unit wait list.** The same intrusive node is posted to the worker port; after it is dequeued, abort cleanup cannot repair the original list. Later queue operations can encounter stale request links. Conditional on aborting a queued `CMD_WRITE`; optional eaudio target. Source-only.
+
+**[OD1005](AROS-other-drivers.md#od1005) — ACPI button HIDD can register successfully after ACPICA rejects its event-handler installation.** The button is counted and exposed without a working callback; conditional on handler installation failure. Optional acpibutton HIDD on i386-PC, x86-64-PC, and OpenSBI. Source-only.
