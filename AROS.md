@@ -17165,6 +17165,8 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **[OD1198](AROS-other-drivers.md#od1198) — USB timer helpers ignore `AllocSignal()` failure before waiting.** Under task signal exhaustion, the failed bit becomes 255 and reaches `WaitIO()`/`WaitPort()`; the delay or timer completion path can wait on an invalid signal mask. Optional Workbench USB stack; source-only.
 
+**[OD9543](AROS-other-drivers.md#od9543) — Speechcore can read before the phoneme arrays when a custom rewrite rule skips left context at the initial sentinel.** The unsigned index wraps and matching reads outside the arrays. Requires a custom decoded speech resource; source-only.
+
 
 Workbench C and Preferences scope correction (2026-11-09; no source-body/LOC credit): traced `AROS -> workbench-complete -> workbench-c` and `workbench-prefs` through `workbench/mmakefile.src:9-25`, `workbench/c/mmakefile.src:86-109`, and the active local `#MM-` declarations. The ordinary `workbench-c` manifest, `workbench-c-sh`, RequestString, Eval, Say, and other active C dependencies are selected by the full Workbench target. The Preferences applications described in the affected findings are selected through active per-application `workbench-prefs` edges; the two earlier notes that called Time and Trackdisk explicit-only are superseded. Updated corresponding detailed findings. Exceptions checked: `MonEd` uses `##MM-` and remains excluded from `workbench-prefs`; CPUInfo and Logger have named targets but no edge from `workbench-c`; AROSTCP SysLog is under its separate `contrib` target with an ignored `##MM-` edge. These target-graph results do not establish installation in every produced image or runtime use. Source-only.
 
