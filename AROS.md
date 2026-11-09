@@ -15945,7 +15945,6 @@ UserGroup `ioerr2errno()` caller pass (2026-11-04; no new EK): checked both sele
 
 **[EK10804](AROS-exec-kernel.md#ek10804) — Unix path conversion treats every `/.attbin*` name as the special `/.attbin` path and returns ENOENT.** Requires a valid name sharing that prefix. See the [path-prefix filter review](AROS-exec-kernel-coverage.md#posix-path-prefix-filter-review-ek10804). Source-only.
 
-**[EK10805](AROS-exec-kernel.md#ek10805) — POSIX parent-path conversion expands terminal `..` by one byte but allocates only the input length, so its output NUL can exceed the requested buffer.** Conditional on a fresh or exactly sized conversion buffer. See the [parent-path conversion review](AROS-exec-kernel-coverage.md#posixc-parent-path-conversion-buffer-ek10805). Source-only.
 
 **[EK10806](AROS-exec-kernel.md#ek10806) — POSIXC `realpath()` can return success for a missing final path component because it ignores `readlink()` failures.** See the [realpath error-path review](AROS-exec-kernel-coverage.md#posixc-realpath-final-component-error-ek10806). Source-only.
 
@@ -16171,7 +16170,6 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[EK10859](AROS-exec-kernel.md#ek10859) — Unix-path `system(NULL)` reports a shell without checking for one.** NIX-mode callers receive `1` even when `bin:sh` cannot be locked, contrary to the documented availability query. Source-only.
 
-**[EK10860](AROS-exec-kernel.md#ek10860) — `rmdir("..")` can reuse a freed path-conversion buffer.** The POSIXC wrapper converts the path, then delegates to `remove()`, which converts it again; terminal `..` expansion can force the second conversion to free its own input buffer. Conditional on a fresh buffer or at most three bytes of recorded capacity; source-only.
 
 **[OD11408](AROS-other-drivers.md#od11408) — PCI xHCI grouped functions can mis-map root-hub ports.** If an earlier controller with a populated port count fails initialization and a later one succeeds, the failed controller still occupies the map prefix while the advertised count includes only successful controllers, shifting or hiding healthy ports. Even when all functions initialize, root-hub dispatch passes global indices as controller-local indices, so later functions can access the wrong port or exceed local arrays. Conditional on grouped multifunction PCI hardware; source-only.
 
