@@ -14211,7 +14211,7 @@ Apple Silicon CreateSegList ignored-protection-result caller pass (EK712 expande
 
 **[OD10027](AROS-other-drivers.md#od10027) — Optional NV50 SPWG LVDS enable can dereference NULL EDID after the BIOS strap-mode fallback accepts the panel.** Conditional on missing EDID and the relevant VBIOS configuration.
 
-**[OD10070](AROS-other-drivers.md#od10070) — PCI xHCI may signal worker tasks before their pointers are published, if an event arrives during startup or after worker creation fails.** Conditional on an event during the pre-worker interrupt window or worker-creation failure in selected Raspberry Pi AArch64, RISC-V OpenSBI, or x86-64 PC USB package configurations.
+**[OD10070](AROS-other-drivers.md#od10070) — PCI xHCI can signal unpublished or already-exited worker tasks.** Conditional on an event during startup, worker creation failure, or event/port worker timer or signal allocation failure in selected Raspberry Pi AArch64, RISC-V OpenSBI, or x86-64 PC USB package configurations.
 
 **[OD10071](AROS-other-drivers.md#od10071) — NV04 resume programs the hardware cursor even when its VRAM repin fails.** Conditional on the optional Nouveau target and cursor pin failure during system resume.
 
