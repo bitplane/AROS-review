@@ -17154,3 +17154,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 
 **[OD3886](AROS-other-drivers.md#od3886) — USB NAK deadlines can expire early when the 32-bit frame counter wraps.** Deneb, PCIUSB and PCI xHCI compare absolute deadlines with ordinary unsigned `>`; a timeout crossing rollover can abort a healthy request early. Poseidon uses a 1-second timeout for enumeration. Source-only; no device or transfer was run.
+
+**[OD9477](AROS-other-drivers.md#od9477) — Bluetooth GATT CCCD rejection can leave notification-backed reads pending indefinitely.** After a peer rejects CCCD setup, the stack marks the endpoint configured and does not retry or fail queued reads. Conditional on a GATT peer returning an ATT error; optional Bluetooth stack/client path. Source-only.
