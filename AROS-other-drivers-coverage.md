@@ -38472,3 +38472,5 @@ eaudio OD9392 report-link reconciliation (2026-11-09): the 2026-10-23 AbortIO no
 OD1005 report-link reconciliation (2026-11-09): coverage entries already described the ignored ACPICA fixed-event/notify-handler installation results and successful-looking HIDD registration, but the candidate had no detailed report section or master-index entry. Restored both, retaining conditional scope for ACPICA handler-install failure and the selected optional package. No new source candidate or body/LOC credit; no firmware or runtime behavior was exercised.
 
 OD1029 report-link reconciliation (2026-11-09): the ACPI battery coverage notes and full-body checks retained OD1029's 32-bit percentage multiplication overflow, but the detailed finding and master-index entry were missing. Restored both, scoped to large ACPI capacities; no new body/LOC credit or runtime evidence.
+
+OD1198 report-link reconciliation (2026-11-09): restored the master-index link for the USB timer signal-allocation finding already recorded in the detailed report and source coverage row. No new source candidate or body/LOC credit; signal exhaustion and USB runtime behavior remain untested.
