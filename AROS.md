@@ -17162,3 +17162,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[OD1005](AROS-other-drivers.md#od1005) — ACPI button HIDD can register successfully after ACPICA rejects its event-handler installation.** The button is counted and exposed without a working callback; conditional on handler installation failure. Optional acpibutton HIDD on i386-PC, x86-64-PC, and OpenSBI. Source-only.
 
 **[OD1029](AROS-other-drivers.md#od1029) — ACPI battery percentage calculations can wrap for large valid capacity values.** Multiplying 32-bit remaining capacity by 100 before division can make the telemetry percentage, and fallback low-battery classification, too small. Conditional on remaining capacity above 42,949,672; source-only.
+
+**[OD1198](AROS-other-drivers.md#od1198) — USB timer helpers ignore `AllocSignal()` failure before waiting.** Under task signal exhaustion, the failed bit becomes 255 and reaches `WaitIO()`/`WaitPort()`; the delay or timer completion path can wait on an invalid signal mask. Optional Workbench USB stack; source-only.
