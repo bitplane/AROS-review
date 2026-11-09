@@ -16794,7 +16794,6 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[OD11496](AROS-other-drivers.md#od11496-mesa-tls-creation-dereferences-failed-allocation) — Mesa task-local storage initialization dereferences a failed allocation.** Legacy Mesa 20/21 AROS patch configurations only; source-only.
 **[OD11497](AROS-other-drivers.md#od11497-mesa-tls-insertion-dereferences-failed-node-allocation) — Mesa task-local storage insertion dereferences a failed node allocation.** Legacy Mesa 20/21 AROS patch configurations only; source-only.
 **[OD11498](AROS-other-drivers.md#od11498-mesa-glapi-aliases-unregistered-exec-tasks) — Mesa 26 GLAPI stores per-task context and dispatch in pthread slots that alias for unregistered Exec tasks.** Conditional on multiple ordinary Exec tasks using GL; default Mesa 26 integration; source-only.
-**[OD11499](AROS-other-drivers.md#od11499-nouveau-mode-enumeration-dereferences-failed-allocations) — Nouveau mode enumeration dereferences failed sync-tag/name allocations.** Conditional on allocation failure while probing a connector with modes; optional Nouveau HIDD; source-only.
 **[OD11500](AROS-other-drivers.md#od11500-nouveau-selects-first-crtc-without-checking-connector-compatibility) — Nouveau chooses the first CRTC without checking whether the selected connector can use it.** Conditional on a multi-CRTC topology where the first CRTC is incompatible; optional Nouveau HIDD; source-only.
 **[OD11501](AROS-other-drivers.md#od11501-nouveau-bitmap-access-ignores-map-failure) — Nouveau bitmap CPU access ignores failed buffer mappings and can dereference a NULL map.** Conditional on `drmMMap()` failure; optional Nouveau HIDD; source-only.
 
@@ -17130,7 +17129,6 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **OD11569 — RTBTCore v2 fallback selects the first nonmatching ECO snippet.** If the controller rejects it, firmware loading is marked handled and HCI bring-up continues without retrying, potentially leaving the controller on ROM firmware. Device impact depends on its firmware. Conditional on optional Realtek v2 firmware contents; source-only. See [OD11569](AROS-other-drivers.md#od11569).
 
-**OD11570 — Nouveau leaks temporary mode-tag arrays after registration.** Each selected connector mode adds an outer-list and nested-tag allocation that is not released after the generic enumerator consumes the tags. Conditional on Nouveau graphics-object construction; optional target; source-only. See [OD11570](AROS-other-drivers.md#od11570-nouveau-mode-enumerator-leaks-temporary-tag-arrays).
 
 **OD2136 — GamePort can dereference the list sentinel as a unit after a queued-event drain.** With multiple public opens and a stale per-open event cursor, the completed request can be removed while another event remains; iterator exhaustion leaves `ioreq` at the list sentinel before the empty-queue cleanup derives `gpUn` from it. Conditional on the two-opener/two-event request sequence; no event was run. See [OD2136](AROS-other-drivers.md#od2136).
 
