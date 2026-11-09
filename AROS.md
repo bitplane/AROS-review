@@ -17160,3 +17160,5 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[OD9392](AROS-other-drivers.md#od9392) — eaudio can abort a queued write while leaving its request node linked in the unit wait list.** The same intrusive node is posted to the worker port; after it is dequeued, abort cleanup cannot repair the original list. Later queue operations can encounter stale request links. Conditional on aborting a queued `CMD_WRITE`; optional eaudio target. Source-only.
 
 **[OD1005](AROS-other-drivers.md#od1005) — ACPI button HIDD can register successfully after ACPICA rejects its event-handler installation.** The button is counted and exposed without a working callback; conditional on handler installation failure. Optional acpibutton HIDD on i386-PC, x86-64-PC, and OpenSBI. Source-only.
+
+**[OD1029](AROS-other-drivers.md#od1029) — ACPI battery percentage calculations can wrap for large valid capacity values.** Multiplying 32-bit remaining capacity by 100 before division can make the telemetry percentage, and fallback low-battery classification, too small. Conditional on remaining capacity above 42,949,672; source-only.
