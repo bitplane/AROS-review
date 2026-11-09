@@ -1,3 +1,10 @@
+<a id="od1767"></a>
+## OD1767 — Trident preset import uses fields from an incomplete FORM header [conditional]
+
+`Action_Cfg_Import()` declares the three-word `iffhead` on the stack, calls `Read(fh, iffhead, 12)`, and ignores the returned byte count before checking the FORM ID and using the declared length and type (`rom/usb/trident/ActionClass.c:5027-5053`). If the file ends or the read fails after only part of the header, one or more words remain indeterminate. When the first word identifies FORM, the code uses the unread length to size `buff` and the unread type to dispatch; the subsequent payload read only checks its own result, after those decisions have already been made. A short header can therefore make import behavior and allocation/read sizing depend on uninitialized stack contents, instead of reporting the file as incomplete.
+
+**Trigger and consequence:** a user selects a truncated or failed-read preset in the Trident configuration import requester. Import can make an incorrect allocation/read request or dispatch based on indeterminate header fields, and may report misleading import errors or process the wrong configuration form. **Affected configuration:** the Trident Poseidon preferences program when its explicit target is built and run; the USB aggregate manifests include that target, but default image inclusion is not established here. **Confidence:** high that the short-read result is ignored and unread fields are consumed; the resulting behavior depends on stack contents and DOS read behavior. Require an exact 12-byte header read and validate the FORM length before using it. No file was selected or imported; source-only.
+
 <a id="od11555"></a>
 ## OD11555 — setlastlog's public vector omits the console argument [conditional]
 
