@@ -215,9 +215,9 @@ This race does not establish an immediate use-after-free: the competing close re
 
 **Trigger and path:** In the buildable `ascii.datatype` subclass, `Ascii__DTM_ASYNCLAYOUT()` records the segment length in `ULONG num` and assigns it to `Line::ln_TextLen` (`workbench/classes/datatypes/ascii/asciiclass.c:249,373-378`). A line with 32,768 characters can therefore reach the superclass renderer with that length. `DrawText()` assigns it to `LONG len` then calls `Text()` (`workbench/classes/datatypes/text/textclass.c:538-539,663`); the public vector declares the count as signed 16-bit `WORD` (`rom/graphics/graphics.conf:50`). On compiler behavior that narrows 32768 to -32768, the `Text()` wrapper passes the negative value to `BltTemplateBasedText()`'s `ULONG len` parameter (`rom/graphics/text.c:70-88,97-99`), and its eligible 8-pixel, unstyled, zero-spacing fast-font path scans `text[i]` for that huge unsigned length (`:111-134`). This reads beyond the line buffer. The selected compiler's out-of-range narrowing behavior remains unverified.
 
-**Affected configuration:** The standalone `workbench-datatypes-ascii` target and `text.datatype` superclass path when an ASCII object with a qualifying font is rendered. Inclusion in the default aggregate is not established by the checked-in target references.
+**Affected configuration:** The `workbench-datatypes-ascii` target selected through the active `workbench-datatypes-complete` aggregate (`workbench/classes/datatypes/mmakefile:4-16`) and `text.datatype` superclass path when an ASCII object with a qualifying font is rendered.
 
-**Remaining checks:** Selected compiler conversion semantics, complete caller census, other font/render paths, and packaged-target reachability. Source-only; no build or runtime was run.
+**Remaining checks:** Selected compiler conversion semantics, external callers, and other font/render paths. Direct in-tree `TDTA_*` callers and the active Workbench target chain have been checked. Source-only; no build or runtime was run.
 
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md:L3164`](AROS-graphics-desktop-coverage.md#L3164).
 
@@ -231,9 +231,9 @@ This race does not establish an immediate use-after-free: the competing close re
 
 **Source path and consequence:** The generic helper initializes its result to FALSE, sets layout flags, and attempts those two allocations (`workbench/libs/datatypes/doasynclayout.c:146,172-213`). On either failure it clears the internal layout flags and returns FALSE, but it never notifies `DTA_Busy=FALSE`; the only such notification is made after the async worker completes (`:83-94`). ASCII, binary, HTML, and picture subclasses all notify `DTA_Busy=TRUE` before calling the helper (`workbench/classes/datatypes/ascii/asciiclass.c:169-180`; `binary/binaryclass.c:175-191`; `html/htmlclass.c:357-373`; `picture/pictureclass.c:848-858`). The superclass DataTypes class returns TRUE from `GM_LAYOUT` (`workbench/libs/datatypes/class.c:411,890-934`), and each subclass adds the helper result, so these startup failures still return success although no layout worker runs. The helper clears its internal layout flags, but the earlier `DTA_Busy=TRUE` notification has no matching false notification on this path. MultiView creates the datatype with an IDCMP notification target (`workbench/utilities/MultiView/main.c:754-765`) and handles `DTA_Busy=TRUE` by setting `WA_BusyPointer` (`:1724-1737`); therefore a selected datatype failure can leave the viewer’s busy pointer displayed until some later code clears it. This is a stale UI notification state, not a retained internal layout flag.
 
-**Affected configuration:** ASCII, binary, HTML, or picture datatype subclass builds using the shared DataTypes library helper. Default module inclusion varies by aggregate and remains unverified.
+**Affected configuration:** ASCII, binary, HTML, or picture datatype subclasses selected through the active `workbench-datatypes-complete` aggregate (`workbench/classes/datatypes/mmakefile:4-16`) when using the shared DataTypes library helper.
 
-**Remaining checks:** Whether a later operation clears the pointer in each viewer session, all package parent edges, and other async layout implementations. Source-only; no allocation/process failure was induced.
+**Remaining checks:** Whether a later operation clears the pointer in each viewer session, external subclasses/callers, and other async layout implementations. The active Workbench target chain for ASCII, binary, HTML, and picture has been confirmed. Source-only; no allocation/process failure was induced.
 
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md:L3170`](AROS-graphics-desktop-coverage.md#L3170).
 
@@ -251,7 +251,7 @@ This race does not establish an immediate use-after-free: the competing close re
 
 **Consequence:** A one-byte out-of-bounds read occurs during ASCII layout. The adjacent byte may also affect whether the final CR is consumed as CRLF; no further effect is asserted.
 
-**Affected configuration:** The explicit ASCII datatype module when given an FTXT/CHRS input ending in CR and then laid out. Default aggregate inclusion is unverified.
+**Affected configuration:** The `workbench-datatypes-ascii` module selected through `workbench-datatypes-complete` (`workbench/classes/datatypes/mmakefile:4-16`) when given an FTXT/CHRS input ending in CR and then laid out.
 
 **Remaining checks:** Full caller/package selection closure and runtime behavior. Source-only; no build or runtime was run.
 
@@ -267,7 +267,7 @@ This race does not establish an immediate use-after-free: the competing close re
 
 **Consequence:** The Word Wrap setting does not wrap ASCII text; users still need horizontal scrolling for long lines.
 
-**Affected configuration:** MultiView displaying the ASCII datatype through the explicit `workbench-datatypes-ascii` module target. Default aggregate inclusion is unverified.
+**Affected configuration:** MultiView displaying the `workbench-datatypes-ascii` module selected through `workbench-datatypes-complete` (`workbench/classes/datatypes/mmakefile:4-16`).
 
 **Remaining checks:** Complete build/package parent-edge census and behavior of other datatype subclasses. Source-only; no build or runtime was run.
 
@@ -444,7 +444,7 @@ This ID-only candidate was rechecked against the selected Wanderer ImageBackFill
 
 **The Text datatype dereferences a NULL font when font initialization fails.** `_OM_NEW()` zeroes the object instance, optionally copies `DTA_TextAttr.ta_Name`, then calls `InitText()` without checking its result; it immediately reads `td->font->tf_YSize` and `td->font->tf_Flags` (`workbench/classes/datatypes/text/textclass.c:2206-2246`). `InitText()` can return zero with `td->font` still NULL: when no font name is present, it copies `GfxBase->DefaultFont`'s name with `StrCopy()` and proceeds only if that allocation succeeds; when a selected font cannot be opened, it copies and tries `topaz.font`, then returns zero if that fallback also fails (`textclass.c:261-298`). `StrCopy()` returns NULL when its input is NULL/empty or `AllocVec()` fails (`workbench/classes/datatypes/text/support.c:115-126`), and `OpenFont()` returns NULL when no loaded font matches (`rom/graphics/openfont.c:27-35,58-93`). Thus, for example, failure to allocate the default-font-name copy leaves `td->font` NULL and `_OM_NEW()` dereferences it; a missing requested font followed by an unavailable fallback is another route.
 
-**Affected configuration and trigger:** when the explicit `workbench-datatypes-text` module target is built and loaded (`workbench/classes/datatypes/text/mmakefile.src:4,11-13`), a `text.datatype` object construction reaches `_OM_NEW()` while `InitText()` cannot initialize any font. The checked-in `workbench-datatypes-complete` edges do not select this module, so no default aggregate inclusion is claimed. **Consequence:** object construction dereferences a null `TextFont` pointer instead of returning an initialization failure. **Confidence:** high for the unchecked return and null dereference; triggering it requires the stated allocation/font-availability failure. No allocation failure, font removal, object construction or build was induced; source-only.
+**Affected configuration and trigger:** when the explicit `workbench-datatypes-text` module target is built and loaded (`workbench/classes/datatypes/text/mmakefile.src:4,11-13`), a `text.datatype` object construction reaches `_OM_NEW()` while `InitText()` cannot initialize any font. The active `workbench-datatypes-complete` aggregate selects this module through `workbench-classes-complete` (`workbench/classes/datatypes/mmakefile:4-16`; `workbench/classes/mmakefile:4-10`; `workbench/mmakefile.src:9-25`). **Consequence:** object construction dereferences a null `TextFont` pointer instead of returning an initialization failure. **Confidence:** high for the unchecked return and null dereference; triggering it requires the stated allocation/font-availability failure. No allocation failure, font removal, object construction or build was induced; source-only.
 
 **Review evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md), GD2876 re-review.
 
@@ -8202,7 +8202,7 @@ For example, one-shot `0x80000000` plus repeat `0x80000001` wraps to one. With a
 
 **Severity / confidence:** Low severity, high confidence. The trigger is memory-pool exhaustion while a layout is being rebuilt.
 
-**Affected configuration:** The explicit `workbench-datatypes-ascii` target, when built and used with the selected Text superclass. The failure requires a document/layout that needs another line record after the pool cannot satisfy `AllocPooled()`.
+**Affected configuration:** The `workbench-datatypes-ascii` target selected by `workbench-datatypes-complete` (`workbench/classes/datatypes/mmakefile:4-16`), when used with the selected Text superclass. The failure requires a document/layout that needs another line record after the pool cannot satisfy `AllocPooled()`.
 
 During a requested layout, `Ascii__DTM_ASYNCLAYOUT()` removes the existing line records before rebuilding the list (`workbench/classes/datatypes/ascii/asciiclass.c:304-312`). When a new record allocation fails, it sets `abort = TRUE` and stops the line-building loop (`:367-421`). The completion path does not test `abort`: it writes the partial `total` and `max_linelength` into the text special-info geometry and, when no Ctrl-C signal was received (`bsig == 0`), publishes those values through `NotifyAttrChanges()` and clears `DTA_Busy` (`:491-529`).
 
@@ -8219,7 +8219,7 @@ The Text superclass renderer traverses the resulting line list (`workbench/class
 
 **Severity / confidence:** Low severity, high confidence for the out-of-range read; a visible failure depends on the memory immediately following the supplied buffer.
 
-**Affected configuration:** The explicit `workbench-datatypes-ascii` target used with the selected Text superclass. The trigger is a caller-supplied `TDTA_Buffer`/`TDTA_BufferLen` pair whose final in-range byte is carriage return and whose allocation ends at that byte.
+**Affected configuration:** The `workbench-datatypes-ascii` target selected by `workbench-datatypes-complete` (`workbench/classes/datatypes/mmakefile:4-16`) and used with the selected Text superclass. The trigger is a caller-supplied `TDTA_Buffer`/`TDTA_BufferLen` pair whose final in-range byte is carriage return and whose allocation ends at that byte.
 
 The ASCII layout loop checks `buffer[i]` for CR while `i < bufferlen`, then unconditionally reads `buffer[i + 1]` to test for LF (`workbench/classes/datatypes/ascii/asciiclass.c:314-325`). When CR is the last byte in the caller's declared buffer, that read is one byte beyond the supplied extent. The Text superclass's setters store `TDTA_Buffer` and `TDTA_BufferLen` directly without copying or appending a terminator (`workbench/classes/datatypes/text/textclass.c:2477-2485`), so the superclass does not establish an extra readable byte for this caller-supplied case.
 
@@ -8236,7 +8236,7 @@ The normal text-file loading path is excluded: `LoadText()` allocates `size + 1`
 
 **Severity / confidence:** Low severity, medium confidence. The source behavior is clear; whether empty ASCII documents are required to be accepted is not explicitly documented in the checked-in API contract.
 
-**Affected configuration:** The explicit `workbench-datatypes-ascii` target when used to load an empty file through its selected Text superclass. This does not establish that the default datatype detector selects ASCII for an empty file.
+**Affected configuration:** The `workbench-datatypes-ascii` target selected by `workbench-datatypes-complete` (`workbench/classes/datatypes/mmakefile:4-16`) when used to load an empty file through its selected Text superclass. This does not establish that the default datatype detector selects ASCII for an empty file.
 
 For a zero-byte file, the Text superclass accepts `size == 0`, allocates one byte for the buffer, reads zero bytes, writes a newline sentinel at index zero, sets `TDTA_BufferLen` to zero, and returns the object (`workbench/classes/datatypes/text/textclass.c:304-338`; `DTIO_Read64` uses `Read()` with length zero at `workbench/classes/datatypes/dtio64.h:90-103`). The ASCII subclass then retrieves the non-NULL buffer and zero length but requires both `buffer && len`; it reports `ERROR_REQUIRED_ARG_MISSING`, disposes the object, and returns NULL (`workbench/classes/datatypes/ascii/asciiclass.c:52-103`).
 
@@ -8253,7 +8253,7 @@ The rejection therefore does not indicate a missing buffer or a failed file read
 
 **Severity / confidence:** Low severity, high confidence. The trigger is line-record pool exhaustion during the initial layout.
 
-**Affected configuration:** The explicit `workbench-datatypes-binary` target and its Text superclass. The failure requires a nonempty buffer and an `AllocPooled()` failure while generating the hex/character rows.
+**Affected configuration:** The `workbench-datatypes-binary` target selected by the active `workbench-datatypes-complete` aggregate (`workbench/classes/datatypes/mmakefile:4-16`) and its Text superclass. The failure requires a nonempty buffer and an `AllocPooled()` failure while generating the hex/character rows.
 
 `Binary__DTM_ASYNCLAYOUT()` computes the expected row count from the full buffer length before rebuilding the line list (`workbench/classes/datatypes/binary/binaryclass.c:256-266`). The initial-layout path first removes every existing row (`:276-284`), then appends one row per 16 bytes. If a row allocation fails, it sets `abort = TRUE` and stops the loop (`:286-361`). The completion code does not test `abort`: it stores the precomputed full `lines` count in `si_TotVert` and notifies clients with that full total and `DTA_Busy=FALSE` whenever `bsig == 0` (`:371-414`).
 
@@ -8270,7 +8270,7 @@ The Text renderer walks the actual line list (`workbench/classes/datatypes/text/
 
 **Severity / confidence:** Low severity, high confidence for the arithmetic boundary; displayed offset corruption depends on compiler treatment of signed overflow.
 
-**Affected configuration:** The explicit `workbench-datatypes-binary` target on a 64-bit `IPTR` build where `dos64.library` opens successfully and memory is available for a text buffer larger than 2 GiB. The shared Text loader permits lengths below `0xFFFFFFFF` when they are addressable (`workbench/classes/datatypes/text/textclass.c:312-328`; `workbench/classes/datatypes/text/support.c:22`).
+**Affected configuration:** The `workbench-datatypes-binary` target selected by the active `workbench-datatypes-complete` aggregate (`workbench/classes/datatypes/mmakefile:4-16`) on a 64-bit `IPTR` build where `dos64.library` opens successfully and memory is available for a text buffer larger than 2 GiB. The shared Text loader permits lengths below `0xFFFFFFFF` when they are addressable (`workbench/classes/datatypes/text/textclass.c:312-328`; `workbench/classes/datatypes/text/support.c:22`).
 
 `Binary__DTM_ASYNCLAYOUT()` stores the rounded-up row count `(bufferlen + 15) / 16` in signed 32-bit `LONG lines` (`workbench/classes/datatypes/binary/binaryclass.c:221,256`). For `bufferlen > 0x7FFFFFF0`, `lines` is at least `0x08000000`; each `lines * 16` expression in the offset-width tests at `:258-264` then exceeds signed `LONG_MAX`, invoking signed-overflow undefined behavior while selecting `offsetlen`. The formatter later writes only `offsetlen` hexadecimal digits of the row byte offset (`:302-306`), so a wrapped result can select too few digits and make large row addresses misleading.
 
@@ -8398,7 +8398,7 @@ Regardless of these outcomes, the loader sends the full descriptor width and hei
 
 **Source and trigger:** `Html__OM_NEW()` initializes `data->page` to NULL. If the text buffer is missing, `CreatePool()` fails, or `call_parser()` fails, the constructor calls `CoerceMethod(..., OM_DISPOSE)` before returning failure (`workbench/classes/datatypes/html/htmlclass.c:248-285`). `Html__OM_DISPOSE()` unconditionally passes `data->page` to `layout_free()` (`:294-307`), and `layout_free()` immediately reads `page->ldata` without a NULL check (`workbench/classes/datatypes/html/layout.c:68-75`). The parser helper returns failure without publishing `data->page` when `parse_init()` or later initialization fails (`htmlclass.c:61-88`).
 
-**Consequence:** The cleanup path dereferences NULL instead of unwinding the partially constructed datatype object. The failure can occur during ordinary object construction when required buffer attributes are absent, or under pool/parser allocation failure. The `workbench-datatypes-html` manifest is an explicit optional target; the defect applies when that module is built and its constructor is used. High confidence from source ordering; no allocation failure or object construction was induced.
+**Consequence:** The cleanup path dereferences NULL instead of unwinding the partially constructed datatype object. The failure can occur during ordinary object construction when required buffer attributes are absent, or under pool/parser allocation failure. The `workbench-datatypes-html` target is selected by the active `workbench-datatypes-complete` aggregate (`workbench/classes/datatypes/mmakefile:4-16`); the defect applies when its constructor is used. High confidence from source ordering; no allocation failure or object construction was induced.
 
 ## GD6279
 
@@ -8406,7 +8406,7 @@ Regardless of these outcomes, the loader sends the full descriptor width and hei
 
 **Source and trigger:** `parse_tag()` allocates `str[MAX_Tag_Length + 1]`, then accepts normal characters in a loop with the inclusive bound `i <= MAX_Tag_Length`; after the loop it writes `str[i] = '\0'` (`workbench/classes/datatypes/html/parse.c:706-729`). `escape_to_char()` uses the same inclusive loop and terminator pattern with `str[MAX_Esc_Length + 1]` (`:616-651`). The maxima are computed from the longest checked-in tag/entity names during parser setup (`parse.c:141-146,285-319`; `tables.c`). A tag or named entity one character longer than its table maximum fills every stack-buffer slot and leaves `i` one past the last slot, so the terminator write is out of bounds. The parser reads input length-bounded from the selected Text datatype buffer.
 
-**Consequence and scope:** Parsing such a document writes one byte outside the local name buffer and can corrupt adjacent stack state before construction returns. Applies when the optional `workbench-datatypes-html` target is built and parses a document containing a too-long tag or entity name. High confidence from the loop bounds and VLA size; no HTML input or runtime behavior was exercised.
+**Consequence and scope:** Parsing such a document writes one byte outside the local name buffer and can corrupt adjacent stack state before construction returns. Applies to `workbench-datatypes-html`, selected by the active `workbench-datatypes-complete` aggregate (`workbench/classes/datatypes/mmakefile:4-16`), when it parses a document containing a too-long tag or entity name. High confidence from the loop bounds and VLA size; no HTML input or runtime behavior was exercised.
 
 ## GD6280
 
@@ -21177,7 +21177,7 @@ For a width of 32,769 pixels, the forward path assigns `msg->width` to signed `e
 
 The selected text datatype maps `DTM_WRITE` to `DT_Write()` (`workbench/classes/datatypes/text/text.conf:37-38`; `mmakefile.src:4,11-12`). In `DTWM_RAW` mode, `DT_Write()` ignores `Write()` when saving the full buffer and delegates selected-text output to `CopyTextNowDOS()` (`textclass.c:2997-3012`). That helper ignores every `FWrite()` and `FPutC()` result (`:1658-1729`). In `DTWM_IFF` mode it ignores `PushChunk()`, `CopyTextNowIFF()`'s `WriteChunkBytes()` results, both `PopChunk()` results and `CloseIFF()` (`:3013-3039`; `CopyTextNowIFF()` at `:1563-1655`). `DT_Write()` then returns `TRUE` unconditionally (`:3045`). `SaveDTObjectA()` uses the method result as its return value and deletes the output only when `DTM_WRITE` returns zero (`workbench/libs/datatypes/savedtobjecta.c:51-58,108-127`).
 
-**Trigger and consequence:** save a text.datatype object through `SaveDTObjectA()` in raw mode to a destination whose DOS `Write()` returns a short count or error. The datatype still reports success; if `Close()` itself succeeds, `SaveDTObjectA()` retains the partial file instead of deleting it or reporting failure. IFF-mode output also discards its chunk-write and finalization results. **Affected configuration:** explicitly built `workbench-datatypes-text`; the text datatype target is optional, and this finding makes no default-package inclusion claim. **Confidence:** high for the ignored write results, unconditional success, and `SaveDTObjectA()` handling; no write failure was induced. Propagate every raw and IFF write/finalization error through `DT_Write()` as a zero result. No file or datatype object was saved; source-only.
+**Trigger and consequence:** save a text.datatype object through `SaveDTObjectA()` in raw mode to a destination whose DOS `Write()` returns a short count or error. The datatype still reports success; if `Close()` itself succeeds, `SaveDTObjectA()` retains the partial file instead of deleting it or reporting failure. IFF-mode output also discards its chunk-write and finalization results. **Affected configuration:** `workbench-datatypes-text` selected by the active `workbench-datatypes-complete` aggregate (`workbench/classes/datatypes/mmakefile:4-16`). **Confidence:** high for the ignored write results, unconditional success, and `SaveDTObjectA()` handling; no write failure was induced. Propagate every raw and IFF write/finalization error through `DT_Write()` as a zero result. No file or datatype object was saved; source-only.
 <a id="gd14887"></a>
 ## GD14887 — More treats unsupported stream-seek responses as file lengths [selected Workbench utility]
 
