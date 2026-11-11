@@ -1,3 +1,12 @@
+<a id="od2509"></a>
+## OD2509 — Direct serial-unit construction can index beyond the four supported ports [conditional]
+
+Both PC and Sam440 serial HIDDs declare four-entry hardware-base arrays, while their registered `CLID_Hidd_SerialUnit` Root.New methods accept `aHidd_SerialUnit_Unit` and index those arrays without validating the unit number (`arch/i386-pc/drivers/serial.hidd/SerialUnitClass.c:60,103-186`; `arch/ppc-sam440/serial.hidd/SerialUnitClass.c:88,91-125`). The PC method's `unitnum < 5` condition only controls IRQ setup; the later `bases[unitnum]` access is outside that condition. Both implementations also store the resulting instance in four-entry per-unit arrays (`serial_intern.h:25,31,65`; Sam440 `serial_intern.h:24,30,65`).
+
+The normal `HIDDSerial::NewSerial()` factories reject values outside `0..SER_MAX_UNITS-1` before calling `OOP_NewObject()` (`arch/i386-pc/drivers/serial.hidd/SerialClass.c:64-86`; Sam440 `SerialClass.c:69-91`). Direct callers of the registered unit class bypass that factory guard. An invalid unit can therefore read beyond `bases[]`, publish through an out-of-bounds unit-array slot, and use the resulting base address in UART register accesses during construction. The exact effect depends on the adjacent data and address mapping.
+
+**Trigger and consequence:** a client directly constructs `CLID_Hidd_SerialUnit` with `aHidd_SerialUnit_Unit >= 4`. The constructor can read and write outside its fixed arrays and may access an unintended I/O base. **Affected configuration:** PC serial HIDD builds; the Sam440 source has the same issue when explicitly built after its current compile blockers are addressed, and is not in the checked default package. The checked-in in-tree construction routes go through the bounded factories, so the trigger is limited to direct class clients. **Confidence:** high for missing bounds checks and out-of-range array access; occurrence requires direct construction with an invalid unit. Validate the unit in Root.New before array access, even when the usual factory performs its own validation. No object, invalid unit, serial I/O, or build was used; source-only.
+
 <a id="od2389"></a>
 ## OD2389 — keyboard.device can leave a read queued after publishing its event [ExecSMP conditional]
 
@@ -374,7 +383,7 @@ ATA OD9425 failed-start teardown cross-check (2026-10-23; no separate finding): 
 
 # other-drivers file-by-file audit tracker
 
-<a id="od2509"></a>
+<a id="od2509-history"></a>
 <a id="sam440-direct-serial-unit-root-new-bounds-pass-od2509"></a>
 Sam440 direct serial-unit constructor bounds recheck (OD2509 expanded; 2026-11-01; no body/path/LOC credit): compared `serial.conf`'s registered `CLID_Hidd_SerialUnit`/Root.New method with `PPC4xxSerUnit__Root__New()`. The constructor consumes `aHidd_SerialUnit_Unit` and indexes `bases[unitnum]` without a range check (`arch/ppc-sam440/serial.hidd/serial.conf:24-36`; `SerialUnitClass.c:90-125`); both `bases[]` and `cs_Unit[]` contain four entries (`SerialUnitClass.c:87-88`; `serial_intern.h:57-66`). Its parent `NewUnit` factory limits ordinary calls to 0–3 (`SerialClass.c:45-72`), so the trigger is direct OOP construction, not serial.device. The base-array access precedes the currently compile-invalid `class_static_data.sd_Unit` store; therefore fixing OD4005's blockers does not itself add a bounds guard. Consolidated this same constructor-boundary defect with PC serial OD2509. The Sam440 target remains optional, absent from the checked default package, and unbuildable as written. No object, build, or UART access was used; source-only.
 
