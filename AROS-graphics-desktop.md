@@ -817,11 +817,16 @@ The historical claim that `ScalerDiv()` overflows signed `int` is not establishe
 
 GD4120 describes the same generic 8-bit `CopyMemBox8()` alignment defect as GD9832. The canonical GD9832 report covers both the backward overlapping-copy case and the forward non-overlapping case, the generic `CopyBox` and public `BltBitMap()` dispatch, and the m68k-Amiga build selection. Keep GD9832 as the single active finding; GD4120 adds no independent trigger or root cause. Historical coverage entries using GD4120 refer to this same issue.
 
-## GD4121
+<a id="gd4121"></a>
+## GD4121 — RGB16 WritePixelArray input uses an unaligned word load on strict-alignment m68k
 
-**Indexed summary:** GD4121 — 16-bit bitmap input can dereference an odd source address as a word on m68k.
+**Severity / confidence:** Moderate severity, high confidence for an odd-address `UWORD` load in the selected conversion; the address-error consequence is conditional on a strict-alignment m68k CPU and caller-provided odd source address.
 
-**Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L437`](AROS-graphics-desktop-coverage.md#L437), [`AROS-graphics-desktop-coverage.md:L444`](AROS-graphics-desktop-coverage.md#L444), [`AROS-graphics-desktop-coverage.md:L1712`](AROS-graphics-desktop-coverage.md#L1712). Recheck the cited note and its scope before treating this candidate as confirmed.
+**Source and trigger:** CyberGraphics `WritePixelArray()` accepts its source as `APTR`, describes RGB16 pixels as two-byte values, computes the subrectangle offset in bytes, and passes the resulting byte pointer to `HIDD_BM_PutImage()` without checking alignment (`workbench/libs/cgfx/writepixelarray.c:31-43,48-58,87-90,176-202`). For a destination whose native format requires conversion, the generic bitmap implementation calls `CONVERTPIXELS()` with that pointer (`rom/hidds/gfx/gfx_bitmapclass.c:2899-2930`). The m68k-Amiga graphics HIDD selects `convert_RGB16_ARGB32_generic()` (`arch/m68k-amiga/hidd/gfx/rgbconv.c:34-48`); this routine casts the input to `UWORD *` and reads `src[x]` (`rom/hidds/gfx/colorconv/rgbconv_rgb16.h:44-64`). An odd source base, or an odd byte offset into the source, therefore reaches a word load at an odd address. The public interface specifies a byte pointer and row stride but no even-address requirement.
+
+**Affected configuration and consequence:** When the CyberGraphics library and generic `gfx` HIDD are built for m68k-Amiga and RGB16 input is converted to ARGB32, a caller passing a valid byte-addressed RGB16 array at an odd address can trigger an address error on 68000-class CPUs that require aligned word accesses. CPUs that support unaligned word loads may complete the conversion. No maintained in-tree caller was found supplying an odd-address RGB16 buffer; this is a public API caller condition, not a demonstrated in-tree workload. Use bytewise assembly of the 16-bit value or validate/copy unaligned input before typed access.
+
+**Confidence and limits:** High for the unchecked byte-pointer-to-`UWORD *` path and selected conversion registration; conditional for a fault on strict-alignment m68k hardware. The m68k-specific registration omits RGB15→RGB16, so that former example is not part of this finding. No odd-address buffer, conversion, build or m68k execution was performed; source-only. See the [alignment and build-selection recheck](AROS-graphics-desktop-coverage.md#rgb16-input-alignment-path-recheck-gd4121).
 
 ## GD4129
 
