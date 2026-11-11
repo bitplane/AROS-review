@@ -41936,7 +41936,7 @@ Both `speech.device` and `narrator.device` load `DEVS:Speech/speech.iff` through
 
 This Other Drivers entry is withdrawn because the same Nouveau mode-tag allocation behavior is already documented in Graphics/Desktop finding GD10135. No separate Other Drivers finding is retained. The Nouveau source review and coverage credit remain intact.
 
-<a id="od11571"></a>
+<a id="od11572"></a>
 ## OD11572 — UHCI OnOff clears bit zero in the USB process [caller-signal conditional]
 
 `UHCI::Root::New` initializes `mport` as a `PA_SOFTINT` port and assigns its soft-interrupt callback, but never assigns `mport.mp_SigBit` (`workbench/devs/USB/drivers/UHCI/uhciclass.c:310-329`). OOP instance storage is zero-cleared (`rom/oop/rootclass.c:114-119`), and the only use of this port's signal-bit field is `UHCI::OnOff`, which calls `SetSignal(0, 1 << uhci->mport.mp_SigBit)` (`uhciclass.c:892-903`). The mask is therefore bit zero, `SIGBREAKB_ABORT` (`compiler/include/exec/tasks.h:138,146`), and `SetSignal` clears that bit from the calling task's received signals.
@@ -41945,6 +41945,7 @@ The selected attach route invokes `UHCI::OnOff(TRUE)` synchronously from `USB::A
 
 **Trigger and consequence:** the USB process has a pending bit-zero abort signal when it attaches a UHCI driver (or when a caller invokes `OnOff` with that bit pending). `SetSignal` consumes the pending signal. The source establishes this signal loss, but the reviewed in-tree USB process has no demonstrated producer or consumer of `SIGBREAKB_ABORT`; practical user-visible impact in the selected path is therefore unestablished. External HIDD callers may have their own bit-zero usage. **Affected configuration:** UHCI USB HIDD, when a UHCI controller is attached. **Confidence:** high for the zero-initialized signal bit and the clearing operation; low for impact on selected in-tree behavior. Remove the `SetSignal` call or clear only a signal actually allocated and owned for this port. No signal, controller, or USB stack was run; source-only.
 
+<a id="od11571"></a>
 ## OD11571 — Withdrawn: root-hub wake signal cannot be produced in the cleared interval
 
 The candidate relied on a second root-hub `HubInterrupt` signaling the USBHub worker between `ClearPortFeature()`'s `SetSignal(0, 1 << timerPort.mp_SigBit)` and RHSC reenable. The bit collision and clear are real, but the selected root-hub producer is only called by the OHCI RHSC path: `ohci_Handler()` disables RHSC before queuing that callback (`workbench/devs/USB/drivers/OHCI/ohcidriverclass.c:404-428`). `ClearPortFeature()` clears bit zero before reenabling RHSC (`ohcihub.c:201-214`), so that root-hub producer cannot deliver the repeat signal in the interval the candidate requires. The other OHCI `Cause()` sites are ordinary USB interrupt-transfer completions; their `HubInterrupt` callbacks signal the corresponding downstream hub's task, not the root-hub worker. The timer-port soft interrupt only acknowledges/re-enables RHSC and does not signal the USBHub worker (`ohcihub.c:265-284`). No checked-in path was found that otherwise signals the root worker's bit zero during the clear.
@@ -41952,6 +41953,7 @@ The candidate relied on a second root-hub `HubInterrupt` signaling the USBHub wo
 OD11571 is withdrawn because its required in-tree signal interleaving is not established and the selected controller ordering prevents the proposed repeat-RHSC callback before the clear. The earlier candidate wording overstated the effect of sharing bit zero. This does not resolve the separate, hardware-dependent question of whether a port change still pending when RHSC is reenabled will reassert the interrupt. No controller, signal, or build was exercised; source-only.
 
 
+<a id="od11573"></a>
 ## OD11573 — PulseAudio doubles signed samples with undefined shift and narrowing [optional-backend conditional]
 
 The PulseAudio worker doubles both channels in its signed 16-bit AHI mix buffer using `((WORD *)dd->mixbuffer)[i] << 1`, then assigns the result back to `WORD` (`workbench/devs/AHI/Drivers/PulseAudio/pulseaudio-playslave.c:124-126`). `WORD` is a signed 16-bit type (`compiler/include/exec/types.h:58-62`), and AHI defines the 16-bit stereo sample format as signed `WORD` samples (`workbench/devs/AHI/Include/C/devices/ahi.h:319-322`). The bridge opens PulseAudio with `PA_SAMPLE_S16LE` (`pulseaudio-bridge/pulseaudio.c:214-220`).
@@ -41961,6 +41963,7 @@ For every negative sample, the promoted signed value is negative when shifted le
 **Trigger and consequence:** the optional PulseAudio driver is selected and plays a buffer containing negative samples or positive samples above half scale. The operation invokes undefined behavior for the negative samples; for high positive samples the result is implementation-defined and can wrap or otherwise distort rather than saturate. **Affected configuration:** Linux hosted AHI PulseAudio backend, only when its custom host-library option selects the driver. **Confidence:** high for the signed-shift rule and source-level sample types; exact audio output depends on compiler/host behavior. Use defined widened arithmetic and explicit saturation when applying gain. No host audio stream or build was run; source-only.
 
 
+<a id="od11574"></a>
 ## OD11574 — PulseAudio playback mixes frame counts and byte counts [optional-backend conditional]
 
 The worker calls `PULSEA_Write()` with `min(framesready, framesfree)`, both measured in stereo sample frames, then subtracts its return from those frame counts and advances the source pointer by `written * 4` bytes (`workbench/devs/AHI/Drivers/PulseAudio/pulseaudio-playslave.c:102-103,131-148`). The bridge interprets its `size` argument as bytes, passes that value unchanged to `pa_simple_write()`, and converts the returned byte count back to frames by dividing by four (`pulseaudio-bridge/pulseaudio.c:258-278`; prototype `pulseaudio_hostlib.h:14-19`). The bridge is fixed to signed 16-bit stereo, four bytes per frame (`pulseaudio.c:214-220`).
@@ -41970,11 +41973,13 @@ Thus the caller provides a frame count where the bridge expects bytes. The host 
 **Trigger and consequence:** the optional PulseAudio backend starts playback with a positive AHI buffer sample count and its host writes continue succeeding until the tail. Source accounting becomes inconsistent, producing misaligned/duplicated playback data; the final sub-four count either leaves the worker spinning without consuming its stop signal or causes it to exit if `pa_simple_write()` rejects the partial frame. **Affected configuration:** Linux hosted AHI PulseAudio backend when selected by the custom host-library option. **Confidence:** high for the frame/byte contract mismatch and zero return for sizes below four; medium for the final host-call result because no libpulse runtime was used. Pass byte counts consistently and convert the bridge result to frames only once. No audio stream or build was run; source-only.
 
 
+<a id="od11575"></a>
 ## OD11575 — Withdrawn: high-bit signed conversion not shown to cause a defect
 
 The RPiHDMI and RPiPWM headers define legacy DMA reset as `(1 << 31)` and the RPiPWM header also defines `PWM_DMAC_ENAB` the same way. Rechecking C's signed-left-shift rule against the earlier RPiPWM OD4466 review shows that the value is representable in the corresponding unsigned type; conversion back to signed is implementation-defined, not undefined. This checkout does not establish that a supported compiler emits a value other than the intended high bit. No bug is promoted, and OD11575 is withdrawn. Source-only.
 
 
+<a id="od11576"></a>
 ## OD11576 — PulseAudio plays advertised non-44.1 kHz modes at 44.1 kHz [optional-backend conditional]
 
 The PulseAudio subdriver advertises five sample rates: 8,000, 11,025, 22,050, 44,100 and 48,000 Hz (`workbench/devs/AHI/Drivers/PulseAudio/pulseaudio-main.c:30-38,307-312`). During `_AHIsub_AllocAudio`, it copies the selected AHI mix rate to `freq`, calls `PULSEA_SetHWParams(handle, &freq)`, then stores the unchanged value back into `AudioCtrl->ahiac_MixFreq` (`pulseaudio-main.c:104-105,131-138`). The bridge's `PULSEA_Open()` constructs a PulseAudio stream with `ss.rate = 44100` regardless of the requested mode (`pulseaudio-bridge/pulseaudio.c:214-234`). `PULSEA_SetHWParams()` explicitly treats the format as fixed at open and only tests that the handle is non-NULL; it neither reopens at the requested rate nor updates `*rate` (`:251-255`).
@@ -41989,6 +41994,7 @@ The PulseAudio subdriver advertises five sample rates: 8,000, 11,025, 22,050, 44
 
 **Trigger and consequence:** a required allocation from the SANA-II request pool fails during a scan while WirelessManager can still allocate its result object and the allocator header for the zero-length result array. WirelessManager treats the failed scan as a valid empty scan, hiding the resource error from the supplicant and any scan-result consumer. **Affected configuration:** the checked-in Amiga WirelessManager build using the BWFM SANA-II driver. **Confidence:** high for the unchecked error and zero-count result path; conditional on the separate pool/general allocator outcomes. This is distinct from OD3610's optional information-element allocation and OD3625/OD9876's scan-start error path. No allocation failure or scan was induced; source-only.
 
+<a id="od2181"></a>
 ## OD2181 — AC97 PCI enumeration overwrites earlier DMA allocations when multiple supported cards match [multiple-card conditional]
 
 `PCI__Hidd_PCI__EnumDevices()` iterates the complete PCI device list and calls the callback for every device meeting its requirements (`rom/hidds/pci/pciclass.c:424-445`; PCI documentation, `rom/hidds/pci/doc/pci.en:24-76`). The AC97 callback filters those devices through its supported vendor/product table, then stores its DMA state in the single `ac97Base`: on 64-bit AROS it assigns a newly created pool to `buffer`, and it assigns a newly allocated playback descriptor table to `PCM_out` (`workbench/devs/AHI/Drivers/ac97/ac97-init.c:65-167`, especially `:123-127`). A later supported match overwrites these pointers. The callback retains no per-device record and does not free the previous pool or table before replacement. `DriverCleanup()` also releases no descriptor table or pool (`ac97-init.c:239-245`), so the final allocations remain leaked as covered by the original single-card OD2181 path.
