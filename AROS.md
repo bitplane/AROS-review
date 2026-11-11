@@ -14054,7 +14054,7 @@ Apple Silicon CreateSegList ignored-protection-result caller pass (EK712 expande
 
 ## Other Drivers findings reconciled into the index (2026-11-02)
 
-**[OD4001](AROS-other-drivers.md#od4001) — Raspberry Pi PWM, HDMI, and I²S DMA callbacks can call `Signal()` with a playback task pointer after the worker acknowledges exit. Conditional on an AHI opener whose inherited or explicit worker affinity includes a nonzero CPU while the DMA callback runs on CPU 0 in an ExecSMP Raspberry Pi build; a CPU-0-only worker excludes the overlap. Generic IRQ removal occurs only after acknowledgement. Source-only; no interleaving or build was run.**
+**[OD4001](AROS-other-drivers.md#od4001) — Raspberry Pi PWM, HDMI, and I²S DMA callbacks can call `Signal()` with a playback task pointer after the worker acknowledges exit. Conditional on an AHI opener whose inherited or explicit worker affinity includes a nonzero CPU while the DMA callback runs on CPU 0 in an ExecSMP Raspberry Pi build (the checked BCM2836/2837 legacy routes and BCM2711/2712 GIC targets use CPU 0); a CPU-0-only worker excludes the overlap. Generic IRQ removal occurs only after acknowledgement. Source-only; no interleaving or build was run.**
 
 **[OD1767](AROS-other-drivers.md#od1767) — Trident preset import ignores a short 12-byte FORM-header read and then uses unread stack fields for allocation and type dispatch. Conditional on selecting a truncated or failed-read preset; explicit Trident preferences target. Source-only.**
 
