@@ -17160,6 +17160,8 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **[GD15072](AROS-graphics-desktop.md#gd15072) — Generic DMEnum recursively visits every sync/pixel-format pair without a count cap, so sufficiently large provider lists can exhaust the caller's stack. Conditional on unusually large custom or external mode lists; source-only.**
 
+**[GD15075](AROS-graphics-desktop.md#gd15075) — Wanderer IconVolumeList leaks its allocated private entry data when inherited IconList entry construction fails before transferring `udata`. Conditional on allocation failure; source-only.**
+
 **[GD15074](AROS-graphics-desktop.md#gd15074) — Wanderer IconVolumeList leaks a DiskObject when per-entry private data allocation fails after icon lookup succeeds. Conditional on that allocation pairing; source-only.**
 
 **[GD15073](AROS-graphics-desktop.md#gd15073) — X11 display construction can reuse a stale static VidMode count with a NULL per-call mode list after a later failed query. Conditional on repeated X11 registration and host failure output semantics; source-only.**
