@@ -663,11 +663,19 @@ The import path accepts a `wanderer:viewsettings.*` chunk into its 1,024-byte st
 
 **Confidence:** High for unchecked helper results and omission from the list-driven GUI; conditional on a required view-record allocation or Popimage construction failure. No allocation failure or GUI startup was induced. Existing evidence: [`AROS-graphics-desktop-coverage.md:L2358`](AROS-graphics-desktop-coverage.md#L2358).
 
-## GD4022
+## GD4022 — GIF decoder accepts non-literal codes after a clear code
 
-**Indexed summary:** GIF LZW decoding accepts a dictionary code immediately after a clear code and follows unchecked dictionary links, allowing malformed input to produce invalid pixels or out-of-range…
+**Severity / confidence:** Moderate severity, high confidence for malformed-stream acceptance and invalid pixel output; the effect of following an uninitialized dictionary link depends on the allocator's contents.
 
-**Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L2245`](AROS-graphics-desktop-coverage.md#L2245). Recheck the cited note and its scope before treating this candidate as confirmed.
+**Affected configuration:** The explicitly buildable `workbench-datatypes-gif` target when loading an image whose LZW stream contains an invalid code sequence after a clear code.
+
+After reading a clear code, `DecodeLines()` resets the dictionary metadata and reads the next code, but only rejects negative `read_code()` results. It does not require that first code to be a literal below `clear_code` (`workbench/classes/datatypes/gif/codeclzw.c:176-190`). It stores that value as `old_code` and emits its low byte as a pixel. A following code at or above the new `free_code` takes the KwKwK branch and substitutes the invalid `old_code`, then follows `code_table[code].prefix` while the value is at or above `first_free` (`:195-207`). Entries from `free_code` upward have not yet been initialized by `init_table()` or dictionary insertion, so this path can derive pixels from indeterminate table contents; the loop also trusts each resulting prefix without checking it against the table's 0..4095 extent.
+
+The decoder can also encounter the end code immediately after a clear code. That value is not negative, so it is emitted as a pixel and the outer loop continues decoding instead of ending at that point. In all these cases, `LoadGIF()` ignores the decoder result and submits the full image buffer to Picture (`workbench/classes/datatypes/gif/gifclass.c:419-455`), so malformed data is not rejected at the caller.
+
+**Trigger and impact:** A GIF image data stream has a clear code followed by an end code or a dictionary code that is not a literal, optionally followed by another code that makes the decoder traverse an uninitialized dictionary entry. The file may load with incorrect/indeterminate pixels instead of being rejected. A prefix value outside the table extent can cause an invalid table access, depending on the uninitialized entry contents.
+
+**Confidence and limits:** High that the required post-clear literal check is absent and invalid values are emitted; high that the dictionary traversal reads entries above the initialized range; conditional for an out-of-table access because the intermediate prefix comes from uninitialized storage. This is distinct from GD6275, which covers failed decoder initialization, and GD6276, which covers ignored decode errors and incomplete output. No GIF stream was constructed or decoded; source-only evidence: [`AROS-graphics-desktop-coverage.md#gif-lzw-dictionary-state-recheck-gd4022`](AROS-graphics-desktop-coverage.md#gif-lzw-dictionary-state-recheck-gd4022).
 
 ## GD4028
 
