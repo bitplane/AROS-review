@@ -260,6 +260,8 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 
 ## Graphics/Desktop findings reconciled into the index (2026-11-02)
 
+**[GD4022](AROS-graphics-desktop.md#gd4022--gif-decoder-accepts-non-literal-codes-after-a-clear-code) — GIF LZW decoding accepts a non-literal code immediately after a clear code and can use uninitialized dictionary entries, producing invalid pixels; an out-of-table prefix access depends on the contents of that uninitialized entry. Applies to malformed data handled by the explicitly buildable GIF datatype. See the [state-machine recheck](AROS-graphics-desktop-coverage.md#gif-lzw-dictionary-state-recheck-gd4022). Source-only.**
+
 **[GD9833](AROS-graphics-desktop.md#gd9833) — Generic ChunkyBM template and masked-pattern helpers read a `UWORD` past an exact mask row when the last requested pixel consumes bit 15. Conditional on a word-boundary row and the generic HIDD method; source-only.**
 
 **[GD6336](AROS-graphics-desktop.md#gd6336) — The selected m68k Workbench VMM module omits the assembly objects defining `TrapHandler30/40/60`; the unresolved references are expected to block the m68k Workbench aggregate build. The source and active target chain are confirmed; no build/link was run.**
