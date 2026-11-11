@@ -41504,6 +41504,13 @@ For example, an otherwise length-valid BSS record can end at event offset 1,976,
 
 **Trigger and consequence:** the selected BWFM scan receives a malformed partial ESCAN result with a large IE length that wraps the offset addition, and the first two bytes happen to satisfy the SSID-element check. The capped copy reads past the static event buffer; the resulting bytes are later exposed as the BSS's information elements. **Affected configuration:** explicitly selected BWFM resource/device and a SANA-II scan caller such as WirelessManager; Raspberry Pi ARM-family BWFM targets. **Confidence:** high for the integer wrap and unchecked 256-byte copy extent; conditional on malformed firmware event contents. Validate using subtraction and bound the final copy by both the BSS record and received event extents. No scan, event, firmware, or build was run; source-only.
 
+<a id="od3600"></a>
+## OD3600 — BWFMIovar length check can wrap before copying into its 256-byte command buffer [direct vector caller conditional]
+
+The exported `BWFMIovar()` scans the caller's NUL-terminated name, then checks `nlen + 1 + len > sizeof(tmp)` using 32-bit `ULONG` arithmetic for `len` (`arch/arm-native/soc/broadcom/2708/bwfm/bwfm_init.c:1742-1768`). If the sum wraps to at most 256, the check passes and the function copies the original `len` bytes from `buf` into the 256-byte stack buffer at `tmp + nlen + 1`. A direct SET call with a one-byte name and `len == 0xfffffffe` makes the sum wrap to zero, then requests a nearly 4-GiB copy into `tmp`.
+
+**Trigger and consequence:** a direct caller invokes the exported vector with a valid short name, non-NULL payload, and an oversized length whose sum wraps below the command-buffer size. `CopyMem()` reads and writes beyond the supplied buffer and `tmp` respectively; execution may corrupt adjacent stack state or fault. **Affected configuration:** direct clients of the explicitly selected BWFM resource. The only checked-in caller is `push_mcast_list()`, which passes at most `4 + 16 * 6` bytes, so this trigger is not established for the in-tree device caller. **Confidence:** high for arithmetic and copy extent; conditional on a direct vector caller supplying the invalid length. Check `len <= sizeof(tmp) - nlen - 1` after bounding the name length, and validate `buf` when `len` is nonzero. No vector call or build was run; source-only.
+
 <a id="od3601"></a>
 ## OD3601 — BWFMTxData can copy a wrapped oversized length beyond its static frame [direct vector caller conditional]
 
