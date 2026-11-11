@@ -50,22 +50,6 @@ The only surviving text for this entry was the identifier itself (`GD1`). No exa
 
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#L2101), IconList full-body and selected-caller ownership pass dated 2026-10-23.
 
-## GD15075 — IconVolumeList leaks private entry data when IconList construction fails early [conditional]
-
-The new-entry path allocates `struct VolumeIcon_Private` and passes it as `udata` to the inherited `MUIM_IconList_CreateEntry()` method (`workbench/system/Wanderer/Classes/iconvolumelist.c:754-773`). The parent `IconList__MUIM_IconList_CreateEntry()` zeroes the entry and performs several fallible allocations before assigning `message->udata` to `entry->ie_IconListEntry.udata` (`workbench/system/Wanderer/Classes/iconlist.c:4430-4450,4510-4554`). If the entry allocation or one of the intervening text/name allocations fails, CreateEntry returns NULL without transferring the pointer into the entry. For failures after the entry exists, its cleanup dispatches to `IconVolumeList__MUIM_IconList_DestroyEntry()`, which can free the private block only by reading `message->entry->ie_IconListEntry.udata` (`iconvolumelist.c:852-867`); that field is still NULL. The volume-list caller does not free `volPrivate` after a failed CreateEntry. This is separate from GD1174's leaked DiskObject and GD15074's lookup result leaked when `volPrivate` allocation itself fails.
-
-**Trigger and consequence:** construction of a new visible volume/device entry fails before the `udata` assignment, including on failure of the initial entry allocation or an earlier text/name allocation. The `VolumeIcon_Private` block remains allocated; a later refresh can retry and repeat the leak. **Affected configuration:** the selected Wanderer IconVolumeList and inherited IconList classes in the full Workbench target. **Confidence:** high for the ownership handoff and failure cleanup; occurrence requires an allocation failure. No allocation failure or UI refresh was induced; source-only. Free `message->udata` on pre-transfer failure, or establish ownership before any fallible allocation and ensure cleanup handles it.
-
-**Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#iconlist-createentry-early-failure-gd15075).
-
-## GD15074 — IconVolumeList leaks a DiskObject when private entry allocation fails [conditional]
-
-`IconVolumeList__MUIM_IconList_Update()` allocates a `VolumeIcon_Private` with `AllocMem()` and then obtains `volDOB` using `GetIconTags()` (`workbench/system/Wanderer/Classes/iconvolumelist.c:754-769`). It invokes `MUIM_IconList_CreateEntry()` only when `volPrivate` is non-NULL (`:771-773`). If that allocation failed but `GetIconTags()` returned a DiskObject, control skips entry construction and reaches the next volume iteration without freeing `volDOB`; this is distinct from GD1174, which covers a DiskObject leaked inside CreateEntry after its own entry allocation succeeds.
-
-**Trigger and consequence:** a new visible volume/device entry reaches this branch, `AllocMem(sizeof(struct VolumeIcon_Private))` fails, and `GetIconTags()` succeeds. The volume-list update leaks that DiskObject. Later updates can retry the same absent entry and leak another object for each such occurrence. **Affected configuration:** the selected Wanderer IconVolumeList implementation in the full Workbench target. **Confidence:** high for the allocation ordering and missing cleanup; the paired allocation outcome is conditional. No allocation failure or UI refresh was induced; source-only. Free `volDOB` when `volPrivate` is NULL, or acquire it only after the private allocation succeeds.
-
-**Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#iconvolumelist-entry-allocation-failure-gd15074).
-
 ## GD1214
 
 **Duplicate entry: this is the same shared `OOP_ObtainAttrBases()` cleanup-loop defect as [OD2399](AROS-other-drivers.md#od2399).** OD2399 is canonical and records the SysMon, Radeon, and optional Compositor caller evidence. The bug occurs after a zero return for an interface-name allocation failure and a non-final descriptor; a final-descriptor failure returns. No separate GD1214 bug is asserted.
@@ -1374,9 +1358,11 @@ On the Radeon framebuffer path, the selected primitives proceed with hardware co
 
 ## GD4715
 
-**Indexed summary:** Volume-list refresh leaks the loaded icon when its private-record allocation fails (GD4715).
+**IconVolumeList leaks a loaded DiskObject when per-entry private allocation fails [conditional].** For each new visible volume/device entry, `IconVolumeList__MUIM_IconList_Update()` first tries to allocate a `VolumeIcon_Private`, then calls `GetIconTags()` regardless of whether the private allocation succeeded (`workbench/system/Wanderer/Classes/iconvolumelist.c:754-769`). `MUIM_IconList_CreateEntry()` is guarded by `volPrivate && ...` (`:771-773`). If `volPrivate` is NULL but `GetIconTags()` returned a DiskObject, the short-circuit skips CreateEntry; this local `volDOB` is not freed on that branch, and destroying the temporary DOSVolumeList only frees its pool, not the DiskObject.
 
-**Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L1049`](AROS-graphics-desktop-coverage.md#L1049), [`AROS-graphics-desktop-coverage.md:L1120`](AROS-graphics-desktop-coverage.md#L1120). Recheck the cited note and its scope before treating this candidate as confirmed.
+**Trigger and consequence:** a new visible volume/device entry is processed, `AllocMem(sizeof(struct VolumeIcon_Private))` fails, and `GetIconTags()` succeeds. The refresh leaks the returned DiskObject. Later refreshes can retry the missing entry and repeat the leak. **Affected configuration:** the selected Wanderer IconVolumeList path in the full Workbench target. **Confidence:** high for the allocation ordering and missing cleanup; the paired outcomes are conditional. No allocation failure or volume refresh was induced; source-only. Free `volDOB` when `volPrivate` is NULL, or defer the icon lookup until after private allocation succeeds.
+
+**Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#iconvolumelist-full-body-and-selected-caller-pass-gd4715gd4988-rechecked-2026-10-22).
 
 ## GD4722
 
@@ -1739,9 +1725,11 @@ The selected `P96` monitor opens the named card library before opening `p96gfx.h
 
 ## GD4988
 
-**Indexed summary:** VolumeIcon_Private leaks when volume entry creation fails before the entry stores it (GD4988).
+**IconVolumeList leaks `VolumeIcon_Private` when inherited entry construction fails before taking ownership [conditional].** The new-entry path allocates `volPrivate` and passes it as `udata` to the inherited `MUIM_IconList_CreateEntry()` (`workbench/system/Wanderer/Classes/iconvolumelist.c:754-773`). `IconList__MUIM_IconList_CreateEntry()` zeroes its entry, performs the initial entry allocation and several fallible text/name allocations, then only assigns `message->udata` to `entry->ie_IconListEntry.udata` at `:4554` (`workbench/system/Wanderer/Classes/iconlist.c:4430-4554`). If the entry allocation fails, CreateEntry returns NULL without freeing `udata`; if an earlier allocation fails after the entry exists, its DestroyEntry dispatch reaches `IconVolumeList__MUIM_IconList_DestroyEntry()`, which captures `entry->udata` before calling the superclass and frees the private object only when that value is non-NULL (`iconvolumelist.c:852-867`). Because the field remains zero before the assignment, cleanup cannot release the caller's allocation. The volume-list caller does not free `volPrivate` after CreateEntry returns NULL. Failures after the assignment do reach the subclass free path and are not included here.
 
-**Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L1049`](AROS-graphics-desktop-coverage.md#L1049), [`AROS-graphics-desktop-coverage.md:L1120`](AROS-graphics-desktop-coverage.md#L1120). Recheck the cited note and its scope before treating this candidate as confirmed.
+**Trigger and consequence:** creation of a new visible volume/device entry fails at the initial IconEntry allocation or an earlier text/name allocation before line 4554. The private block leaks, and a later refresh can repeat the allocation and leak. **Affected configuration:** selected Wanderer IconVolumeList using the inherited IconList method in the full Workbench target. **Confidence:** high for the ownership handoff and cleanup behavior; occurrence requires allocation failure. No failure or refresh was induced; source-only. Establish ownership before fallible allocations or free the still-caller-owned `udata` on early failure.
+
+**Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#iconvolumelist-full-body-and-selected-caller-pass-gd4715gd4988-rechecked-2026-10-22).
 
 ## GD4999
 
