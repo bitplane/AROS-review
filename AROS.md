@@ -17394,6 +17394,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15082](AROS-graphics-desktop.md#gd15082) — AmigaVideo compositor never releases its per-instance `IID_Hidd_Display` attribute-base reference, so disposed instances leak OOP IID references. Conditional on compositor disposal. Source-only.**
 **[GD15083](AROS-graphics-desktop.md#gd15083) — JPEG XL, WebP, GEMImage and Degas importers accept short reads as full input, so decoders or parsers may consume uninitialized trailing bytes. Conditional on a partial read in an optional datatype target. Source-only.**
 **[GD15084](AROS-graphics-desktop.md#gd15084) — TIFF RGBA fallback writes full image dimensions into a Picture buffer sized from truncated 16-bit dimensions, overrunning the buffer. Conditional on large dimensions and a format requiring the optional TIFF fallback. Source-only.**
+**[GD15085](AROS-graphics-desktop.md#gd15085) — PNG rows are copied using full dimensions into a Picture buffer sized from truncated 16-bit header dimensions. Conditional on a large PNG with nonzero narrowed dimensions. Source-only.**
 
 
 
