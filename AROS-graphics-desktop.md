@@ -663,6 +663,7 @@ The import path accepts a `wanderer:viewsettings.*` chunk into its 1,024-byte st
 
 **Confidence:** High for unchecked helper results and omission from the list-driven GUI; conditional on a required view-record allocation or Popimage construction failure. No allocation failure or GUI startup was induced. Existing evidence: [`AROS-graphics-desktop-coverage.md:L2358`](AROS-graphics-desktop-coverage.md#L2358).
 
+<a id="gd4022"></a>
 ## GD4022 — GIF decoder accepts non-literal codes after a clear code
 
 **Severity / confidence:** Moderate severity, high confidence for malformed-stream acceptance and invalid pixel output; the effect of following an uninitialized dictionary link depends on the allocator's contents.
