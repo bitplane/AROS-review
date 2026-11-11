@@ -1,3 +1,12 @@
+<a id="od2563"></a>
+## OD2563 — OpenSBI PCIDT assumes every FDT `ranges` tuple has seven cells [firmware conditional]
+
+`pcidt_mapranges()` treats every host-bridge `ranges` entry as seven 32-bit cells: three PCI address cells, two CPU address cells and two size cells. It derives the entry count by dividing the property length by 28 bytes, advances by seven cells, and always decodes the CPU address and size with two-cell reads (`arch/riscv64-opensbi/hidd/pcidt/pcidt_driverclass.c:97-123`). The FDT parent determines the number of cells in the CPU-side address; the parser does not read or validate that count. If it is not two, the fixed stride and offsets no longer match the property layout, so entries can be skipped or decoded from the wrong cells.
+
+The parsed windows populate the bridge's I/O, MEM32 and MEM64 base/size fields; PCIDT then maps the windows, assigns BARs and translates device addresses using those fields (`pcidt_driverclass.c:124-162,705-712,854-895`). A nonstandard parent address width can therefore leave a real window unavailable or make a misdecoded CPU address/size drive mapping and BAR placement. The normal seven-cell layout is handled by the code; this finding is conditional on firmware exposing a different valid cell count. No checked-in OpenSBI firmware tree was established here to demonstrate that condition.
+
+**Trigger and consequence:** boot with an FDT PCI host bridge whose `ranges` parent address width differs from two cells. The parser can misalign later tuple decoding or omit entries, leaving PCI windows incorrectly configured and affected devices inaccessible or mapped at the wrong CPU address. **Affected configuration:** OpenSBI RISC-V64 builds using the PCIDT HIDD and such an FDT; the standard seven-cell tuple layout does not trigger this finding. **Confidence:** high for the hard-coded tuple width and downstream use; actual impact requires a matching firmware tree and remains unverified. Read the relevant FDT cell-count properties and validate the tuple length and each record before decoding. No firmware tree, PCI device, mapping or build was used; source-only.
+
 <a id="od2536"></a>
 ## OD2536 — Sam440 serial HIDD rejects the default baud preference and ignores the failure [conditional]
 
@@ -31630,7 +31639,7 @@ PCI outbound-window BAR extent cross-backend check (OD11208 expanded; no body/LO
 OpenSBI PCIDT 64-bit BAR mapping-failure reconciliation (OD2565 restored to the detailed report and master index; 2026-11-03): rechecked `pcidt_map64bars()` through `PCIDT_MapAt()` and the selected NVMe caller. `IPTR` BAR lengths narrow at the `uint32_t` `KrnMapGlobal()` interface; exact 4 GiB becomes zero and larger sizes lose high bits. The scan ignores the mapping result, including `PCIDT_MapAt()` rejecting a remap virtual extent above the Sv39 identity limit. `MapPCI()` then returns a non-NULL translated address, which NVMe accepts after only a NULL check (`arch/riscv64-opensbi/hidd/pcidt/pcidt_driverclass.c:60-77,395-468,880-892`; `rom/kernel/kernel.conf:56`; `arch/riscv64-opensbi/kernel/mapglobal.c:19-23`; `arch/riscv64-opensbi/kernel/kernel_mmu.c:149-157`; `rom/devs/nvme/nvme_controllerclass.c:268-280`). OpenSBI's checked-in boot package selects both PCIDT and NVMe (`boot/mmakefile.src:103-110`). No checked-in firmware establishes a triggering BAR/placement; no device or mapping was run. This restores the detail already referenced by earlier coverage notes; source-only.
 
 
-<a id="od2563"></a>
+<a id="od2563-history"></a>
 <a id="opensbi-pcidt-ranges-tuple-width-od2563"></a>
 PCIDT OD2563 source reconciliation (restored in detailed report and master index; 2026-11-03): revalidated the recorded FDT/ACPI window, BAR, kernel map, DWC ATU, and selected-client paths against current source at the pinned commit. The finding and its exact trigger, consequence, build scope, and confidence are recorded under [OD2563](AROS-other-drivers.md#od2563); no runtime or hardware was used. Source-only.
 
