@@ -1,3 +1,5 @@
+Sam440 EMAC TX full-ring restart candidate recheck (OD3181 retained; 2026-11-11; no new body/path/LOC credit): re-read the selected `tx_int()` queue loop and `CmdWrite()` path, then checked all assignments to the WRITE_QUEUE action and every TX completion route. The module recipe selects `emac_unit.c`; the Sam440 PPC board aggregate includes the PowerPC EMAC module. At the ring-full threshold `tx_int()` leaves queued requests on the port and sets `PA_IGNORE`. `MALIRQHandler()` only acknowledges the TXEOB status for this source, `EMACIRQHandler()` is empty, and `EMAC_TXEnd_Int()` has no registration/call site, so the reviewed completion routes do not restore `PA_SOFTINT`. Subsequent `PutMsg()` calls enqueue but take the `PA_IGNORE` no-op branch. Retained OD3181 and narrowed its affected build scope to the selected Sam440 target or direct EMAC module builds. No packet, ring, interrupt or build was exercised; source-only.
+
 <a id="usergroup-setlastlog-vector-arity-od11555"></a>
 ### UserGroup public vector argument-count/register census (2026-11-08)
 

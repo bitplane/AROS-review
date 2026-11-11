@@ -16241,7 +16241,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[OD3180](AROS-other-drivers.md#od3180) — EMAC TX narrows request lengths before copying into fixed packet slots.** Oversized direct SANA-II writes can truncate or copy beyond a packet slot. Conditional on an oversized request and caller hook; source-only.
 
-**[OD3181](AROS-other-drivers.md#od3181) — EMAC leaves queued writes dormant after its TX ring fills.** The write port switches to PA_IGNORE and TX completion does not restart it. Conditional on ring saturation; source-only.
+**[OD3181](AROS-other-drivers.md#od3181) — EMAC leaves queued writes dormant after its TX ring fills.** The selected Sam440 PPC module switches its write port to PA_IGNORE and TX completion does not restart it. Conditional on ring saturation with queued writes; source-only.
 
 **[OD3131](AROS-other-drivers.md#od3131) — SANA-II handlers read request fields after replying.** A reply consumer can reuse the request before the handler rereads `io_Unit` to release its semaphore. Conditional on reply-consumer scheduling; applies to the listed selected network drivers; source-only.
 
