@@ -812,11 +812,10 @@ The path is selected when the display Gfx HIDD reports `vHidd_FrameBuffer_Direct
 
 The historical claim that `ScalerDiv()` overflows signed `int` is not established. Its documented inputs are `factor` 0–16,383 and `numerator`/`denominator` 1–16,383 (`rom/graphics/scalerdiv.c:24-34`). The largest product is 16,383² = 268,402,689, below `INT_MAX`; the implementation widens the primary multiplication to `ULONG` (`:55-65`). The function does return `UWORD`, so a mathematically computed result greater than 65,535 is narrowed, but the output type and `BitScaleArgs` destination dimensions are also `UWORD`, and no maintained caller producing an unrepresentable requested destination was found. This is an API-range question, not evidence for the reported signed-overflow/misrounding bug. Withdraw GD4118; no active index entry referenced it. No scaling or build was run; source-only.
 
-## GD4120
+<a id="gd4120"></a>
+## GD4120 — duplicate of GD9832
 
-**Indexed summary:** GD4120 — Generic 8-bit bitmap copies can trap on odd-addressed longword stores on m68k.
-
-**Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L437`](AROS-graphics-desktop-coverage.md#L437), [`AROS-graphics-desktop-coverage.md:L1714`](AROS-graphics-desktop-coverage.md#L1714). Recheck the cited note and its scope before treating this candidate as confirmed.
+GD4120 describes the same generic 8-bit `CopyMemBox8()` alignment defect as GD9832. The canonical GD9832 report covers both the backward overlapping-copy case and the forward non-overlapping case, the generic `CopyBox` and public `BltBitMap()` dispatch, and the m68k-Amiga build selection. Keep GD9832 as the single active finding; GD4120 adds no independent trigger or root cause. Historical coverage entries using GD4120 refer to this same issue.
 
 ## GD4121
 
