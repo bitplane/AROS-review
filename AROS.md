@@ -17380,6 +17380,8 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **[GD4988](AROS-graphics-desktop.md#gd4988) — Wanderer IconVolumeList leaks its allocated private entry data when inherited IconList construction fails before taking ownership. Conditional on early allocation failure; source-only.**
 
+**[GD5730](AROS-graphics-desktop.md#gd5730) — Generic DMEnum writes the end sentinel through a failed ModeID-array allocation. The selected m68k AmigaVideo constructor also forwards this query and assumes a non-NULL list; P96 checks its forwarded result. Conditional on allocation failure; source-only.**
+
 **[GD15073](AROS-graphics-desktop.md#gd15073) — X11 display construction can reuse a stale static VidMode count with a NULL per-call mode list after a later failed query. Conditional on repeated X11 registration and host failure output semantics; source-only.**
 
 **[GD15075](AROS-graphics-desktop.md#gd15075) — `DoubleClick()` multiplies an unchecked 32-bit preference seconds value by one million; values above 4,294 wrap and make the accepted double-click interval incorrect. Conditional on a custom `SetPrefs()` value or out-of-range INPT preference; the standard editor limits values to four seconds. Source-only.**
