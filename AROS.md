@@ -17250,6 +17250,8 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **OD9551 — HDA `SetupStream` can free DMA buffers while a stream remains running.** Reconfiguring a running stream frees its current BDL and sample buffers before stopping DMA; allocation failure leaves the old hardware stream active. Conditional on an external HIDD client reconfiguring a running stream; maintained HDAudio/NVHDMI callers configure new streams once. Source-only. See [OD9551](AROS-other-drivers.md#od9551).
 
+**OD11582 — HDA stream buffer alignment size can wrap before allocation.** A direct client can request four `0xffffff81` byte buffers; each aligned allocation requests one byte, but the BDL/cache/DMA lengths remain huge. Conditional on that external HIDD call and successful small allocations; maintained AHI callers do not use such sizes. Source-only. See [OD11582](AROS-other-drivers.md#od11582).
+
 **OD11577 — HDAudio can skip requested waits when timer setup or I/O fails.** Port/request allocation and timer.device open failures return without delay; `DoIO()` request errors are also ignored. Controller reset, stream reset and response polling continue. Conditional on timer failure; source-only. See [OD11577](AROS-other-drivers.md#od11577).
 
 **OD11579 — Sonixcam can accept an incomplete frame marker using stale bytes from a reused capture buffer.** Conditional on a nonzero one-to-five-byte completion whose prefix matches the marker; optional Sonixcam target and RTIso-capable controller; source-only. See [OD11579](AROS-other-drivers.md#od11579).
