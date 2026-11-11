@@ -79,8 +79,8 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 | [EK11](AROS-exec-kernel.md#ek11) | The ninth exception handler is silently dropped on SMP [medium impact, high confidence; SMP] |
 | [EK12](AROS-exec-kernel.md#ek12) | PC IRQ attribute mapping dereferences a failed allocation [high impact, high confidence; PC] |
 | [EK13](AROS-exec-kernel.md#ek13) | PC SMP startup uses an unchecked spinlock-array allocation [high impact, high confidence; PC SMP] |
-| [EK15](AROS-exec-kernel.md#ek15) | Zero-page MMU region makes initialization write before its map [high impact, high confidence; `USE_MMU=1`] |
-| [EK16](AROS-exec-kernel.md#ek16) | Zero-length page allocation underflows the state-map writer [medium impact, high confidence; `USE_MMU=1`] |
+| [EK15](AROS-exec-kernel.md#ek15) | `mm_Init()` writes before the map for a zero-page region; latent because no checked-in startup sets `kb_PageSize` nonzero [conditional; no maintained trigger] |
+| [EK16](AROS-exec-kernel.md#ek16) | Zero-page `mm_Allocate()` underflows the state-map writer; latent because no checked-in startup sets `kb_PageSize` nonzero [conditional; no maintained trigger] |
 | [EK17](AROS-exec-kernel.md#ek17) | RISC-V virtual IRQ count arithmetic can wrap [medium impact, high confidence; OpenSBI RISC-V64] |
 | [EK18](AROS-exec-kernel.md#ek18) | AArch64 affinity mask functions index beyond their one-word allocation [medium impact, high confidence; AArch64 native] |
 | [EK22](AROS-exec-kernel.md#ek22) | Unix kernel-base initialization leaks its allocation and continues after failure. |
