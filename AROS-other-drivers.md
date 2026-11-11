@@ -1,3 +1,12 @@
+<a id="od2564"></a>
+## OD2564 — OpenSBI PCIDT ACPI fallback ignores failed high-BAR mappings [firmware conditional]
+
+The OpenSBI PCIDT ACPI path scans assigned memory BARs and calls `PCIDT_Map()` for each BAR's page-aligned physical range, but ignores the return value (`arch/riscv64-opensbi/hidd/pcidt/pcidt_acpi.c:108-132`). `PCIDT_Map()` delegates to `PCIDT_MapAt()`, which rejects a range extending above `PCIDT_SV39_IDENTITY_LIMIT` before attempting the kernel mapping (`pcidt_driverclass.c:52-75`). The ACPI path does not record a separate remapped virtual window for these BARs. Later `PCIDT_MapPCI()` only translates addresses covered by the FDT-populated `mem64` window; otherwise it returns the original PCI address (`pcidt_driverclass.c:854-869`).
+
+The selected NVMe controller path passes BAR0 through `HIDD_PCIDriver_MapPCI()` and checks only whether the returned pointer is NULL (`rom/devs/nvme/nvme_controllerclass.c:268-280`). Since `MapPCI()` returns the original nonzero BAR address after the earlier mapping failed, NVMe can accept and use an address that the kernel did not map. The specific failure requires ACPI discovery and a BAR placement whose page-aligned extent exceeds the identity-mapping limit; the repository does not establish such firmware placement.
+
+**Trigger and consequence:** OpenSBI discovers PCI through ACPI and an assigned memory BAR lies outside the Sv39 identity-mappable range. PCIDT rejects the mapping but continues; a selected NVMe client can then receive the unchanged, unmapped BAR address and attempt register access through it. **Affected configuration:** OpenSBI RISC-V64 systems using the ACPI fallback, PCIDT and the selected NVMe driver; FDT-only discovery does not use this ACPI BAR scan. **Confidence:** high for the ignored result and unchecked follow-on address; occurrence depends on firmware ACPI and BAR placement. Propagate mapping failure and make `MapPCI()` return failure for an address without a valid CPU mapping. No firmware, PCI device, mapping, NVMe operation or build was used; source-only.
+
 <a id="od2563"></a>
 ## OD2563 — OpenSBI PCIDT assumes every FDT `ranges` tuple has seven cells [firmware conditional]
 
@@ -31644,7 +31653,7 @@ OpenSBI PCIDT 64-bit BAR mapping-failure reconciliation (OD2565 restored to the 
 PCIDT OD2563 source reconciliation (restored in detailed report and master index; 2026-11-03): revalidated the recorded FDT/ACPI window, BAR, kernel map, DWC ATU, and selected-client paths against current source at the pinned commit. The finding and its exact trigger, consequence, build scope, and confidence are recorded under [OD2563](AROS-other-drivers.md#od2563); no runtime or hardware was used. Source-only.
 
 
-<a id="od2564"></a>
+<a id="od2564-history"></a>
 <a id="opensbi-pcidt-acpi-high-bar-map-failure-od2564"></a>
 PCIDT OD2564 source reconciliation (restored in detailed report and master index; 2026-11-03): revalidated the recorded FDT/ACPI window, BAR, kernel map, DWC ATU, and selected-client paths against current source at the pinned commit. The finding and its exact trigger, consequence, build scope, and confidence are recorded under [OD2564](AROS-other-drivers.md#od2564); no runtime or hardware was used. Source-only.
 
