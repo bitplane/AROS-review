@@ -17396,6 +17396,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15084](AROS-graphics-desktop.md#gd15084) — TIFF RGBA fallback writes full image dimensions into a Picture buffer sized from truncated 16-bit dimensions, overrunning the buffer. Conditional on large dimensions and a format requiring the optional TIFF fallback. Source-only.**
 **[GD15085](AROS-graphics-desktop.md#gd15085) — PNG rows are copied using full dimensions into a Picture buffer sized from truncated 16-bit header dimensions. Conditional on a large PNG with nonzero narrowed dimensions. Source-only.**
 **[GD15086](AROS-graphics-desktop.md#gd15086) — BMP rows are copied using full dimensions into a Picture buffer sized from truncated 16-bit header dimensions. Conditional on a large uncompressed BMP with nonzero narrowed dimensions. Source-only.**
+**[GD15087](AROS-graphics-desktop.md#gd15087) — JPEG XL dimensions beyond Picture’s 16-bit header range are narrowed, so a decoded image can be exposed at truncated dimensions. Conditional on libjxl accepting such dimensions. Source-only.**
 
 
 
