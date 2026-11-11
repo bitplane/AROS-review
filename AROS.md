@@ -17390,6 +17390,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15078](AROS-graphics-desktop.md#gd15078) — AmigaVideo formats its hardware name through an unchecked allocation; allocation failure sends `RawDoFmt()` a NULL destination. Conditional on m68k AmigaVideo construction under memory pressure. Source-only.**
 **[GD15079](AROS-graphics-desktop.md#gd15079) — AmigaVideo leaks its dynamically allocated hardware-name string when required display/DMEnum or compositor construction fails after the base HIDD object is created. Source-only.**
 **[GD15080](AROS-graphics-desktop.md#gd15080) — AmigaVideo leaks its created display and DMEnumerator if required compositor construction fails. Conditional on compositor creation failure. Source-only.**
+**[GD15081](AROS-graphics-desktop.md#gd15081) — If AmigaVideo’s compositor worker cannot open intuition.library, it exits but leaves a stale task pointer that Dispose later signals. Conditional on worker startup failure and later disposal. Source-only.**
 
 
 
