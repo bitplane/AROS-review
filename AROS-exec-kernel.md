@@ -1,5 +1,4 @@
 <a id="ek10937"></a>
-<a id="ek10937"></a>
 ## EK10937 — Withdrawn: m68k `Wait()` masks Paula interrupts during scheduler-list commit
 
 The earlier candidate misread `0x4000` as enabling the Paula master interrupt. `INTENA` uses bit 15 as SET/CLR and bit 14 as master enable (`compiler/include/hardware/intbits.h:40-43`), so `0x4000` clears master interrupts and `0xC000` sets them. `m68k_VoluntarySwitch()` disables Paula master interrupts at `arch/m68k-all/exec/switch.S:54` before rechecking `tc_SigRecvd`, then sets `TS_WAIT` and links the task into `TaskWait` (`:60-75`); it re-enables interrupts only after those list writes (`:76-80`). The signal-check and queue-publication window claimed by the finding is therefore protected. EK10937 is withdrawn; no bug is established by that transition. Source-only.
