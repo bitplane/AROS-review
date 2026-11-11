@@ -14943,7 +14943,7 @@ Coverage-link repair: GD10288's coverage link now resolves to the explicit `setr
 
 **[OD3033](AROS-other-drivers.md#od3033) — E1000 request-port allocation failure faults unit creation and can leak ports.** The failed first queue remains NULL for an unconditional write-queue flag assignment; later failed construction may lose subsequent allocations. Explicit i386/x86_64 E1000 builds. Source-only.
 
-**[OD3055](AROS-other-drivers.md#od3055) — PCNet32 and nForce request-port allocation failure faults unit construction.** Both set queue flags through the unchecked write-queue pointer after allocation; later failures can also strand subsequent ports. The active network aggregate selects PCNet32 for i386/x86_64 and nForce for i386 in standard Workbench builds (`workbench/devs/networks/mmakefile.src:3-15`; local target aliases in their manifests). Source-only.
+**[OD3055](AROS-other-drivers.md#od3055) — PCNet32, nForce and SiS900 request-port allocation failures fault or leak unit construction.** An unchecked `WRITE_QUEUE` pointer faults after its allocation fails; later queue allocation failures can strand subsequent ports. The active networks aggregate selects SiS900 for i386 and x86-64 PC targets, PCNet32 for i386/x86-64, and nForce for i386 (`workbench/devs/networks/mmakefile.src:3-15`; module manifests). Source-only.
 
 
 **[EK10621](AROS-exec-kernel.md#ek10621) — Hyper-V debugger treats an absolute TSC timestamp as a task runtime duration.** The optional debugger converts the task dispatch timestamp directly to nanoseconds, producing an uptime-based/overflowed value in its `task` command. Source-only.
