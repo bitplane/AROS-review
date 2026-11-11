@@ -17240,6 +17240,8 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD3222](AROS-other-drivers.md#od3222) — e1000 can block unit creation or leave its worker unusable when startup port, process, message, or VBLANK setup fails. Conditional on startup failure; optional i386/x86-64 PC e1000 device; source-only.**
 **[EK10939](AROS-exec-kernel.md#ek10939) — Network Preferences retains the `ENV:SMB` directory lock whenever it applies settings with an empty server list; repeated use accumulates locks. Conditional on successful `Lock()` and no configured servers; source-only.**
 
+**OD9550 — HDAudio and NVHDMI can program a codec rate different from AHI’s retained mix rate.** Unsupported rates select a nearby hardware entry without updating the rate AHI uses for timing; above the table maximum, entry zero remains selected. Conditional on an unsupported requested rate; native PCI AHI drivers under `HAVE_ASMIO`. Source-only. See [OD9550](AROS-other-drivers.md#od9550).
+
 **OD9551 — HDA `SetupStream` can free DMA buffers while a stream remains running.** Reconfiguring a running stream frees its current BDL and sample buffers before stopping DMA; allocation failure leaves the old hardware stream active. Conditional on an external HIDD client reconfiguring a running stream; maintained HDAudio/NVHDMI callers configure new streams once. Source-only. See [OD9551](AROS-other-drivers.md#od9551).
 
 **OD11577 — HDAudio can skip requested waits when timer setup or I/O fails.** Port/request allocation and timer.device open failures return without delay; `DoIO()` request errors are also ignored. Controller reset, stream reset and response polling continue. Conditional on timer failure; source-only. See [OD11577](AROS-other-drivers.md#od11577).
