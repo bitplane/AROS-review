@@ -17385,6 +17385,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15073](AROS-graphics-desktop.md#gd15073) — X11 display construction can reuse a stale static VidMode count with a NULL per-call mode list after a later failed query. Conditional on repeated X11 registration and host failure output semantics; source-only.**
 
 **[GD15075](AROS-graphics-desktop.md#gd15075) — `DoubleClick()` multiplies an unchecked 32-bit preference seconds value by one million; values above 4,294 wrap and make the accepted double-click interval incorrect. Conditional on a custom `SetPrefs()` value or out-of-range INPT preference; the standard editor limits values to four seconds. Source-only.**
+**[GD15076](AROS-graphics-desktop.md#gd15076) — AmigaVideo `NextModeID()` returns the invalid sentinel without clearing sync/pixel-format outputs, contrary to the method contract. Conditional on direct clients using stale outputs after enumeration ends; no in-tree consumer found. Source-only.**
 
 
 
