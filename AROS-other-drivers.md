@@ -1,3 +1,12 @@
+<a id="od2580"></a>
+## OD2580 — Sam440 EMAC dispatches both MAL RX channels to unit 0 [conditional]
+
+The Sam440 EMAC start path assigns RX channel 0 to unit 0 and RX channel 1 to unit 1 (`workbench/devs/networks/emac/emac_unit.c:40-51`). `CreateUnit()` binds each `EMACUnit` to the matching `emb_MALRXChannels[num]` ring and initializes a separate `eu_LastRXSlot` (`emac_unit.c:836-889`). When MAL reports receive-end-of-buffer status, `MALIRQHandler()` acknowledges the status bits, but both the channel-0 and channel-1 branches call `MALMRE()` with `emb_Units[0]` (`workbench/devs/networks/emac/mal.c:43-58`). The shared `MALMRE()` then runs `rx_int()` on the unit passed to it, so a channel-1 completion never drains or rearms unit 1's receive ring.
+
+The SANA-II open path accepts unit numbers 0 and 1 and starts the selected unit (`workbench/devs/networks/emac/emac_init.c:107-117,162-165`). Thus unit 1 can be opened successfully while receive completions from its assigned channel are directed to unit 0; unit-1 packets can remain unprocessed in its descriptors. The Sam440 EMAC aggregate is a board target in the selected MetaMake graph, although that board package's target edge is explicitly optional/commented in this snapshot (`arch/ppc-sam440/boot/mmakefile.src:4-10`).
+
+**Trigger and consequence:** use EMAC unit 1 on Sam440 and receive a packet that completes on MAL RX channel 1. The interrupt acknowledges that channel but invokes unit 0's RX processing, leaving unit 1's receive ring undrained and its traffic unavailable. **Affected configuration:** PPC Sam440 EMAC target and unit 1; unit 0 uses the correctly matched channel-0 branch. **Confidence:** high for the channel assignment and wrong-unit dispatch; actual traffic loss requires unit 1 to be used and receive a packet. Dispatch channel 1 to `emb_Units[1]`. No packet, interrupt, device, or build was exercised; source-only.
+
 <a id="od2567"></a>
 ## OD2567 — OpenSBI PCIDT retains only the last 64-bit FDT PCI window [firmware conditional]
 
@@ -3017,7 +3026,7 @@ EMAC MAL interrupt-registration failure recheck (2026-10-15; OD928 restored to l
 EMAC MAL IRQ-range qualification follow-up (2026-10-12): checked the two `GetPVR` branches against the Sam440 header and selected kernel manifest. Sam440 MAL IDs are 10-14; the PPC460EX UIC2 MAL IDs are 67-71 (`arch/ppc-sam440/include/asm/amcc440.h:372-377,506-517`), within the generic helper's `HW_IRQ_COUNT` range for this target (`rom/kernel/kernel_base.h:50-56`; `addirqhandler.c:79-115`). Therefore OD2579's confirmed NULL-return trigger is interrupt-node `AllocMem` failure, not an invalid platform vector. The Sam440 manifest selects the generic `rom/kernel/addirqhandler.c` implementation; its local `intr.c` does not replace registration. No target build or allocation failure was run.
 
 
-<a id="od2580"></a>
+<a id="od2580-history"></a>
 EMAC MAL RX-channel dispatch trace (2026-10-12; OD2580 added): followed both RX EOB status bits through `MALIRQHandler`/`MALMRE` into per-unit descriptor processing (`workbench/devs/networks/emac/mal.c:30-58`; `emac_unit.c:394-420,836-889`). The channel-1 bit is acknowledged, but both branches call `rx_int` for unit 0; unit 1 is explicitly assigned RX channel 1 and has its own `eu_LastRXSlot`. Consequently unit 1's receive ring is not drained through this handler. This elaborates the existing coverage note “second-channel dispatch (589)” into detailed OD2580. No receive event was run. Source-only.
 
 
