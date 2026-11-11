@@ -17484,4 +17484,4 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[OD3089](AROS-other-drivers.md#od3089) — SiS900 expunge signals its worker with a signal number instead of a mask and frees shared state without joining it.** The worker does not recognize the shutdown signal; expunge can leave it running against freed unit memory and an unmapped PCI BAR. Applies to selected i386-PC/x86-64-PC SiS900 targets; source-only.
 
-**[EK8840](AROS-exec-kernel.md#ek8840) — DOS `Close()` can return success after its final buffered write fails. On RAMFS, a write-protected volume can reject the pending write while `ACTION_END` succeeds, so close discards the bytes and reports success. Conditional on buffered output and write protection before close; source-only.**
+**[EK8840](AROS-exec-kernel.md#ek8840) — DOS `Close()` can return success after its final buffered write fails. RAMFS can reject the write after volume write-protection while `ACTION_END` succeeds; SFS can return disk-full from `ACTION_WRITE` then successfully release an existing update lock. Close discards the bytes and reports success; conditional on handler/write state; source-only.**
