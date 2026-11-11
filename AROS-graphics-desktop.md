@@ -22227,79 +22227,91 @@ The shared cleanup routine always exits zero, including when `openlibs()` fails 
 
 **Trigger and consequence:** reqtools.library cannot be opened. The palette requester demo prints an error but exits successfully without showing its requester. **Affected configuration:** the explicitly buildable `developer/demos/rtpalette.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the failure branch and zero exit status. Return a failure code from cleanup. No library failure, requester operation or build was run; source-only.
 
-<a id="gd15031"></a>
+<a id="gd15036"></a>
 ## GD15036 — WindowShape demo never disposes its input shape region [conditional]
 
 `makeshape()` allocates `shape` with `NewRectRegion()` and passes it to the window and `ChangeWindowShape()`, but `cleanup()` has the matching `DisposeRegion(shape)` commented out (`developer/demos/winshape.c:78-100,201-213`). Closing the window does not release this caller-owned input region.
 
 **Trigger and consequence:** shape allocation succeeds. The demo retains the region allocation through process cleanup instead of disposing it after the window is closed. **Affected configuration:** the explicitly buildable `developer/demos/winshape.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for allocation and the disabled matching disposal; caller must release the region after its use. Dispose `shape` after `CloseWindow()`. No window operation or build was run; source-only.
 
+<a id="gd15043"></a>
 ## GD15043 — Russian NListviews catalog contains no translated messages [unconditional localization]
 
 All 142 message entries in `workbench/classes/zune/nlist/nlistviews_mcp/locale/russian.po` have empty `msgstr` values. The MCP build enumerates every `.po` file as a catalog language and generates `NListviews_mcp.catalog` for each (`workbench/classes/zune/nlist/nlistviews_mcp/mmakefile.src:30-41`). FlexCat omits untranslated entries, leaving the English source strings as the fallback.
 
 **Trigger and consequence:** a Russian locale is selected and the NListviews preferences MCP is shown. Its labels and help appear in English rather than Russian throughout. **Affected configuration:** Russian NListviews MCP catalog. **Confidence:** high for the empty translations and selected build rule; fallback follows the catalog-generation template. Provide Russian translations or stop advertising this catalog as Russian. No catalog generation or GUI operation was run; source-only.
 
+<a id="gd15042"></a>
 ## GD15042 — Polish NList option help reverses partial-character behavior [unconditional localization]
 
 Polish `MSG_PARTIAL_CHARS_DRAWN` is labeled as drawing characters partially, and `MSG_PARTIAL_CHARS_DRAWN_HELP` says clipped characters “will be displayed partially” when enabled (`workbench/classes/zune/nlist/nlistviews_mcp/locale/polish.po:437-447`). The English source says that when enabled, characters not fully visible at the left/right edge will **not** be drawn partially.
 
 **Trigger and consequence:** a Polish-speaking user configures this option. The label and help describe the opposite behavior, so they can choose a setting based on an incorrect expectation about clipped text. **Affected configuration:** the selected Polish NListviews MCP catalog. **Confidence:** high; the translation reverses the source behavior. Correct the label/help to explain that partial glyphs are suppressed. No locale generation or GUI operation was run; source-only.
 
+<a id="gd15041"></a>
 ## GD15041 — Italian NList settings describe smooth scrolling as fast scrolling [unconditional localization]
 
 Italian `MSG_SMOOTH_SCROLLING` is labeled “Scrolling veloce” and its help describes using “scrolling veloce” for the NList objects (`workbench/classes/zune/nlist/nlistviews_mcp/locale/italian.po:349-360`). The source option and help are specifically about smooth scrolling and its smoothness-speed slider; the translation presents it as fast scrolling.
 
 **Trigger and consequence:** an Italian-speaking user configures NList scrolling. They may mistake the interpolation/smoothness option for a speed or acceleration setting and select an unintended behavior. **Affected configuration:** the selected Italian NListviews MCP catalog. **Confidence:** high for the translated “fast” wording versus the source's “smooth” meaning. Translate the setting as smooth/fluid scrolling and update its help consistently. No locale generation or GUI operation was run; source-only.
 
+<a id="gd15040"></a>
 ## GD15040 — Greek NList help places the partial-column mark on the wrong side [unconditional localization]
 
 The Greek `MSG_PARTIAL_COL_MARK_HELP` says the special mark is drawn on the left side of the column (`workbench/classes/zune/nlist/nlistviews_mcp/locale/greek.po:406-411`), while the English source says it is drawn at the right side. The option concerns a visible overflow marker, so this direction is the core guidance for locating it.
 
 **Trigger and consequence:** a Greek-speaking user enables the partial-column mark and follows the help text. They look for the indicator on the wrong edge of the column. **Affected configuration:** the selected Greek NListviews MCP catalog. **Confidence:** high; the translated side contradicts the source. Correct the translation to say right side. No locale generation or GUI operation was run; source-only.
 
+<a id="gd15039"></a>
 ## GD15039 — German NList option reverses partial-character behavior [unconditional localization]
 
 The German `MSG_PARTIAL_CHARS_DRAWN` label says partial characters are drawn, and its help text says enabled characters that are not fully visible “will ... still be displayed at least partially” (`workbench/classes/zune/nlist/nlistviews_mcp/locale/german.po:437-447`). The English source defines the opposite behavior: when enabled, characters not fully visible at the left/right edge will **not** be drawn partially.
 
 **Trigger and consequence:** a German-speaking user configures the NList partial-character option. The label and help explain the inverse of the option's actual behavior, leading users to choose the wrong setting or misunderstand clipped text. **Affected configuration:** the selected German NListviews MCP catalog. **Confidence:** high; the translation reverses the source condition. Correct the label/help to describe suppression of partial glyph drawing. No locale generation or GUI operation was run; source-only.
 
+<a id="gd15038"></a>
 ## GD15038 — Czech NList help text describes a different pointer feature [unconditional localization]
 
 The Czech translation of `MSG_SELECT_POINTER_HELP` says that the pointer changes when moved over the column-width resize area (`workbench/classes/zune/nlist/nlistviews_mcp/locale/czech.po:514-520`). Its English source says the option changes the pointer while an NList object is in character-wise selection mode. The localized help therefore describes a different feature from the setting it accompanies.
 
 **Trigger and consequence:** the NListviews preferences MCP is displayed in Czech and the user reads this help text. They are given incorrect guidance about when the custom selection pointer appears. **Affected configuration:** the Czech catalog selected by the NListviews MCP locale rule (`workbench/classes/zune/nlist/nlistviews_mcp/mmakefile.src` and `locale/czech.po`). **Confidence:** high; the Czech wording refers to column resizing, which is not in the source message. Correct the translation to describe character-wise selection mode. No locale generation or GUI operation was run; source-only.
 
+<a id="gd15037"></a>
 ## GD15037 — WindowShape exits successfully after setup failures [conditional]
 
 The shared `cleanup(msg)` prints any setup error but unconditionally calls `exit(0)` (`developer/demos/winshape.c:28-43`). It is used for library, screen, draw-info, region, and window setup failures as well as normal shutdown.
 
 **Trigger and consequence:** any guarded initialization step fails. The demo reports an error yet returns success to its caller, preventing scripts from distinguishing setup failure from normal completion. **Affected configuration:** the explicitly buildable `developer/demos/winshape.c` target. **Confidence:** high for the unconditional status and error call sites. Return a failure status when `msg` is non-NULL. No failure was induced or build run; source-only.
 
+<a id="gd15035"></a>
 ## GD15035 — TurboPrint demo ignores print-request failure [conditional]
 
 The demo sends `PRD_TPEXTDUMPRPORT` synchronously with `DoIO()` but discards its result, then closes the device and ultimately returns zero (`developer/demos/turboprint.c:159-180,187-189`). A failed print request therefore has no reported failure status or diagnostic.
 
 **Trigger and consequence:** TurboPrint is detected, but the printer request fails. The example silently exits successfully although the requested bitmap was not printed. **Affected configuration:** the explicitly buildable `developer/demos/turboprint.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the unchecked synchronous request result and unconditional success return. Check and report the `DoIO()` result and return failure when printing fails. No printer operation or build was run; source-only.
 
+<a id="gd15034"></a>
 ## GD15034 — Text speed demo never releases the font opened for its RastPort [conditional]
 
 When the window opens, `main()` obtains a font with `OpenFont(&ta)` and assigns it to the window RastPort with `SetFont()`, but closes the window without a corresponding `CloseFont(tf)` (`developer/demos/test_text.c:51-91`). The selected implementation increments a font's accessor count on successful `OpenFont()` (`rom/graphics/openfont.c:83-88`) and `CloseFont()` decrements it (`rom/graphics/closefont.c:72-79`).
 
 **Trigger and consequence:** the window opens and `OpenFont()` succeeds. The font reference is retained after the demo exits; a non-ROM font can remain resident because its accessor count never returns to zero. **Affected configuration:** the explicitly buildable `developer/demos/test_text.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the unmatched successful open and implementation reference accounting. Release the font after the window no longer uses it. No font/window operation or build was run; source-only.
 
+<a id="gd15033"></a>
 ## GD15033 — SimpleTimer uses an uninitialized saved time when timer setup fails [conditional]
 
 `main()` ignores the return from `get_sys_time(&oldtimeval)` and immediately reads `oldtimeval.tv_secs` to compute a new time; it later passes the same structure's seconds to `set_new_time()` to restore the clock (`developer/demos/simple_timer.c:105-126`). `get_sys_time()` returns `-1` without writing the output when `create_timer()` fails (`:221-228`).
 
 **Trigger and consequence:** timer port/request allocation or timer-device opening fails during the initial clock read. The demo computes and sets system time from an uninitialized value, then attempts to restore another uninitialized value, potentially leaving the system clock incorrect. **Affected configuration:** the explicitly buildable `developer/demos/simple_timer.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the unchecked failure return and read of output that is not written on failure. Abort the clock-changing sequence if the initial read fails; check later timer calls too. No timer operation or clock change was run; source-only.
 
+<a id="gd15032"></a>
 ## GD15032 — Sift reports success after input or parse failures [conditional]
 
 Every path through `main()` ends at `exit(RETURN_OK)` (`developer/demos/sift.c:105-118,252-261`). This includes failure to open `iffparse.library`, allocate the IFF handle, open the clipboard/file, and any `OpenIFF()` or `ParseIFF()` error. The latter is printed as “File scan aborted” but still produces a successful process status.
 
 **Trigger and consequence:** any setup or input/parser operation fails. Scripts and callers relying on the exit status cannot distinguish a completed scan from a failed or aborted scan. **Affected configuration:** the explicitly buildable `developer/demos/sift.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the unconditional success exit and the preceding error paths. Track a failure status and return it after cleanup. No file/clipboard operation, parser error or build was induced; source-only.
 
+<a id="gd15031"></a>
 ## GD15031 — ShadowBorder exits successfully when intuition.library cannot open [conditional]
 
 If `OpenLibrary("intuition.library", 37)` fails, `main()` skips the entire window/drawing path and returns zero (`developer/demos/shadowborder.c:92-96,162-166`). No diagnostic or failure status is produced.
