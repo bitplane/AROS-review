@@ -567,6 +567,7 @@ The generated `FilterTagChanges()`, `MapTags()`, `RefreshTagItemClones()`, `Filt
 This candidate is the same missing Utility LVO already documented in EK9888. The public vector is LVO -48, but no generated or manual m68kemu thunk is registered; Moira returns zero for the unimplemented call without advancing the guest cursor (`rom/utility/utility.conf:40`; `rom/m68kemu/m68kemu_thunks_gen.c:6782-6832,7986-7999`; `m68kemu_moira.cpp:270-290`). See EK9888 for the full trigger and consequence. This section preserves the older index identifier without presenting it as a separate defect. Source-only.
 
 
+<a id="ek10199"></a>
 ### EK10199 — PC SMP heartbeat can charge a migrated task for time it was not running
 
 `APICHeartbeatServer()` captures the local CPU number and samples task usage by walking `TaskReady`, `TaskWait`, `TaskRunning`, and `TaskSpinning` separately under each list's lock (`arch/all-pc/kernel/apic_heartbeat.c:44-61,63-120`). In the `TaskRunning` pass it selects a task when `iet_CpuNumber` equals the heartbeat CPU, computes `iet_private2 + now - iet_private1`, publishes that as CPU usage, and subtracts the sampled amount from `iet_private2` (`:88-108`).
