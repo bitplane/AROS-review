@@ -41576,6 +41576,15 @@ The exported `BWFMTxData()` resource vector computes `total = 12 + sizeof(*bcdc)
 
 **Trigger and consequence:** an AICore reset/disable poll times out during attach. The attach routine still reports success and the device proceeds to firmware startup; later memory or firmware operations may fail or leave the chip unavailable, while the attachment state already claims it is ready. **Affected configuration:** explicitly selected BWFM resource/device on supported Broadcom SDIO hardware, conditional on a required core reset timeout. **Confidence:** high that reset errors are discarded and attachment is published; medium for the resulting device-level failure because later operations may independently detect the bad state. Propagate reset status through `bwfm_set_passive()` and abort `bwfm_do_attach()` before publishing `bwfm_attached` when a required reset fails. No core, hardware, transfer error, or build was exercised; source-only.
 
+<a id="od3613"></a>
+## OD3613 — A BWFM CMD_READ can be queued after S2_OFFLINE has flushed reads [concurrent direct callers conditional]
+
+`CMD_READ` checks `unit->online` without `unit->lock`, then later acquires the lock and appends the request to its opener's pending-read list (`workbench/devs/networks/bwfm/bwfm_dev.c:1857-1878`). `S2_OFFLINE` writes `unit->online = FALSE` and calls `flush_reads()`, which takes the lock and drains all currently queued reads (`:1666-1671,1593-1610`). If an online read pauses after its check, OFFLINE can clear the state and finish its flush before that read is appended. The RX pump only calls `rx_deliver()` while `unit->online` is true (`:565-569`), so a late-queued request is not completed during the offline period.
+
+The checked AROSTCP caller serializes its own read rearming and interface-down/OFFLINE path under its `splimp` lock (`workbench/network/stacks/AROSTCP/bsdsocket/net/if_sana.c:781-825,878-913,933-999`; shared `spl_semaphore` behavior in `kern/kern_synch.c:474-500`). That caller does not establish this interleaving for its ordinary path; direct SANA-II callers do not inherit that stack lock.
+
+**Trigger and consequence:** a direct client issues `CMD_READ` while the unit is online, and another caller issues `S2_OFFLINE` after the first request's online check but before its queue insertion. The OFFLINE flush misses the request, leaving it pending while offline until a later online transition, explicit flush/abort, or close. **Affected configuration:** explicitly selected BWFM SANA-II device with concurrent direct callers; not demonstrated through the checked AROSTCP serialization path. **Confidence:** high for the check/flush/enqueue ordering and the offline RX gate; conditional on overlapping requests. Protect the online check and queue insertion with the same unit lock used by OFFLINE, or recheck state after acquiring it. No request or interleaving was run; source-only.
+
 <a id="od3614"></a>
 ## OD3614 — BWFM can leave S2_ONEVENT pending after its requested online state is reached [concurrent callers conditional]
 
