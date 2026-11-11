@@ -17244,6 +17244,8 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **OD2126 — HDA response polling can skip a solicited entry behind an unsolicited response.** The poll jumps to the current write pointer and examines one slot; on unchanged pointer it may hold the verb semaphore through a bounded ~50-second wait. Conditional on external unsolicited-response configuration or two-entry ring wrap; selected AHI paths do not enable unsolicited responses. Source-only. See [OD2126](AROS-other-drivers.md#od2126).
 
+**OD2898 — HDAudio Stop can free buffers while an AHI callback is running.** On ExecSMP, a callback that already passed its state checks can overlap Stop on another CPU and continue using stream or mix storage that Stop frees. Conditional on that overlap; source-only. See [OD2898](AROS-other-drivers.md#od2898).
+
 **OD9550 — HDAudio and NVHDMI can program a codec rate different from AHI’s retained mix rate.** Unsupported rates select a nearby hardware entry without updating the rate AHI uses for timing; above the table maximum, entry zero remains selected. Conditional on an unsupported requested rate; native PCI AHI drivers under `HAVE_ASMIO`. Source-only. See [OD9550](AROS-other-drivers.md#od9550).
 
 **OD9552 — AHI can allocate a tiny mix buffer then copy the maximum frame count.** At MixFreq 16,777,217 and PlayerFreq/MinPlayerFreq/MaxPlayerFreq 257, 32-bit RecalcBuff arithmetic yields zero frames while AHI still computes 65,281 maximum frames; selected playback backends copy beyond the 80-byte padded mix buffer. Conditional on this unusual rate combination; source-only. See [OD9552](AROS-other-drivers.md#od9552).
