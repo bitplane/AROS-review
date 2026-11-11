@@ -17392,7 +17392,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15080](AROS-graphics-desktop.md#gd15080) — AmigaVideo leaks its created display and DMEnumerator if required compositor construction fails. Conditional on compositor creation failure. Source-only.**
 **[GD15081](AROS-graphics-desktop.md#gd15081) — If AmigaVideo’s compositor worker cannot open intuition.library, it exits but leaves a stale task pointer that Dispose later signals. Conditional on worker startup failure and later disposal. Source-only.**
 **[GD15082](AROS-graphics-desktop.md#gd15082) — AmigaVideo compositor never releases its per-instance `IID_Hidd_Display` attribute-base reference, so disposed instances leak OOP IID references. Conditional on compositor disposal. Source-only.**
-**[GD15083](AROS-graphics-desktop.md#gd15083) — JPEG XL import accepts a short file read as the original full input length, allowing libjxl to consume uninitialized trailing bytes. Conditional on a partial read in the optional JPEG XL target. Source-only.**
+**[GD15083](AROS-graphics-desktop.md#gd15083) — JPEG XL, WebP, GEMImage and Degas importers accept short reads as full input, so decoders or parsers may consume uninitialized trailing bytes. Conditional on a partial read in an optional datatype target. Source-only.**
 
 
 
