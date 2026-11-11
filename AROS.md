@@ -17387,6 +17387,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15075](AROS-graphics-desktop.md#gd15075) — `DoubleClick()` multiplies an unchecked 32-bit preference seconds value by one million; values above 4,294 wrap and make the accepted double-click interval incorrect. Conditional on a custom `SetPrefs()` value or out-of-range INPT preference; the standard editor limits values to four seconds. Source-only.**
 **[GD15076](AROS-graphics-desktop.md#gd15076) — AmigaVideo `NextModeID()` returns the invalid sentinel without clearing sync/pixel-format outputs, contrary to the method contract. Conditional on direct clients using stale outputs after enumeration ends; no in-tree consumer found. Source-only.**
 **[GD15077](AROS-graphics-desktop.md#gd15077) — AmigaVideo `GetMode()` returns FALSE for an unknown ID without clearing its sync/pixel-format outputs. Conditional on direct clients inspecting reused outputs after failure; no in-tree invalid-ID caller found. Source-only.**
+**[GD15078](AROS-graphics-desktop.md#gd15078) — AmigaVideo formats its hardware name through an unchecked allocation; allocation failure sends `RawDoFmt()` a NULL destination. Conditional on m68k AmigaVideo construction under memory pressure. Source-only.**
 
 
 
