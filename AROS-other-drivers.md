@@ -1,3 +1,12 @@
+<a id="od2566"></a>
+## OD2566 — OpenSBI PCIDT does not translate nonidentity 32-bit memory windows [firmware conditional]
+
+When parsing a PCI bridge's FDT `ranges`, PCIDT records the PCI base, CPU base and size for a 32-bit memory window, then maps the CPU-side range (`arch/riscv64-opensbi/hidd/pcidt/pcidt_driverclass.c:124-162`). However, `PCIDT__Hidd_PCIDriver__MapPCI()` translates only addresses covered by the recorded 64-bit window; every other address is returned unchanged (`:854-895`). It does not apply the recorded MEM32 PCI-to-CPU offset.
+
+For a MEM32 window where the CPU base differs from its PCI base, a client passing a BAR's PCI address to `MapPCI()` receives the untranslated bus address even though the CPU mapping was established at a different address. A client that dereferences that result can access the wrong region or an unmapped address. The normal identity-window case is unaffected. The report's source review did not establish a checked-in OpenSBI firmware tree with a nonidentity MEM32 window or a selected client using such a BAR, so device impact remains conditional on firmware and client behavior.
+
+**Trigger and consequence:** an OpenSBI FDT describes a nonidentity 32-bit PCI memory window and a PCI client maps a BAR within it through `MapPCI()`. PCIDT returns the PCI-side address instead of the mapped CPU address; register or framebuffer accesses can then reach the wrong address. **Affected configuration:** OpenSBI RISC-V64 PCIDT with a nonidentity FDT MEM32 range and a client using `HIDD_PCIDriver_MapPCI()`; identity windows are unaffected. **Confidence:** high for missing MEM32 translation; occurrence requires the specified firmware window and a matching client BAR. Apply the recorded MEM32 offset in both PCI-to-CPU address mapping and MapPCI. No firmware, PCI device, mapping, or build was used; source-only.
+
 <a id="od2565"></a>
 ## OD2565 — OpenSBI PCIDT can ignore a failed or truncated 64-bit BAR mapping [firmware conditional]
 
@@ -31667,7 +31676,7 @@ PCIDT OD2563 source reconciliation (restored in detailed report and master index
 PCIDT OD2564 source reconciliation (restored in detailed report and master index; 2026-11-03): revalidated the recorded FDT/ACPI window, BAR, kernel map, DWC ATU, and selected-client paths against current source at the pinned commit. The finding and its exact trigger, consequence, build scope, and confidence are recorded under [OD2564](AROS-other-drivers.md#od2564); no runtime or hardware was used. Source-only.
 
 
-<a id="od2566"></a>
+<a id="od2566-history"></a>
 <a id="opensbi-pcidt-mem32-nonidentity-translation-od2566"></a>
 PCIDT OD2566 source reconciliation (restored in detailed report and master index; 2026-11-03): revalidated the recorded FDT/ACPI window, BAR, kernel map, DWC ATU, and selected-client paths against current source at the pinned commit. The finding and its exact trigger, consequence, build scope, and confidence are recorded under [OD2566](AROS-other-drivers.md#od2566); no runtime or hardware was used. Source-only.
 
