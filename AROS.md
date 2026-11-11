@@ -17391,6 +17391,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15079](AROS-graphics-desktop.md#gd15079) — AmigaVideo leaks its dynamically allocated hardware-name string when required display/DMEnum or compositor construction fails after the base HIDD object is created. Source-only.**
 **[GD15080](AROS-graphics-desktop.md#gd15080) — AmigaVideo leaks its created display and DMEnumerator if required compositor construction fails. Conditional on compositor creation failure. Source-only.**
 **[GD15081](AROS-graphics-desktop.md#gd15081) — If AmigaVideo’s compositor worker cannot open intuition.library, it exits but leaves a stale task pointer that Dispose later signals. Conditional on worker startup failure and later disposal. Source-only.**
+**[GD15082](AROS-graphics-desktop.md#gd15082) — AmigaVideo compositor never releases its per-instance `IID_Hidd_Display` attribute-base reference, so disposed instances leak OOP IID references. Conditional on compositor disposal. Source-only.**
 
 
 
