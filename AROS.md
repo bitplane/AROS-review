@@ -1,5 +1,3 @@
-**OD11578 — the USB HID class reads `bNumDescriptors` beyond a short HID descriptor allocation:** `nReadReports()` accepts a 1–5-byte short packet, logs the undersized descriptor but continues, and reads the field at offset 5. Conditional on a short descriptor with a too-small `bLength` and successful allocation. The HID class is explicitly selected by the OpenSBI USB package; see [OD11578](AROS-other-drivers.md#od11578). Source-only; no device or transfer was exercised.
-
 **OD11555 — `setlastlog`'s public vector omits the console argument:** the generated three-argument interface passes `host` in A1, but the implementation expects `con` in A1 and `host` in A2. Calls can fail, store the host as the console line, or read an unrelated A2 pointer. No maintained in-tree caller was found; applies to clients of a built `usergroup.library`. See [OD11555](AROS-other-drivers.md#od11555) and the [generated vector trace](AROS-other-drivers-coverage.md#usergroup-setlastlog-vector-arity-od11555). Source-only; no build or call was run.
 
 ## Exec/Kernel findings reconciled into the index (2026-11-02)
