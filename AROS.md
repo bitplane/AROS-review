@@ -68,13 +68,13 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 
 | Finding | Detailed report title |
 |---|---|
-| [EK2](AROS-exec-kernel.md#ek2) | Signal allocation/free shift outside the 32-bit mask [medium impact, high confidence] |
-| [EK3](AROS-exec-kernel.md#ek3) | `AllocVec` and `AllocVecPooled` can wrap requested size [high impact, high confidence] |
-| [EK4](AROS-exec-kernel.md#ek4) | Releasing shared semaphore grants later readers ahead of a queued writer [medium impact, high confidence] |
-| [EK6](AROS-exec-kernel.md#ek6) | Failed task creation leaves a dangling caller-visible message-port pointer [medium impact, high confidence] |
-| [EK7](AROS-exec-kernel.md#ek7) | CPU-affinity allocation failure is used as a mask [high impact, high confidence; PC SMP] |
-| [EK8](AROS-exec-kernel.md#ek8) | Equal-version resident priority is ignored [medium impact, high confidence] |
-| [EK9](AROS-exec-kernel.md#ek9) | `KrnRemIRQHandler(NULL)` dereferences null [medium impact, high confidence] |
+| [EK02](AROS-exec-kernel.md#ek02) | Signal allocation/free shift outside the 32-bit mask [medium impact, high confidence] |
+| [EK03](AROS-exec-kernel.md#ek03) | `AllocVec` and `AllocVecPooled` can wrap requested size [high impact, high confidence] |
+| [EK04](AROS-exec-kernel.md#ek04) | Releasing shared semaphore grants later readers ahead of a queued writer [medium impact, high confidence] |
+| [EK06](AROS-exec-kernel.md#ek06) | Failed task creation leaves a dangling caller-visible message-port pointer [medium impact, high confidence] |
+| [EK07](AROS-exec-kernel.md#ek07) | CPU-affinity allocation failure is used as a mask [high impact, high confidence; PC SMP] |
+| [EK08](AROS-exec-kernel.md#ek08) | Equal-version resident priority is ignored [medium impact, high confidence] |
+| [EK09](AROS-exec-kernel.md#ek09) | `KrnRemIRQHandler(NULL)` dereferences null [medium impact, high confidence] |
 | [EK10](AROS-exec-kernel.md#ek10) | IRQ handler data update races with IRQ execution/removal [high impact, high confidence; SMP] |
 | [EK11](AROS-exec-kernel.md#ek11) | The ninth exception handler is silently dropped on SMP [medium impact, high confidence; SMP] |
 | [EK12](AROS-exec-kernel.md#ek12) | PC IRQ attribute mapping dereferences a failed allocation [high impact, high confidence; PC] |
