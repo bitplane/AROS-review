@@ -62,6 +62,202 @@
 
 **[EK8901](AROS-exec-kernel.md#ek8901) — GenModule dereferences an unchecked variadic-alias allocation while generating selected Exec inline/defines headers if host memory allocation fails. The include-generation target then fails; no runtime impact is claimed. Source-only.**
 
+## Previously omitted active Exec/Kernel entries restored (2026-11-11)
+
+Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were not mentioned in this index. The links below restore navigation to the existing report entries; they do not represent new findings or additional source-review credit. Explicitly withdrawn, duplicate, and unverified entries are excluded.
+
+| Finding | Detailed report title |
+|---|---|
+| [EK2](AROS-exec-kernel.md#ek2) | Signal allocation/free shift outside the 32-bit mask [medium impact, high confidence] |
+| [EK3](AROS-exec-kernel.md#ek3) | `AllocVec` and `AllocVecPooled` can wrap requested size [high impact, high confidence] |
+| [EK4](AROS-exec-kernel.md#ek4) | Releasing shared semaphore grants later readers ahead of a queued writer [medium impact, high confidence] |
+| [EK6](AROS-exec-kernel.md#ek6) | Failed task creation leaves a dangling caller-visible message-port pointer [medium impact, high confidence] |
+| [EK7](AROS-exec-kernel.md#ek7) | CPU-affinity allocation failure is used as a mask [high impact, high confidence; PC SMP] |
+| [EK8](AROS-exec-kernel.md#ek8) | Equal-version resident priority is ignored [medium impact, high confidence] |
+| [EK9](AROS-exec-kernel.md#ek9) | `KrnRemIRQHandler(NULL)` dereferences null [medium impact, high confidence] |
+| [EK10](AROS-exec-kernel.md#ek10) | IRQ handler data update races with IRQ execution/removal [high impact, high confidence; SMP] |
+| [EK11](AROS-exec-kernel.md#ek11) | The ninth exception handler is silently dropped on SMP [medium impact, high confidence; SMP] |
+| [EK12](AROS-exec-kernel.md#ek12) | PC IRQ attribute mapping dereferences a failed allocation [high impact, high confidence; PC] |
+| [EK13](AROS-exec-kernel.md#ek13) | PC SMP startup uses an unchecked spinlock-array allocation [high impact, high confidence; PC SMP] |
+| [EK15](AROS-exec-kernel.md#ek15) | Zero-page MMU region makes initialization write before its map [high impact, high confidence; `USE_MMU=1`] |
+| [EK16](AROS-exec-kernel.md#ek16) | Zero-length page allocation underflows the state-map writer [medium impact, high confidence; `USE_MMU=1`] |
+| [EK17](AROS-exec-kernel.md#ek17) | RISC-V virtual IRQ count arithmetic can wrap [medium impact, high confidence; OpenSBI RISC-V64] |
+| [EK18](AROS-exec-kernel.md#ek18) | AArch64 affinity mask functions index beyond their one-word allocation [medium impact, high confidence; AArch64 native] |
+| [EK22](AROS-exec-kernel.md#ek22) | Unix kernel-base initialization leaks its allocation and continues after failure. |
+| [EK52](AROS-exec-kernel.md#ek52) | m68k Exec AVL insertion, removal, and key lookup vectors silently do nothing. |
+| [EK59](AROS-exec-kernel.md#ek59) | Reset callback traversal can follow a freed saved successor after concurrent removal. |
+| [EK71](AROS-exec-kernel.md#ek71) | Concurrent symbol-resolver updates can pair a callback with the wrong private pointer. |
+| [EK126](AROS-exec-kernel.md#ek126) | x86-64 task.resource register queries omit index zero and return incorrect vector data. |
+| [EK140](AROS-exec-kernel.md#ek140) | Framed kernel alerts split overlong header lines and misplace later fields. |
+| [EK193](AROS-exec-kernel.md#ek193) | SiFive U core startup symbol contains no RISC-V entry code |
+| [EK194](AROS-exec-kernel.md#ek194) | SiFive U BSS clearing skips a residual byte and writes past the range |
+| [EK195](AROS-exec-kernel.md#ek195) | Optional SiFive U image waits forever instead of handing off to the embedded kernel |
+| [EK197](AROS-exec-kernel.md#ek197) | OpenSBI PLIC initialization trusts firmware source counts beyond the mapped register extent. |
+| [EK224](AROS-exec-kernel.md#ek224) | Efika `KrnMapGlobal` loops on non-page-multiple lengths and leaves partial PTE mappings. |
+| [EK225](AROS-exec-kernel.md#ek225) | Efika dereferences a failed supervisor-context allocation before its public-memory fallback. |
+| [EK239](AROS-exec-kernel.md#ek239) | CHRP `CachePreDMA()` leaves the DMA length unchanged across physically discontiguous pages. |
+| [EK293](AROS-exec-kernel.md#ek293) | Hosted ARM processor detection treats an unsupported Linux architecture token as ARMv6. |
+| [EK311](AROS-exec-kernel.md#ek311) | `UnLockTaskList()` can free a different same-owner iterator handle. |
+| [EK312](AROS-exec-kernel.md#ek312) | ExecSMP task-list iterator bookkeeping can lose handles or free entries still held by an iterator. |
+| [EK343](AROS-exec-kernel.md#ek343) | The PC bootstrap ELF loader reads beyond boot-module extents. |
+| [EK347](AROS-exec-kernel.md#ek347) | PC archive iteration dereferences a NULL cursor after rejecting a member header. |
+| [EK348](AROS-exec-kernel.md#ek348) | The PC bootstrap can overrun its fixed BSS-section tracker. |
+| [EK349](AROS-exec-kernel.md#ek349) | BSD extended-name ar entries make the PC bootstrap skip subsequent archive members. |
+| [EK350](AROS-exec-kernel.md#ek350) | PC bootstrap workspace exhaustion turns module metadata allocation failures into NULL dereferences. |
+| [EK359](AROS-exec-kernel.md#ek359) | WaitForPort checks late and can exceed its documented ten-second wait. |
+| [EK361](AROS-exec-kernel.md#ek361) | StackSnoop writes task rows past its fixed output buffer when formatted output exceeds 20,000 bytes. |
+| [EK362](AROS-exec-kernel.md#ek362) | StackSnoop traverses ready/wait task lists without ExecSMP list locks. |
+| [EK364](AROS-exec-kernel.md#ek364) | LeakWatch dereferences a failed GadTools library open during its first snapshot. |
+| [EK366](AROS-exec-kernel.md#ek366) | LeakWatch's never-reclaimed snapshot pools turn capacity exhaustion into unchecked NULL use. |
+| [EK367](AROS-exec-kernel.md#ek367) | LeakWatch walks shared Exec lists under CPU-local Forbid without their ExecSMP list locks. |
+| [EK369](AROS-exec-kernel.md#ek369) | LeakWatch narrows pointer-sized free-memory changes to a signed LONG before displaying them. |
+| [EK370](AROS-exec-kernel.md#ek370) | Avail HUMAN formatting writes past ten-byte buffers for large 64-bit memory values. |
+| [EK400](AROS-exec-kernel.md#ek400) | task.resource's running-only filter also returns ready tasks. |
+| [EK485](AROS-exec-kernel.md#ek485) | PC processor-frequency queries pass a NULL `SuperState()` token to `UserState()` for privileged callers. |
+| [EK488](AROS-exec-kernel.md#ek488) | OpenSBI MSI fan-out does not bound the vector range before indexing IRQ handlers. |
+| [EK516](AROS-exec-kernel.md#ek516) | Apple Silicon ELF loading can leave code hunks non-executable after an RWX mapping fallback. |
+| [EK547](AROS-exec-kernel.md#ek547) | Efika ARM debug input returns UART status bits as character data. |
+| [EK559](AROS-exec-kernel.md#ek559) | m68k Exec AVL traversal thunks pass guest nodes and comparators to native code without ABI conversion. |
+| [EK574](AROS-exec-kernel.md#ek574) | A pthread TLS destructor can deadlock when it deletes a key [high functional impact; high source confidence for a destructor that calls `pthread_key_delete`] |
+| [EK631](AROS-exec-kernel.md#ek631) | Task-resource slot IDs are permanently consumed when FreeTaskStorageSlot cannot allocate its free-list node [low task-resource capacity impact; high source confidence under allocation failure followed by later reuse] |
+| [EK648](AROS-exec-kernel.md#ek648) | Efika uses an unchecked OpenFirmware `reg` read as the MBAR address. |
+| [EK649](AROS-exec-kernel.md#ek649) | A missing OpenFirmware child-name property publishes a null name that boot code dereferences. |
+| [EK650](AROS-exec-kernel.md#ek650) | OpenFirmware cleanup forwards an uninitialized RTAS size on selected bootstrap failure paths. |
+| [EK653](AROS-exec-kernel.md#ek653) | A trailing `--root` boot argument makes the OpenFirmware bootstrap scan past the end of the string. |
+| [EK693](AROS-exec-kernel.md#ek693) | DynModule glue tests an uninitialized port-name pointer after ReadArgs fails. |
+| [EK694](AROS-exec-kernel.md#ek694) | Escaped quote port name can underflow the glue stack-copy length. |
+| [EK706](AROS-exec-kernel.md#ek706) | Cooked console input discards CSI key sequences split across device reads. |
+| [EK8760](AROS-exec-kernel.md#ek8760) | Hosted ARM CPU-speed queries leave caller storage untouched. |
+| [EK8761](AROS-exec-kernel.md#ek8761) | HPET initialization succeeds after its unit-array allocation fails, leaving an invalid resource state. |
+| [EK8810](AROS-exec-kernel.md#ek8810) | Raspberry Pi AArch64 boot does not handle device-tree allocation failure |
+| [EK8833](AROS-exec-kernel.md#ek8833) | PC SMP continues after IPI hook-pool allocation failure, leaving cross-CPU `Signal()` stuck in an empty-list loop. |
+| [EK8834](AROS-exec-kernel.md#ek8834) | PC SMP publishes IPI hooks with NULL CPU masks after mask-allocation failure. |
+| [EK8835](AROS-exec-kernel.md#ek8835) | x86-64 PC ExecSMP can leave an AP without an eligible idle task and recurse in the dispatcher. |
+| [EK8836](AROS-exec-kernel.md#ek8836) | Concurrent first use can reinitialize an already acquired statically initialized pthread mutex. |
+| [EK8851](AROS-exec-kernel.md#ek8851) | DynModule bootstrap leaks its console path and can leak an opened console handle. |
+| [EK8900](AROS-exec-kernel.md#ek8900) | The shared write-locked initializer uses a bit that native ARM spinlocks do not recognize as a writer lock. |
+| [EK8904](AROS-exec-kernel.md#ek8904) | ARM secondary registration continues after bootstrap-task creation fails, then dereferences the missing task. |
+| [EK8906](AROS-exec-kernel.md#ek8906) | OpenSBI processor IDs from the boot hart are reported for every RISC-V core. |
+| [EK8927](AROS-exec-kernel.md#ek8927) | `logRemEntry()` can remove an entry before its provider-list publication. |
+| [EK8942](AROS-exec-kernel.md#ek8942) | The i386-PC SAD debugger indexes its key translation table with unmapped keyboard scan codes. |
+| [EK8944](AROS-exec-kernel.md#ek8944) | ROM-map allocation failure is dereferenced during m68k-Amiga kernel startup. |
+| [EK8947](AROS-exec-kernel.md#ek8947) | Apple Silicon LoadSeg can fall back to non-executable RAM after page allocation fails. |
+| [EK8948](AROS-exec-kernel.md#ek8948) | The i386 PC boot allocator can advance and clear memory beyond the bootstrap's reserved boot-data area. |
+| [EK8954](AROS-exec-kernel.md#ek8954) | Adding a new interface to a class derived from an IFMeta-created class can dereference a missing interface bucket during construction. |
+| [EK8961](AROS-exec-kernel.md#ek8961) | The i386 alert backtrace treats a saved EBP register as a frame-chain pointer. |
+| [EK8963](AROS-exec-kernel.md#ek8963) | i386 task setup can start ordinary C entry functions with a stack alignment different from the compiler's expected function-entry alignment. |
+| [EK8965](AROS-exec-kernel.md#ek8965) | A failed kernel platform initializer leaves `kernel.resource` published as if initialization succeeded. |
+| [EK8974](AROS-exec-kernel.md#ek8974) | PC processor probes race while publishing shared topology. |
+| [EK8975](AROS-exec-kernel.md#ek8975) | i386 PC reports APIC-discovered CPUs without per-CPU information in non-SMP builds |
+| [EK8988](AROS-exec-kernel.md#ek8988) | MinGW IRQ registration truncates the public IRQ number before validating it. |
+| [EK8990](AROS-exec-kernel.md#ek8990) | Generic CopyMemQuick truncates 64-bit copy sizes at 128 GiB (conditional short or omitted copy; high source confidence). |
+| [EK8992](AROS-exec-kernel.md#ek8992) | Reset callback timeout setup failure leaves callback waits unbounded (conditional shutdown stall; high source confidence). |
+| [EK8999](AROS-exec-kernel.md#ek8999) | `scandir()` treats a directory-read error as successful end of directory. |
+| [EK9000](AROS-exec-kernel.md#ek9000) | `scandir()` overwrites the original `opendir()` error while cleaning up. |
+| [EK9014](AROS-exec-kernel.md#ek9014) | OOP attribute-base allocation wraps and aliases earlier attribute IDs after 2^22 unique bases. |
+| [EK9015](AROS-exec-kernel.md#ek9015) | POSIXC readdir leaves the public directory-entry inode number uninitialized. |
+| [EK9022](AROS-exec-kernel.md#ek9022) | The x86-64 StackSwap assembly calls C vectors with a misaligned stack. |
+| [EK9023](AROS-exec-kernel.md#ek9023) | The x86-64 PC page-table backend does not enforce MAP_Executable permissions. |
+| [EK9024](AROS-exec-kernel.md#ek9024) | Exhausting the x86-64 PC 4-KiB split-table pool silently skips page protection changes. |
+| [EK9030](AROS-exec-kernel.md#ek9030) | RISC-V OpenSBI can reuse a stale PLIC context when ACPI fills a missing controller base. |
+| [EK9035](AROS-exec-kernel.md#ek9035) | x86-64 `KrnMapGlobal()` reports success without mapping a range that ends at the top of the virtual address space (conditional missing final-page mapping; high source confidence). |
+| [EK9050](AROS-exec-kernel.md#ek9050) | PowerPC `SuperState()` enters supervisor mode but always returns the token that means no transition occurred (conditional privilege-state leak; high source confidence). |
+| [EK9051](AROS-exec-kernel.md#ek9051) | realtime.library can unload Pulse before its worker exits during final expunge. |
+| [EK9053](AROS-exec-kernel.md#ek9053) | ExternalSync publishes unlocked or stale external-time windows to the Pulse worker. |
+| [EK9054](AROS-exec-kernel.md#ek9054) | SetConductorState races the Pulse worker and traverses a mutable player list without its lock. |
+| [EK9055](AROS-exec-kernel.md#ek9055) | PLAYER_ExtSync dereferences a player with no conductor instead of reporting failure. |
+| [EK9056](AROS-exec-kernel.md#ek9056) | CreatePlayerA leaks and leaves a linked player when SetPlayerAttrsA rejects a later tag. |
+| [EK9057](AROS-exec-kernel.md#ek9057) | Reassigning a linked player leaves its old conductor list corrupted (conditional public API defect; high source confidence). |
+| [EK9059](AROS-exec-kernel.md#ek9059) | A conductor allocation failure can leak a Player or report success without attaching it (conditional allocation-failure defect; high source confidence). |
+| [EK9061](AROS-exec-kernel.md#ek9061) | PPC CacheClearU performs no cache-line maintenance for its whole-cache request. |
+| [EK9062](AROS-exec-kernel.md#ek9062) | The optional x86-64 PC early exception screen labels several saved registers with the wrong values. |
+| [EK9103](AROS-exec-kernel.md#ek9103) | The CHRP OpenFirmware bootstrap can write outside its stack buffer while reading `load-base`. |
+| [EK9105](AROS-exec-kernel.md#ek9105) | An Efika boot menu with more than 1,024 nonempty lines overwrites the parser's line-pointer table. |
+| [EK9106](AROS-exec-kernel.md#ek9106) | Efika bootstrap can call the kernel entry without successfully loading an image. |
+| [EK9107](AROS-exec-kernel.md#ek9107) | The Efika menu's parsed `default` entry is never selected automatically. |
+| [EK9108](AROS-exec-kernel.md#ek9108) | The Efika menu's parsed `timeout` setting does not time out the boot prompt. |
+| [EK9109](AROS-exec-kernel.md#ek9109) | Efika menu parsing dereferences the firmware claim-failure sentinel for a new entry. |
+| [EK9110](AROS-exec-kernel.md#ek9110) | Efika ELF BSS trackers write their terminators past fixed tables at capacity. |
+| [EK9111](AROS-exec-kernel.md#ek9111) | Efika ELF debug-symbol registration dereferences failed metadata allocations. |
+| [EK9112](AROS-exec-kernel.md#ek9112) | Efika ELF section placement has no boundary check against the claimed 16-MiB image area. |
+| [EK9113](AROS-exec-kernel.md#ek9113) | The Efika ELF loader trusts section-table offsets and sizes without validating them against the loaded image. |
+| [EK9114](AROS-exec-kernel.md#ek9114) | Unbounded Efika boot strings overrun fixed command buffers. |
+| [EK9115](AROS-exec-kernel.md#ek9115) | The Efika PKG reader trusts package/member lengths without bounding records to the package or staging buffer. |
+| [EK9120](AROS-exec-kernel.md#ek9120) | Large `dup2()` and `F_DUPFD` targets overflow descriptor-table sizing. |
+| [EK9258](AROS-exec-kernel.md#ek9258) | The 64-bit MinGW kernel ignores the hosted bootstrap’s second RAM region [medium impact, high confidence; x86-64 MinGW] |
+| [EK9434](AROS-exec-kernel.md#ek9434) | m68k `GetDefaultPubScreen()` discards the returned Screen pointer. |
+| [EK9435](AROS-exec-kernel.md#ek9435) | m68k `LockPubScreenList()` acquires its lock but returns NULL. |
+| [EK9450](AROS-exec-kernel.md#ek9450) | `pthread_attr_setstacksize()` clears a caller-provided stack address. |
+| [EK9454](AROS-exec-kernel.md#ek9454) | x86-64 PC SMP can reuse AP trampoline arguments while a timed-out processor is still reading them. |
+| [EK9456](AROS-exec-kernel.md#ek9456) | PC kernel startup can leave the framebuffer console mirror NULL after allocation failure. |
+| [EK9457](AROS-exec-kernel.md#ek9457) | The PC boot framebuffer console treats 15-bit VBE pixels as one byte each. |
+| [EK9458](AROS-exec-kernel.md#ek9458) | PC boot-console text output hard-codes an 80-column stride for variable-width text framebuffers. |
+| [EK9459](AROS-exec-kernel.md#ek9459) | The Exec StackSwap test supplies a misaligned replacement stack on PPC and AArch64. |
+| [EK9462](AROS-exec-kernel.md#ek9462) | `AllocTrap()` reports success for explicit indices the task mask cannot reserve. |
+| [EK9467](AROS-exec-kernel.md#ek9467) | Native RISC-V TLS macros read an uninitialized compiler output and overwrite `tp`. |
+| [EK9468](AROS-exec-kernel.md#ek9468) | Native RISC-V context save/restore indexes a physical trap frame as a compact register array. |
+| [EK9469](AROS-exec-kernel.md#ek9469) | The optional x86-64 PC early exception screen formats RFLAGS with out-of-range 32-bit shifts. |
+| [EK9470](AROS-exec-kernel.md#ek9470) | The optional x86-64 PC early exception screen can replace an invalid-opcode report with a nested page-fault report while dumping instruction bytes. |
+| [EK9476](AROS-exec-kernel.md#ek9476) | m68kemu can report process creation failure after starting the native process. |
+| [EK9477](AROS-exec-kernel.md#ek9477) | m68k AROSBootstrap continues with a NULL boot-pool header after allocation failure. |
+| [EK9478](AROS-exec-kernel.md#ek9478) | m68k AROSBootstrap retains loaded MODULES segments that contain no resident. |
+| [EK9484](AROS-exec-kernel.md#ek9484) | EfikaMX ARM startup parks forever before initializing the kernel resource or entering Exec. |
+| [EK9516](AROS-exec-kernel.md#ek9516) | MinGW bootstrap may consume an invalid error pointer when Windows cannot format a loader failure. |
+| [EK9518](AROS-exec-kernel.md#ek9518) | DOSBoot dereferences a missing device-enable array in Boot Options. |
+| [EK9520](AROS-exec-kernel.md#ek9520) | m68k AROSBootstrap's `LoadSegment` free callback only removes bookkeeping and leaks the allocation. |
+| [EK9521](AROS-exec-kernel.md#ek9521) | Hosted Unix accepts IRQ registrations that are reserved or outside its signal-dispatch range. |
+| [EK9522](AROS-exec-kernel.md#ek9522) | EFI GetTime advertises the wrong capabilities structure type. |
+| [EK9524](AROS-exec-kernel.md#ek9524) | TLSF corruption diagnostics omit frames on generic-stub targets. |
+| [EK9525](AROS-exec-kernel.md#ek9525) | Concurrent x86-64 protection calls can overwrite each other’s split page table. |
+| [EK9527](AROS-exec-kernel.md#ek9527) | Concurrent ExecSMP dead-end alerts can interleave the shared diagnostic text. |
+| [EK9528](AROS-exec-kernel.md#ek9528) | pthread can invoke a PosixC thread hook after delayed expunge has unloaded its code. |
+| [EK9877](AROS-exec-kernel.md#ek9877) | Darwin/AArch64 bootstrap ignores kernel-thread creation failure and never starts the kernel. |
+| [EK9881](AROS-exec-kernel.md#ek9881) | i386 PC ACPI power-off enters ACPICA with maskable interrupts disabled. |
+| [EK9895](AROS-exec-kernel.md#ek9895) | m68kemu passes guest semaphore structures to native Exec without layout conversion. |
+| [EK9900](AROS-exec-kernel.md#ek9900) | m68kemu can create a task with a null entry point when tag conversion fails. |
+| [EK9901](AROS-exec-kernel.md#ek9901) | `KrnFormatStr()` ignores callbacks that report failure with the documented zero return. |
+| [EK9904](AROS-exec-kernel.md#ek9904) | Efika ARM boot package omits its declared I²C HIDD. |
+| [EK9910](AROS-exec-kernel.md#ek9910) | SumKickData omits trailing entries in multi-entry MemList nodes. |
+| [EK9911](AROS-exec-kernel.md#ek9911) | DOS signals a null parent when an orphaned notifying process exits. |
+| [EK9912](AROS-exec-kernel.md#ek9912) | The Sam440 SFS file loader ignores failed data-block reads. |
+| [EK9913](AROS-exec-kernel.md#ek9913) | SFS file lookup uses unchecked temporary-allocation results. |
+| [EK10156](AROS-exec-kernel.md#ek10156) | Selected M68040 FPU and MMU instruction stubs escape Moira without a guest exception or emulator error result. |
+| [EK10158](AROS-exec-kernel.md#ek10158) | DOS Examine and ExNext can copy FileInfoBlock strings beyond the guest arena. |
+| [EK10159](AROS-exec-kernel.md#ek10159) | Moira’s selected 64-bit signed DIVL can overflow host arithmetic before detection. |
+| [EK10160](AROS-exec-kernel.md#ek10160) | Moira traps 68040 MOVEC MMU-register accesses that its bundled reference accepts. |
+| [EK10161](AROS-exec-kernel.md#ek10161) | Concurrent AddResetCallback calls can lose reset registrations. |
+| [EK10162](AROS-exec-kernel.md#ek10162) | genmodule can read past a long MUI dispatcher name. |
+| [EK10167](AROS-exec-kernel.md#ek10167) | Locale FormatString reads past a format ending in a lone percent sign. |
+| [EK10168](AROS-exec-kernel.md#ek10168) | Locale FormatString indexes outside its argument-offset array for `%0$` conversions. |
+| [EK10169](AROS-exec-kernel.md#ek10169) | m68k bootstrap diagnostics can overrun the resident ID-string buffer. |
+| [EK10171](AROS-exec-kernel.md#ek10171) | m68kemu CreateIORequest sizes native requests and guest shadows for only the base type. |
+| [EK10172](AROS-exec-kernel.md#ek10172) | m68kemu CloseDevice removes a still-live I/O-request shadow. |
+| [EK10173](AROS-exec-kernel.md#ek10173) | m68kemu DOS manual thunks are registered at incorrect LVOs. |
+| [EK10174](AROS-exec-kernel.md#ek10174) | Windows KrnSetProtection drops the access mode for cache-inhibited mappings. |
+| [EK10175](AROS-exec-kernel.md#ek10175) | The MinGW IRQ switcher indexes past its pending array after a wait-set error. |
+| [EK10180](AROS-exec-kernel.md#ek10180) | ARM alert backtraces assume every saved r11 is a frame pointer. |
+| [EK10181](AROS-exec-kernel.md#ek10181) | OpenSBI PCIDT accepts an MSI source outside the PLIC range. |
+| [EK10182](AROS-exec-kernel.md#ek10182) | m68kemu GetMsg can drop an Intuition message if shadow creation fails. |
+| [EK10183](AROS-exec-kernel.md#ek10183) | m68k `RI` context display dereferences its NULL serial-output buffer. |
+| [EK10184](AROS-exec-kernel.md#ek10184) | m68k DMA cache maintenance skips boundary protection when the MMU is disabled. |
+| [EK10185](AROS-exec-kernel.md#ek10185) | m68k DMA cache cleanup changes write-through pages to copyback. |
+| [EK10186](AROS-exec-kernel.md#ek10186) | m68k `CachePreDMA` returns virtual addresses for non-identity mappings. |
+| [EK10188](AROS-exec-kernel.md#ek10188) | AArch64 SMP exception-stack watchdog uses one ceiling for every CPU. |
+| [EK10190](AROS-exec-kernel.md#ek10190) | m68k 040/060 bus-error recovery can dereference an unset zero-page descriptor. |
+| [EK10191](AROS-exec-kernel.md#ek10191) | x86-64 PC ACPI sleep transition leaves interrupts disabled. |
+| [EK10192](AROS-exec-kernel.md#ek10192) | Relative-library wrappers dereference the offset table after its allocation fails. |
+| [EK10193](AROS-exec-kernel.md#ek10193) | PC alert rendering can deadlock while logging a nested fault. |
+| [EK10194](AROS-exec-kernel.md#ek10194) | PC SMP dispatch can use a task after remote removal frees it. |
+| [EK10195](AROS-exec-kernel.md#ek10195) | PC SMP halt paths stop only the calling CPU. |
+| [EK10196](AROS-exec-kernel.md#ek10196) | VMM x86 fault queues use local Forbid instead of cross-CPU locking. |
+| [EK10197](AROS-exec-kernel.md#ek10197) | Hosted AArch64 cache-clear override leaves loaded code instructions unsynchronized. |
+| [EK10199](AROS-exec-kernel.md#ek10199) | PC SMP heartbeat can charge a migrated task for time it was not running |
+| [EK10203](AROS-exec-kernel.md#ek10203) | ARM MinGW CE is selectable but lacks its kernel CPU backend. |
+| [EK10204](AROS-exec-kernel.md#ek10204) | m68k bootstrap debug diagnostics dereference a failed Resident-name allocation. |
+| [EK10206](AROS-exec-kernel.md#ek10206) | ARM Efika bootstrap writes past its fixed kernel-tag array for many ATAG memory ranges. |
+| [EK10207](AROS-exec-kernel.md#ek10207) | EfikaMX ARM kernel startup copies a long memory-tag list past its 64-entry buffer. |
+| [EK10208](AROS-exec-kernel.md#ek10208) | RISC-V OpenSBI load sampling drops elapsed time from the running task's CPU-time total. |
+
 ## Graphics/Desktop findings reconciled into the index (2026-11-02)
 
 **[GD9833](AROS-graphics-desktop.md#gd9833) — Generic ChunkyBM template and masked-pattern helpers read a `UWORD` past an exact mask row when the last requested pixel consumes bit 15. Conditional on a word-boundary row and the generic HIDD method; source-only.**
