@@ -17243,3 +17243,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **OD11577 — HDAudio can skip requested waits when timer setup or I/O fails.** Port/request allocation and timer.device open failures return without delay; `DoIO()` request errors are also ignored. Controller reset, stream reset and response polling continue. Conditional on timer failure; source-only. See [OD11577](AROS-other-drivers.md#od11577).
 
 **OD11579 — Sonixcam can accept an incomplete frame marker using stale bytes from a reused capture buffer.** Conditional on a nonzero one-to-five-byte completion whose prefix matches the marker; optional Sonixcam target and RTIso-capable controller; source-only. See [OD11579](AROS-other-drivers.md#od11579).
+
+**[OD11580](AROS-other-drivers.md#od11580) — HDAudio leaves playback buffers and stream state allocated if recording setup fails during a combined start.** The returned error does not roll back the partial playback setup; explicit stop or FreeAudio later cleans it up. Conditional on combined playback/record start and input-stream failure; optional native-PCI HDAudio driver; source-only.
