@@ -50,6 +50,14 @@ The only surviving text for this entry was the identifier itself (`GD1`). No exa
 
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#L2101), IconList full-body and selected-caller ownership pass dated 2026-10-23.
 
+## GD15074 — IconVolumeList leaks a DiskObject when private entry allocation fails [conditional]
+
+`IconVolumeList__MUIM_IconList_Update()` allocates a `VolumeIcon_Private` with `AllocMem()` and then obtains `volDOB` using `GetIconTags()` (`workbench/system/Wanderer/Classes/iconvolumelist.c:754-769`). It invokes `MUIM_IconList_CreateEntry()` only when `volPrivate` is non-NULL (`:771-773`). If that allocation failed but `GetIconTags()` returned a DiskObject, control skips entry construction and reaches the next volume iteration without freeing `volDOB`; this is distinct from GD1174, which covers a DiskObject leaked inside CreateEntry after its own entry allocation succeeds.
+
+**Trigger and consequence:** a new visible volume/device entry reaches this branch, `AllocMem(sizeof(struct VolumeIcon_Private))` fails, and `GetIconTags()` succeeds. The volume-list update leaks that DiskObject. Later updates can retry the same absent entry and leak another object for each such occurrence. **Affected configuration:** the selected Wanderer IconVolumeList implementation in the full Workbench target. **Confidence:** high for the allocation ordering and missing cleanup; the paired allocation outcome is conditional. No allocation failure or UI refresh was induced; source-only. Free `volDOB` when `volPrivate` is NULL, or acquire it only after the private allocation succeeds.
+
+**Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#iconvolumelist-entry-allocation-failure-gd15074).
+
 ## GD1214
 
 **Duplicate entry: this is the same shared `OOP_ObtainAttrBases()` cleanup-loop defect as [OD2399](AROS-other-drivers.md#od2399).** OD2399 is canonical and records the SysMon, Radeon, and optional Compositor caller evidence. The bug occurs after a zero return for an interface-name allocation failure and a non-final descriptor; a final-descriptor failure returns. No separate GD1214 bug is asserted.
