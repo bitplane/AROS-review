@@ -755,11 +755,22 @@ Both the Preferences editor and live Wanderer reload read the IFF header into a 
 
 **Disposition:** Unverified legacy placeholder. The current report and coverage ledger provide no source location, trigger, consequence, or finding-specific evidence from which to re-establish this candidate. It is not retained as an active bug finding pending provenance.
 
-## GD4061
+<a id="gd4061"></a>
+## GD4061 — Direct-framebuffer swaps race with concurrent rendering
 
-**Indexed summary:** Direct-framebuffer swaps expose mixed bitmap state to concurrent rendering.
+**Severity / confidence:** Moderate severity, high confidence for unsynchronized shared-field reads and writes; visible pixel corruption is conditional on a rendering call overlapping a view transition on another CPU.
 
-**Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L140`](AROS-graphics-desktop-coverage.md#L140), [`AROS-graphics-desktop-coverage.md:L145`](AROS-graphics-desktop-coverage.md#L145), [`AROS-graphics-desktop-coverage.md:L1760`](AROS-graphics-desktop-coverage.md#L1760), [`AROS-graphics-desktop-coverage.md:L1764`](AROS-graphics-desktop-coverage.md#L1764), [`AROS-graphics-desktop-coverage.md:L2642`](AROS-graphics-desktop-coverage.md#L2642). Recheck the cited note and its scope before treating this candidate as confirmed.
+**Source and trigger:** `display_FBInstall()` saves the current bitmap object, color model and colormap, then replaces those three `BitMap` fields one at a time with framebuffer state. `display_FBUninstall()` restores them the same way (`rom/graphics/graphics_display.c:452-490`). `display_LoadViewPorts()` invokes these helpers during view changes after display `Show()` (`:570-600`), under `LoadView()`'s `ActiViewCprSemaphore` (`rom/graphics/loadview.c:48-66`). The display helper is explicitly marked “NOT THREADSAFE” because rendering calls are not locked.
+
+The selected renderer does not take that semaphore. `GetDriverData()` reads `rp->BitMap` and uses `BM_PIXEL()` to obtain foreground/background colors from its current colormap (`rom/graphics/graphics_inline.h:69-80`; `rom/graphics/gfxfuncsupport.h:67-76`). Later, `CallRenderFunc()` obtains the HIDD bitmap object from the same `BitMap` via `OBTAIN_HIDD_BM()` and renders through it (`rom/graphics/gfxfuncsupport.c:67-82,90-96`). No lock in these paths serializes those reads with the three-field swap. On ExecSMP, a drawing call can therefore derive pen colors from the old or transitional colormap and then obtain the framebuffer object, or obtain the old bitmap while the transition is restoring it.
+
+The path is selected when the display Gfx HIDD reports `vHidd_FrameBuffer_Direct`: `display_Setup()` then sets `DF_DirectFB`, and `display_LoadViewPorts()` installs the framebuffer when software composition is inactive (`graphics_display.c:156-170,580-600`). The generic Gfx HIDD maps the legacy default (`NoFrameBuffer == FALSE`) to Direct mode (`rom/hidds/gfx/gfx_hiddclass.c:756-771,786-800,860-870`). Mirrored framebuffer modes do not use this in-place swap.
+
+**Consequence and scope:** A draw overlapping `LoadView()` can use a pen-to-pixel mapping from a different bitmap state than the bitmap object it writes, causing wrong colors or lost/mixed updates. This requires a direct-framebuffer display and cross-CPU overlap during a view transition; the specific direct-mode driver and drawing operation determine the visible effect. No selected in-tree timing was exercised.
+
+**Affected configuration:** Graphics.library with ExecSMP and a display Gfx HIDD reporting Direct framebuffer mode, including the generic HIDD's legacy default when `NoFrameBuffer` is false. LinuxFB's selected Mirrored mode is excluded. Other HIDD mode declarations and runtime schedules remain unverified.
+
+**Confidence:** High for the field race and independent renderer path; medium for user-visible corruption, which depends on overlap and pixel-format/operation. No view transition, drawing operation or SMP schedule was run; source-only. See the [state and caller recheck](AROS-graphics-desktop-coverage.md#direct-framebuffer-swap-renderer-recheck-gd4061).
 
 ## GD4064
 
