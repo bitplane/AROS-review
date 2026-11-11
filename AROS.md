@@ -17485,3 +17485,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD3089](AROS-other-drivers.md#od3089) — SiS900 expunge signals its worker with a signal number instead of a mask and frees shared state without joining it.** The worker does not recognize the shutdown signal; expunge can leave it running against freed unit memory and an unmapped PCI BAR. Applies to selected i386-PC/x86-64-PC SiS900 targets; source-only.
 
 **[D01](AROS-dos.md#d01) — DOS `Close()` reports success and discards pending bytes when its final buffered write fails but the handler accepts `ACTION_END`. Confirmed for RAMFS, FAT, SFS and optional SMBFS; exact failure condition depends on the handler. Source-only.**
+
+**[FS-088](AROS-filesystems.md#fs-088) — Read-only NTFS places `ERROR_DISK_WRITE_PROTECTED` in `dp_Res1`; DOS treats the positive value as bytes written. Buffered output can therefore be cleared and reported successful without reaching disk. Conditional on using the built NTFS handler; source-only.**
