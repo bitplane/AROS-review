@@ -17129,6 +17129,8 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **OD11569 — RTBTCore v2 fallback selects the first nonmatching ECO snippet.** If the controller rejects it, firmware loading is marked handled and HCI bring-up continues without retrying, potentially leaving the controller on ROM firmware. Device impact depends on its firmware. Conditional on optional Realtek v2 firmware contents; source-only. See [OD11569](AROS-other-drivers.md#od11569).
 
+**OD11571 — OHCI can clear a queued root-hub notification during port-change handling.** A stale zero `timerPort.mp_SigBit` makes `ClearPortFeature` clear the hub worker's bit-0 notification; a concurrent repeat completion can be lost while the worker scans ports. Conditional on callback timing and port order; source-only. See [OD11571](AROS-other-drivers.md#od11571).
+
 
 **OD2136 — GamePort can dereference the list sentinel as a unit after a queued-event drain.** With multiple public opens and a stale per-open event cursor, the completed request can be removed while another event remains; iterator exhaustion leaves `ioreq` at the list sentinel before the empty-queue cleanup derives `gpUn` from it. Conditional on the two-opener/two-event request sequence; no event was run. See [OD2136](AROS-other-drivers.md#od2136).
 
