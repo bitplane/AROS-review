@@ -1,3 +1,12 @@
+<a id="od2582"></a>
+## OD2582 — Sam440 EMAC enables MAC error interrupts but only logs them [conditional]
+
+`EMAC_Start()` clears pending MAC status and enables the PTLE, BFCS, ORE and IRE causes, plus SYE at 100 Mbps (`workbench/devs/networks/emac/emac_unit.c:165-170`). Each unit registers `EMACIRQHandler()` for its interrupt (`emac_unit.c:862`). That handler only emits a debug message when the unit pointer is non-NULL; it does not read `EMAC_ISR`, clear an asserted cause, report the error to the SANA-II path, or disable the corresponding interrupt (`workbench/devs/networks/emac/emac_hw.c:8-15`). MAL's separate DMA status handling does not process these MAC status bits.
+
+As a result, enabled MAC error/status causes are not handled by the registered callback. The specific hardware effect depends on the EMAC's interrupt-status semantics: if a cause remains asserted until acknowledged, it can repeatedly interrupt; otherwise the error event is still silently discarded. The source review did not establish that hardware behavior.
+
+**Trigger and consequence:** the Sam440 EMAC raises one of the enabled MAC status causes after startup. The callback logs it without servicing or clearing it; the error is not surfaced to the network device, and repeated interrupts are possible if the status remains asserted. **Affected configuration:** explicitly built PPC Sam440 EMAC target; board-package selection is optional/commented in the current snapshot (`arch/ppc-sam440/boot/mmakefile.src:4-10`). **Confidence:** high that the enabled causes have no handling in this callback; recurrence and system impact depend on hardware status behavior. Read and acknowledge each supported status cause, then propagate or account for it. No interrupt, device, hardware, or build was exercised; source-only.
+
 <a id="od2580"></a>
 ## OD2580 — Sam440 EMAC dispatches both MAL RX channels to unit 0 [conditional]
 
@@ -3033,7 +3042,7 @@ EMAC MAL RX-channel dispatch trace (2026-10-12; OD2580 added): followed both RX 
 NVMe I/O IRQ-registration failure trace (2026-10-12; OD2581 added): traced the I/O queue setup through `AddIntServer`, queue-count publication, `nvme_io` submission polling, CQ completion hook and worker signal (`rom/devs/nvme/nvme_busclass.c:63-110,438-448`; `nvme_io.c:124-131,164-191`; `rom/exec/addintserver.c:64-67`; selected PC helper `arch/all-pc/kernel/addirqhandler.c:79-110`). Registration is void and stores a nullable `KrnAddIRQHandler` token, yet `queuecnt` increments regardless; after 4,096 CQ polls, a later completion depends on the interrupt path to process and signal it. The selected queue can therefore strand a request after handler allocation failure until a later I/O submission happens to poll and drain the same CQ; subsequent submissions may incidentally rescue it, so this is not an unconditional permanent stall. This is separate from controller-level AddInterrupt failure handling in OD2365. No allocation failure, I/O or hardware was induced. Source-only.
 
 
-<a id="od2582"></a>
+<a id="od2582-history"></a>
 EMAC MAC interrupt callback follow-up (2026-10-12; OD2582 added): traced `EMAC_Start` enable mask and per-unit `KrnAddIRQHandler` registration into `EMACIRQHandler`. The enabled error causes are PTLE/BFCS/ORE/IRE and conditionally SYE; the callback only emits a debug message, while MAL has separate DMA status handling. Recorded the dropped MAC status/error-event handling and lack of ISR acknowledgement in OD2582. Sam440 optional build qualification retained; hardware IRQ semantics and runtime behavior were not exercised. Source-only.
 
 
