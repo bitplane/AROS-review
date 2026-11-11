@@ -17161,7 +17161,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **[GD15072](AROS-graphics-desktop.md#gd15072) — Generic DMEnum recursively visits every sync/pixel-format pair without a count cap, so sufficiently large provider lists can exhaust the caller's stack. Conditional on unusually large custom or external mode lists; source-only.**
 
-**GD15074 — X11 display construction passes a failed second `XOpenDisplay()` result to `XDefaultScreen()` without checking it.** Conditional on failure to open the per-display connection after the shared connection succeeds; hosted X11 initialization may fail instead of returning cleanly. See [GD15074](AROS-graphics-desktop.md#gd15074) and the [X11 connection check](AROS-graphics-desktop-coverage.md#x11-second-display-connection-check-gd15074). Source-only.
+**GD9690 — X11 display construction passes a failed second `XOpenDisplay()` result to `XDefaultScreen()` without checking it.** Conditional on failure to open the per-display connection after the shared connection succeeds; hosted X11 initialization may fail instead of returning cleanly. See [GD9690](AROS-graphics-desktop.md#gd9690) and the [X11 caller-path recheck](AROS-graphics-desktop-coverage.md#x11-secondary-connection-caller-recheck-gd9690).
 
 **[GD4715](AROS-graphics-desktop.md#gd4715) — Wanderer IconVolumeList leaks a loaded DiskObject when per-entry private allocation fails after icon lookup succeeds. Conditional on that allocation pairing; source-only.**
 

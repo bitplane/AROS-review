@@ -22629,10 +22629,6 @@ The generic mode database counts every supplied `aHidd_DMEnum_SyncTags` and `aHi
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#x11-videomode-output-state-recheck-gd15073).
 
 <a id="gd15074"></a>
-## GD15074 — X11 display construction dereferences a failed second display connection [connection-failure conditional]
+## GD15074 — Withdrawn as duplicate of GD9690
 
-The selected X11 graphics HIDD first opens and validates its shared display connection in `X11_Init()` (`arch/all-hosted/hidd/x11/x11_init.c:118-130`). After that succeeds, `X11Cl__Root__New()` creates a separate X11 display object (`arch/all-hosted/hidd/x11/x11gfx_hiddclass.c:82-91`). That object's constructor calls `XOpenDisplay()` again, stores the result in local `disp`, and immediately passes it to `XDefaultScreen()` without checking for NULL (`arch/all-hosted/hidd/x11/x11gfx_displayclass.c:282-283`). The display constructor therefore assumes the second connection always succeeds merely because the earlier shared connection is open.
-
-**Trigger and consequence:** the shared connection succeeds, but the additional per-display `XOpenDisplay()` fails, for example because the X server refuses another client connection or the host connection becomes unavailable between the two calls. `XDefaultScreen(NULL)` then receives an invalid display pointer before the constructor can return an initialization error or use its built-in mode fallback. **Affected configuration:** hosted X11 graphics HIDD during display-object construction. **Confidence:** high that the second open result is unchecked and immediately consumed; the connection failure condition depends on the host X server. Check the result and return through the existing display-construction cleanup path, or reuse the validated shared connection. No X server, connection failure, display object, or build was exercised; source-only.
-
-**Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#x11-second-display-connection-check-gd15074).
+The unchecked second `XOpenDisplay()` result passed to `XDefaultScreen()` is already documented by GD9690. This duplicate entry is withdrawn; the 2026-11-11 caller-path recheck is recorded under GD9690 in the coverage ledger. No additional finding or body/path/LOC credit is associated with GD15074.
