@@ -17241,3 +17241,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[EK10939](AROS-exec-kernel.md#ek10939) — Network Preferences retains the `ENV:SMB` directory lock whenever it applies settings with an empty server list; repeated use accumulates locks. Conditional on successful `Lock()` and no configured servers; source-only.**
 
 **OD11577 — HDAudio can skip requested waits when timer setup or I/O fails.** Port/request allocation and timer.device open failures return without delay; `DoIO()` request errors are also ignored. Controller reset, stream reset and response polling continue. Conditional on timer failure; source-only. See [OD11577](AROS-other-drivers.md#od11577).
+
+**OD11579 — Sonixcam can accept an incomplete frame marker using stale bytes from a reused capture buffer.** Conditional on a nonzero one-to-five-byte completion whose prefix matches the marker; optional Sonixcam target and RTIso-capable controller; source-only. See [OD11579](AROS-other-drivers.md#od11579).
