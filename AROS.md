@@ -17487,3 +17487,4 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[D01](AROS-dos.md#d01) — DOS `Close()` reports success and discards pending bytes when its final buffered write fails but the handler accepts `ACTION_END`. Confirmed for RAMFS, FAT, SFS and optional SMBFS; exact failure condition depends on the handler. Source-only.**
 
 **[FS-088](AROS-filesystems.md#fs-088) — Read-only NTFS places `ERROR_DISK_WRITE_PROTECTED` in `dp_Res1`; DOS treats the positive value as bytes written. Buffered output can therefore be cleared and reported successful without reaching disk. Conditional on using the built NTFS handler; source-only.**
+**[GD15088](AROS-graphics-desktop.md#gd15088) — VC4 display DMA timeout clears the busy state and releases/reuses resources even when the DMA channel failed to quiesce. Conditional on a transfer failure followed by hardware reset failure; optional Raspberry Pi VC4 Gallium HIDD. Source-only.**
