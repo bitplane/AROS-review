@@ -1,3 +1,12 @@
+<a id="od2719"></a>
+## OD2719 — SDL HIDD color expansion dereferences an unchecked scratch allocation [optional target]
+
+`SDLBitMap__Hidd_BitMap__BlitColorExpansion()` allocates a per-row `ULONG` buffer sized from `msg->width`, then does not check `srcline` before passing it to `HIDD_BM_GetImage()` or reading `srcline[x]` in the pixel-conversion loops (`arch/all-hosted/hidd/sdl/sdlgfx_bitmapclass.c:584-628,646-715`). For a positive width and height, if the allocation fails, the method passes NULL to the source image method and then dereferences NULL at the first pixel iteration. The buffer is freed only after the switch completes, so there is no allocation-failure exit path.
+
+The method is registered on the SDL bitmap class. The SDL HIDD target is optional and requires an explicit build/selection (`arch/all-hosted/hidd/sdl/mmakefile.src:3-18`); this finding does not claim the SDL HIDD is part of every hosted image. It is conditional on a direct caller issuing color expansion with positive dimensions while allocation fails.
+
+**Trigger and consequence:** call SDL bitmap `BlitColorExpansion()` with positive width/height and have the `width * sizeof(ULONG)` allocation fail. The subsequent source fetch and first pixel test use the NULL row buffer, causing a fault. **Affected configuration:** explicitly built and loaded SDL HIDD on hosted targets, with a direct method caller. **Confidence:** high for unchecked allocation and use on positive-size loops; occurrence requires allocation failure. Return safely when the row allocation fails, and validate the size arithmetic before allocating. No allocation failure, bitmap method, or build was exercised; source-only.
+
 <a id="od2708"></a>
 ## OD2708 — PC and Linux keyboard tables assign keypad operators the wrong raw codes [conditional]
 
@@ -31825,7 +31834,7 @@ OpenSBI PCIDT FDT-status selection pass (OD11220 added; targeted discovery/calle
 OpenSBI PCIDT FDT range and interrupt-property recheck (OD11209/OD11210/OD11215/OD11219/OD11220 reconciled; no new finding or body/path/LOC credit; 2026-11-03): revisited `pcidt_mapranges()`, `pcidt_assignbars()`, `pcidt_map64bars()`, `pcidt_intmap()` and `pcidt_msiirq()` against FDT property lengths, mapping returns, and discovery publication. Confirmed ignored `PCIDT_Map()`/`PCIDT_MapAt()` results in the range and 64-bit BAR paths are already covered by OD11215; MEM32-gated I/O allocation and failed/unassigned BAR decode behavior remain OD11209/OD11210. The interrupt-map walk bounds entries by the six-cell entry size but assumes the mask has four cells; an invalid/truncated firmware property is not promoted here because it is outside a demonstrated maintained DTB and overlaps the shared parser/blob-bound concerns. Reconciled status omission with OD11220 and INTx registration ordering with OD11219. No board DTB, bridge or interrupt was used; source-only.
 
 <a id="od11221"></a>
-<a id="od2719"></a>
+<a id="od2719-history"></a>
 <a id="sdl-color-expansion-od2719-od11221"></a>
 SDL HIDD color-expansion allocation and source-coordinate pass (OD2719 restored with detailed report/index entry; OD11221 added; existing full-body/path/LOC credit unchanged; 2026-11-03): re-read `SDLBitMap__Hidd_BitMap__BlitColorExpansion()` and traced its configured public method signature and class registration. Confirmed the `AllocMem(width * sizeof(ULONG))` result is unchecked before `HIDD_BM_GetImage()` fills it and each 1–4-byte branch reads `srcline[x]`; restored OD2719 from the stale coverage-only reference. In the opaque 16-bit branch, the source fetch passes `msg->srcY` in the X slot instead of `msg->srcX` (`sdlgfx_bitmapclass.c:676`), unlike the other branches; added OD11221 for wrong-column reads when these coordinates differ. Checkout-wide direct-method search found no in-tree callers. The SDL module is explicitly buildable, while its hosted-boot aggregate edge is disabled. No SDL operation, HIDD call, allocation failure, or build was run; source-only.
 
