@@ -22632,3 +22632,14 @@ The generic mode database counts every supplied `aHidd_DMEnum_SyncTags` and `aHi
 ## GD15074 — Withdrawn as duplicate of GD9690
 
 The unchecked second `XOpenDisplay()` result passed to `XDefaultScreen()` is already documented by GD9690. This duplicate entry is withdrawn; the 2026-11-11 caller-path recheck is recorded under GD9690 in the coverage ledger. No additional finding or body/path/LOC credit is associated with GD15074.
+
+<a id="gd15075"></a>
+## GD15075 — DoubleClick wraps large configured intervals in 32-bit arithmetic [conditional]
+
+`DoubleClick()` compares the elapsed microseconds against `tv_micro + 1000000 * tv_secs` (`rom/intuition/doubleclick.c:70-71`). `struct timeval.tv_secs` is an unsigned 32-bit value (`compiler/include/aros/types/timeval_s.h:12-21`), so the multiplication wraps modulo 2^32 when `tv_secs` exceeds 4,294. For example, a configured interval of 4,295 seconds and zero microseconds becomes 32,704 microseconds. The preceding seconds-difference check allows intervals up to four seconds (`doubleclick.c:59`), so two clicks 100 ms apart in the same second are rejected even though the configured interval is over an hour.
+
+The raw preference value reaches Intuition without range validation through `SetPrefs()`'s bounded-size structure copy (`rom/intuition/setprefs.c:73-92`). The maintained IPrefs loader also decodes the four-byte `ip_DoubleClick_secs` field and calls `SetPrefs()` (`workbench/c/iprefs/inputprefs.c:48-85,134-142`); the input preference file parser copies that field into its in-memory preference record (`workbench/prefs/input/prefs.c:307-320`). The regular Input preferences slider is limited to 199 ticks, which generates no more than a four-second interval (`workbench/prefs/input/ipeditor.c:277-282,421-428`), so this does not affect its ordinary UI-generated values.
+
+**Trigger and consequence:** an application supplies `Preferences.DoubleClick.tv_secs >= 4295` through `SetPrefs()`, or an INPT preference chunk supplies such a value and IPrefs applies it. The interval multiplication wraps, making Intuition's double-click test accept or reject clicks using a much shorter, incorrect delay. **Affected configuration:** any AROS target with the standard 32-bit `ULONG`; requires a large custom/public preference value or an out-of-range INPT setting. **Confidence:** high for the unsigned wrap and resulting threshold mismatch; the ordinary preferences editor cannot produce the triggering value. Clamp or validate the interval before storing it, or use checked/wider arithmetic in the comparison. No preference file, click event, or build was run; source-only.
+
+**Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#doubleclick-preference-overflow-and-caller-census-gd15075).

@@ -852,7 +852,7 @@ Current table-only line-read refresh (2026-10-24): reparsed the three current co
 | `rom/intuition/disposeobject.c` | 19 | Full body reviewed |
 | `rom/intuition/dogadgetmethoda.c` | 107 | Full body reviewed; GD5791 |
 | `rom/intuition/donotify.c` | 125 | Full body reviewed; GD5790 |
-| `rom/intuition/doubleclick.c` | 31 | Full body reviewed; input callers sampled |
+| <a id="doubleclick-preference-overflow-and-caller-census-gd15075"></a>`rom/intuition/doubleclick.c` | 31 | Full body and maintained call-site search checked; GD15075 records the unchecked 32-bit configured-interval multiplication. Traced Intuition's four input-handler calls and the public `SetPrefs()`/IPrefs preference paths. Other consumer behavior and out-of-range external preference values remain open/conditional. |
 | `rom/intuition/drawborder.c` | 69 | Full body reviewed; rendering callers sampled |
 | `rom/intuition/drawimage.c` | 16 | Full body reviewed; DrawImageState wrapper traced |
 | `rom/intuition/drawimagestate.c` | 186 | Full body reviewed; GD5787 |
