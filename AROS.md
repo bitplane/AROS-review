@@ -14936,7 +14936,7 @@ Coverage-link repair: GD10288's coverage link now resolves to the explicit `setr
 
 **[OD11205](AROS-other-drivers.md#od11205) — Atheros5000 leaks packet-type tracking allocations on close.** AROSTCP tracks packet types by default but closes without untracking; Atheros frees neither per-opener baselines nor remaining global tracker nodes. Source-only.
 
-**[OD11206](AROS-other-drivers.md#od11206) — Ramdrive unit ports have uninitialized SMP queue locks.** Unit storage is allocated without clearing, and the embedded port lock is never initialized before ExecSMP `GetMsg()`/`PutMsg()` use. Source-only.
+**[OD11206](AROS-other-drivers.md#od11206) — Ramdrive unit ports leave their ExecSMP queue lock uninitialized.** Unit storage is allocated without clearing, then the embedded port is published without `InitMsgPort()`/spinlock initialization before ExecSMP `GetMsg()`/`PutMsg()` use. Conditional on an ExecSMP build and allocator contents that do not represent an unlocked lock. Source-only.
 
 **[OD11207](AROS-other-drivers.md#od11207) — Ramdrive and FDisk ignore unit-task signal allocation failure.** If `AllocSignal(-1)` fails, the invalid result is stored in `mp_SigBit`; later `WaitPort()` and `PutMsg()` use it as a signal number, which can leave unit requests unprocessed. Conditional on signal exhaustion; source-only.
 
