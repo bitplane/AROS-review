@@ -17523,7 +17523,7 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[OD4047](AROS-other-drivers.md#od4047) — Nouveau and VMware DRM timer commands are silently dropped when the caller cannot allocate a reply signal. Failed `timer_delete_sync()` can leave a vblank timer pending while teardown releases its owner. Conditional on signal exhaustion and a pending timer; optional DRM HIDDs; source-only.**
 
-**[GD15092](AROS-graphics-desktop.md#gd15092) — Bodychunk dimensions exceed signed 16-bit conversion and loop bounds.** Large widths can be incompletely converted; large heights can overrun the declared body rows or fail to terminate under wrap-style signed arithmetic. No maintained in-tree caller uses such dimensions. Conditional, medium confidence; source-only.
+**[GD15092](AROS-graphics-desktop.md#gd15092) — Bodychunk dimensions exceed signed 16-bit conversion and loop bounds.** On wrap-style conversion, width 32,768 can produce an all-zero row while setup succeeds; height 32,768 can keep the signed row loop running past the declared body. In-tree uses have fixed small dimensions; large values require a public/custom client. Conditional, medium confidence; source-only.
 
 **[OD11586](AROS-other-drivers.md#od11586) — CAMD driver-data rollback dereferences partially initialized port/cluster pointers, and normal teardown leaks each per-port `DriverData` allocation.** Conditional on a CAMD per-port setup failure or library teardown; explicit CAMD module target. Source-only.
 
