@@ -17535,4 +17535,4 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[OD1480](AROS-other-drivers.md#od1480) — CAMD accepts disconnected MIDI links, but `MidiLinkConnected()` and `MLINK_Location` queries dereference their NULL location.** Conditional on an external client querying a link created without `MLINK_Location`; explicit CAMD module. Source-only.
 
-**[OD1660](AROS-other-drivers.md#od1660) — CAMD loses its allocated parser state when an external client creates a parsed link without a location.** The accepted disconnected link returns successfully, but removal cannot free the dropped allocation. Explicit CAMD module; source-only.
+**[OD1660](AROS-other-drivers.md#od1660) — CAMD loses parser allocations on disconnected or repeated parser setup.** A parsed disconnected link returns successfully with its allocation dropped; applying `MLINK_Parse` again overwrites the old parser pointer without freeing it. Conditional on external CAMD clients; source-only.
