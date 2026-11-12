@@ -14067,6 +14067,20 @@ Apple Silicon CreateSegList ignored-protection-result caller pass (EK712 expande
 **[OD2372](AROS-other-drivers.md#od2372) — VirtIO, PCIUSB, and PCI xHCI teardown can leave freed reset-callback nodes linked in Exec.** A later reset can traverse stale callback state. VirtIO requires external `HW_RemoveDriver`; PCIUSB and xHCI require device expunge. No in-tree removal caller was found; no default hot-removal path is claimed. VMware SVGA and AHCI rollback are covered separately by OD4279 and OD2891. Source-only.
 
 
+## USB MassStorage findings restored to the active index (2026-11-12)
+
+These existing coverage-ledger candidates now have detailed finding entries; this restores the missing index links and does not add source-body coverage credit.
+
+**[OD2845](AROS-other-drivers.md#od2845) — USB MassStorage dereferences an unchecked BootNode allocation after `MakeDosNode()` succeeds.** Conditional on the BootNode allocation failing; selected Raspberry Pi ARM/AArch64 package paths. Source-only.
+
+**[OD2846](AROS-other-drivers.md#od2846) — USB MassStorage reads uninitialized `DriveGeometry.dg_Flags` when `TD_GETGEOMETRY` fails, making the removable/partition-scan decision indeterminate.** Conditional on query failure after `OpenRootPartition()` succeeds. Source-only.
+
+**[OD9833](AROS-other-drivers.md#od9833) — USB MassStorage never frees the 24-`IPTR` parameter packet after `MakeDosNode()` copies it.** One allocation can leak per volume-add attempt. Source-only.
+
+**[OD9834](AROS-other-drivers.md#od9834) — pre-DOS USB MassStorage registration leaks the locally allocated BootNode because `AddBootNode()` creates its own record.** Conditional on DOS library open failure. Source-only.
+
+**[OD9835](AROS-other-drivers.md#od9835) — USB MassStorage ignores `CreateNewProc()` and `AddBootNode()` failures, leaving a volume unregistered without recovery.** Conditional on process creation or boot-node registration failure. Source-only.
+
 ## Other Drivers findings reconciled into the index (2026-11-02)
 
 **[OD1821](AROS-other-drivers.md#od1821) — Trident config replacement can remove existing device/interface settings before a fallible copy, or leave partial/duplicate Poseidon forms, while the drag reports success. Conditional on a replacement-time failure; optional Trident Preferences target. Source-only.**
