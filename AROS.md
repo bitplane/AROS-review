@@ -17518,3 +17518,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[EK10944](AROS-exec-kernel.md#ek10944) — ARM32 Raspberry Pi clears the kernel allocation before copying the firmware DTB, so an overlapping live DTB is corrupted. The AArch64 sibling has an explicit overlap check; ARM32 firmware placement remains unverified. Conditional; source-only.**
 
 **[OD11584](AROS-other-drivers.md#od11584) — Nouveau's DRM `timer_delete_sync()` can return without cancelling a pending vblank timer when the cleanup task has no free signal. Managed teardown then proceeds and can release the vblank entry before the timer callback runs. Conditional on signal exhaustion during teardown with that timer pending; optional Nouveau HIDD; source-only.**
+
+**[OD11585](AROS-other-drivers.md#od11585) — If Nouveau's timer worker starts but either message-port allocation fails, its process pointer remains set after the worker exits. Later timer commands can use a NULL/unserviced port and fault or wait indefinitely. Conditional on partial worker startup followed by timer use; optional Nouveau HIDD; source-only.**
