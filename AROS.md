@@ -17502,3 +17502,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[EK646](AROS-exec-kernel.md#ek646) — Efika vector 18 copies 256 bytes but cache maintenance omits its final 32-byte line, which contains executable handler instructions. Conditional on stale instruction-cache contents at vector installation; explicit CHRP/Efika kernel path. Source-only.**
 
 **[OD2976](AROS-other-drivers.md#od2976) — UHCI dereferences a NULL transfer descriptor for a zero-length bulk request.** Conditional on a direct client using the explicitly buildable UHCI HIDD; no maintained in-tree zero-length caller or stock-package UHCI controller route was established. Source-only.
+
+**[GD15090](AROS-graphics-desktop.md#gd15090) — MUI ignores a failed XOR while preparing a titled frame clip, so the frame is clipped to the title rectangle for that redraw.** Conditional on allocation failure in the selected MUI Area drawing path; the clip is removed afterward. Source-only.
