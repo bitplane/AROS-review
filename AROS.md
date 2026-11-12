@@ -17535,3 +17535,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD1480](AROS-other-drivers.md#od1480) — CAMD accepts disconnected MIDI links, but `MidiLinkConnected()` and `MLINK_Location` queries dereference their NULL location.** Conditional on an external client querying a link created without `MLINK_Location`; explicit CAMD module. Source-only.
 
 **[OD1660](AROS-other-drivers.md#od1660) — CAMD loses parser allocations on disconnected or repeated parser setup.** A parsed disconnected link returns successfully with its allocation dropped; applying `MLINK_Parse` again overwrites the old parser pointer without freeing it. Conditional on external CAMD clients; source-only.
+
+**[OD2325](AROS-other-drivers.md#od2325) — eaudio divides by zero when `ADCMD_PERVOL` receives the zero encoding for Paula’s 65,536-cycle period.** The checked Sound datatype does not generate it; conditional on a direct external/future IOAudio client using eaudio on i386, x86_64, PPC or ARM. Source-only.
