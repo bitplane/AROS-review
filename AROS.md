@@ -17540,4 +17540,4 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[OD2880](AROS-other-drivers.md#od2880) — eaudio `ADCMD_PERVOL` updates cached parameters but leaves active AHI playback and its repeat snapshot unchanged.** Infinite-cycle playback can retain old settings indefinitely. No selected AROS direct caller was found; conditional on an external/future `audio.device` client using eaudio. Source-only.
 
-**[OD11587](AROS-other-drivers.md#od11587) — USB2OTG SOF and watchdog scans stop after 128 interrupt requests; a due tail request can miss poll deadlines while earlier long-interval requests remain queued. Conditional on more than 128 active interrupt pipes and their poll phase; ARM Raspberry Pi USB2OTG; source-only.**
+**[OD4130](AROS-other-drivers.md#od4130) — USB2OTG SOF and watchdog scans stop after 128 interrupt requests; due tail requests can miss poll deadlines behind earlier long-interval requests. The selected ARM Raspberry Pi mass-storage CBI path can supply the request count through multi-interface devices, but the required topology and interval phase are unverified. Source-only.**
