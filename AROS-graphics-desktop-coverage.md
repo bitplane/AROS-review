@@ -20571,3 +20571,6 @@ VMM MUI task-name length and handler-consumer trace (GD15093 added; no body/path
 
 
 VMM MUI task-name replacement allocation-failure trace (GD15094 added; no body/path/LOC credit; 2026-11-12): traced the `ST_CurrentTask` notification to `TASKNAME_ID`, which frees the active name, updates `NameLen`, and then breaks on replacement `AllocMem()` failure without replacing `te_TaskName`. Followed the retained pointer into `DisplayElem()`, comparison/sort, selection, destructor and config writer. Added GD15094 for the conditional stale-pointer use/double-free path. No allocation failure, GUI action, VMM process or build was induced; source-only.
+
+
+VMM MUI config-writer return/error-path trace (GD15095 added; no body/path/LOC credit; 2026-11-12): checked `WriteConfigFile()`'s `MODE_NEWFILE` open, config/task/name writes, close, and return against DOS `Write()`'s short/error result contract. Confirmed every write result is discarded, the routine returns TRUE after a successful open, SAVE/USE proceeds to `StartVMM()`, and Save As ignores the return. Added GD15095 for false success and partial config replacement on write failure. No file, filesystem error, VMM launch or build was exercised; source-only.
