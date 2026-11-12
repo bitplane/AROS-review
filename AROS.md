@@ -17543,3 +17543,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD4130](AROS-other-drivers.md#od4130) — USB2OTG SOF and watchdog scans stop after 128 interrupt requests; due tail requests can miss poll deadlines behind earlier long-interval requests. The selected ARM Raspberry Pi mass-storage CBI path can exceed the count through multiple LUN workers or interfaces; the required device topology, outstanding-request overlap, and interval phase are unverified. Source-only.**
 
 **[OD4129](AROS-other-drivers.md#od4129) — On non-SMP USB2OTG builds, the watchdog may requeue an interrupt request after the hard IRQ already moved it, corrupting the intrusive poll queue. Conditional on a direct-INT NAK racing the watchdog's enabled window; ARM Raspberry Pi USB2OTG; source-only.**
+
+**[OD11588](AROS-other-drivers.md#od11588) — PTP `Info()` on the volume root matches no storage ID and reports one block, fully used.** Conditional on an optional explicitly built PTP class and a root-volume lock; source-only.
