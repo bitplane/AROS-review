@@ -14938,8 +14938,6 @@ Coverage-link repair: GD10288's coverage link now resolves to the explicit `setr
 
 **[OD11206](AROS-other-drivers.md#od11206) — Ramdrive unit ports leave their ExecSMP queue lock uninitialized.** Unit storage is allocated without clearing, then the embedded port is published without `InitMsgPort()`/spinlock initialization before ExecSMP `GetMsg()`/`PutMsg()` use. Conditional on an ExecSMP build and allocator contents that do not represent an unlocked lock. Source-only.
 
-**[OD11207](AROS-other-drivers.md#od11207) — Ramdrive and FDisk ignore unit-task signal allocation failure.** If `AllocSignal(-1)` fails, the invalid result is stored in `mp_SigBit`; later `WaitPort()` and `PutMsg()` use it as a signal number, which can leave unit requests unprocessed. Conditional on signal exhaustion; source-only.
-
 **[OD3743](AROS-other-drivers.md#od3743) — LPe32002 request-port allocation rollback can dereference NULL and leak ports.** Failure at queue 0 reaches an unconditional NULL slot write; later failures leave subsequent allocations untracked. Source-only.
 
 **[OD3744](AROS-other-drivers.md#od3744) — LPe32002 ignores delay-timer setup and I/O failures.** Firmware polling continues without the intended delay after timer open/request failure and can time out prematurely. Source-only.
