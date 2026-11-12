@@ -334,6 +334,10 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 
 **[GD4608](AROS-graphics-desktop.md#gd4608) — `ScalePixelArray()` reaches division by zero in the generic HIDD scaler.** Its zero-initialized `BitScaleArgs` never receives the four scale factors before dispatch, and the generic scaler divides by the zero destination factors. See the [source trace](AROS-graphics-desktop-coverage.md#scalepixelarray-zero-factor-gd4608). Source-only; no scaling call was run.
 
+**[GD5151](AROS-graphics-desktop.md#gd5151) — OpenSBI's GOP-to-VBE conversion drops set bits from non-contiguous component masks, so EFIFBGfx can advertise a different pixel layout.** Conditional on firmware reporting a non-contiguous `PixelBitMask`; no checked-in board mode confirms that case. See the [mask-conversion trace](AROS-graphics-desktop-coverage.md#L9036). Source-only; no firmware mode was exercised.
+
+**[GD5152](AROS-graphics-desktop.md#gd5152) — EFIFBGfx treats low-depth GOP direct-color pixels as palette indices and cannot apply the requested ColorMap.** Conditional on GOP supplying a direct-color mask mode at eight bits per pixel or less; ordinary RGBX/BGRX modes are excluded. See the [palette/update trace](AROS-graphics-desktop-coverage.md#L9038). Source-only; no framebuffer or palette operation was exercised.
+
 **[GD14337](AROS-graphics-desktop.md#gd14337) — Vulkan-Hpp TensorCopyARM can leave a non-null offset with zero dimensions.** The enhanced constructor counts only source offsets, so a non-null destination-offset or extent array can be forwarded with `dimensionCount == 0`; see the linked finding for specification and caller-path details.
 
 **[GD14336](AROS-graphics-desktop.md#gd14336) — GELS clear-path recursion dereferences standalone VSprites as Bobs.** A Bob followed by a standalone VSprite can leave the latter in `ClearPath`; a later clear dereferences its NULL `VSBob`. The mixed-list caller is conditional; see the linked finding.
