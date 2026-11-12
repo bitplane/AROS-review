@@ -17530,3 +17530,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD1494](AROS-other-drivers.md#od1494) — CAMD accepts a NULL driver `Expunge` callback, then calls it unconditionally during teardown.** Conditional on an external driver descriptor with no expunge callback; explicit CAMD module. Source-only.
 
 **[OD1498](AROS-other-drivers.md#od1498) — CAMD accepts missing `OpenPort`/`ClosePort` callbacks, then calls them unconditionally on hardware-cluster open/close.** Conditional on an external descriptor and corresponding port lifecycle; explicit CAMD module. Source-only.
+
+**[OD1499](AROS-other-drivers.md#od1499) — CAMD sender `MidiLinkConnected()` can use a cluster after concurrent relinking frees it.** Conditional on an external sender-query caller overlapping removal of the old cluster; explicit CAMD module. Source-only.
