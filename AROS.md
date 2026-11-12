@@ -17494,3 +17494,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[FS-088](AROS-filesystems.md#fs-088) — Read-only NTFS places `ERROR_DISK_WRITE_PROTECTED` in `dp_Res1`; DOS treats the positive value as bytes written. Buffered output can therefore be cleared and reported successful without reaching disk. Conditional on using the built NTFS handler; source-only.**
 **[GD15088](AROS-graphics-desktop.md#gd15088) — VC4 display DMA timeout clears the busy state and releases/reuses resources even when the DMA channel failed to quiesce. Conditional on a transfer failure followed by hardware reset failure; optional Raspberry Pi VC4 Gallium HIDD. Source-only.**
+
+**EK9432 continuation (2026-11-12):** the m68k DOS `DateStamp()` thunk writes three 32-bit date fields directly into guest memory. On little-endian hosts the guest reads byte-reversed fields. Conditional on a guest caller consuming this optional m68kemu vector; no maintained emulated caller was found. See [EK9432](AROS-exec-kernel.md#ek9432) and the [coverage trace](AROS-exec-kernel-coverage.md#m68kemu-dos-datestamp-output-endian-trace-ek9432-expanded). No guest call or build was run.
