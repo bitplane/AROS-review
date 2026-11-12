@@ -22842,3 +22842,13 @@ The m68k emulator thunk generator classifies 20 non-void vectors as void by name
 
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#m68k-emulator-graphics-return-thunks-gd15091).
 
+
+
+<a id="gd15093"></a>
+## GD15093 — VMM task entries saved by the MUI omit the name terminator [conditional; optional target]
+
+The VMM MUI `AddNamed()` initializes `NameLen` with `strlen(name)`, excluding the terminating NUL (`workbench/system/VMM/MUI/task_page.c:516-534`). The Add, Add Program, Add Directory, and task-selection actions all reach this helper (`MUI/mui.c:276-278,280-301,304-335`; `task_page.c:466-470`). The list construct hook copies the complete NUL-terminated text but retains the too-small length (`MUI/task_page.c:26-52`). When the config is saved, the writer emits exactly `NameLen` bytes after the `TaskEntryInFile` record (`MUI/config.c:537-538`), despite the shared format defining `NameLen` as including the trailing zero (`shared_defs.h:387-395`).
+
+The handler's new-format reader allocates `NameLen + 1` bytes, reads only `NameLen` bytes, and does not set the extra byte before passing the buffer to `EnterTask()` (`config.c:28-59`). `EnterTask()` immediately calls `strlen(name)` and tests the byte before the resulting length to classify directory names (`forbidden_tasks.c:317-345`). Consequently, the normally generated MUI config leaves the C string unterminated in the handler; `strlen()` can scan beyond the allocation and the resulting pattern or directory handling can use bytes beyond the saved name. The exact manifestation depends on adjacent allocator contents.
+
+**Trigger and consequence:** add or select a task through the VMM MUI, save its configuration, and have the VMM handler load that new-format entry. The saved entry's `NameLen` excludes NUL, so handler startup consumes an unterminated task name; later matching or directory setup can operate on text beyond the intended name. **Affected configuration:** explicitly buildable optional VMM MUI and handler (`workbench/system/VMM/MUI/mmakefile.src`; `workbench/system/VMM/mmakefile.src:4-50`); the handler is not claimed as part of the default aggregate. **Confidence:** high that the MUI writer's declared length omits the terminator and the handler does not initialize its spare byte; exact out-of-allocation scan effects depend on allocation contents. Store `strlen(name) + 1` and validate the trailing NUL when reading the record. No config was saved or loaded, and no VMM, build, or runtime action was performed; source-only.
