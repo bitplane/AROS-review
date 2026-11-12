@@ -17539,3 +17539,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD2325](AROS-other-drivers.md#od2325) — eaudio divides by zero when `ADCMD_PERVOL` receives the zero encoding for Paula’s 65,536-cycle period.** The AROS Sound datatype selects its AHI player and does not call this eaudio path; conditional on an external/future direct IOAudio client using eaudio on i386, x86_64, PPC or ARM. Source-only.
 
 **[OD2880](AROS-other-drivers.md#od2880) — eaudio `ADCMD_PERVOL` updates cached parameters but leaves active AHI playback and its repeat snapshot unchanged.** Infinite-cycle playback can retain old settings indefinitely. No selected AROS direct caller was found; conditional on an external/future `audio.device` client using eaudio. Source-only.
+
+**[OD11587](AROS-other-drivers.md#od11587) — USB2OTG SOF and watchdog scans stop after 128 interrupt requests; a due tail request can miss poll deadlines while earlier long-interval requests remain queued. Conditional on more than 128 active interrupt pipes and their poll phase; ARM Raspberry Pi USB2OTG; source-only.**
