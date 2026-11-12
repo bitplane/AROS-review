@@ -42601,6 +42601,7 @@ The watchdog can therefore insert a node that is already linked in the interrupt
 **Trigger:** a non-SMP USB2OTG build reaches the direct interrupt-transfer NAK fallback while a NAK interrupt for the same active request arrives during the watchdog's enabled window. **Consequence:** the stale request can be requeued twice or after ownership has moved, corrupting the periodic request queue and potentially preventing later interrupt transfers from being serviced. **Configuration:** ARM Raspberry Pi USB2OTG builds that do not define `__AROSEXEC_SMP__`; the Raspberry Pi package selects USB2OTG. **Confidence:** high for the missing non-SMP owner check and duplicate intrusive-node insertion path; the required timing was not reproduced. Recheck `hc_Request` on every build after reenabling interrupts and abandon the stale watchdog action if ownership changed. No interrupt, request, schedule, or build was exercised; source-only.
 
 
+<a id="od11588"></a>
 ## OD11588 — PTP root-volume `Info()` reports one block as fully used [optional PTP class]
 
 The PTP handler registers its DOS volume using the name of `nch_RootObject` (`rom/usb/classes/ptp/ptp.class.c:4021-4031`), and initializes that root object with `poi_StorageID = 0xffffffff` (`:4227-4235`). An empty path after the device colon resolves to the root object (`:2795-2819`); `nCreateLock()` stores that object in `fl_Key` (`:2962-2985`), and `nGetObjFromLock()` returns it for `ACTION_INFO` (`:2741-2750`). DOS `Info(lock, ...)` sends `ACTION_INFO` with that lock (`rom/dos/info.c:55-59`).
