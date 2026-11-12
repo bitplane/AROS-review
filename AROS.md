@@ -17519,7 +17519,7 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 
 
-**[OD4046](AROS-other-drivers.md#od4046) — Nouveau and VMware DRM timer workers retain a non-NULL process pointer after either message-port allocation fails. Later timer commands can fault through a NULL command port or wait forever on an unserviced port. Conditional on worker-port allocation failure followed by timer use; optional DRM HIDDs; source-only.**
+**[OD4046](AROS-other-drivers.md#od4046) — Nouveau and VMware DRM timer workers publish their process pointer before the command port is ready. A concurrent first-use timer call, or later use after port-allocation failure, can fault through a NULL command port or wait forever on an unserviced port. Conditional on the startup interleaving or allocation failure; optional DRM HIDDs; source-only.**
 
 **[OD4047](AROS-other-drivers.md#od4047) — Nouveau and VMware DRM timer commands are silently dropped when the caller cannot allocate a reply signal. Failed `timer_delete_sync()` can leave a vblank timer pending while teardown releases its owner. Conditional on signal exhaustion and a pending timer; optional DRM HIDDs; source-only.**
 
