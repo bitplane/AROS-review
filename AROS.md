@@ -16724,6 +16724,8 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[GD15097](AROS-graphics-desktop.md#gd15097) — x86-64 CyberGraphX blur vector lanes add 0.5f and use MXCSR-rounded conversion, while scalar lanes add 0.5f then truncate.** Under default nearest-even rounding, some vectorized interior averages produce a channel value one higher than scalar edges or generic targets. Trigger requires radius-one-or-larger blur and suitable fractional channel averages. See the [full-body SSE2/AVX2 review](AROS-graphics-desktop-coverage.md#x86-64-cybergraphx-sse2-and-avx2-blur-full-body-and-edge-rounding-pass-gd15097-added-2026-11-12). Source-only.
 
+**[GD15099](AROS-graphics-desktop.md#gd15099) — Replacing an external global Decoration theme can leave the old record and theme registered because screen disposal never decrements its count.** Requires the explicit Decoration service; no default Workbench inclusion is claimed. Source-only.
+
 
 **[GD14913](AROS-graphics-desktop.md#gd14913) — Vulkan-Hpp `mapMemory()` may read and return an unwritten output pointer after an error in no-exceptions builds when result assertions do not abort. Conditional on a driver leaving `ppData` untouched on failure; no non-generated in-tree caller was found.**
 
