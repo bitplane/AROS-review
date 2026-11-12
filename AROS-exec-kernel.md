@@ -5762,6 +5762,16 @@ The console handler allocates a 16 KiB clipboard work buffer without checking th
 **Confidence:** High for the source-level control flow. The allocation failure and resulting wait were not induced at runtime.
 
 <a id="ek9489"></a>
+### EK10945 — `vmm.library` leaks the manager's explicit initialization-failure reply.
+
+**Finding:** When `Init_VM_Manager()` returns an error, `VM_Manager()` allocates a distinct `VMMsg`, sets `ReplySignal = 0`, and queues it to the selected starter port as `VMCMD_InitFailed` (`workbench/system/VMM/VM_Manager.c:605-630`). A zero reply signal is the manager's documented ownership convention for a reply that its receiver must free (`VM_Manager_Init.c:68-83`). In the `vmm.library` initializer, the startup request pointer is overwritten with the dequeued reply, but only `VMCMD_InitReady` is handled; after `VMCMD_InitFailed`, initialization falls through to port teardown and returns `FALSE` without freeing the reply (`workbench/system/VMM/vmm.lib/vmm_init.c:55-65,79-86`). The error reply allocation is therefore leaked on this explicit-failure path.
+
+**Trigger and scope:** opening the optional `vmm.library` starts the handler, and `Init_VM_Manager()` returns a normal error before the manager fails or faults. One reply-sized allocation is lost for that failed initialization attempt. This is distinct from EK428, where the null `CxParams` dereference can prevent the handler from sending a reply, and EK9488, where failure to allocate the reply leaves the opener waiting.
+
+**Affected configuration:** the optional selected VMM library/handler modules (`workbench/system/VMM/vmm.lib/mmakefile.src:34-42`; `workbench/system/VMM/mmakefile.src:45-53`). It does not imply default-image reachability or a successful VMM startup.
+
+**Confidence:** High for reply ownership and the missing free after `GetMsg()`; the initialization error was not induced. Free the returned `VMCMD_InitFailed` message before returning failure. Source-only.
+
 ### EK9489 — Shell's optional memory diagnostic reports a false leak when free memory increases.
 
 **Finding:** With the `__debug_mem` local variable set, Shell records `AvailMem(MEMF_ANY)` before a command and prints `mem_before - mem_after` as a leak count afterward (`workbench/c/Shell/Shell.c:516,554-555,587-591`). If available memory increases during the command, the unsigned `ULONG` subtraction wraps and reports a large positive leak. The diagnostic also labels any net reduction in available memory as a leak without attributing it to the command; other tasks may change system memory during the interval.
