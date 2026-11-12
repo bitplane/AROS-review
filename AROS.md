@@ -15450,7 +15450,7 @@ Vulkan-Hpp function wrapper interval `23101-23700` (GD10223/GD10264 rechecked; n
 
 **[OD4427](AROS-other-drivers.md#od4427) — Successful PTP move relinks the object without updating its cached parent.**
 
-**[OD4426](AROS-other-drivers.md#od4426) — Optional PTP filesystem can search a rename using an uninitialized path and conditionally move the wrong cached object while returning an error.**
+**[OD4426](AROS-other-drivers.md#od4426) — Optional PTP filesystem reports success without moving an unchanged-name cross-directory rename; changed-name requests continue through an uninitialized path.**
 
 **[OD4456](AROS-other-drivers.md#od4456) — PTP treats failed directory fetches as a path miss or end of directory.**
 
