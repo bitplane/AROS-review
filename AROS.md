@@ -17370,6 +17370,8 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **[EK10940](AROS-exec-kernel.md#ek10940) — `GetTagsFromStack()` removes the pairs selected by `TAG_SKIP` but leaves the skip marker, so standard tag iteration skips later live entries and may advance past the temporary terminator. Conditional on callers using `TAG_SKIP` through stack-tag varargs wrappers on upward-stack ARM/AArch64/PowerPC/RISC-V/x86-64 configurations; no in-tree varargs caller found. Source-only.**
 
+**[EK10941](AROS-exec-kernel.md#ek10941) — EasyRequest and BuildEasyRequest varargs helpers do not check the temporary format AllocVec result before CopyMem/final NUL write, so allocation failure can fault. Conditional on linking and calling these `libamiga.a` helpers; source-only.**
+
 
 **[OD1906](AROS-other-drivers.md#od1906) — NetInfo `CMD_UPDATE` retains `NIMF_CHANGED` after a successful save, so later no-op updates rewrite the database and rotate its `.old` copy. Conditional on external or future clients using the public mutation commands; no in-tree writer was found. Source-only.**
 
