@@ -17526,3 +17526,7 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[GD15092](AROS-graphics-desktop.md#gd15092) — Bodychunk dimensions exceed signed 16-bit conversion and loop bounds.** Large widths can be incompletely converted; large heights can overrun the declared body rows or fail to terminate under wrap-style signed arithmetic. No maintained in-tree caller uses such dimensions. Conditional, medium confidence; source-only.
 
 **[OD11586](AROS-other-drivers.md#od11586) — CAMD driver-data rollback dereferences partially initialized port/cluster pointers, and normal teardown leaks each per-port `DriverData` allocation.** Conditional on a CAMD per-port setup failure or library teardown; explicit CAMD module target. Source-only.
+
+**[OD1494](AROS-other-drivers.md#od1494) — CAMD accepts a NULL driver `Expunge` callback, then calls it unconditionally during teardown.** Conditional on an external driver descriptor with no expunge callback; explicit CAMD module. Source-only.
+
+**[OD1498](AROS-other-drivers.md#od1498) — CAMD accepts missing `OpenPort`/`ClosePort` callbacks, then calls them unconditionally on hardware-cluster open/close.** Conditional on an external descriptor and corresponding port lifecycle; explicit CAMD module. Source-only.
