@@ -17516,6 +17516,7 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[EK10943](AROS-exec-kernel.md#ek10943) — `RangeRand()` accepts an `ULONG` maximum but truncates its loop and result to 16 bits, so requests above 65,536 cannot produce the requested range. No in-tree caller or explicit maximum precondition was found; contract and reachability remain conditional. Source-only.**
 
 **[EK10944](AROS-exec-kernel.md#ek10944) — ARM32 Raspberry Pi clears the kernel allocation before copying the firmware DTB, so an overlapping live DTB is corrupted. The AArch64 sibling has an explicit overlap check; ARM32 firmware placement remains unverified. Conditional; source-only.**
+**[EK10945](AROS-exec-kernel.md#ek10945) — Zune TextEditor calls `Insert(NULL, …, lastLine)` when splitting its final line; Exec’s tail-insertion branch dereferences the null list pointer. Reached by Return on the last line; limited to builds including the TextEditor MCC. Source-only.**
 
 
 
