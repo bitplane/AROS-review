@@ -27765,7 +27765,7 @@ The Ramdrive read and write helpers load `io_Offset` and `io_Length` into 32-bit
 
 | Selected path | `cloc 2.06` C/header code lines | Status |
 |---|---:|---|
-| `workbench/devs/ramdrive_device.c` | 535 | Full body read; request/queue handling, fixed-buffer I/O, and OFS formatting; OD10506 and OD11206. |
+| `workbench/devs/ramdrive_device.c` | 535 | Full body read; request/queue handling, fixed-buffer I/O, and OFS formatting; OD10506 and OD11206; signed bitmap bit-31 shifts cross-referenced to EK8800. |
 | `workbench/devs/ramdrive_device_gcc.h` | 25 | Full header read; device/unit state layout matched to selected body. |
 
 Three-area arithmetic update after common Workbench-device reviews (2026-10-31): added the newly tracked full-body FDisk and Ramdrive sources and their local headers (two paths, 1,080 C/header code lines) to the prior area totals. Graphics/Desktop remains 1,171/1,245 paths and 443,900/580,965 C/header code lines; Exec/Kernel remains 1,383/1,737 and 265,558/367,829; Other Drivers is now 2,019/2,019 and 942,096/1,261,079. Summed area-ledger coverage is therefore **4,573/5,001 paths (91.4%)** and **1,651,554/2,209,873 C/header code lines (74.7%)**, leaving 428 area-path entries and 558,319 area-counted code lines without full-body credit. These are area sums, not unique repository-path totals; caller/configuration/platform closure and remaining raw optional/unselected `workbench/devs` files are still open.
