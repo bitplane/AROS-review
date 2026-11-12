@@ -17532,3 +17532,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD1498](AROS-other-drivers.md#od1498) — CAMD accepts missing `OpenPort`/`ClosePort` callbacks, then calls them unconditionally on hardware-cluster open/close.** Conditional on an external descriptor and corresponding port lifecycle; explicit CAMD module. Source-only.
 
 **[OD1499](AROS-other-drivers.md#od1499) — CAMD sender `MidiLinkConnected()` can use a cluster after concurrent relinking frees it.** Conditional on an external sender-query caller overlapping removal of the old cluster; explicit CAMD module. Source-only.
+
+**[OD1480](AROS-other-drivers.md#od1480) — CAMD accepts disconnected MIDI links, but `MidiLinkConnected()` and `MLINK_Location` queries dereference their NULL location.** Conditional on an external client querying a link created without `MLINK_Location`; explicit CAMD module. Source-only.
