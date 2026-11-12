@@ -14068,6 +14068,13 @@ Apple Silicon CreateSegList ignored-protection-result caller pass (EK712 expande
 
 ## Other Drivers findings reconciled into the index (2026-11-02)
 
+**[OD1821](AROS-other-drivers.md#od1821) — Trident config replacement can remove existing device/interface settings before a fallible copy, or leave partial/duplicate Poseidon forms, while the drag reports success. Conditional on a replacement-time failure; optional Trident Preferences target. Source-only.**
+
+**[OD1822](AROS-other-drivers.md#od1822) — Trident can publish a preference row with a NULL device/interface ID after a failed string copy; later drag matching may dereference NULL or treat interface data as device-level config. Conditional on partial allocation failure; optional target. Source-only.**
+
+**[OD3005](AROS-other-drivers.md#od3005) — Trident ignores a failed Poseidon forced-binding update and reports the accepted drag handled. Conditional on mutation failure; optional target. Source-only.**
+
+
 **[OD4001](AROS-other-drivers.md#od4001) — Raspberry Pi PWM, HDMI, and I²S DMA callbacks can call `Signal()` with a playback task pointer after the worker acknowledges exit. The drivers’ workers inherit the AHI opener’s affinity; conditional on an opener allowed on a nonzero CPU while the DMA callback runs on CPU 0 in an ExecSMP Raspberry Pi build (the checked BCM2836/2837 legacy routes and BCM2711/2712 GIC targets use CPU 0). No checked-in AHI opener with multi-CPU affinity was found; a CPU-0-only opener excludes the overlap. Generic IRQ removal occurs only after acknowledgement. Source-only; no interleaving or build was run.**
 
 **[OD1767](AROS-other-drivers.md#od1767) — Trident preset import ignores a short 12-byte FORM-header read and then uses unread stack fields for allocation and type dispatch. Conditional on selecting a truncated or failed-read preset; explicit Trident preferences target. Source-only.**
