@@ -1184,12 +1184,14 @@ This index groups the current candidates for navigation. Cross-component root ca
 
 <a id="disk-080"></a>
 
-### DISK-080 — Amiga floppy arbitration leaves wakeup messages on its reply port
+### DISK-080 — Amiga floppy arbitration reuses a queued wakeup message
 
-- **Severity:** High (list corruption/hang under resource contention). **Confidence:** High.
-- **Source:** `arch/m68k-amiga/devs/trackdisk/trackdisk_device.c`, getunit; `rom/disk/getunit.c`/`giveunit.c`.
-- **Trigger/trace:** On contention GetUnit queues the embedded dru_Message, GiveUnit replies it to td_druport, and the floppy loop calls WaitPort without GetMsg. Thus the wakeup node remains linked on the reply port when reused. A subsequent contended GetUnit inserts that same node into dr_Waiting, overwriting reply-port links; WaitPort can also return immediately on the old message and repeatedly requeue the same node.
-- **Consequence:** Repeated contention with another disk.resource user corrupts arbitration/reply lists or hangs the floppy task.
+- **Severity:** High (resource wait or reply-port list corruption/hang under contention). **Confidence:** High for the source-level queue and signal paths; manifestation requires contention.
+- **Source:** `arch/m68k-amiga/devs/trackdisk/trackdisk_device.c:52-57,104-114,274-285,345-349`; `rom/disk/getunit.c:17-31`; `rom/disk/giveunit.c:19-27`; `rom/exec/replymsg.c:52-64`; `rom/exec/putmsg.c:81-105`; `rom/exec/waitport.c:67-95`.
+- **Trigger/trace:** When `GetUnit()` finds the disk resource busy, it links the embedded `dru_Message` into `dr_Waiting`. `GiveUnit()` removes and replies to that message, placing it on `td_druport`; the trackdisk loop calls `WaitPort()` and retries without `GetMsg()`, so the message remains linked on the reply port. A later contended `GetUnit()` can link that same node into `dr_Waiting` while it is still on `td_druport`, corrupting list links or leaving the waiter spinning on the stale reply. A second caller path makes the wrong signal owner observable: `BeginIO()` synchronously calls `TD_PerformIO()` for `IOF_QUICK` commands, which calls `getunit()`, but `td_druport` signals `td_task`; a contending quick-I/O caller waiting in another task may therefore remain blocked after the resource is released.
+- **Consequence:** Under disk-resource contention, a quick `BeginIO()` caller can wait indefinitely; repeated reuse can also corrupt the resource waiting list or reply-port queue.
+- **Affected configuration:** m68k Amiga images that select `trackdisk` in `KDEVS` (`arch/m68k-amiga/boot/mmakefile.src:156,373`).
+- **Mitigation direction:** Dequeue the reply before retrying and ensure the wait is signaled to the task actually waiting. No contention, request, or build was run; source-only.
 
 <a id="disk-081"></a>
 

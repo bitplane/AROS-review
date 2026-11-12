@@ -17515,4 +17515,3 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[EK10943](AROS-exec-kernel.md#ek10943) — `RangeRand()` accepts an `ULONG` maximum but truncates its loop and result to 16 bits, so requests above 65,536 cannot produce the requested range. No in-tree caller or explicit maximum precondition was found; contract and reachability remain conditional. Source-only.**
 
-**OD15092 — m68k trackdisk can retain and reuse a disk-resource reply message:** `getunit()` waits without dequeuing the `ReplyMsg()` and quick `BeginIO` callers may wait on a port that signals the device task instead of the current caller. Contention can block quick I/O and later reuse the linked node across the port and resource waiting list. Applies to m68k Amiga trackdisk; source-only. See [OD15092](AROS-other-drivers.md#od15092) and the [WaitPort/resource trace](AROS-other-drivers-coverage.md#m68k-trackdisk-disk-resource-wait-reply-od15092).
