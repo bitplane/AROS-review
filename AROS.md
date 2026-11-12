@@ -17595,3 +17595,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD2904](AROS-other-drivers.md#od2904) — OHCI `CreatePipe()` dereferences failed internal tail-descriptor, endpoint-descriptor, message-port, or timer-request allocations.** Conditional on internal allocation failure in the explicitly built OHCI HIDD; the outer pipe allocation is a separate OD2908 path. Source-only.
 
 **[OD2905](AROS-other-drivers.md#od2905) — OHCI control and bulk transfers dereference failed transfer-descriptor allocations and do not unwind partial chains.** Conditional on descriptor-pool exhaustion after pipe/signal setup in the explicitly built OHCI HIDD. Source-only.
+
+**[EK10945](AROS-exec-kernel.md#ek10945) — `vmm.library` leaks the manager's explicit initialization-failure reply:** the library consumes `VMCMD_InitFailed` but does not free the separately allocated reply message before failing initialization. Optional VMM startup path; distinct from EK428's failed handshake and EK9488's missing-reply wait. Source-only; no initialization error was induced.
