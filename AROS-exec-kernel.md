@@ -5771,8 +5771,8 @@ The console handler allocates a 16 KiB clipboard work buffer without checking th
 
 **Confidence:** High for the source-level control flow. The allocation failure and resulting wait were not induced at runtime.
 
- — `vmm.library` lea<a id="ek10945"></a>
-### EK10945 — `vmm.library` does not release the manager's startup result message.
+<a id="ek10945"></a>
+### EK10945 — `vmm.library` leaks the manager's explicit initialization-failure reply.
 
 **Finding:** The library sets ReplySignal = 0 on its startup request, and the manager also sets it to zero on the separately allocated VMCMD_InitReady/VMCMD_InitFailed result (workbench/system/VMM/vmm.lib/vmm_init.c:51-53; workbench/system/VMM/VM_Manager.c:620-639). On success, VMM_InitLib() dequeues the InitReady reply, reads its VM port, then overwrites VM_INIT_MSG with a new allocation for VMCMD_ReqMemHeader without freeing the result message (vmm_init.c:55-66). On explicit failure, it dequeues InitFailed, handles only the ready command, and exits without freeing the result (:55-65,79-86). In both cases the manager's result allocation is lost. Additionally, if OpenLibs() fails, Init_VM_Manager() returns before dequeuing the original startup request (VM_Manager_Init.c:416-430,433-438); the manager sends InitFailed, and the process exits without draining its embedded message port. The original request allocation is then lost as well (rom/dos/createnewproc.c:423-428,943-953).
 
@@ -5781,7 +5781,9 @@ The console handler allocates a 16 KiB clipboard work buffer without checking th
 **Affected configuration:** the optional selected VMM library/handler modules (`workbench/system/VMM/vmm.lib/mmakefile.src:34-42`; `workbench/system/VMM/mmakefile.src:45-53`). It does not imply default-image reachability or a successful VMM startup.
 
 **Confidence:** High for reply ownership and the missing free after `GetMsg()`; the initialization error was not induced. Free the returned `VMCMD_InitFailed` message before returning failure. Source-only.
-memory diagnostic reports a false leak when free memory increases.
+
+<a id="ek9489"></a>
+### EK9489 — Shell's optional memory diagnostic reports a false leak when free memory increases.
 
 **Finding:** With the `__debug_mem` local variable set, Shell records `AvailMem(MEMF_ANY)` before a command and prints `mem_before - mem_after` as a leak count afterward (`workbench/c/Shell/Shell.c:516,554-555,587-591`). If available memory increases during the command, the unsigned `ULONG` subtraction wraps and reports a large positive leak. The diagnostic also labels any net reduction in available memory as a leak without attributing it to the command; other tasks may change system memory during the interval.
 
