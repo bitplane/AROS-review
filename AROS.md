@@ -17534,3 +17534,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD1499](AROS-other-drivers.md#od1499) — CAMD sender `MidiLinkConnected()` can use a cluster after concurrent relinking frees it.** Conditional on an external sender-query caller overlapping removal of the old cluster; explicit CAMD module. Source-only.
 
 **[OD1480](AROS-other-drivers.md#od1480) — CAMD accepts disconnected MIDI links, but `MidiLinkConnected()` and `MLINK_Location` queries dereference their NULL location.** Conditional on an external client querying a link created without `MLINK_Location`; explicit CAMD module. Source-only.
+
+**[OD1660](AROS-other-drivers.md#od1660) — CAMD loses its allocated parser state when an external client creates a parsed link without a location.** The accepted disconnected link returns successfully, but removal cannot free the dropped allocation. Explicit CAMD module; source-only.
