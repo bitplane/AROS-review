@@ -16724,6 +16724,8 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[GD15097](AROS-graphics-desktop.md#gd15097) — x86-64 CyberGraphX blur vector lanes add 0.5f and use MXCSR-rounded conversion, while scalar lanes add 0.5f then truncate.** Under default nearest-even rounding, some vectorized interior averages produce a channel value one higher than scalar edges or generic targets. Trigger requires radius-one-or-larger blur and suitable fractional channel averages. See the [full-body SSE2/AVX2 review](AROS-graphics-desktop-coverage.md#x86-64-cybergraphx-sse2-and-avx2-blur-full-body-and-edge-rounding-pass-gd15097-added-2026-11-12). Source-only.
 
+**[GD15098](AROS-graphics-desktop.md#gd15098) — Intuition may retain an external decorator and its loaded theme when temporary reply-port allocation fails during unload.** The trigger requires the explicit Decoration service; its dependency from the Workbench C-command aggregate is commented. Source-only.
+
 **[GD14913](AROS-graphics-desktop.md#gd14913) — Vulkan-Hpp `mapMemory()` may read and return an unwritten output pointer after an error in no-exceptions builds when result assertions do not abort. Conditional on a driver leaving `ppData` untouched on failure; no non-generated in-tree caller was found.**
 
 **[GD14914](AROS-graphics-desktop.md#gd14914) — DiskInfo can read beyond its size-suffix table when reported geometry exceeds 1 EiB. Candidate only: the source has configurable geometry paths, but no operational target configuration above the threshold was established.** See [formatter and producer review](AROS-graphics-desktop-coverage.md#diskinfo-main-support-full-body-2026-11-03).
