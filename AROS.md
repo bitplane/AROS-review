@@ -16719,6 +16719,8 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[GD15095](AROS-graphics-desktop.md#gd15095) — VMM MUI ignores short/error config writes and reports save success after truncating the destination.**
 
+**[GD15096](AROS-graphics-desktop.md#gd15096) — x86-64 CyberGraphX tint rounds component multiplication while the generic path truncates, producing one-level pixel differences for some inputs.** The API does not specify rounding, so this remains a low-confidence cross-target consistency candidate. See the [full-body overlay review](AROS-graphics-desktop-coverage.md#x86-64-cybergraphx-tint-overlay-full-body-and-arithmetic-parity-pass-gd15096-candidate-2026-11-12). Source-only.
+
 **[GD14913](AROS-graphics-desktop.md#gd14913) — Vulkan-Hpp `mapMemory()` may read and return an unwritten output pointer after an error in no-exceptions builds when result assertions do not abort. Conditional on a driver leaving `ppData` untouched on failure; no non-generated in-tree caller was found.**
 
 **[GD14914](AROS-graphics-desktop.md#gd14914) — DiskInfo can read beyond its size-suffix table when reported geometry exceeds 1 EiB. Candidate only: the source has configurable geometry paths, but no operational target configuration above the threshold was established.** See [formatter and producer review](AROS-graphics-desktop-coverage.md#diskinfo-main-support-full-body-2026-11-03).
