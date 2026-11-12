@@ -17504,3 +17504,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD2976](AROS-other-drivers.md#od2976) — UHCI dereferences a NULL transfer descriptor for a zero-length bulk request.** Conditional on a direct client using the explicitly buildable UHCI HIDD; no maintained in-tree zero-length caller or stock-package UHCI controller route was established. Source-only.
 
 **[GD15090](AROS-graphics-desktop.md#gd15090) — MUI ignores a failed XOR while preparing a titled frame clip, so the frame is clipped to the title rectangle for that redraw.** Conditional on allocation failure in the selected MUI Area drawing path; the clip is removed afterward. Source-only.
+
+**[GD15091](AROS-graphics-desktop.md#gd15091) — m68k emulator graphics thunks discard return values for nine non-void vectors.** Emulated callers always receive zero in D0 for `BltBitMap`, `MrgCop`, `MakeVPort`, three region operations, two pixel-array writers, and `SetWriteMask`; practical impact depends on guest code using those results. Source-only.
