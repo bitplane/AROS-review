@@ -16729,7 +16729,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[GD14913](AROS-graphics-desktop.md#gd14913) — Vulkan-Hpp `mapMemory()` may read and return an unwritten output pointer after an error in no-exceptions builds when result assertions do not abort. Conditional on a driver leaving `ppData` untouched on failure; no non-generated in-tree caller was found.**
 
-**[GD14914](AROS-graphics-desktop.md#gd14914) — DiskInfo can read beyond its size-suffix table when reported geometry exceeds 1 EiB. Candidate only: the source has configurable geometry paths, but no operational target configuration above the threshold was established.** See [formatter and producer review](AROS-graphics-desktop-coverage.md#diskinfo-main-support-full-body-2026-11-03).
+**[GD14914](AROS-graphics-desktop.md#gd14914) — DiskInfo can read beyond its size-suffix table when reported geometry exceeds 1 EiB. A concrete source-level trigger uses explicit `C:Mount` geometry and the FAT/NTFS no-volume InfoData path; practical Workbench lock reachability remains unverified.** See [formatter and producer review](AROS-graphics-desktop-coverage.md#diskinfo-main-support-full-body-2026-11-03) and [large-geometry arithmetic trace](AROS-graphics-desktop-coverage.md#diskinfo-mount-geometry-gd14914-rechecked-2026-11-12).
 
 **[GD14915](AROS-graphics-desktop.md#gd14915) — Scrollgroup ignores FreeHoriz and FreeVert movement limits [conditional].**
 
