@@ -17372,6 +17372,8 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **[EK10941](AROS-exec-kernel.md#ek10941) — EasyRequest and BuildEasyRequest varargs helpers do not check the temporary format AllocVec result before CopyMem/final NUL write, so allocation failure can fault. Conditional on linking and calling these `libamiga.a` helpers; source-only.**
 
+**[EK10942](AROS-exec-kernel.md#ek10942) — `InvertStringForwd()` accepts a missing `>` after parsing at the NUL, overwrites the terminator, and advances past it. Selected FKey Insert Text also leaves the stored parameter changed for a malformed expression; no event or build was run.**
+
 
 **[OD1906](AROS-other-drivers.md#od1906) — NetInfo `CMD_UPDATE` retains `NIMF_CHANGED` after a successful save, so later no-op updates rewrite the database and rotate its `.old` copy. Conditional on external or future clients using the public mutation commands; no in-tree writer was found. Source-only.**
 
