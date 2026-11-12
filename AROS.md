@@ -17561,3 +17561,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD4129](AROS-other-drivers.md#od4129) — On non-SMP USB2OTG builds, the watchdog may requeue an interrupt request after the hard IRQ already moved it, corrupting the intrusive poll queue. Conditional on a direct-INT NAK racing the watchdog's enabled window; ARM Raspberry Pi USB2OTG; source-only.**
 
 **[OD11588](AROS-other-drivers.md#od11588) — PTP `Info()` on the volume root reports one block, fully used, when no listed storage has the root sentinel ID.** Conditional on an optional explicitly built PTP class and a root-volume lock; source-only.
+
+**[OD11589](AROS-other-drivers.md#od11589) — USB2OTG split-bulk IRQ scans the shared intrusive queue without `hu_Lock`.** On Raspberry Pi ExecSMP, concurrent bulk submission or abort can race the IRQ traversal/removal and disrupt request scheduling. Source-only; interleaving not reproduced.
