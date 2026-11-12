@@ -16359,7 +16359,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 - [GD14846 — X11 clipboard reader does not validate returned text type](AROS-graphics-desktop.md#gd14846)
 - [GD14847 — X11 incremental clipboard reader rejects a valid empty transfer](AROS-graphics-desktop.md#gd14847)
 - [GD14873 — X11 clipboard INCR reader leaves requests pending for non-8-bit chunks](AROS-graphics-desktop.md#gd14873)
-- [GD14874 — Optional VMM startup leaks its queued launch message on early manager exit](AROS-graphics-desktop.md#gd14874)
+- [GD14874 — Optional VMM MUI startup leaks its launch message when `OpenLibs()` fails before the manager receives it](AROS-graphics-desktop.md#gd14874)
 - [GD14875 — Generic pixel CopyBox narrows wide unsigned widths into signed loop counters, causing undefined loop behavior](AROS-graphics-desktop.md#gd14875)
 
 
