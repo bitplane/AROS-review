@@ -17523,4 +17523,4 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[OD4047](AROS-other-drivers.md#od4047) — Nouveau and VMware DRM timer commands are silently dropped when the caller cannot allocate a reply signal. Failed `timer_delete_sync()` can leave a vblank timer pending while teardown releases its owner. Conditional on signal exhaustion and a pending timer; optional DRM HIDDs; source-only.**
 
-**[GD15092](AROS-graphics-desktop.md#gd15092) — Bodychunk narrows a LONG bitmap width to signed 16-bit during row conversion.** Custom Bodychunks wider than 32,767 pixels can be incompletely converted despite successful bitmap setup; no maintained in-tree caller uses such a width. Conditional, medium confidence; source-only.
+**[GD15092](AROS-graphics-desktop.md#gd15092) — Bodychunk dimensions exceed signed 16-bit conversion and loop bounds.** Large widths can be incompletely converted; large heights can overrun the declared body rows or fail to terminate under wrap-style signed arithmetic. No maintained in-tree caller uses such dimensions. Conditional, medium confidence; source-only.
