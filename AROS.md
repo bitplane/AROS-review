@@ -362,7 +362,7 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 
 **[GD10091](AROS-graphics-desktop.md#gd10091) — Generic HIDD construction can publish a display with no name after StrDup failure.** Source details and scope are in the linked finding.
 
-**[GD5749](AROS-graphics-desktop.md#gd5749) — CGFX extcol_render passes pixel width as the Native32 image row modulo.** Source details and scope are in the linked finding.
+**[GD5749](AROS-graphics-desktop.md#gd5749) — CGFX extcol_render passes pixel width as the Native32 image row modulo.** Confirmed in both the generic implementation and x86-64 overlay. Source details and scope are in the linked finding.
 
 **[GD5905](AROS-graphics-desktop.md#gd5905) — Wanderer IconList leaks a temporary date string on an early return.** Source details and scope are in the linked finding.
 
@@ -1021,6 +1021,7 @@ Generic DMEnum terminal allocation and selected caller pass (GD5730 expanded, 20
 | `workbench/libs/cgfx/getcyberidattr.c` | 45 | Full 101-line body read; traced mode-info size check, reserved pixel-format object dependency, attribute return values, and unknown/invalid-mode handling. Checked OpenScreen's PIXFMT caller against the mode database contract; no independent defect established. No display mode was queried. |
 | `workbench/libs/cgfx/extractcolor.c` | 58 | Full 130-line body read; traced HIDD/type dispatch, palette versus truecolor matching, public rectangle setup, callback result semantics and caller search. Expanded GD5744 for ULONG-to-WORD source rectangle narrowing; added GD5748-GD5750 for callback buffer overrun, wrong Native32 byte stride and uncleared output bits. Added GD5751: the callback writes source-origin coordinates although the API permits a mask sized to the analyzed rectangle; a 1x1 region at x=16 addresses byte 2 in a 2-byte 1x1 raster. No checked-in C caller found. No extraction was run. |
 | `workbench/libs/cgfx/extractcolor_renderfunc.c` | 82 | Full 113-line body read; traced shared pixel-buffer semaphore, chunk dimensions/iteration, GetImage stride and destination-plane bit writes. Confirmed GD5748-GD5751: the chunk cursor is not reset, the Native32 stride is passed as pixels rather than bytes, nonmatching destination bits are not cleared, and matching bits use source coordinates without clipping to the output bitmap. The 1x1/sX=16 example exceeds the 2-byte minimum raster allocation implied by the documented dimensions. No HIDD call or bitmap mutation was performed. |
+| `arch/x86_64-all/cgfx/extractcolor_renderfunc.c` | 115 | Full 145-line body read; traced SSE2 comparisons and scalar tail against the same HIDD chunk loop and plane writes as the generic callback. Reconfirmed GD5748 (advanced shared-buffer pointer), GD5749 (pixel width passed as byte modulo), GD5750 (nonmatching bits are not cleared), and GD5751 (source coordinates are written without clipping); no independent overlay-only behavior found. No HIDD call or bitmap mutation was performed. |
 
 The public vector is selected by `rom/graphics/mmakefile.src`. No bitmap allocation, allocation failure, or display operation was exercised. Other graphics.library entry points and caller/platform coverage remain open.
 
