@@ -260,6 +260,9 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 
 ## Graphics/Desktop findings reconciled into the index (2026-11-02)
 
+**[GD4662](AROS-graphics-desktop.md#gd4662) — Empty-destination region copies can leak partially allocated rectangle chunks when allocation fails after a large copy. Hyperlayers ignores the failed result in visibility restoration; `DeleteLayer()` can continue with an empty visible-region snapshot and report success without reconstructing an overlapping lower layer's exposed visibility. Conditional on the region size, chunk-pool exhaustion, and layer geometry. Source-only.**
+
+
 **[GD4022](AROS-graphics-desktop.md#gd4022) — GIF LZW decoding accepts a non-literal code immediately after a clear code and can use uninitialized dictionary entries, producing invalid pixels; an out-of-table prefix access depends on the contents of that uninitialized entry. Applies to malformed data handled by the explicitly buildable GIF datatype. See the [state-machine recheck](AROS-graphics-desktop-coverage.md#gif-lzw-dictionary-state-recheck-gd4022). Source-only.**
 
 **[GD4061](AROS-graphics-desktop.md#gd4061) — Direct-framebuffer swaps replace a bitmap object, color model, and colormap without synchronizing the independent graphics renderer. On ExecSMP, an overlapping draw can use mismatched bitmap/color state during `LoadView()`; requires a Direct framebuffer HIDD and a cross-CPU view-transition overlap. Mirrored framebuffer modes are excluded. See the [state and caller recheck](AROS-graphics-desktop-coverage.md#direct-framebuffer-swap-renderer-recheck-gd4061). Source-only.**
