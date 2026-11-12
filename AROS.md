@@ -16712,10 +16712,6 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[GD15095](AROS-graphics-desktop.md#gd15095) — VMM MUI ignores short/error config writes and reports save success after truncating the destination.**
 
-**[GD15094](AROS-graphics-desktop.md#gd15094) — VMM MUI task-name edit leaves a freed pointer installed when replacement allocation fails; subsequent list/config consumers may reuse it.**
-
-**[GD15093](AROS-graphics-desktop.md#gd15093) — VMM MUI task entries omit the terminating NUL from the saved task-name length; the optional handler then passes an unterminated buffer to `EnterTask()`.**
-
 **[GD14913](AROS-graphics-desktop.md#gd14913) — Vulkan-Hpp `mapMemory()` may read and return an unwritten output pointer after an error in no-exceptions builds when result assertions do not abort. Conditional on a driver leaving `ppData` untouched on failure; no non-generated in-tree caller was found.**
 
 **[GD14914](AROS-graphics-desktop.md#gd14914) — DiskInfo can read beyond its size-suffix table when a filesystem reports a size above 1 EiB. Candidate only: no checked-in filesystem trigger for this metadata was identified.** See [formatter review](AROS-graphics-desktop-coverage.md#diskinfo-main-support-full-body-2026-11-03).
