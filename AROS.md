@@ -17646,3 +17646,6 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 
 **[OD4216](AROS-other-drivers.md#od4216) — Nouveau MST manager allocation failure reaches private-object teardown before that object was initialized.** Later encoder cleanup unconditionally finalizes the zeroed private object, and its list removal dereferences zero links. Conditional on workqueue or initial-state allocation failure; optional Nouveau MST output path. Source-only.
+
+
+**[OD4217](AROS-other-drivers.md#od4217) — the exported HDMI AVI colorimetry helper maps DCI-P3 RGB D65 to NO_DATA.** The DRM enum and Nouveau HDMI support mask include the format, but the helper table omits index 11. No checked-in caller was found; external/future-client impact only. Source-only.
