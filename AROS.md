@@ -17757,6 +17757,12 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD3990](AROS-other-drivers.md#od3990) — PC serial IRQ callbacks can use a unit after disposal.** On x86_64-PC ExecSMP, a remote UART interrupt can retain a unit pointer while final close clears its slot and frees the HIDD object; local `Disable()` does not serialize the other CPU. The callback can then access freed unit state. Conditional on overlapping close and IRQ execution; source-only, no device or interrupt was exercised.
 
+**[OD3152](AROS-other-drivers.md#od3152) — LPe32002 unit creation can wait forever when worker startup fails.** Unchecked process/sync-port creation and worker timer/setup failures can leave the constructor waiting for a handshake that will never arrive. Explicit i386/x86-64 PCIPC target; source-only.
+
+**[OD2326](AROS-other-drivers.md#od2326) — LPe32002 worker continues after private-port allocation failure.** Failed reply/input port allocation is unchecked; the worker can fault after the constructor publishes the unit. Explicit i386/x86-64 PCIPC target; source-only.
+
+**[OD3153](AROS-other-drivers.md#od3153) — LPe32002 teardown can race worker startup and free state before worker exit.** The shutdown signal is sent before its bit is published, and unit resources are freed without joining the worker. Explicit i386/x86-64 PCIPC target; source-only.
+
 **[GD10226](AROS-graphics-desktop.md#gd10226) — Vulkan-Hpp RAII drops shader handles after a partial batch failure.** `vkCreateShadersEXT` can return `eIncompatibleShaderBinaryEXT` with valid handles in other output slots, but the RAII wrapper adopts outputs only for `eSuccess`, leaking the valid handles. Conditional on optional Vulkan-Hpp RAII clients using shader objects and a mixed batch; no in-tree caller was found. See the [source trace](AROS-graphics-desktop-coverage.md#vulkan-raii-shader-batch-output). Source-only; no Vulkan call was run.
 
 **[EK10210](AROS-exec-kernel.md#ek10210) — Linux PPC32 task switches omit FPSCR save/restore.** The hosted PowerPC context macros copy the 32 floating-point registers but omit the distinct FPSCR, so tasks can inherit another task's rounding or exception state. Conditional on the Linux PPC32 target being buildable; configuration comments mark PPC support unfinished. See the [source and ABI trace](AROS-exec-kernel-coverage.md#linux-ppc32-hosted-signal-context-and-fpscr-caller-closure-ek10210-added-2026-10-29). Source-only; no build or runtime test was run.
