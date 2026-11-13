@@ -17683,3 +17683,8 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD2789](AROS-other-drivers.md#od2789) — USB HIDD starter uses an unchecked stack allocation on Sam440.** A failed 10 KiB allocation gives Sam440 `PrepareContext()` a near-null stack and causes frame writes near `0x27e0` before task launch. Conditional on starter-stack allocation failure in the selected Sam440 USB package. Source-only.
 
 **[EK487](AROS-exec-kernel.md#ek487) — Hyper-V processor-frequency query discards the upper TSC-frequency word and multiplies the low word by 100 with 32-bit wrap.** Conditional on a standalone PC guest exposing the Microsoft Hyper-V interface and a `GCIT_ProcessorSpeed` query. Source-only.
+
+
+## Decoration local-source inventory status correction (2026-11-13)
+
+The earlier dated Decoration checkpoints above are historical. The later source-ledger reconciliation confirms that all four selected local Decoration command/class bodies are complete: `decoration.c`, `menudecorclass.c`, `screendecorclass.c`, and `windowdecorclass.c`, totaling 2,714 / 2,714 `cloc 2.06` C code lines; all three private headers total 123 / 123 code lines. The selected local `decortheme.library` and `decorator.library` implementation bodies and headers are also recorded complete at 2,991 / 2,991 C code lines and 401 / 401 header code lines. This closes those local bodies only. External clients, target/platform behavior, runtime rendering, and broader Graphics/Desktop review remain open. See the [Decoration inventory reconciliation](AROS-graphics-desktop-coverage.md#decoration-selected-c-body-inventory-reconciliation-2026-11-08) and later [caller rechecks](AROS-graphics-desktop-coverage.md#L21238). Source-only; no build or rendering was performed.
