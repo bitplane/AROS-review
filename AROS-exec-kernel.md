@@ -1512,6 +1512,13 @@ Checked-in callers provide fixed-size destinations: a 5 MiB kernel buffer, 64 Ki
 
 **Affected configuration and trigger:** explicitly built Parthenope Sam440 with DOS, SFS, ext2 or CD boot media containing a file larger than the selected caller's buffer. The active `bootiso-sam440-ppc` rule depends on `parthenope-sam440` (`arch/ppc-sam440/boot/mmakefile.src:11-14`), selecting this path when that boot-ISO target is built. **Confidence:** high for the capacity-free interface, fixed-size callers and full-length local copies; trigger requires a file exceeding the particular buffer. Add a capacity argument and reject files larger than the caller's destination before copying. No large file or boot was used; source-only.
 
+<a id="ek10955"></a>
+### EK10955 — Parthenope parses through a NULL menu buffer after allocation failure.
+
+`dev_load()` requests its 64 KiB menu buffer through the boot-context `malloc()` wrapper but does not check the result before passing it to `dev->load_file()` (`arch/ppc-sam440/boot/parthenope/src/menu.c:584-598`; `context.c:110-113`). For a present menu file, the local DOS backend treats a NULL destination as a size query and returns the positive file length (`dos.c:258-289`); `dev_load()` then passes the NULL pointer and positive length to `fsm()`/`kick_fsm()`, whose first line read calls `strchr(src + offset, '\n')` (`menu.c:83-96,171-193,315-338`). The SFS, ext2 and CD backends likewise receive the unchecked destination and attempt to read/copy file data through it. This failure therefore reaches an invalid buffer access instead of a clean “no menu” or allocation-error path. This is separate from EK532, which covers oversized files when allocation succeeds.
+
+**Trigger and consequence:** on the explicitly built Parthenope Sam440 path, fail the 64 KiB menu-buffer allocation while a nonempty menu is available on DOS, SFS, ext2 or CD media. Menu loading can fault while reading or parsing the file, before the boot option prompt. Check the allocation and return an error before invoking the backend. **Affected configuration:** optional `parthenope-sam440`; `bootiso-sam440-ppc` depends on this loader (`arch/ppc-sam440/boot/mmakefile.src:11-14`). **Confidence:** high for the unchecked pointer flow and NULL-consuming local paths; no allocation failure or boot was induced. TFTP's transfer behavior remains external and is not needed to establish the local-backend cases. Source-only.
+
 <a id="ek536"></a>
 ### EK536 — The Parthenope CD backend reports missing or failed file loads as success.
 
