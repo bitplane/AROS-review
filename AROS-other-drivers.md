@@ -42885,3 +42885,13 @@ The first selector property's allocation is also unchecked, but the selected Nou
 **Trigger and scope:** allocation or enum-registration failure on creation of the DVI-I subconnector property, followed by setup of a DVI-I connector on the optional Nouveau display path. VMware's connector path does not call this legacy property constructor. The NULL dereference and lack of retry are source-confirmed; no allocation failure or connector probe was induced. **Confidence:** high. Check both property results, propagate failure, and make retry state reflect successful creation of both properties.
 
 Sources: `workbench/hidds/nouveau/drm/drm_connector.c:1870-1893`; `workbench/hidds/nouveau/drm/drm_property.c:144-188`; `workbench/hidds/nouveau/drm/nouveau/nouveau_display.c:641-654`; `workbench/hidds/nouveau/drm/nouveau/nouveau_connector.c:295-300`; `workbench/hidds/nouveau/drm/drm_mode_object.c:234-263`. Source-only review.
+
+
+<a id="od4220"></a>
+## OD4220 — DRM ELD SAD helpers accept negative indices and access before the first SAD [conditional]
+
+Both `drm_eld_sad_get()` and `drm_eld_sad_set()` reject only `sad_index >= drm_eld_sad_count(eld)`; the public declarations use a signed `int` index (`workbench/hidds/nouveau/drm/drm_eld.c:21-29,44-52`; `workbench/hidds/nouveau/include/drm/drm_eld.h:80-81`). A negative index passes that check. The offset macro is `20 + mnl + 3 * sad` (`drm_eld.h:68`), so `sad_index == -1` selects the three bytes immediately before the first SAD. The setter copies a SAD into those bytes, which can overwrite the end of the ELD name or preceding metadata depending on `mnl`; the getter reads those bytes as a SAD and writes the decoded result to the caller's output structure. More-negative indices move the access further backward. The VMware DRM copy has the same implementation.
+
+**Trigger and scope:** a caller supplies a negative SAD index and otherwise-valid ELD and output/input structures. A repository-wide search found no in-tree calls to either helper beyond declarations and definitions, so there is no established selected caller producing this input; impact is conditional on an external or future client passing an invalid index. The arithmetic and missing lower-bound check are source-confirmed; no memory operation was run. **Confidence:** high for the invalid-index behavior, conditional for practical reachability. Reject indices below zero before computing the offset.
+
+Sources: `workbench/hidds/nouveau/drm/drm_eld.c:21-29,44-52`; matching VMware implementation `workbench/hidds/vmwaresvga/drm/drm_eld.c:21-29,44-52`; public signed declarations and offset macro `workbench/hidds/nouveau/include/drm/drm_eld.h:68,80-81`. Source-only review.

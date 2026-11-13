@@ -17653,3 +17653,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD4218](AROS-other-drivers.md#od4218) — Nouveau scaling-mode property allocation failure is reported as success, then connector setup dereferences NULL.** Conditional on property allocation/enum registration failure followed by connector creation in the optional Nouveau display path. Source-only.
 
 **[OD4219](AROS-other-drivers.md#od4219) — Nouveau DVI-I subconnector property allocation failure is reported as success, then DVI-I setup dereferences NULL.** Conditional on allocation/enum registration failure and DVI-I connector creation; the partial initialization also prevents retry. Source-only.
+
+**[OD4220](AROS-other-drivers.md#od4220) — DRM ELD SAD get/set helpers accept negative indices and address bytes before the first SAD.** Conditional on an external or future caller passing an invalid negative index; no in-tree caller was found. Source-only.
