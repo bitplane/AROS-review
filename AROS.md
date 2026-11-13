@@ -17630,6 +17630,8 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[OD11590](AROS-other-drivers.md#od11590) — Bluetooth disconnecting one bearer can clear a dual-mode device's `CONNECTING` flag while the other bearer is still pending.** Clear-old discovery may then remove the unregistered, unbound device; successful LE completion is disconnected as unknown and leaves connection cleanup to the timeout, delaying other connection attempts. Conditional on the stated dual-bearer sequence; source-only.
 
+**[OD11591](AROS-other-drivers.md#od11591) — CAMD USB-MIDI binding dereferences a NULL product name if Poseidon’s post-configuration fallback allocation fails.** Conditional on that allocation failure and the optional class module being installed and loaded; the class binder runs before generated CAMD-driver loading. Source-only.
+
 **[GD15106](AROS-graphics-desktop.md#gd15106) — Generic Display::Show may copy an oversized OpenScreen raster past VMware's mode-sized framebuffer.** Conditional on the VMware display using the generic Show path and an OpenScreen raster exceeding its selected mode's active dimensions; the unchecked 32-bit CPU copy then writes outside the framebuffer surface. Source-only.
 
 
