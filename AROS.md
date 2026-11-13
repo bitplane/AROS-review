@@ -216,6 +216,7 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 | [EK9895](AROS-exec-kernel.md#ek9895) | m68kemu passes guest semaphore structures to native Exec without layout conversion. |
 | [EK9900](AROS-exec-kernel.md#ek9900) | m68kemu can create a task with a null entry point when tag conversion fails. |
 | [EK9901](AROS-exec-kernel.md#ek9901) | `KrnFormatStr()` ignores callbacks that report failure with the documented zero return. |
+| [EK9902](AROS-exec-kernel.md#ek9902) | MorphOS PPC Exec stubs call missing implementation symbols. |
 | [EK9904](AROS-exec-kernel.md#ek9904) | Efika ARM boot package omits its declared I²C HIDD. |
 | [EK9910](AROS-exec-kernel.md#ek9910) | SumKickData omits trailing entries in multi-entry MemList nodes. |
 | [EK9911](AROS-exec-kernel.md#ek9911) | DOS signals a null parent when an orphaned notifying process exits. |
