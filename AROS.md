@@ -17695,6 +17695,10 @@ The earlier dated Decoration checkpoints above are historical. The later source-
 
 **[OD11595](AROS-other-drivers.md#od11595) — Workbench USB HID parser dereferences failed parser-state or Global PUSH allocations during descriptor parsing.** Conditional on memory pressure in the selected Sam440/Efika USB HIDD paths; no allocation failure or device was exercised. Source-only.
 
+**[OD11596](AROS-other-drivers.md#od11596) — Workbench USB mouse HID extraction skips the next byte when an unaligned axis field crosses a byte boundary.** Conditional on a valid packed mouse report layout; the selected parser then computes incorrect movement. Source-only.
+
+**[OD11597](AROS-other-drivers.md#od11597) — Workbench USB HID data extraction uses undefined signed shifts for negative or 32-bit fields.** Selected mouse axis parsing can reach the shifts with valid signed relative values; actual manifestation depends on compiler and target. Source-only.
+
 **[GD15112](AROS-graphics-desktop.md#gd15112) — ColorWheel mask allocation failure paints the wheel's rectangular background opaquely.** An in-tree MUI ColorAdjust caller creates an unframed wheel; if its backing bitmap succeeds but temporary raster or mask allocation fails, the no-mask `BltBitMapRastPort()` branch can cover pixels outside the circle. ReqTools explicitly enables the bevel frame and is excluded. Visible mismatch depends on the underlying background; no allocation, rendering, or build was run. Source-only.
 
 **[EK10949](AROS-exec-kernel.md#ek10949) — `StrDup()` can silently return a truncated string longer than 4 GiB on 64-bit AROS.** Its `ULONG` length truncates on 64-bit targets; a 4-GiB input becomes a one-byte allocation and is returned as an empty string. The selected MUI Text class passes its public contents tag to `StrDup()`, though no in-tree producer constructs a string this large; source-only, low practical incidence.
