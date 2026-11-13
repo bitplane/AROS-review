@@ -17612,7 +17612,7 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **Driver target-scope correction (2026-11-13):** MetaMake's `#MM-` declarations and `#MM` continuation lines are active target graph entries. `workbench-drivers` is requested by x86_64 PC and OpenSBI RISC-V64 full-image targets; separately, the PC i386 ISO requests `AROS-pc-drivers`, which selects VMware SVGA, Radeon, Nouveau and IntelGMA when aliases resolve (NVIDIA is not on that i386 route). Nouveau's Mesa/toolchain aliases remain conditional, and AGP is available only through its PC i386/x86_64 aliases. Updated affected detailed scopes; historical progress notes with blanket “commented out/no default inclusion” claims are superseded. No build was run.
 
-**[OD10056](AROS-other-drivers.md#od10056) — NV50-family display IRQ handling omits cursor and immediate-overlay channel-awaken notifications for channel IDs 5–8.** Conditional on a direct NVIF client subscribing to those channel events; no hardware symptom was established. Source-only.
+**[OD10056](AROS-other-drivers.md#od10056) — NV50-family display IRQ handling omits cursor/immediate-overlay awaken events and their high error-status bits for channel IDs 5–8.** The source also skips per-channel error reporting/acknowledgment for those enabled bits; whether status remains pending is hardware-dependent. Awaken impact requires a direct NVIF subscriber. Source-only.
 
 **[OD10057](AROS-other-drivers.md#od10057) — NV50/GF119/GV100 DisplayPort audio-symbol timing calculations underflow for accepted modes with less than seven horizontal blank pixels or 25 active vertical lines.** The resulting values are narrowed into timing registers; hardware-level audio consequences remain unverified. Source-only.
 
