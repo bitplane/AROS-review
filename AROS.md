@@ -17667,3 +17667,8 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD4219](AROS-other-drivers.md#od4219) — Nouveau DVI-I subconnector property allocation failure is reported as success, then DVI-I setup dereferences NULL.** Conditional on allocation/enum registration failure and DVI-I connector creation; the partial initialization also prevents retry. Source-only.
 
 **[OD4220](AROS-other-drivers.md#od4220) — DRM ELD SAD get/set helpers accept negative indices and address bytes before the first SAD.** Conditional on an external or future caller passing an invalid negative index; no in-tree caller was found. Source-only.
+
+
+**[OD2788](AROS-other-drivers.md#od2788) — USB HIDD initialization ignores starter-task creation failure.** With DOS open, failed `NewAddTask()` leaves initialization waiting forever for a signal the absent starter cannot send; without DOS, initialization can report success without creating the worker. Sam440 USB package or explicit USB-stack build; source-only.
+
+**[OD2789](AROS-other-drivers.md#od2789) — USB HIDD starter uses an unchecked stack allocation on Sam440.** A failed 10 KiB allocation gives Sam440 `PrepareContext()` a near-null stack and causes frame writes near `0x27e0` before task launch. Conditional on starter-stack allocation failure in the selected Sam440 USB package. Source-only.
