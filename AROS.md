@@ -17724,3 +17724,6 @@ The earlier dated Decoration checkpoints above are historical. The later source-
 
 
 **[GD9443](AROS-graphics-desktop.md#gd9443) — MUI String compares initial contents against an uninitialized buffer.** A String created with initial contents or an integer can call `strcmp()` before the allocated buffer is initialized. Maintained constructors include WBRename and FTManager; effects depend on allocator contents. Source-only.
+
+
+**[GD9444](AROS-graphics-desktop.md#gd9444) — Setting MUIA_String_DisplayPos also moves the edit cursor and clears selection.** The explicitly buildable Zune debug program exposes separate cursor and display sliders, confirming these are distinct controls. No GUI interaction was run. Source-only.
