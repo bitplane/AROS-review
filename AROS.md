@@ -17649,3 +17649,7 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 
 **[OD4217](AROS-other-drivers.md#od4217) — the exported HDMI AVI colorimetry helper maps DCI-P3 RGB D65 to NO_DATA.** The DRM enum and Nouveau HDMI support mask include the format, but the helper table omits index 11. No checked-in caller was found; external/future-client impact only. Source-only.
+
+**[OD4218](AROS-other-drivers.md#od4218) — Nouveau scaling-mode property allocation failure is reported as success, then connector setup dereferences NULL.** Conditional on property allocation/enum registration failure followed by connector creation in the optional Nouveau display path. Source-only.
+
+**[OD4219](AROS-other-drivers.md#od4219) — Nouveau DVI-I subconnector property allocation failure is reported as success, then DVI-I setup dereferences NULL.** Conditional on allocation/enum registration failure and DVI-I connector creation; the partial initialization also prevents retry. Source-only.

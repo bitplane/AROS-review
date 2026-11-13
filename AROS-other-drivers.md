@@ -42864,3 +42864,24 @@ A subsequent discovery request with its clear-old option selects devices using t
 **Confidence:** high for the flag inconsistency and selected clear-old/completion consequences; conditional on the stated interleaving and device eligibility. Preserve `BDFF_CONNECTING` while either bearer is connecting, and retire the matching in-flight connection when successful completion cannot be associated with a device.
 
 Sources: `rom/bluetooth/bluetooth/hwconn.c:875-885,1062-1077,3324-3337,3482-3500,3992-4003`; `rom/bluetooth/bluetooth/hwtask.c:1333-1349`; channel reference lifetime in `rom/bluetooth/bluetooth/objects.c:1080-1088,1095-1130`. The Bluetooth library manifest selects `hwconn.c` (`rom/bluetooth/bluetooth/mmakefile.src:4-13`); its parent target is optional. Source-only review.
+
+
+<a id="od4218"></a>
+## OD4218 — Nouveau connector setup dereferences a missing scaling-mode property after allocation failure [conditional]
+
+`drm_mode_create_scaling_mode_property()` stores the result of `drm_property_create_enum()` and returns success without checking whether creation failed (`workbench/hidds/nouveau/drm/drm_connector.c:2289-2305`). The property creator documents that allocation or enum-registration failure returns `NULL` (`drm_property.c:144-188`). Nouveau's `nouveau_display_create()` ignores the helper result (`nouveau_display.c:641-654`), and `nouveau_conn_attach_properties()` unconditionally passes the shared property to `drm_object_attach_property()` for every non-TV connector (with only legacy VGA excluded; `nouveau_connector.c:326-339`). The attach helper immediately reads `property->dev` before any validation (`drm_mode_object.c:234-263`), so a failed property allocation reaches a NULL dereference during connector creation.
+
+**Trigger and scope:** allocation or enum-registration failure while the optional Nouveau display is creating the scaling-mode property, followed by creation of a connector type that takes the scaling attachment branch. This is a selected Nouveau use of the DRM core copy; VMware's connector path does not call this legacy property constructor. The consequence is source-confirmed; no allocation failure or connector probe was induced. **Confidence:** high. Propagate property-creation failure or guard the connector attachment.
+
+Sources: `workbench/hidds/nouveau/drm/drm_connector.c:2289-2305`; `workbench/hidds/nouveau/drm/drm_property.c:144-188`; `workbench/hidds/nouveau/drm/nouveau/nouveau_display.c:641-654`; `workbench/hidds/nouveau/drm/nouveau/nouveau_connector.c:326-339`; `workbench/hidds/nouveau/drm/drm_mode_object.c:234-263`. Source-only review.
+
+<a id="od4219"></a>
+## OD4219 — Nouveau DVI-I connector setup dereferences a missing subconnector property after allocation failure [conditional]
+
+`drm_mode_create_dvi_i_properties()` assigns the second `drm_property_create_enum()` result to `dvi_i_subconnector_property` and returns success without checking for `NULL` (`workbench/hidds/nouveau/drm/drm_connector.c:1870-1893`). `nouveau_display_create()` ignores the helper result (`nouveau_display.c:641-654`), while `nouveau_conn_attach_properties()` unconditionally attaches the subconnector property for DVI-I connectors (`nouveau_connector.c:295-300`). `drm_object_attach_property()` dereferences its property argument at entry to obtain `property->dev` (`drm_mode_object.c:234-263`), so failure of this second allocation reaches a NULL dereference during DVI-I connector creation. The failed second property also leaves the first selector property non-NULL; subsequent helper calls return early based on that first property and do not retry the missing subconnector property (`drm_connector.c:1874-1875`).
+
+The first selector property's allocation is also unchecked, but the selected Nouveau connector attach path does not use or attach that property; the concrete selected failure here is specifically the second, subconnector property.
+
+**Trigger and scope:** allocation or enum-registration failure on creation of the DVI-I subconnector property, followed by setup of a DVI-I connector on the optional Nouveau display path. VMware's connector path does not call this legacy property constructor. The NULL dereference and lack of retry are source-confirmed; no allocation failure or connector probe was induced. **Confidence:** high. Check both property results, propagate failure, and make retry state reflect successful creation of both properties.
+
+Sources: `workbench/hidds/nouveau/drm/drm_connector.c:1870-1893`; `workbench/hidds/nouveau/drm/drm_property.c:144-188`; `workbench/hidds/nouveau/drm/nouveau/nouveau_display.c:641-654`; `workbench/hidds/nouveau/drm/nouveau/nouveau_connector.c:295-300`; `workbench/hidds/nouveau/drm/drm_mode_object.c:234-263`. Source-only review.
