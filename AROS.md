@@ -17718,3 +17718,6 @@ The earlier dated Decoration checkpoints above are historical. The later source-
 
 
 **[GD15114](AROS-graphics-desktop.md#gd15114) — MUI header generation can accept a truncated public header after host allocation failure.** On failure to allocate its first include-tracking entry, the helper returns from parsing but exits zero; the make recipe writes stdout directly to the generated header. Conditional on host OOM during include generation; no build or allocation failure was run. Source-only.
+
+
+**[GD15115](AROS-graphics-desktop.md#gd15115) — MUI String paste deletes a marked selection before clipboard reading succeeds.** If clipboard/IFF setup, parsing, or allocation fails, the prior selection has already been removed and no replacement text is inserted. Conditional on a marked selection and read failure; no clipboard operation was run. Source-only.
