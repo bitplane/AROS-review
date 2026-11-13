@@ -42763,3 +42763,30 @@ The code comment describes the calculation as a safe underestimate and says zero
 **Trigger and consequence:** a modeset reaches the NV507d DMI programming path with a valid one-line vertical blank and one-line sync. The DMI duration is populated from the wrapped value instead of a safe underestimate.
 
 **Affected configuration:** NV507d/NV50 legacy display-head programming when a client supplies that accepted short-blank timing. **Confidence:** high for the accepted subtraction and narrowing path; the exact hardware consequence is unverified. Reject fewer-than-two-line blanking for this path or calculate and clamp the duration before narrowing. No custom mode, DMI operation, GPU, or build was run; source-only.
+
+<a id="od10059"></a>
+## OD10059 — NV50 SOR SST modeset continues after DisplayPort link training fails [conditional]
+
+`nv50_sor_atomic_enable()` calls `nouveau_dp_train()` for an SST DisplayPort output and discards its boolean result. When every lane-count/rate candidate fails, `nouveau_dp_train()` returns `false`; the SOR callback still computes/programs the SST watermark, selects the DP protocol, optionally enables the DPCD backlight, publishes the display ID, and calls the output update callback. There is no failure return or rollback at this call site. The modeset can therefore proceed in software after link training reports failure.
+
+Conditional on a DP SST modeset where all attempted link configurations fail. The source establishes the ignored failure and continued programming; whether subsequent HPD/link recovery restores output, and the visible hardware symptom, depend on the device and timing. This entry concerns the NV50 SOR SST callback; MST has a separate training call site. No link training, sink, modeset, GPU, or build was run.
+
+Sources: `workbench/hidds/nouveau/drm/nouveau/dispnv50/disp.c:1832-1839,1924-1950`; training return logic in `workbench/hidds/nouveau/drm/nouveau/nouveau_dp.c:405-447`; caller trace in the [coverage ledger](AROS-other-drivers-coverage.md#nv50-sor-sst-training-failure-caller-trace-od10059-added-2026-10-27-no-new-bodyloc-credit). Source-only review.
+
+<a id="od10060"></a>
+## OD10060 — NV50 SST atomic validation can accept a mode that cannot fit the DP link [conditional]
+
+The connector's `mode_valid` helper calls `nv50_dp_mode_valid()`, which checks payload against the advertised link capacity. The selected DRM atomic mode-validation helper instead calls encoder, bridge, and CRTC `mode_valid` callbacks and does not call the connector helper. The NV50 SOR encoder helper table supplies no encoder `mode_valid` callback. Its atomic check lowers the selected DP depth only while it is above six bits per component; it does not reject the mode if the minimum-depth payload still exceeds link capacity. At enable time, `nouveau_dp_train()` starts with success (`ret = true`) and only changes that result after attempting a candidate. If no lane/rate candidate meets the required payload, the loop makes no attempt and returns success, after which the SOR enable path continues. Thus an over-capacity mode that reaches the atomic path is not rejected by these checks and can be treated as successfully trained in software.
+
+Conditional on an SST mode reaching atomic validation whose pixel payload exceeds the available link capacity even at six bits per component. The normal connector mode-list validation can reject such a mode earlier; the gap is in the selected atomic validation route for a mode supplied through another route. The source establishes missing rejection and false-success reporting; actual display output depends on hardware. No atomic commit, sink, AUX operation, GPU, or build was used.
+
+Sources: connector validation in `workbench/hidds/nouveau/drm/nouveau/nouveau_connector.c:1080-1110,1147-1153`; atomic helper mode-validation path in `workbench/hidds/nouveau/drm/drm_atomic_helper.c:508-559`; SOR atomic check and helper table in `workbench/hidds/nouveau/drm/nouveau/dispnv50/disp.c:446-505,1948-1958`; link-capacity check and training result in `workbench/hidds/nouveau/drm/nouveau/nouveau_dp.c:405-447,527-559`. The caller and mode-validation trace is recorded in the [coverage ledger](AROS-other-drivers-coverage.md#nv50-sst-over-capacity-mode-validation-trace-od10060-added-2026-10-27-no-new-bodyloc-credit). Source-only review.
+
+<a id="od10061"></a>
+## OD10061 — Native Nouveau DisplayPort training can mask an LTTPR failure with later success [conditional]
+
+When the native NVKM DisplayPort backend trains a link with one or more LTTPR repeaters, `nvkm_dp_train_link()` iterates from the last repeater down through the sink. For each target it assigns the result of clock-recovery training to `ret`, optionally replaces it with channel-equalization training's result, then continues to the next target regardless of failure. The function returns the final target's result. Consequently, an earlier repeater training failure can be overwritten by a later successful repeater or sink result, and the caller can report the overall training operation as successful. The selected R535 GSP implementation has separate per-target handling; this finding is limited to the native backend.
+
+Conditional on a link with LTTPR repeaters where an earlier repeater fails training but a later target succeeds. The return-value masking is source-confirmed; whether the resulting link is unusable or recovers depends on repeater/sink behavior and is not established here. Repeater capability discovery and initialization are traced in the coverage ledger. No AUX transaction, repeater, sink, link, GPU, or build was exercised.
+
+Sources: `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/dp.c:352-365,509-521`; LTTPR discovery and initialization in `workbench/hidds/nouveau/drm/nouveau/nouveau_dp.c:71-84,332-348` and NVIF handoff in `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/uoutp.c:108-126`. Source-only review.
