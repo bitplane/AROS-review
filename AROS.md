@@ -17644,6 +17644,8 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[GD15109](AROS-graphics-desktop.md#gd15109) — Editor applies text edits when undo-record allocation fails.** Insert/remove/delete/join/split helpers continue after registration fails; Undo can skip the edit, delete/join can leak an unlinked line, and Undo of a committed edit can dereference an empty redo journal after its record allocation fails. Conditional on journal allocation failure in the explicit Editor target. Source-only.
 
+**[GD15110](AROS-graphics-desktop.md#gd15110) — Editor Undo discards its saved removed text if restoring it requires a line-buffer allocation that fails.** It advances the rollback-segment position and pops the undo record despite `insert_str()` failure, so the deleted text cannot be restored later. Conditional on line growth failure in the explicit Editor target. Source-only.
+
 
 **[OD4200](AROS-other-drivers.md#od4200) — VMware KMS accepts a framebuffer when dirty-tracker allocation fails.** A later same-buffer cursor update can then be missed; conditional on tracker OOM and cursor BO reuse. Optional VMware SVGA HIDD; source-only.
 
