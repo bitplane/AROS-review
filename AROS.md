@@ -134,6 +134,7 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 | [EK8835](AROS-exec-kernel.md#ek8835) | x86-64 PC ExecSMP can leave an AP without an eligible idle task and recurse in the dispatcher. |
 | [EK8836](AROS-exec-kernel.md#ek8836) | Concurrent first use can reinitialize an already acquired statically initialized pthread mutex. |
 | [EK8851](AROS-exec-kernel.md#ek8851) | DynModule bootstrap leaks its console path and leaves its asynchronous console handle open. |
+| [EK8852](AROS-exec-kernel.md#ek8852) | DynModule bootstrap timeout can leave an untracked module running. |
 | [EK8900](AROS-exec-kernel.md#ek8900) | The shared write-locked initializer uses a bit that native ARM spinlocks do not recognize as a writer lock. |
 | [EK8904](AROS-exec-kernel.md#ek8904) | ARM secondary registration continues after bootstrap-task creation fails, then dereferences the missing task. |
 | [EK8906](AROS-exec-kernel.md#ek8906) | OpenSBI processor IDs from the boot hart are reported for every RISC-V core. |
