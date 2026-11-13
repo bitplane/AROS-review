@@ -17634,3 +17634,6 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 
 **[OD4212](AROS-other-drivers.md#od4212) — VMware SVGA load failure after VRAM-manager initialization skips `vmw_vram_manager_fini()`.** When GB-object capability-array allocation fails, `ttm_device_fini()` detaches only the system manager, leaving the separately allocated VRAM range manager and its range map allocated. This cleanup omission is additional to OD10293's unreleased DRM device reference. Conditional on that capability and allocation failure; optional VMware SVGA HIDD. Source-only.
+
+
+**[OD4213](AROS-other-drivers.md#od4213) — VMware VRAM eviction copies the BO to system memory before waiting for its reservation fences.** If the post-copy wait times out, the helper leaves the source resource assigned but reports success; the eviction loop retries and can accumulate unassigned destination resources, while VRAM-manager teardown ignores its eviction error. The pending-fence timing is conditional; local control flow is source-confirmed. Optional VMware SVGA HIDD; source-only.
