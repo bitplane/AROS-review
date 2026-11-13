@@ -42976,6 +42976,29 @@ The Global PUSH item has a second unchecked parser allocation: after `AllocVec()
 Sources: `workbench/devs/USB/classes/HID/hid.c:62-79,98-124,127-160,304-308,381-435,464-492`; `workbench/devs/USB/classes/HID/hidclass.c:276-281`; `workbench/devs/USB/classes/HID/kbdclass.c:154-157`; `workbench/devs/USB/classes/HID/mouseclass.c:132-174`; `workbench/devs/USB/classes/HID/mmakefile.src:6-12`; `arch/ppc-sam440/boot/mmakefile.src:51`; `arch/ppc-chrp/efika/boot/mmakefile.src:84`.
 
 
+<a id="od11596"></a>
+## OD11596 — HID bit extraction skips bytes for unaligned fields [conditional]
+
+`hid_get_data()` reads one byte for each eight bits of field width, starting at the field's first bit (`workbench/devs/USB/classes/HID/hid.c:438-455`). That loop does not account for the field's starting bit offset when deciding how many bytes the field spans. For example, an eight-bit field at bit position 3 needs bits from two bytes, but the loop runs once, reads only `buf[0]`, and then shifts away its low three bits; it never includes the next byte's high three bits. The parser preserves packed bit positions rather than aligning each item (`hid.c:142-148,239-240`).
+
+The selected mouse class obtains X/Y locations with `hid_locate()` and calls `hid_get_data()` for each incoming report (`mouseclass.c:139-153,63-65`), then forwards the values as movement deltas (`:77-90`). A valid report layout with no padding before an axis field can therefore produce an incorrect axis value whenever that field crosses a byte boundary. The keyboard's checked `hid_get_data()` caller reads one-bit modifiers, which do not cross a byte boundary; no keyboard consequence is claimed.
+
+**Trigger and consequence:** a selected HID mouse reports an X or Y field whose bit offset and width cross a byte boundary, such as an eight-bit axis beginning at bit 3. The computed movement omits bits from the following report byte and can move by the wrong amount. **Affected configuration:** Workbench USB mouse HIDD clients whose device descriptors use packed, unaligned axis fields; the module is selected by Sam440 and Efika `hidd-usb` package graphs. **Confidence:** high for the missing byte and incorrect extraction; reachability depends on a device using that valid layout. Iterate over the complete byte span touched by `[pos, pos + size)`, then mask and shift the assembled value. No report descriptor, device, or build was used; source-only.
+
+Sources: `workbench/devs/USB/classes/HID/hid.c:142-148,239-240,407-435,438-455`; `workbench/devs/USB/classes/HID/mouseclass.c:63-90,139-153`; `arch/ppc-sam440/boot/mmakefile.src:51`; `arch/ppc-chrp/efika/boot/mmakefile.src:84`.
+
+<a id="od11597"></a>
+## OD11597 — HID data extraction uses undefined signed shifts [conditional]
+
+`hid_get_data()` masks the extracted value with `(1 << hsize) - 1`, then attempts sign extension by shifting an `int32_t` left until its sign bit reaches bit 31 (`workbench/devs/USB/classes/HID/hid.c:450-458`). For a valid eight-bit signed relative-axis value with the high bit set, the cast operand is positive but the left shift produces a mathematical value above `INT32_MAX`; C leaves that signed left shift undefined. The byte-assembly expression at `:452-453` also promotes each byte to signed `int` before shifting, so a high bit in a byte shifted by 24 can overflow. A valid 32-bit field additionally makes the mask expression shift `1` by the type width.
+
+The selected mouse parser obtains X/Y fields and uses `hid_get_data()` for each report (`workbench/devs/USB/classes/HID/mouseclass.c:139-153,63-65`). Negative relative deltas are valid HID values and set the field's high bit; the helper's intended sign extension therefore reaches the undefined operation on that input. Compiler behavior is not inferred from source, but the resulting delta is not defined by C and may be miscomputed.
+
+**Trigger and consequence:** a selected HID mouse sends a signed relative axis value with its sign bit set, or a valid 32-bit field is decoded. The extraction relies on undefined shift operations, so the returned movement value is compiler-dependent. **Affected configuration:** Workbench USB mouse HIDD clients using signed/high-bit axis values; the module is selected by Sam440 and Efika `hidd-usb` package graphs. **Confidence:** high for the undefined operations and selected caller; actual manifestation depends on compiler and target. Use unsigned-width shifts with explicit full-width handling and perform sign extension without overflowing a signed intermediate. No report descriptor, device, or build was used; source-only.
+
+Sources: `workbench/devs/USB/classes/HID/hid.c:438-461`; `workbench/devs/USB/classes/HID/mouseclass.c:63-65,139-153`; `arch/ppc-sam440/boot/mmakefile.src:51`; `arch/ppc-chrp/efika/boot/mmakefile.src:84`.
+
+
 <a id="od2116"></a>
 ## OD2116 — Bundled FLAC decoder applies an invalid negative LPC shift [conditional, malformed stream]
 
