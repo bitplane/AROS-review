@@ -43073,3 +43073,12 @@ This is distinct from OD4091, which concerns the descriptor count narrowing and 
 
 Sources: `workbench/devs/USB/classes/HID/hid.c:142-148,239-240`; `workbench/devs/USB/classes/HID/kbdclass.c:99-119,157-183,485-567`; `workbench/devs/USB/classes/HID/hid.c:381-405`; `workbench/devs/USB/classes/HID/hidclass.c:276-316`; `workbench/devs/USB/classes/HID/hid.h:62-66,178-182`.
 
+
+<a id="od4070-eaudio-allocation-abort-counter-wrap"></a>
+## OD4070 — eaudio can strand queued allocation requests after AbortIO counter wrap [optional target]
+
+`AllocateProc()` queues an unsatisfied `ADCMD_ALLOCATE` request on `ETASK.et_allocatelist` and increments the `UWORD` `et_allocated` counter. `_CMD_ABORTIO()`'s fallback removes a queued request and replies with `IOERR_ABORTED`, but does not decrement that counter. `ReAllocateUnits()` checks `et_allocated` before touching the queue and uses a saved counter to limit its head-removal loop.
+
+**Trigger and consequence:** while at least one allocation remains queued, queue and abort 65,535 other allocation requests. The stale 16-bit count wraps to zero while the list remains nonempty. When a later `ADCMD_FREE` or `ADCMD_SETPREC` reaches `ReAllocateUnits()`, its zero guard skips the queue, so the surviving request is not retried. A later enqueue can make the counter nonzero while still below the actual list length, allowing the saved-count loop to leave queued requests behind. **Affected configuration:** the optional `eaudio` device selected for supported non-m68k virtual targets; m68k uses the ROM Paula device. No checked-in caller was found that creates this volume of simultaneous pending allocations and cancellations, so this is conditional on a direct external or future client. **Confidence:** high for the counter/list mismatch and retry suppression; the required request volume is extreme and no runtime reproduction was performed.
+
+Sources: queue insertion and counter increment in `workbench/devs/audio/audio_commands.c:199-205`; retry guard and saved-count loop at `:474-505`; abort worker removal path at `:2103-2127`; public AbortIO handoff at `:2145-2167` and vector in `workbench/devs/audio/libfunctions.c:127-138`; `UWORD et_allocated` declaration in `workbench/devs/audio/audio_intern.h:177-178`; optional target graph in `workbench/devs/audio/mmakefile.src:4-15`, `workbench/devs/mmakefile.src:4-13`, and `workbench/mmakefile.src:9-25`. No allocation, abort, playback, or build was run; source-only review.
