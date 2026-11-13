@@ -17729,3 +17729,5 @@ The earlier dated Decoration checkpoints above are historical. The later source-
 
 
 **[GD9444](AROS-graphics-desktop.md#gd9444) — Setting MUIA_String_DisplayPos also moves the edit cursor and clears selection.** The explicitly buildable Zune debug program exposes separate cursor and display sliders, confirming these are distinct controls. No GUI interaction was run. Source-only.
+
+**[OD4070](AROS-other-drivers.md#od4070-eaudio-allocation-abort-counter-wrap) — eaudio can strand queued `ADCMD_ALLOCATE` requests after queued requests are aborted without decrementing the 16-bit waiter count.** With one waiter retained and 65,535 other queued allocations canceled, the count wraps to zero and `ReAllocateUnits()` skips the nonempty list. Conditional on extreme direct-client use of the optional eaudio target; no in-tree reproducer or runtime test. Source-only.
