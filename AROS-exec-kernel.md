@@ -1512,6 +1512,13 @@ Checked-in callers provide fixed-size destinations: a 5 MiB kernel buffer, 64 Ki
 
 **Affected configuration and trigger:** explicitly built Parthenope Sam440 with DOS, SFS, ext2 or CD boot media containing a file larger than the selected caller's buffer. The active `bootiso-sam440-ppc` rule depends on `parthenope-sam440` (`arch/ppc-sam440/boot/mmakefile.src:11-14`), selecting this path when that boot-ISO target is built. **Confidence:** high for the capacity-free interface, fixed-size callers and full-length local copies; trigger requires a file exceeding the particular buffer. Add a capacity argument and reject files larger than the caller's destination before copying. No large file or boot was used; source-only.
 
+<a id="ek10956"></a>
+### EK10956 — Parthenope fails to auto-boot a valid default menu entry beyond the first viewport.
+
+`menu_display()` preserves a valid zero-based `default_os` index when it is no greater than the final menu index (`arch/ppc-sam440/boot/parthenope/src/menu.c:689-700`). On its first call, `display()` starts with `first = 0` and `last = 10`, but advances `first` by only one when the selected index is beyond the current viewport (`menu.c:662-686`). Thus for a valid default index of 12 or greater, that first draw still omits the selected entry and returns `NULL`. With a positive menu delay, `menu_display()` does not draw again while counting down; when the timer expires it returns that NULL selection (`menu.c:700-716`). The boot caller treats NULL as cancellation and exits to the U-Boot prompt (`arch/ppc-sam440/boot/parthenope/src/parthenope.c:337-340`).
+
+**Trigger and consequence:** configure at least 13 entries, set `default` to a valid zero-based index of 12 or greater, use a positive delay, and leave the menu undisturbed until the countdown expires. Parthenope fails to boot the configured default and returns to the U-Boot prompt. Scroll the initial viewport far enough to include the selected entry before drawing, or repeat the draw until it is visible. **Affected configuration:** Parthenope Sam440 using a custom GRUB-style `menu.lst` with the stated entry count/default; the checked-in three-entry menu with `default 0` is unaffected. **Confidence:** high for the viewport/countdown/caller path; no menu or boot was run. Source-only.
+
 <a id="ek10955"></a>
 ### EK10955 — Parthenope parses through a NULL menu buffer after allocation failure.
 
