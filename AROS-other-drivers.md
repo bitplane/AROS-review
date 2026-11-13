@@ -42964,6 +42964,18 @@ The resulting positions are consumed by `hid_locate()`, which returns each match
 
 Sources: `workbench/devs/USB/classes/HID/hid.c:142-148,220-240,297-300,381-405,407-435`; `workbench/devs/USB/classes/HID/hidclass.c:276-291,312-318`; `workbench/devs/USB/classes/HID/mouseclass.c:45-65,139-153`; Sam440 USB package `arch/ppc-sam440/boot/mmakefile.src:51`.
 
+<a id="od11595"></a>
+## OD11595 — USB HID parser dereferences failed parser allocations [conditional]
+
+`hid_start_parse()` allocates its parser state with `AllocVec()` and returns NULL on failure (`workbench/devs/USB/classes/HID/hid.c:98-113`; `rom/exec/allocvec.c:61-66`). `hid_maxrepid()`, `hid_report_size()`, and `hid_locate()` pass that result directly into `hid_get_item()` without checking it (`hid.c:62-79,381-435`); `USBKbd__Root__New()` also calls the parser and immediately loops over `hid_get_item()` (`kbdclass.c:154-157`). The iterator dereferences its parser-state argument before checking for NULL (`hid.c:127-160`). `hid_is_collection()` is the exception: it checks the allocation and returns false (`hid.c:464-473`).
+
+The Global PUSH item has a second unchecked parser allocation: after `AllocVec()` returns, the code immediately stores through `hi` (`hid.c:304-308`). A failed allocation therefore reaches a NULL read/write instead of an error result. The parser-state failure can be reached by the generic HID class's report-ID/report-size scan and by the selected mouse and keyboard consumers; a Global PUSH allocation failure can occur while any of those paths parses a descriptor containing that valid item.
+
+**Trigger and consequence:** memory pressure causes either the parser-state allocation or a Global PUSH stack-node allocation to fail while a USB HID class is parsing a report descriptor. The selected path then accesses the NULL parser state or writes through the NULL stack pointer during class construction, rather than propagating a clean construction failure. **Affected configuration:** the Workbench USB HIDD module selected by the Sam440 and Efika `hidd-usb` package graphs; other builds that select this module are affected as well. **Confidence:** high for the unchecked allocation results and immediate invalid accesses; incidence depends on memory pressure during descriptor parsing. Check and propagate parser-state and stack-node allocation failures through the iterator and its callers. No allocation failure, USB descriptor, device, or build was exercised; source-only.
+
+Sources: `workbench/devs/USB/classes/HID/hid.c:62-79,98-124,127-160,304-308,381-435,464-492`; `workbench/devs/USB/classes/HID/hidclass.c:276-281`; `workbench/devs/USB/classes/HID/kbdclass.c:154-157`; `workbench/devs/USB/classes/HID/mouseclass.c:132-174`; `workbench/devs/USB/classes/HID/mmakefile.src:6-12`; `arch/ppc-sam440/boot/mmakefile.src:51`; `arch/ppc-chrp/efika/boot/mmakefile.src:84`.
+
+
 <a id="od2116"></a>
 ## OD2116 — Bundled FLAC decoder applies an invalid negative LPC shift [conditional, malformed stream]
 
