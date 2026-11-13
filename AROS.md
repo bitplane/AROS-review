@@ -201,6 +201,7 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 | [EK9476](AROS-exec-kernel.md#ek9476) | m68kemu can report process creation failure after starting the native process. |
 | [EK9477](AROS-exec-kernel.md#ek9477) | m68k AROSBootstrap continues with a NULL boot-pool header after allocation failure. |
 | [EK9478](AROS-exec-kernel.md#ek9478) | m68k AROSBootstrap retains loaded MODULES segments that contain no resident. |
+| [EK9479](AROS-exec-kernel.md#ek9479) | m68k AROSBootstrap can omit live ROM/module allocations when its reset-handoff list fills. |
 | [EK9484](AROS-exec-kernel.md#ek9484) | EfikaMX ARM startup parks forever before initializing the kernel resource or entering Exec. |
 | [EK9516](AROS-exec-kernel.md#ek9516) | MinGW bootstrap may consume an invalid error pointer when Windows cannot format a loader failure. |
 | [EK9518](AROS-exec-kernel.md#ek9518) | DOSBoot dereferences a missing device-enable array in Boot Options. |
@@ -12686,6 +12687,9 @@ GD5421 security.library removal-entrypoint recheck (2026-10-31): the selected ro
 
 
 **EK9481 — `AddBootNode()` can allocate an undersized name buffer for long BSTRs:** in the post-DOS handler-start path, a signed `BYTE` truncates names above 127 bytes. A 255-byte name becomes `len == -1`, yields a one-byte allocation, then passes the negative length to unsigned `CopyMem()`; the DOS entry was already published. Conditional on `ADNF_STARTPROC` and a long name. See [EK9481](AROS-exec-kernel.md#ek9481) and the [BSTR narrowing trace](AROS-exec-kernel-coverage.md#L6709). Source-only; no long BSTR or copy was used.
+
+
+**EK9479 — m68k AROSBootstrap can omit live allocations from its reset handoff:** the 32-record memory list silently drops successful allocations after capacity is exhausted, and the reset kernel reserves only recorded ranges. The configured module count is capped at 16, but per-file segment allocations and the separate ROM ELF leave capacity feasibility unresolved. Conditional on exhausting the remaining records. See [EK9479](AROS-exec-kernel.md#ek9479) and the [capacity recheck](AROS-exec-kernel-coverage.md). Source-only; no ROM or reset was exercised.
 
 
 **EK9480 — m68k Amiga `debugmmu` can leave VBR on an invalid page:** if the aligned vector-page allocation fails, setup still invalidates address zero and enables the MMU without moving VBR. A later exception cannot reliably fetch its vector. Conditional on `debugmmu` and allocation failure; `pmmu` is a separate path. See [EK9480](AROS-exec-kernel.md#ek9480) and the [VBR allocation trace](AROS-exec-kernel-coverage.md#L6620). Source-only; no boot or allocation failure was induced.
