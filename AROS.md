@@ -17633,6 +17633,10 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[GD15106](AROS-graphics-desktop.md#gd15106) — Generic Display::Show may copy an oversized OpenScreen raster past VMware's mode-sized framebuffer.** Conditional on the VMware display using the generic Show path and an OpenScreen raster exceeding its selected mode's active dimensions; the unchecked 32-bit CPU copy then writes outside the framebuffer surface. Source-only.
 
 
+**[OD4200](AROS-other-drivers.md#od4200) — VMware KMS accepts a framebuffer when dirty-tracker allocation fails.** A later same-buffer cursor update can then be missed; conditional on tracker OOM and cursor BO reuse. Optional VMware SVGA HIDD; source-only.
+
+**[OD4201](AROS-other-drivers.md#od4201) — VMware KMS layout arithmetic accepts wrapped negative extents and stores invalid preferred sizes.** Conditional on a layout rectangle with width and height `UINT32_MAX` at origin `(1,1)`; later display effects are unverified. Optional VMware SVGA HIDD; source-only.
+
 **[OD4212](AROS-other-drivers.md#od4212) — VMware SVGA load failure after VRAM-manager initialization skips `vmw_vram_manager_fini()`.** When GB-object capability-array allocation fails, `ttm_device_fini()` detaches only the system manager, leaving the separately allocated VRAM range manager and its range map allocated. This cleanup omission is additional to OD10293's unreleased DRM device reference. Conditional on that capability and allocation failure; optional VMware SVGA HIDD. Source-only.
 
 
