@@ -17691,6 +17691,7 @@ The earlier dated Decoration checkpoints above are historical. The later source-
 
 
 **[OD9770](AROS-other-drivers.md#od9770) — FLAC decoder retries zero-byte `CONTINUE` callbacks without yielding, so a nonblocking client can spin inside a synchronous decode call.** Conditional on direct API use; checked-in callbacks do not establish this trigger. Source-only.
+**[OD9772](AROS-other-drivers.md#od9772) — FLAC decoder may reuse stale output capacities after allocation failure, then use NULL sample arrays after recovery.** Conditional on a direct decoder client retrying after memory pressure. Source-only.
 **[OD9775](AROS-other-drivers.md#od9775) — FLAC decoder Application-ID filter growth allocates half the required bytes after 16 IDs.** The 17th registration writes beyond the resized array; a failed realloc also loses the prior pointer. Conditional on a direct bundled-decoder client; no checked-in caller was found. Source-only.
 
 **[OD2116](AROS-other-drivers.md#od2116) — Bundled FLAC decoder accepts a negative LPC shift from malformed input and reaches undefined signed-shift behavior.** RFC 9639 forbids negative QLP shifts. This is conditional on a direct bundled-decoder caller; stock AHIRecord does not enable encoder verification or accept arbitrary FLAC input. Source-only; no decoder was run.
