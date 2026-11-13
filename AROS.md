@@ -17588,10 +17588,6 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[OD9796 expanded](AROS-other-drivers.md#od9796) — PCI USB RTIso Start can report success without scheduling work:** xHCI can fail initial context creation; on 64-bit PCIUSB UHCI/OHCI builds, failure to allocate the required low-address mirror for every prefilled buffer also leaves no active transfer. The caller sees success, but no completion can trigger refill. Source-only; no allocation failure or transfer was induced.
 
-**[GD15100](AROS-graphics-desktop.md#gd15100) — Vulkan-Hpp unique display-return overloads pass `ObjectRelease` while `UniqueHandleTraits<DisplayKHR>` requires `ObjectDestroy`, so using the Xlib, DRM, or Win32 overload fails to compile.** Conditional on optional Vulkan-Hpp clients enabling the corresponding platform API and smart handles; source-only, no client compile was run.
-
-**[GD15101](AROS-graphics-desktop.md#gd15101) — Vulkan-Hpp `acquirePerformanceConfigurationINTELUnique()` passes an `ObjectRelease` deleter while the handle trait requires `ObjectDestroy`, so using this unique-return overload fails to compile.** Conditional on optional Vulkan-Hpp clients enabling `VK_INTEL_performance_query` and enhanced smart handles; source-only, no client compile was run.
-
 **[GD15102](AROS-graphics-desktop.md#gd15102) — MUI Application can free its published ARexx port while a client is sending:** disposal drains the queue, then removes and frees the port without pinning clients that already found it. A late `PutMsg()` can access freed storage or leave an unanswered request. Conditional on enabling UseRexx and cross-CPU client/disposal overlap on ExecSMP; no in-tree enabling caller was found. A correctly protected client is serialized against teardown on uniprocessor builds. Source-only.
 
 **[OD2904](AROS-other-drivers.md#od2904) — OHCI `CreatePipe()` dereferences failed internal tail-descriptor, endpoint-descriptor, message-port, or timer-request allocations.** Conditional on internal allocation failure in the explicitly built OHCI HIDD; the outer pipe allocation is a separate OD2908 path. Source-only.
