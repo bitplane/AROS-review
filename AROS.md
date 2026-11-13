@@ -17694,7 +17694,7 @@ The earlier dated Decoration checkpoints above are historical. The later source-
 **[OD11593](AROS-other-drivers.md#od11593) — Workbench USB HID resets a report's bit offset whenever a Report ID item appears, even when that ID was already used earlier.** HID 1.11 permits repeated Report IDs; interleaved fields can therefore alias earlier fields and make the selected input buffer too short. Conditional on a descriptor using that valid layout; source-only.
 
 
-**[OD11596](AROS-other-drivers.md#od11596) — Workbench USB mouse HID extraction skips the next byte when an unaligned axis field crosses a byte boundary.** Conditional on a valid packed mouse report layout; the selected parser then computes incorrect movement. Source-only.
+**[OD11596](AROS-other-drivers.md#od11596) — Workbench USB mouse HID extraction skips a byte when an axis or wheel field crosses a boundary.** Conditional on a packed device report; motion can be wrong and wheel input can be lost. Source-only.
 
 
 **[GD15112](AROS-graphics-desktop.md#gd15112) — ColorWheel mask allocation failure paints the wheel's rectangular background opaquely.** An in-tree MUI ColorAdjust caller creates an unframed wheel; if its backing bitmap succeeds but temporary raster or mask allocation fails, the no-mask `BltBitMapRastPort()` branch can cover pixels outside the circle. ReqTools explicitly enables the bevel frame and is excluded. Visible mismatch depends on the underlying background; no allocation, rendering, or build was run. Source-only.
