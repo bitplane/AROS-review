@@ -17709,3 +17709,5 @@ The earlier dated Decoration checkpoints above are historical. The later source-
 
 
 **[OD3650](AROS-other-drivers.md#od3650) — PCNet32 reports `S2_ONLINE` success when either DMA-ring allocation fails, leaving the interface down while retaining any successful peer allocation.** The selected AROSTCP caller then restores an interface that subsequent requests see as down. Standard i386-PC and x86_64-PC workbench network aggregates select the driver. The local `request_irq()` currently always returns zero, so its error branch is excluded. Source-only.
+
+**[OD3075](AROS-other-drivers.md#od3075) — PCNet32 can free a multicast range while another processor's RX interrupt is traversing it.** Its list update uses local `Disable()` only; Exec documents that this does not protect cross-processor access on ExecSMP. AROSTCP's IPv4 and IPv6 last-membership removal paths issue the triggering SANA-II command. Conditional on an ExecSMP build and overlap with RX filtering; source-only.
