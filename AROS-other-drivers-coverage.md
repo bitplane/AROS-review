@@ -38937,3 +38937,6 @@ USB hub private-state header full-body pass (no new OD; one path / 53 `cloc 2.06
 
 
 USB hub class interface header full-body pass (no new OD; one path / 17 `cloc 2.06` C/header lines; 2026-11-13): read all 33 lines of `rom/usb/classes/hub/hub.class.h`. Verified include order and matched each binding, worker, hub-method, status/configuration and suspend/resume prototype to its definition in the selected `hub.class.c`; no signature or missing-definition mismatch established. Added the exact header path to the per-file inventory. No hub, build or runtime operation was exercised; source-only.
+
+
+USB hub shared include and macro header full-body pass (no new OD; one path / 45 `cloc 2.06` C/header lines; 2026-11-13): read all 56 lines of `rom/usb/classes/hub/common.h`. Traced its generated library-base include, Exec/USB/Poseidon and utility declarations, standard string/stdio includes, `NewList` compatibility alias, and `min`/`max` macros against the selected hub source. `NewList` has the expected single initialization use; `min` and `max` have no call sites in this module. No local include or macro defect established. Added the exact header path to the per-file inventory. No build or runtime operation was performed; source-only.
