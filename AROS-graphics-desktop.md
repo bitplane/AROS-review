@@ -22997,7 +22997,7 @@ A committed edit has an additional failure consequence on the Undo path. A succe
 **Coverage:** [Editor undo registration failure caller census](AROS-graphics-desktop-coverage.md#editor-undo-registration-failure-caller-census-gd15109).
 
 <a id="gd15110"></a>
-## GD15110 — Editor Undo discards a removed-text record when line growth fails [conditional, explicit optional target]
+## GD15110 — Editor Undo can lose text when restoring a deletion or line join fails [conditional, explicit optional target]
 
 In `rollback()`'s `REM_CHAR` case, the Editor restores the saved bytes by calling `insert_str()` but ignores its Boolean result. It then decreases `jb->rbsz` or frees a rollback segment and eventually pops the undo operation (`workbench/tools/Edit/UndoRedo.c:486-508,560-566`). If the line does not have enough capacity and `realloc_stream()` cannot allocate the larger buffer, `insert_str()` returns `FALSE` before modifying the line (`workbench/tools/Edit/Memory.c:113-136`). The source text therefore remains deleted, while the rollback-segment position advances and the undo record is removed.
 
