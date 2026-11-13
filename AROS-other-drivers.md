@@ -313,7 +313,6 @@ USB HID worker detach-before-DOS-init pass (OD2184 restored; no body/path/LOC cr
 <a id="od10995--usb-hid-keyboard-worker-passes-a-null-io-request-to-opendevice"></a>
 USB HID worker Open-failure cleanup pass (OD2312 restored and consolidated; no body/path/LOC credit; 2026-10-31): compared keyboard and mouse worker startup/early-return paths (workbench/devs/USB/classes/HID/kbdclass.c:329-352; mouseclass.c:238-260). Each allocates its local InputEvent batch before OpenDevice("input.device", ...), but on Open failure deletes only the request and port, clears the worker-task field, and returns without freeing the batch. Since the pointer is not stored in the object, later Dispose cannot reclaim it. Restored the keyboard's coverage-only OD2312 and consolidated mouse coverage-only OD2806 into one finding for the same cleanup omission, distinct from OD10994's batch-allocation failure and OD10995's keyboard request-allocation failure. Existing file-body credit remains unchanged; no path/LOC totals changed. No worker, device-open failure, or allocation was induced; source-only.
 
-<a id="od3142"></a>
 <a id="usb-hid-field-width-and-signedness-review-od3142-od3143-rechecked"></a>
 USB HID field-width extraction recheck (OD3142 strengthened; no body/path/LOC credit; 2026-10-31): re-read all of `hid_get_data()` and followed `loc.size` from the HID Report Size global through `hid_locate()` into the mouse X/Y report path (`workbench/devs/USB/classes/HID/hid.c:291-303,407-435,438-458`; `mouseclass.c:139-158,63-65`). Confirmed the existing OD3142 full-width mask issue and refined its C-semantics note: after the width-sized mask shift, a 32-bit sample with its high bit set also reaches a left shift of negative `int32_t` with shift count zero, which is undefined; a 31-bit size likewise makes the signed mask shift unrepresentable. Larger sizes still exceed the helper's 32-bit assembly/result model. Kept this within OD3142 rather than splitting overlapping width cases. OD3143 remains the independent omission of descriptor signedness. No descriptor, report or device was used; existing body credit unchanged; source-only.
 
@@ -38449,14 +38448,25 @@ Conditional on the selected TU102-family FRTS path, successful Falcon firmware c
 
 Sources: v2/v3 construction and post-construction error returns in `workbench/hidds/nouveau/drm/nouveau/nvkm/subdev/gsp/fwsec.c:171-259`; init error propagation and FRTS local-object lifetime in `:261-305,347-376`; `tu102_gsp_oneinit()` error return in `workbench/hidds/nouveau/drm/nouveau/nvkm/subdev/gsp/tu102.c:297-351`; persistent GSP destructor cleanup in `workbench/hidds/nouveau/drm/nouveau/nvkm/subdev/gsp/rm/r535/gsp.c:2114-2148`. Source-only review.
 
+<a id="od3142"></a>
+## OD3142 — HID report-field extraction uses undefined shifts for wide or signed values [conditional]
+
+`hid_get_data()` assembles a report field into a 32-bit value, then masks it with `(1 << hsize) - 1` and sign-extends it using a signed left shift (`workbench/devs/USB/classes/HID/hid.c:438-458`). A 32-bit field makes the mask shift count equal to the width of `int`; a 31-bit field shifts the signed `1` into an unrepresentable value. For a 32-bit sample whose high bit is set, the cast to `int32_t` produces a negative value that is then left-shifted, even when the shift count is zero. For narrower signed fields, such as an eight-bit relative axis containing `0x80`, the positive masked value is shifted until it exceeds `INT32_MAX`. The byte assembly also shifts promoted signed `int` bytes by up to 24 bits, which overflows when the high byte has its top bit set. These are undefined C operations on otherwise valid report values/field widths.
+
+The selected mouse class obtains X/Y locations from the descriptor and passes each report value through this helper (`workbench/devs/USB/classes/HID/mouseclass.c:63-65,139-153`). A byte-aligned 32-bit axis is a concrete wide-field trigger; a negative signed relative axis is a narrower trigger. In both cases the field value is valid, but the extraction performs an undefined signed shift. The exact result depends on compiler and target.
+
+**Trigger and consequence:** a selected HID mouse decodes a valid 31- or 32-bit axis field, or a signed relative value whose sign bit is set. The helper reaches undefined signed shifts and may return a miscomputed coordinate or movement delta. **Affected configuration:** Workbench USB mouse HIDD clients using those axis formats; the module is selected by Sam440 and Efika `hidd-usb` package graphs. **Confidence:** high for the shift expressions and selected caller; manifestation depends on compiler and target. Assemble and mask with unsigned operations, handle a full-width field separately, and sign-extend without signed overflow. No descriptor, report, device, or build was used; source-only.
+
+Sources: `workbench/devs/USB/classes/HID/hid.c:438-461`; `workbench/devs/USB/classes/HID/mouseclass.c:63-65,139-153`; `arch/ppc-sam440/boot/mmakefile.src:51`; `arch/ppc-chrp/efika/boot/mmakefile.src:84`.
+
 <a id="od3144"></a>
 ## OD3144 — USB HID parser allocation failures reach unchecked parser and stack pointers [selected USB HID classes]
 
 `hid_start_parse()` returns NULL when allocating its parser context fails, but parser helpers and callers do not consistently check that result before passing it to `hid_get_item()`, `hid_end_parse()`, or reading parser fields. The generic HID report-size/max-report-ID and mouse constructor paths can dereference the missing context; the keyboard constructor also enters `hid_get_item()` and later `hid_end_parse()` unconditionally. Separately, Global Push allocates a saved-state node and immediately writes through it without checking for allocation failure. Either allocation failure can therefore abort HID parsing through a NULL dereference instead of returning a clean construction error.
 
-Conditional on allocation failure for the parser context or a Global Push stack node while a selected USB HID class parses a report descriptor. Scope includes generic HID and the keyboard/mouse caller paths traced in this checkout; broader package inclusion is not claimed. No allocation failure, descriptor, USB device or build was used.
+Conditional on allocation failure for the parser context or a Global Push stack node while a selected USB HID class parses a report descriptor. The Workbench HID HIDD is selected by the Sam440 and Efika `hidd-usb` package graphs; this scope is specific to those checked target paths and does not claim broader package inclusion. No allocation failure, descriptor, USB device or build was used.
 
-Sources: parser-context allocation and free in `workbench/devs/USB/classes/HID/hid.c:98-125`; unchecked Global Push allocation in `:304-308`; unchecked parser loops in `:381-435,464-492`; selected keyboard caller in `workbench/devs/USB/classes/HID/kbdclass.c:147-185`; generic HID report setup in `workbench/devs/USB/classes/HID/hidclass.c:269-285`; mouse parser caller in `workbench/devs/USB/classes/HID/mouseclass.c:125-139`. Source-only review.
+Sources: parser-context allocation and free in `workbench/devs/USB/classes/HID/hid.c:98-125`; unchecked Global Push allocation in `:304-308`; unchecked parser loops in `:381-435,464-492`; selected keyboard caller in `workbench/devs/USB/classes/HID/kbdclass.c:147-185`; generic HID report setup in `workbench/devs/USB/classes/HID/hidclass.c:269-285`; mouse parser caller in `workbench/devs/USB/classes/HID/mouseclass.c:125-139`; Sam440 and Efika package selection in `arch/ppc-sam440/boot/mmakefile.src:51` and `arch/ppc-chrp/efika/boot/mmakefile.src:84`. Source-only review.
 
 <a id="od3145"></a>
 ## OD3145 — USB HID parser reads short- and long-item bytes beyond the declared descriptor end [selected USB HID classes]
@@ -42964,18 +42974,6 @@ The resulting positions are consumed by `hid_locate()`, which returns each match
 
 Sources: `workbench/devs/USB/classes/HID/hid.c:142-148,220-240,297-300,381-405,407-435`; `workbench/devs/USB/classes/HID/hidclass.c:276-291,312-318`; `workbench/devs/USB/classes/HID/mouseclass.c:45-65,139-153`; Sam440 USB package `arch/ppc-sam440/boot/mmakefile.src:51`.
 
-<a id="od11595"></a>
-## OD11595 — USB HID parser dereferences failed parser allocations [conditional]
-
-`hid_start_parse()` allocates its parser state with `AllocVec()` and returns NULL on failure (`workbench/devs/USB/classes/HID/hid.c:98-113`; `rom/exec/allocvec.c:61-66`). `hid_maxrepid()`, `hid_report_size()`, and `hid_locate()` pass that result directly into `hid_get_item()` without checking it (`hid.c:62-79,381-435`); `USBKbd__Root__New()` also calls the parser and immediately loops over `hid_get_item()` (`kbdclass.c:154-157`). The iterator dereferences its parser-state argument before checking for NULL (`hid.c:127-160`). `hid_is_collection()` is the exception: it checks the allocation and returns false (`hid.c:464-473`).
-
-The Global PUSH item has a second unchecked parser allocation: after `AllocVec()` returns, the code immediately stores through `hi` (`hid.c:304-308`). A failed allocation therefore reaches a NULL read/write instead of an error result. The parser-state failure can be reached by the generic HID class's report-ID/report-size scan and by the selected mouse and keyboard consumers; a Global PUSH allocation failure can occur while any of those paths parses a descriptor containing that valid item.
-
-**Trigger and consequence:** memory pressure causes either the parser-state allocation or a Global PUSH stack-node allocation to fail while a USB HID class is parsing a report descriptor. The selected path then accesses the NULL parser state or writes through the NULL stack pointer during class construction, rather than propagating a clean construction failure. **Affected configuration:** the Workbench USB HIDD module selected by the Sam440 and Efika `hidd-usb` package graphs; other builds that select this module are affected as well. **Confidence:** high for the unchecked allocation results and immediate invalid accesses; incidence depends on memory pressure during descriptor parsing. Check and propagate parser-state and stack-node allocation failures through the iterator and its callers. No allocation failure, USB descriptor, device, or build was exercised; source-only.
-
-Sources: `workbench/devs/USB/classes/HID/hid.c:62-79,98-124,127-160,304-308,381-435,464-492`; `workbench/devs/USB/classes/HID/hidclass.c:276-281`; `workbench/devs/USB/classes/HID/kbdclass.c:154-157`; `workbench/devs/USB/classes/HID/mouseclass.c:132-174`; `workbench/devs/USB/classes/HID/mmakefile.src:6-12`; `arch/ppc-sam440/boot/mmakefile.src:51`; `arch/ppc-chrp/efika/boot/mmakefile.src:84`.
-
-
 <a id="od11596"></a>
 ## OD11596 — HID bit extraction skips bytes for unaligned fields [conditional]
 
@@ -42986,18 +42984,6 @@ The selected mouse class obtains X/Y locations with `hid_locate()` and calls `hi
 **Trigger and consequence:** a selected HID mouse reports an X or Y field whose bit offset and width cross a byte boundary, such as an eight-bit axis beginning at bit 3. The computed movement omits bits from the following report byte and can move by the wrong amount. **Affected configuration:** Workbench USB mouse HIDD clients whose device descriptors use packed, unaligned axis fields; the module is selected by Sam440 and Efika `hidd-usb` package graphs. **Confidence:** high for the missing byte and incorrect extraction; reachability depends on a device using that valid layout. Iterate over the complete byte span touched by `[pos, pos + size)`, then mask and shift the assembled value. No report descriptor, device, or build was used; source-only.
 
 Sources: `workbench/devs/USB/classes/HID/hid.c:142-148,239-240,407-435,438-455`; `workbench/devs/USB/classes/HID/mouseclass.c:63-90,139-153`; `arch/ppc-sam440/boot/mmakefile.src:51`; `arch/ppc-chrp/efika/boot/mmakefile.src:84`.
-
-<a id="od11597"></a>
-## OD11597 — HID data extraction uses undefined signed shifts [conditional]
-
-`hid_get_data()` masks the extracted value with `(1 << hsize) - 1`, then attempts sign extension by shifting an `int32_t` left until its sign bit reaches bit 31 (`workbench/devs/USB/classes/HID/hid.c:450-458`). For a valid eight-bit signed relative-axis value with the high bit set, the cast operand is positive but the left shift produces a mathematical value above `INT32_MAX`; C leaves that signed left shift undefined. The byte-assembly expression at `:452-453` also promotes each byte to signed `int` before shifting, so a high bit in a byte shifted by 24 can overflow. A valid 32-bit field additionally makes the mask expression shift `1` by the type width.
-
-The selected mouse parser obtains X/Y fields and uses `hid_get_data()` for each report (`workbench/devs/USB/classes/HID/mouseclass.c:139-153,63-65`). Negative relative deltas are valid HID values and set the field's high bit; the helper's intended sign extension therefore reaches the undefined operation on that input. Compiler behavior is not inferred from source, but the resulting delta is not defined by C and may be miscomputed.
-
-**Trigger and consequence:** a selected HID mouse sends a signed relative axis value with its sign bit set, or a valid 32-bit field is decoded. The extraction relies on undefined shift operations, so the returned movement value is compiler-dependent. **Affected configuration:** Workbench USB mouse HIDD clients using signed/high-bit axis values; the module is selected by Sam440 and Efika `hidd-usb` package graphs. **Confidence:** high for the undefined operations and selected caller; actual manifestation depends on compiler and target. Use unsigned-width shifts with explicit full-width handling and perform sign extension without overflowing a signed intermediate. No report descriptor, device, or build was used; source-only.
-
-Sources: `workbench/devs/USB/classes/HID/hid.c:438-461`; `workbench/devs/USB/classes/HID/mouseclass.c:63-65,139-153`; `arch/ppc-sam440/boot/mmakefile.src:51`; `arch/ppc-chrp/efika/boot/mmakefile.src:84`.
-
 
 <a id="od2116"></a>
 ## OD2116 — Bundled FLAC decoder applies an invalid negative LPC shift [conditional, malformed stream]
