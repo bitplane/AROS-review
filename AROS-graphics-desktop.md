@@ -23007,7 +23007,7 @@ The `JOIN_LINE` undo path has the same unchecked restoration result with a destr
 
 **Coverage:** [Editor Undo rollback allocation-failure trace](AROS-graphics-desktop-coverage.md#editor-undo-rollback-allocation-failure-gd15110).
 
-## GD15111 — ColorWheel mask allocation failure turns the wheel into an opaque rectangle [conditional, allocation failure]
+## GD15112 — ColorWheel mask allocation failure turns the wheel into an opaque rectangle [conditional, allocation failure]
 
 `RenderWheel()` first allocates the backing bitmap. For an unframed wheel, it then allocates a temporary raster and a separate one-bit `data->mask` (`workbench/classes/gadgets/colorwheel/support.c:638-701`). The result of the mask allocation is only used as the condition for constructing the ellipse mask; failure is not propagated and the backing bitmap remains valid. The renderer later branches on `data->mask`: with a mask it clears the destination rectangle through `EraseRect()` and performs `BltMaskBitMapRastPort()`, but without one it calls opaque `BltBitMapRastPort()` for the entire rectangular wheel bitmap (`support.c:741-761`). That bitmap was initialized to the DrawInfo background pen before wheel rendering (`:651-654`). Thus a successful backing-bitmap allocation followed by a failed temporary-raster or mask allocation leaves `data->mask == NULL` and selects the opaque rectangle fallback; the bitmap's square background is copied over the destination around the circular wheel instead of preserving the underlying/backfilled pixels. On a resize, the old mask and bitmap are first released and the new mask starts NULL, so the same fallback is reachable.
 
