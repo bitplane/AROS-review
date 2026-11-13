@@ -17643,3 +17643,6 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 
 **[OD4215](AROS-other-drivers.md#od4215) — Nouveau MST can leak a port reference when an atomic state deleting a payload is aborted.** State duplication acquires a port reference, but deleted-payload state destruction skips its put; the successful commit-tail path balances it separately. Conditional on a later atomic-check failure after detaching an MST payload. Source-only.
+
+
+**[OD4216](AROS-other-drivers.md#od4216) — Nouveau MST manager allocation failure reaches private-object teardown before that object was initialized.** Later encoder cleanup unconditionally finalizes the zeroed private object, and its list removal dereferences zero links. Conditional on workqueue or initial-state allocation failure; optional Nouveau MST output path. Source-only.
