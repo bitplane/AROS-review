@@ -17602,6 +17602,8 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[EK10946](AROS-exec-kernel.md#ek10946) — `vmm.library` leaks its startup message and loaded handler if `CreateNewProc()` fails:** cleanup removes the starter port and closes DOS but does not free the message or unload the segment; `NP_FreeSeglist` only applies to a created process. Conditional on process creation failure after both allocations. Source-only.
 
+**[EK10947](AROS-exec-kernel.md#ek10947) — PC processor.resource masks out AMD XSAVE/AVX feature bits.** `GCIT_SupportsAVX` therefore reports false on AMD CPUs that support AVX, hiding it in CPU-information tools and preventing custom AVX2 AHI dispatch. Source-only.
+
 **[GD15103](AROS-graphics-desktop.md#gd15103) — Vulkan-Hpp ResultValue accessors reject eSuboptimalKHR from swapchain image acquisition:** enhanced no-exceptions acquire wrappers accept the status and package the returned image index, but has_value() and dereference accessors recognize only eSuccess. Conditional on optional clients using those expected-like accessors after a suboptimal acquire; no checked-in C++ caller was found. Source-only; no client compile or Vulkan call was run.
 
 **[GD15104](AROS-graphics-desktop.md#gd15104) — Vulkan-Hpp `StructureChain` omits four valid `ValidationFeaturesEXT` parent types, so otherwise-valid pipeline pNext chains fail its compile-time assertion.** Conditional on optional enhanced-mode C++ clients using one of those chains; no in-tree caller was found. Medium confidence because the checkout lacks the Vulkan registry revision matching its pinned header. Source-only; no client compile or Vulkan call was run.
