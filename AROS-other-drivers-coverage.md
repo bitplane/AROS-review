@@ -31902,7 +31902,7 @@ Nouveau thermal control core and PWM/toggle implementation pass (OD11247 caller 
 | File | `cloc 2.06` C code lines | Review status and remaining scope |
 |---|---:|---|
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/subdev/therm/base.c` | 367 | Full 455-line body read; fan mode, alarm, linear/trip paths, attribute setters and lifecycle checked. OD11250 added for equal linear bounds. |
-| `workbench/hidds/nouveau/drm/nouveau/nvkm/subdev/therm/fan.c` | 197 | Full 279-line body read; fan lock/update, target smoothing, caller census, sensing and constructor/fallback path checked. OD11247 caller path rechecked; arbitrary `fan_set` input concern not established. |
+| `workbench/hidds/nouveau/drm/nouveau/nvkm/subdev/therm/fan.c` | 197 | Full 279-line body read; fan lock/update, target smoothing, sensing and constructor/fallback path checked. OD11247 rechecked; OD11600 traces a legacy BIOS trip value through the automatic-policy caller and pre-clamp `u8` narrowing. Arbitrary external `fan_set` inputs remain outside established in-tree callers. |
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/subdev/therm/fanpwm.c` | 72 | Full 110-line body read; PWM get/set conversion, divisor selection and creation checks traced. |
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/subdev/therm/fantog.c` | 80 | Full 116-line body read; GPIO toggling, alarm scheduling and callback locking traced. |
 | `workbench/hidds/nouveau/drm/nouveau/nvkm/subdev/therm/temp.c` | 185 | Full 253-line body read; sensor threshold polling, emergency dispatch, work allocation and lifecycle checked. |
