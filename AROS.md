@@ -11185,7 +11185,7 @@ Exec/Kernel PPC helper call-site census (2026-10-30): rechecked the linked Efika
 - [EK372](AROS-exec-kernel.md#ek372): WaitX resubmits a completed `UNIT_WAITUNTIL` request while its reply remains linked; confirmed for the shared generic path (including PC, AArch64 Raspberry Pi and OpenSBI wrappers), plus m68k-Amiga and Efika timer backends.
 - [EK876](AROS-exec-kernel.md#ek876): ReAction class readers can retain a preference semaphore embedded in a library base across final expunge; overlap is conditional.
 - [EK8843](AROS-exec-kernel.md#ek8843): concurrent direct ARM/AArch64 SMP CPU-load queries can overwrite the shared per-core sample baseline; no maintained overlapping caller is established.
-- [EK8981](AROS-exec-kernel.md#ek8981): concurrent ExecSMP `OpenLibrary()` and `RemLibrary()` can expose an unpinned library base; selected VMM/MUI and optional USB audio sublibrary expunge paths supply callers, with the latter requiring an external `usbaudio.audio` opener.
+- [EK8981](AROS-exec-kernel.md#ek8981): concurrent ExecSMP `OpenLibrary()` versus `RemLibrary()` or a deferred final `CloseLibrary()` expunge can expose an unpinned base; selected VMM/MUI and optional USB audio sublibrary expunge paths supply callers, with the latter requiring an external `usbaudio.audio` opener.
 - [EK9242](AROS-exec-kernel.md#ek9242): POSIXC `ftruncate()` can report success after a RAMFS zero-fill fails following a concurrent protection change.
 
 
