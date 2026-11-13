@@ -17721,3 +17721,6 @@ The earlier dated Decoration checkpoints above are historical. The later source-
 
 
 **[GD15115](AROS-graphics-desktop.md#gd15115) — MUI String paste deletes a marked selection before clipboard reading succeeds.** If clipboard/IFF setup, parsing, or allocation fails, the prior selection has already been removed and no replacement text is inserted. Conditional on a marked selection and read failure; no clipboard operation was run. Source-only.
+
+
+**[GD9443](AROS-graphics-desktop.md#gd9443) — MUI String compares initial contents against an uninitialized buffer.** A String created with initial contents or an integer can call `strcmp()` before the allocated buffer is initialized. Maintained constructors include WBRename and FTManager; effects depend on allocator contents. Source-only.
