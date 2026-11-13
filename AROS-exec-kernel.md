@@ -1523,6 +1523,17 @@ The VMM `AllocAligned()` contract accepts any power-of-two alignment greater tha
 
 **Confidence:** high that this valid input reaches a signed shift whose result is unrepresentable on the supported 32-bit-`int` ABIs; the exact caller-visible result is not defined by C. Promote the shift to an unsigned pointer-width value and reject alignments or size-plus-alignment sums that cannot be represented. No allocation, VMM operation or build was run; source-only. See the [TLSF aligned-allocation contract trace](AROS-exec-kernel-coverage.md#tlsf-aligned-allocation-boundary-ek10960).
 
+<a id="ek10961"></a>
+### EK10961 — TLSF aligned allocation under-reserves when size plus alignment wraps [conditional]
+
+`AllocAligned()` documents a power-of-two alignment above its minimum, but does not require the requested size to be a multiple of that alignment (`workbench/system/VMM/globals.c:196-205`). Its debug-only check rejects nonmultiples; release builds continue into the allocator. The VMM first checks that the selected memory header reports at least `size` free bytes, then dispatches to the managed header's aligned callback (`globals.c:350-367`). TLSF rounds `size`, rounds `align` to a power of two, and passes the unchecked `size + align` to `tlsf_malloc()` (`rom/kernel/tlsf.c:703-724`). On a 32-bit target, a request for `size=0xC0000010` and `align=0x40000000` wraps that sum to `0x10`. If a sufficiently large TLSF free block exists, the ordinary allocator can therefore reserve a 16-byte payload; `tlsf_malloc_aligned()` then writes the requested 3 GiB block size into the aligned header and computes/splits the surrounding blocks as though the larger extent had been reserved (`tlsf.c:736-790`).
+
+**Trigger and consequence:** a release 32-bit VMM build receives that size/alignment pair and selects a TLSF-managed memory header with at least `size` free bytes. The allocator can return a pointer backed by only a tiny reservation while updating TLSF metadata for the much larger requested extent, corrupting allocator state or making the returned extent invalid. The debug-only size/alignment check prevents this particular pair in debug builds.
+
+**Affected configuration:** 32-bit targets using the optional VMM with TLSF-managed memory. The memory-header free-size check means the trigger requires a region with more than 3 GiB available; no checked-in VMM caller requests this size, and the inspected maintained callers use bounded sizes/alignments. The finding is conditional on an external or future caller and such a large free region.
+
+**Confidence:** high for the unsigned 32-bit addition wrap, the 16-byte reserve, and the later use of the original rounded size to form the aligned block; exact subsequent address effects depend on allocator placement and target memory layout. Check `size + align` for overflow before allocation, and reject an unrepresentable reservation. No allocation, memory region, VMM operation or build was exercised; source-only. See the [TLSF aligned-allocation arithmetic trace](AROS-exec-kernel-coverage.md#tlsf-aligned-allocation-boundary-ek10960).
+
 <a id="ek10959"></a>
 ### EK10959 — PC framed alert underflows when the early console has fewer than two columns [conditional]
 
