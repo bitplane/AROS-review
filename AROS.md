@@ -16021,7 +16021,7 @@ GD5097 refinement (2026-11-04): `PubScreenStatus()` may refuse privatization whi
 **[GD14822](AROS-graphics-desktop.md#gd14822) — Jano Editor frees its IPC request/reply port, then `CloseMainWnd()` sends `CMD_KILL` through those freed pointers if Preferences Editor is running. Applies to the explicitly buildable optional Editor target. Source-only.
 
 
-**[OD3642](AROS-other-drivers.md#od3642) — IFFParse reports short clipboard reads as complete; TextEditor can import unwritten bytes from a truncated CHRS chunk. Conditional on a short backing-file read. Source-only.
+**[OD3642](AROS-other-drivers.md#od3642) — IFFParse reports short clipboard reads as complete.** Text datatype consumers can treat unread bytes as text; MUI String instead silently pastes only the prefix before its cleared buffer tail. Conditional on a short backing-file read. Source-only.
 
 **[OD810](AROS-other-drivers.md#od810) — Clipboard device ignores failed zero-padding and seek operations for sparse writes; with its RAM fallback, a payload can be stored at EOF while the device reports success and records a larger cached size. Conditional on a gap write under allocation failure; no selected in-tree sparse-write caller was found. Source-only. See the [gap-write failure trace](AROS-other-drivers-coverage.md#clipboard-gap-write-allocation-failure-od810-2026-11-04).
 
