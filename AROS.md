@@ -17637,3 +17637,6 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 
 **[OD4213](AROS-other-drivers.md#od4213) — VMware VRAM eviction copies the BO to system memory before waiting for its reservation fences.** If the post-copy wait times out, the helper leaves the source resource assigned but reports success; the eviction loop retries and can accumulate unassigned destination resources, while VRAM-manager teardown ignores its eviction error. The pending-fence timing is conditional; local control flow is source-confirmed. Optional VMware SVGA HIDD; source-only.
+
+
+**[OD4214](AROS-other-drivers.md#od4214) — VMware TTM fence-slot allocation failure can leave the current BO reservation locked.** Reverse backoff releases earlier BOs but skips the current one; selected validation and execbuf error paths do not back it off afterward. Later use of that BO can block or fail. Conditional on `dma_resv_list_alloc()` failing while fence capacity grows; optional VMware SVGA HIDD. Source-only.
