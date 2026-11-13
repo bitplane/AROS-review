@@ -42974,7 +42974,7 @@ Sources: `workbench/devs/USB/classes/HID/hid.c:142-148,220-240,297-300,381-405,4
 Sources: `workbench/tools/AHIRecord/FLAC/stream_decoder.c:2610-2693`; `workbench/tools/AHIRecord/FLAC/lpc.c:795-1321`; `workbench/tools/AHIRecord/FLAC/stream_encoder.c:992-1020,1405-1415,2124-2130`; `workbench/tools/AHIRecord/AHIRecord.c:2948-2955`; `workbench/tools/AHIRecord/mmakefile.src:5-26`.
 
 
-<a id="od9775"></a>
+<a id="od9770"></a>
 ## OD9770 — FLAC decoder retries a zero-byte read without yielding [conditional, callback contract]
 
 The non-Ogg `read_callback_()` wrapper delegates to the client read callback, then returns success when that callback reports `FLAC__STREAM_DECODER_READ_STATUS_CONTINUE` with `*bytes == 0` and the optional EOF callback is absent or false (`workbench/tools/AHIRecord/FLAC/stream_decoder.c:2790-2865`). The bitreader refill path treats that success as a completed refill; when no bytes were added, its read loop retries the same operation and invokes the callback again without advancing input (`bitreader.c:208-236,697-777,807-1173`). A synchronous client that reports temporary unavailability as zero-byte `CONTINUE` can therefore keep the decoder inside one process call, repeatedly polling without giving its event loop or producer a chance to make progress.
@@ -42985,6 +42985,7 @@ The public callback contract says `END_OF_STREAM` must be returned if and only i
 
 Sources: `workbench/tools/AHIRecord/FLAC/stream_decoder.c:2790-2865`; `workbench/tools/AHIRecord/FLAC/bitreader.c:208-236,697-777,807-1173`; `workbench/tools/AHIRecord/FLAC/stream_decoder.h:291-310,467-516`.
 
+<a id="od9772"></a>
 ## OD9772 — FLAC decoder reuses stale output capacities after allocation failure [conditional, direct API caller]
 
 `allocate_output_()` frees and nulls every existing output and residual array before allocating replacements. If any allocation fails, it returns with `FLAC__STREAM_DECODER_MEMORY_ALLOCATION_ERROR` before updating `output_capacity` or `output_channels` (`workbench/tools/AHIRecord/FLAC/stream_decoder.c:1305-1353`). The public `flush()` and `reset()` paths do not clear those cached capacities; they clear the bitreader and reset decoder state instead (`:959-1037`). If the caller recovers from the allocation error and supplies another stream, a frame no larger than the old capacities passes the early return in `allocate_output_()` and proceeds with one or more arrays still NULL. `read_frame_()` then dispatches subframe decoding, whose sample writers use `output[channel]`; residual decoding similarly uses the residual pointer (`:2015-2052,2523-2544`).
@@ -42995,6 +42996,7 @@ This includes failure after partial replacement allocation: the failed array and
 
 Sources: `workbench/tools/AHIRecord/FLAC/stream_decoder.c:959-1037,1305-1353,2015-2052,2523-2544`; `workbench/tools/AHIRecord/FLAC/stream_decoder.h:1366-1416`.
 
+<a id="od9775"></a>
 ## OD9775 — FLAC decoder Application-ID filter growth allocates half the required storage [conditional, direct API caller]
 
 The decoder creates `metadata_filter_ids` for 16 four-byte IDs, and records `metadata_filter_ids_capacity` in units of IDs (`workbench/tools/AHIRecord/FLAC/stream_decoder.c:187-189,314-315`). When either `FLAC__stream_decoder_set_metadata_respond_application()` or `FLAC__stream_decoder_set_metadata_ignore_application()` reaches the capacity, it calls `safe_realloc_mul_2op_(ptr, capacity, 2)` (`:791-800,850-859`). That helper allocates `size1 * size2` bytes (`workbench/tools/AHIRecord/FLAC/share/alloc.h:192-199`), so at capacity 16 it requests 32 bytes instead of the 128 bytes needed for 32 four-byte IDs. The subsequent copy writes the 17th ID at byte offset 64 (`stream_decoder.c:799` or `:858`), outside the requested allocation. The same assignment stores `realloc()`'s result directly in the only pointer; if growth fails, the old allocation is lost, while the decoder is marked with a memory-allocation error.
@@ -43003,18 +43005,21 @@ The decoder creates `metadata_filter_ids` for 16 four-byte IDs, and records `met
 
 Sources: `workbench/tools/AHIRecord/FLAC/stream_decoder.c:187-189,314-315,777-800,836-859`; `workbench/tools/AHIRecord/FLAC/share/alloc.h:192-199`; `workbench/tools/AHIRecord/FLAC/stream_decoder.h:826-867`.
 
+<a id="od3650"></a>
 ## OD3650 — PCNet32 reports online after DMA-ring allocation failure [conditional]
 
 `pcnet32_open()` allocates RX and TX DMA rings separately and records either allocation failure in `oom` (`workbench/devs/networks/pcnet32/pcnet32.c:297-320`). If either allocation fails, the initialization block is skipped, but the function still reaches `return 0` (`:324-441`); any successfully allocated peer ring remains held. The SANA-II Open hook ignores the `start()` result (`workbench/devs/networks/pcnet32/pcnet32_init.c:241-248`), and the later `CmdOnline()` treats zero as success (`workbench/devs/networks/pcnet32/handler.c:667-690`), although the skipped block never sets `IFF_UP` or reports `S2EVENT_ONLINE` (`pcnet32.c:437-439`). The maintained AROSTCP `sana_up()` caller consequently calls `sana_restore()` after the apparently successful `S2_ONLINE` (`workbench/network/stacks/AROSTCP/bsdsocket/net/if_sana.c:857-869`), while later driver requests reject the still-down interface (`handler.c:239-242,624-628`). The surviving ring is not freed by the normal Close path because it calls `stop()` only while `IFF_UP` is set (`pcnet32_init.c:262-264`); DeleteUnit also omits these per-open buffers, and a retry overwrites their pointers.
 
 This requires failure of one of the selected PCNet32 DMA allocations. Standard i386-PC and x86_64-PC workbench network aggregates select the driver. `request_irq()` was checked as a possible second failed-start path, but the current local implementation unconditionally returns zero (`pcnet32.c:262-274`), so that branch is not part of this finding. No allocation failure or device was induced; source-only.
 
+<a id="od3075"></a>
 ## OD3075 — PCNet32 multicast range removal can race RX filtering on ExecSMP [conditional]
 
 The RX interrupt calls `AddressFilter()` and walks `pcnu_multicast_ranges` without synchronization (`workbench/devs/networks/pcnet32/unit.c:381-383,898-934`). Task-side `RemMulticastRange()` finds the node, decrements its reference count, then protects only the list unlink with `Disable()`; it frees the node immediately after `Enable()` (`unit.c:1466-1496`). On ExecSMP, `Disable()` protects only the calling processor and the API explicitly requires a spinlock for data shared across processors (`rom/exec/disable.c:58-61`). An RX interrupt on another CPU can therefore still be traversing the range as the last-reference removal unlinks and frees it. The traversal may read a freed node's bounds or successor, causing incorrect multicast filtering or a fault.
 
 This path has maintained callers: AROSTCP's IPv4 and IPv6 `in_delmulti()` call `S2_DELMULTICASTADDRESS` when the final membership reference is removed (`workbench/network/stacks/AROSTCP/bsdsocket/netinet/in.c:807-826`; `netinet6/in6.c:807-826`); their add paths register the corresponding Ethernet multicast addresses. `ENABLE_MULTICAST` is active in the AROSTCP bsdsocket build (`bsdsocket/mmakefile.src:200`). PCNet32 is selected by the standard i386-PC and x86_64-PC workbench network aggregates; the race requires an ExecSMP target and overlapping RX processing with final membership removal. No multicast request, packet, interrupt schedule, or device was exercised; source-only.
 
+<a id="od3076"></a>
 ## OD3076 — PCNet32 accepts oversized SANA-II writes into a fixed TX frame [conditional]
 
 `CmdWrite()` checks only whether the interface is up and, for `S2_MULTICAST`, whether the destination is multicast; it does not validate `ios2_DataLength` (`workbench/devs/networks/pcnet32/handler.c:226-272`). The TX worker narrows that `ULONG` length to `UWORD`, adds the 14-byte Ethernet header for cooked requests, and passes the narrowed length to the opener's copy hook without checking the destination extent (`workbench/devs/networks/pcnet32/unit.c:494-512`). The destination is the payload field at offset 14 in a packed `eth_frame`; `RXTX_ALLOC_BUFSIZE` is 1,544 bytes, leaving 1,530 bytes from that offset to the end of a slot (`pcnet32.h:428-456`). A cooked write of 1,531 bytes is accepted and copies one byte beyond the slot. Longer values can overrun further; values above 65,535 also wrap when narrowed before the copy and transmitted-length calculation. The public `S2ERR_MTU_EXCEEDED` exists, and selected sibling drivers reject requests over their MTU or TX buffer size (`compiler/include/devices/sana2.h:88`; `workbench/devs/networks/e1000/handler.c:257-264`; `rtl8139/handler.c:272-279`).
