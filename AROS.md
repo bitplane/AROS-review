@@ -17580,7 +17580,7 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[OD4130](AROS-other-drivers.md#od4130) — USB2OTG SOF and watchdog scans stop after 128 interrupt requests; due tail requests can miss poll deadlines behind earlier long-interval requests. The selected ARM Raspberry Pi mass-storage CBI path can exceed the count through multiple LUN workers or interfaces; the required device topology, outstanding-request overlap, and interval phase are unverified. Source-only.**
 
-**[OD4129](AROS-other-drivers.md#od4129) — On non-SMP USB2OTG builds, the watchdog may requeue an interrupt request after the hard IRQ already moved it, corrupting the intrusive poll queue. Conditional on a direct-INT NAK racing the watchdog's enabled window; ARM Raspberry Pi USB2OTG; source-only.**
+**[OD4129](AROS-other-drivers.md#od4129) — On non-SMP USB2OTG builds, the timer-reply path calls the watchdog directly from its CPU 0 worker without an outer interrupt disable; a racing hard IRQ can move an interrupt request before the watchdog requeues its stale snapshot, corrupting the intrusive poll queue. ARM Raspberry Pi USB2OTG; source-only.**
 
 **[OD11588](AROS-other-drivers.md#od11588) — PTP `Info()` on the volume root reports one block, fully used, when no listed storage has the root sentinel ID.** The PTP module is a prerequisite in PC i386/x86-64 USB package build graphs; inclusion in the `poseidon.pkg` payload or runtime loading is not established. Requires a root-volume lock; source-only.
 
