@@ -17707,6 +17707,8 @@ The earlier dated Decoration checkpoints above are historical. The later source-
 
 **[EK10952](AROS-exec-kernel.md#ek10952) — m68kemu omits GadTools `CreateContext()` and `CreateGadgetA()`, so guest gadget-list setup fails.** Conditional on an emulated guest using these public vectors; no maintained emulated guest caller was found. Source-only.
 
+**[EK10953](AROS-exec-kernel.md#ek10953) — m68kemu registers its `DeletePool()` no-op at `AttemptSemaphoreShared()` LVO 720, so shared semaphore attempts always fail.** Conditional on an emulated guest using this API; no maintained m68k guest caller was found. Source-only.
+
 
 **[OD3650](AROS-other-drivers.md#od3650) — PCNet32 reports `S2_ONLINE` success when either DMA-ring allocation fails, leaving the interface down while retaining any successful peer allocation.** The selected AROSTCP caller then restores an interface that subsequent requests see as down. Standard i386-PC and x86_64-PC workbench network aggregates select the driver. The local `request_irq()` currently always returns zero, so its error branch is excluded. Source-only.
 
