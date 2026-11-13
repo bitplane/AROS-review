@@ -17647,6 +17647,7 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[GD15109](AROS-graphics-desktop.md#gd15109) — Editor applies text edits when undo-record allocation fails.** Insert/remove/delete/join/split helpers continue after registration fails; Undo can skip the edit, delete/join can leak an unlinked line, and Undo of a committed edit can dereference an empty redo journal after its record allocation fails. Conditional on journal allocation failure in the explicit Editor target. Source-only.
 
 **[GD15110](AROS-graphics-desktop.md#gd15110) — Editor Undo loses text when restoring a removed range or joined line fails to grow its buffer.** The removed-text branch consumes rollback data despite `insert_str()` failure; the joined-line branch trims the suffix and relinks an empty detached line. Conditional on line-buffer growth failure in the explicit Editor target. Source-only.
+**[GD15111](AROS-graphics-desktop.md#gd15111-vulkan-unknown-object-type-assertion) — Vulkan-Hpp asserts when converting the valid `ObjectType::eUnknown` sentinel, instead of returning `DebugReportObjectTypeEXT::eUnknown`.** Conditional on an external/future client calling this helper in an assert-enabled build; the Vulkan-Hpp target is optional. Source-only.
 
 
 **[OD4200](AROS-other-drivers.md#od4200) — VMware KMS accepts a framebuffer when dirty-tracker allocation fails.** A later same-buffer cursor update can then be missed; conditional on tracker OOM and cursor BO reuse. Optional VMware SVGA HIDD; source-only.
