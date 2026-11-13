@@ -72,7 +72,6 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 | [EK03](AROS-exec-kernel.md#ek03) | `AllocVec` and `AllocVecPooled` can wrap requested size [high impact, high confidence] |
 | [EK04](AROS-exec-kernel.md#ek04) | Releasing shared semaphore grants later readers ahead of a queued writer [medium impact, high confidence] |
 | [EK06](AROS-exec-kernel.md#ek06) | Failed task creation leaves a dangling caller-visible message-port pointer [medium impact, high confidence] |
-| [EK07](AROS-exec-kernel.md#ek07) | CPU-affinity allocation failure is used as a mask [high impact, high confidence; PC SMP] |
 | [EK08](AROS-exec-kernel.md#ek08) | Equal-version resident priority is ignored [medium impact, high confidence] |
 | [EK09](AROS-exec-kernel.md#ek09) | `KrnRemIRQHandler(NULL)` dereferences null [medium impact, high confidence] |
 | [EK10](AROS-exec-kernel.md#ek10) | IRQ handler data update races with IRQ execution/removal [high impact, high confidence; SMP] |
