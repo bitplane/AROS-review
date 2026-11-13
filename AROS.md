@@ -17617,3 +17617,9 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD10057](AROS-other-drivers.md#od10057) — NV50/GF119/GV100 DisplayPort audio-symbol timing calculations underflow for accepted modes with less than seven horizontal blank pixels or 25 active vertical lines.** The resulting values are narrowed into timing registers; hardware-level audio consequences remain unverified. Source-only.
 
 **[OD10058](AROS-other-drivers.md#od10058) — NV507d vertical-blank DMI duration wraps for an accepted one-line vertical blank and sync.** The 16-bit stored value reaches a 12-bit duration field; exact hardware effect is unverified. Source-only.
+
+**[OD10059](AROS-other-drivers.md#od10059) — NV50 SOR SST modeset continues programming after every DisplayPort link-training candidate fails.** Conditional on all SST training attempts failing; any subsequent HPD recovery and visible effect are hardware/timing dependent. Source-only.
+
+**[OD10060](AROS-other-drivers.md#od10060) — NV50 SST atomic validation can accept a mode whose payload exceeds link capacity even at minimum bpc; with no fitting training candidate, the training helper returns success without an attempt.** Conditional on an over-capacity mode reaching the atomic path; connector mode-list validation can reject it earlier. Source-only.
+
+**[OD10061](AROS-other-drivers.md#od10061) — Native Nouveau DP training returns the final LTTPR/sink result, so later success can mask an earlier repeater failure.** Conditional on LTTPR training where an upstream repeater fails and a later target succeeds; physical link behavior is unverified. Source-only.
