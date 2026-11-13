@@ -16348,7 +16348,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 15961:**[OD11371](AROS-other-drivers.md#od11371) — No in-tree Vulkan GPU driver registers with the Vulkan HIDD.** Repository search finds the registration API and implementation but no driver caller; without an out-of-tree component the registry stays empty and instance creation fails. Candidate; optional Vulkan target. Source-only.
 - [OD11372 — Raspberry Pi mailbox callers share cache lines with unrelated memory](AROS-other-drivers.md#od11372)
-- [OD11373 — NV40 fan PWM can program a zero period when the BIOS supplies a PWM frequency](AROS-other-drivers.md#od11373)
+- [OD11373 — Nouveau PWM can program a zero period from a zero PERF divisor or NV40 frequency division](AROS-other-drivers.md#od11373)
 - [OD11374 — Failed BWFM SDIO writes can leave a partial SDPCM transmit frame](AROS-other-drivers.md#od11374)
 - [OD11375 — PPP AbortIO races request queues on ExecSMP, including the AROSTCP shutdown caller](AROS-other-drivers.md#od11375)
 - [OD11376 — Vulkan-Hpp `mapMemory` returns an indeterminate pointer on failure](AROS-other-drivers.md#od11376)
