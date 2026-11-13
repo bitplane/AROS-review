@@ -1512,6 +1512,13 @@ Checked-in callers provide fixed-size destinations: a 5 MiB kernel buffer, 64 Ki
 
 **Affected configuration and trigger:** explicitly built Parthenope Sam440 with DOS, SFS, ext2 or CD boot media containing a file larger than the selected caller's buffer. The active `bootiso-sam440-ppc` rule depends on `parthenope-sam440` (`arch/ppc-sam440/boot/mmakefile.src:11-14`), selecting this path when that boot-ISO target is built. **Confidence:** high for the capacity-free interface, fixed-size callers and full-length local copies; trigger requires a file exceeding the particular buffer. Add a capacity argument and reject files larger than the caller's destination before copying. No large file or boot was used; source-only.
 
+<a id="ek10958"></a>
+### EK10958 — A trailing incomplete Parthenope menu entry discards earlier valid entries.
+
+In both menu parsers, a valid entry is linked to the menu when the next title/label starts (`arch/ppc-sam440/boot/parthenope/src/menu.c:241-252,290-295,424-431,540-545`). If the final stanza has a title but reaches EOF before its `EXEC`/`kernel` line, the parser takes `RQ`, frees only that incomplete entry, and returns zero (`menu.c:223-230,305-308,396-403,555-558`) even though earlier entries remain linked. `dev_load()` propagates that zero; `menu_load()` then frees only the root sentinel and returns NULL (`menu.c:584-599,633-652`). The caller treats NULL as no menu and exits to U-Boot (`arch/ppc-sam440/boot/parthenope/src/parthenope.c:330-340`). The previously linked entries are also left allocated because the root's list is not walked before it is freed.
+
+**Trigger and consequence:** provide a GRUB-style `menu.lst` or Kickstart `Kicklayout` containing at least one valid entry followed by a final titled entry with no kernel/EXEC line. Parthenope rejects the menu as absent instead of retaining the earlier usable options, returns to the U-Boot prompt, and leaks the linked entry records. Discard the malformed final stanza and return the count of already accepted entries, or free the whole list if rejecting the file is intended. **Affected configuration:** explicitly built Parthenope Sam440 parsing either supported local menu format. **Confidence:** high for parser return and caller cleanup behavior; no malformed menu or boot was exercised. Source-only.
+
 <a id="ek10957"></a>
 ### EK10957 — Parthenope leaks module records when it discards an incomplete menu entry.
 
