@@ -8,6 +8,17 @@ Nouveau's aliases are conditional: its module target selects a Mesa-version-spec
 
 ---
 
+<a id="od11043"></a>
+## OD11043 — AGP bus disposal skips superclass cleanup and leaks the temporary object [conditional]
+
+`AGP__Root__Dispose()` frees the six temporary bridge-class list nodes but does not call `OOP_DoSuperMethod()` (`workbench/hidds/agp/agpclass.c:46-55`). The inherited HIDD/root dispose path therefore does not run when this override handles `OOP_DisposeObject(agpbus)`, leaving the allocated root object unfreed and its class object count unreduced (`workbench/hidds/hidd/hiddclass.c:347-355`; `rom/oop/rootclass.c:137-150`; `rom/oop/disposeobject.c:53-62`).
+
+The selected Nouveau AGP compatibility helper creates this object in `agp_find_bridge()`, calls `GetBridgeDevice`, then unconditionally disposes it (`workbench/hidds/nouveau/drm-compat/linux_agp.c:80-106`). Nouveau's selected source list also includes `nvkm/subdev/pci/agp.c`, whose constructor/initializer call `agp_backend_acquire()` (`workbench/hidds/nouveau/sources.drm.mak:55,766`; `nvkm/subdev/pci/agp.c:84-90,124-130`). Each lookup that reaches disposal can retain one AGP root allocation and one class-object count.
+
+**Trigger and consequence:** run a Nouveau AGP bridge lookup on a configuration where the Nouveau and AGP HIDD targets are built and loaded. The AGP object's dispose override skips inherited cleanup, retaining the temporary object and its class count for each lookup. **Affected configuration:** the active `workbench-drivers` graph requests Nouveau for x86_64 PC and OpenSBI RISC-V64 when its Mesa/toolchain alias resolves; Nouveau depends on `hidd-agp-$(AROS_TARGET_ARCH)-$(AROS_TARGET_CPU)`, and AGP defines aliases only for PC i386 and PC x86_64. Thus the in-tree aggregate path is x86 PC only, with Nouveau alias resolution and an AGP lookup still required. **Confidence:** high for the missing superclass dispatch and the selected lookup/dispose path; practical incidence depends on device/bridge probing. Dispatch to the superclass after freeing the private nodes. No AGP object, bridge, build, or hardware operation was exercised; source-only.
+
+---
+
 <a id="od2719"></a>
 ## OD2719 — SDL HIDD color expansion dereferences an unchecked scratch allocation [optional target]
 
