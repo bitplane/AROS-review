@@ -17696,6 +17696,8 @@ The earlier dated Decoration checkpoints above are historical. The later source-
 
 **[OD11596](AROS-other-drivers.md#od11596) — Workbench USB mouse HID extraction skips a byte when an axis or wheel field crosses a boundary.** Conditional on a packed device report; motion can be wrong and wheel input can be lost. Source-only.
 
+**[OD11597](AROS-other-drivers.md#od11597) — USB keyboard copies a packed key array as if it began on a byte boundary.** Conditional on an eight-bit key array beginning at an unaligned bit position; key usages can be decoded incorrectly. Source-only.
+
 
 **[GD15112](AROS-graphics-desktop.md#gd15112) — ColorWheel mask allocation failure paints the wheel's rectangular background opaquely.** An in-tree MUI ColorAdjust caller creates an unframed wheel; if its backing bitmap succeeds but temporary raster or mask allocation fails, the no-mask `BltBitMapRastPort()` branch can cover pixels outside the circle. ReqTools explicitly enables the bevel frame and is excluded. Visible mismatch depends on the underlying background; no allocation, rendering, or build was run. Source-only.
 
