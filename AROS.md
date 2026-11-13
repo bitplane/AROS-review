@@ -17702,3 +17702,5 @@ The earlier dated Decoration checkpoints above are historical. The later source-
 **[EK10949](AROS-exec-kernel.md#ek10949) — `StrDup()` can silently return a truncated string longer than 4 GiB on 64-bit AROS.** Its `ULONG` length truncates on 64-bit targets; a 4-GiB input becomes a one-byte allocation and is returned as an empty string. The selected MUI Text class passes its public contents tag to `StrDup()`, though no in-tree producer constructs a string this large; source-only, low practical incidence.
 
 **[EK10950](AROS-exec-kernel.md#ek10950) — m68kemu omits Utility `NextTagItem()` at LVO 48, so guest tag iteration returns NULL without advancing the cursor.** Conditional on an emulated guest using this public vector; no in-tree guest caller was found. Source-only.
+
+**[EK10951](AROS-exec-kernel.md#ek10951) — m68kemu returns NULL for the public DiskFont `OpenDiskFont()` vector at LVO 30, even when native code could open a font.** Conditional on an emulated guest requiring an available font; no maintained emulated guest caller was found. Source-only.
