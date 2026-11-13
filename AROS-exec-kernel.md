@@ -1512,6 +1512,13 @@ Checked-in callers provide fixed-size destinations: a 5 MiB kernel buffer, 64 Ki
 
 **Affected configuration and trigger:** explicitly built Parthenope Sam440 with DOS, SFS, ext2 or CD boot media containing a file larger than the selected caller's buffer. The active `bootiso-sam440-ppc` rule depends on `parthenope-sam440` (`arch/ppc-sam440/boot/mmakefile.src:11-14`), selecting this path when that boot-ISO target is built. **Confidence:** high for the capacity-free interface, fixed-size callers and full-length local copies; trigger requires a file exceeding the particular buffer. Add a capacity argument and reject files larger than the caller's destination before copying. No large file or boot was used; source-only.
 
+<a id="ek10957"></a>
+### EK10957 — Parthenope leaks module records when it discards an incomplete menu entry.
+
+Both menu parsers allocate an `EntryObject` and a separate name string for each `module` directive (`arch/ppc-sam440/boot/parthenope/src/menu.c:282-285,527-538`; `EntryObject_new()` at `:29-43`). If the parser later rejects the entry—for example, a `title` starts the next entry before this one has a kernel, an unknown directive is encountered, or EOF arrives before a kernel—it routes through `R`/`RQ` and calls `entry_free()` (`menu.c:206-215,225-233,424-435,546-558`). That destructor frees the entry's title/kernel/other/append/initrd fields but explicitly leaves module records and their names allocated (`menu.c:65-79`). Once the rejected entry is freed, those module allocations are no longer reachable by the parser.
+
+**Trigger and consequence:** load a malformed Sam440 menu containing one or more `module` directives in an entry that is subsequently rejected. Each such record and name remains allocated for the rest of the bootloader session; enough rejected stanzas can consume memory needed by later menu or image loading. Free each module object's owned strings and object before freeing a rejected entry. **Affected configuration:** explicitly built Parthenope Sam440 parsing a malformed GRUB-style or Kickstart menu. **Confidence:** high for the lost allocations and cleanup path; memory exhaustion depends on the number of rejected module records and available bootloader memory. No malformed menu, allocation pressure or boot was induced; source-only.
+
 <a id="ek10956"></a>
 ### EK10956 — Parthenope fails to auto-boot a valid default menu entry beyond the first viewport.
 
