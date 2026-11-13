@@ -17707,4 +17707,5 @@ The earlier dated Decoration checkpoints above are historical. The later source-
 
 **[EK10952](AROS-exec-kernel.md#ek10952) — m68kemu omits GadTools `CreateContext()` and `CreateGadgetA()`, so guest gadget-list setup fails.** Conditional on an emulated guest using these public vectors; no maintained emulated guest caller was found. Source-only.
 
-**[OD11594](AROS-other-drivers.md#od11594) — PCNet32 can report S2_ONLINE success when a DMA-ring allocation failed, leaving the interface down; partial rings also leak on allocation and IRQ-request failures.** Standard i386-PC and x86_64-PC workbench network aggregates select the driver. AROSTCP consequently treats the failed start as online, while subsequent data requests see the interface down. Source-only; no failure or device was exercised.
+
+**[OD3650](AROS-other-drivers.md#od3650) — PCNet32 reports `S2_ONLINE` success when either DMA-ring allocation fails, leaving the interface down while retaining any successful peer allocation.** The selected AROSTCP caller then restores an interface that subsequent requests see as down. Standard i386-PC and x86_64-PC workbench network aggregates select the driver. The local `request_irq()` currently always returns zero, so its error branch is excluded. Source-only.
