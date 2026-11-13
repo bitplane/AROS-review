@@ -17634,6 +17634,8 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[GD15106](AROS-graphics-desktop.md#gd15106) — Generic Display::Show may copy an oversized OpenScreen raster past VMware's mode-sized framebuffer.** Conditional on the VMware display using the generic Show path and an OpenScreen raster exceeding its selected mode's active dimensions; the unchecked 32-bit CPU copy then writes outside the framebuffer surface. Source-only.
 
+**[GD15107](AROS-graphics-desktop.md#gd15107) — x86-64 AVX2 dispatch ignores whether the OS enabled AVX state.** A host/VM that reports AVX2 while OSXSAVE or XCR0 XMM/YMM state is disabled can dispatch AVX instructions and fault; standalone x86-64 setup enables that state. Distinct from EK10209's task-switch YMM preservation issue. Source-only.
+
 
 **[OD4200](AROS-other-drivers.md#od4200) — VMware KMS accepts a framebuffer when dirty-tracker allocation fails.** A later same-buffer cursor update can then be missed; conditional on tracker OOM and cursor BO reuse. Optional VMware SVGA HIDD; source-only.
 
