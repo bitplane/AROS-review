@@ -16021,6 +16021,7 @@ GD5097 refinement (2026-11-04): `PubScreenStatus()` may refuse privatization whi
 
 
 **[OD3642](AROS-other-drivers.md#od3642) — IFFParse reports short clipboard reads as complete.** Text datatype consumers can treat unread bytes as text; MUI String instead silently pastes only the prefix before its cleared buffer tail. Conditional on a short backing-file read. Source-only.
+**[OD3644](AROS-other-drivers.md#od3644) — Clipboard.device converts DOS `Read()` errors into `io_Error == 0` with `io_Actual == 0xffffffff`.** IFFParse can mistake the failed read for success; a raw caller that abandons before EOF can leave the unit lock held. Conditional on a backing-file read error. Source-only.
 
 **[OD810](AROS-other-drivers.md#od810) — Clipboard device ignores failed zero-padding and seek operations for sparse writes; with its RAM fallback, a payload can be stored at EOF while the device reports success and records a larger cached size. Conditional on a gap write under allocation failure; no selected in-tree sparse-write caller was found. Source-only. See the [gap-write failure trace](AROS-other-drivers-coverage.md#clipboard-gap-write-allocation-failure-od810-2026-11-04).
 
