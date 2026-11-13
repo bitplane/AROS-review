@@ -21301,3 +21301,5 @@ Graphics.library driver-init failure ownership reconciliation (2026-11-13; no ne
 
 
 GD10451 caller-selection reconciliation (2026-11-13; no source-body/path/LOC credit): traced AboutAROS through `workbench-system-aboutaros` -> `workbench-system` -> `workbench-complete`, and checked the 32 additional caller targets against their manifests and parent edges. Thirty-one additional targets are reachable from the active Workbench aggregate chain, including Clock via `workbench-utilities`; AROSTCP SysLog alone uses the disabled `##MM- contrib` edge. Updated GD10451 and its master-index summary to distinguish build-graph selection from per-image installation. No caller or window failure was induced; source-only.
+
+GD10226 master-index link restoration (2026-11-13; no new finding or source/path/LOC credit): compared the active Vulkan-Hpp RAII shader-batch finding and its retained output-ownership trace with `AROS.md`. The detailed GD10226 section and coverage evidence were present, but the master index lacked a link. Restored a concise index summary pointing to the detailed finding and this coverage pass. No source, API call, or build was changed or run.
