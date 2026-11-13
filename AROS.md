@@ -17751,3 +17751,76 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD10226](AROS-graphics-desktop.md#gd10226) — Vulkan-Hpp RAII drops shader handles after a partial batch failure.** `vkCreateShadersEXT` can return `eIncompatibleShaderBinaryEXT` with valid handles in other output slots, but the RAII wrapper adopts outputs only for `eSuccess`, leaking the valid handles. Conditional on optional Vulkan-Hpp RAII clients using shader objects and a mixed batch; no in-tree caller was found. See the [source trace](AROS-graphics-desktop-coverage.md#vulkan-raii-shader-batch-output). Source-only; no Vulkan call was run.
 
 **[EK10210](AROS-exec-kernel.md#ek10210) — Linux PPC32 task switches omit FPSCR save/restore.** The hosted PowerPC context macros copy the 32 floating-point registers but omit the distinct FPSCR, so tasks can inherit another task's rounding or exception state. Conditional on the Linux PPC32 target being buildable; configuration comments mark PPC support unfinished. See the [source and ABI trace](AROS-exec-kernel-coverage.md#linux-ppc32-hosted-signal-context-and-fpscr-caller-closure-ek10210-added-2026-10-29). Source-only; no build or runtime test was run.
+
+**[EK306](AROS-exec-kernel.md#ek306) — A different-task expunge can free a per-task library base while leaving its owner's slot pointing to it [high memory-integrity impact; high source confidence for generated per-task-base libraries with relative dependencies].** Source-only.
+
+**[EK10178](AROS-exec-kernel.md#ek10178) — ARM task argument setup can misalign the entry stack.** Source-only.
+
+**[EK10179](AROS-exec-kernel.md#ek10179) — ARM StackSwap makes Exec calls with a misaligned stack.** Source-only.
+
+**[EK10198](AROS-exec-kernel.md#ek10198) — Sam440 startup dereferences a NULL command line when the Parthenope menu entry has no appended arguments.** Source-only.
+
+**[EK124](AROS-exec-kernel.md#ek124) — A child per-task-library open can read a freed parent task-storage array during growth.** Source-only.
+
+**[EK365](AROS-exec-kernel.md#ek365) — LeakWatch's CTRL-E baseline copy drops resource type labels in changed-count rows.** Source-only.
+
+**[EK313](AROS-exec-kernel.md#ek313) — task.resource inserts task-list entries without the ExecSMP list lock.** Source-only.
+
+**[EK629](AROS-exec-kernel.md#ek629) — ExecSMP interrupt-server traversal can race removal and free of an active server node on PC VBlank and Raspberry Pi AArch64 SMP (conditional list use-after-free; high source confidence).** Source-only.
+
+**[EK647](AROS-exec-kernel.md#ek647) — Efika publishes a partial OpenFirmware tree, then treats the missing-node list sentinel as a real device.** Source-only.
+
+**[EK651](AROS-exec-kernel.md#ek651) — A failed OpenFirmware property-length query becomes a huge copy length in Efika startup.** Source-only.
+
+**[EK8799](AROS-exec-kernel.md#ek8799) — `WaitIO()` can complete and release a request while `ReplyMsg()` is still publishing it.** Source-only.
+
+**[EK8902](AROS-exec-kernel.md#ek8902) — Raspberry Pi ARM and AArch64 kernel targets require absent architecture source files.** Source-only.
+
+**[EK8903](AROS-exec-kernel.md#ek8903) — BCM27xx secondary startup can reuse trampoline state after a late-core timeout.** Source-only.
+
+**[EK8911](AROS-exec-kernel.md#ek8911) — OpenSBI accepts checksum-invalid ACPI interrupt-controller tables (conditional firmware-data interrupt misconfiguration; high source confidence, firmware trigger unverified).** Source-only.
+
+**[EK8918](AROS-exec-kernel.md#ek8918) — ARM32/ARMeb task affinity adoption leaks the ETask's initialized CPU mask.** Source-only.
+
+**[EK9013](AROS-exec-kernel.md#ek9013) — OOP method-base allocation wraps after exhausting its 22-bit interface-ID space.** Source-only.
+
+**[EK9032](AROS-exec-kernel.md#ek9032) — GenModule can read past a stack buffer when generating a proto header for a long include name.** Source-only.
+
+**[EK9042](AROS-exec-kernel.md#ek9042) — OpenSBI UEFI startup can allocate the FDT primary span as RAM after replacing it with a smaller EFI usable-region list (conditional allocation from EFI-reserved or absent memory; high source confidence).** Source-only.
+
+**[EK9058](AROS-exec-kernel.md#ek9058) — SetPlayerAttrsA searches and adopts public conductors outside the required list lock (conditional concurrency defect; high source confidence).** Source-only.
+
+**[EK9104](AROS-exec-kernel.md#ek9104) — The CHRP OpenFirmware bootstrap dereferences the claim-failure sentinel in its small-allocation pool.** Source-only.
+
+**[EK9116](AROS-exec-kernel.md#ek9116) — A missing Efika OpenFirmware string property causes an underwrite in `ofw_GetString()`.** Source-only.
+
+**[EK9117](AROS-exec-kernel.md#ek9117) — Long Efika OpenFirmware strings have an uninitialized tail after the 255-byte property read.** Source-only.
+
+**[EK9122](AROS-exec-kernel.md#ek9122) — SysMon skips module teardown when MUI application construction fails.** Source-only.
+
+**[EK9332](AROS-exec-kernel.md#ek9332) — RDB checksum verification trusts the disk-supplied word count and can read past a block buffer.** Source-only.
+
+**[EK9337](AROS-exec-kernel.md#ek9337) — RDB partition-name lengths can overrun their fixed-size name fields.** Source-only.
+
+**[EK8858](AROS-exec-kernel.md#ek8858) — Sam440 kernel copies unbounded Parthenope menu arguments into a fixed command-line buffer.** Source-only.
+
+**[EK8976](AROS-exec-kernel.md#ek8976) — i386 PC processor initialization leaks its separate affinity mask.** Source-only.
+
+**[EK9451](AROS-exec-kernel.md#ek9451) — ExecSMP can redispatch a waiting task before its original CPU finishes switching it out.** Source-only.
+
+**[EK9517](AROS-exec-kernel.md#ek9517) — MinGW warm reboot omits the shared-RAM marker and leaves its inherited mapping handle open.** Source-only.
+
+**[EK9526](AROS-exec-kernel.md#ek9526) — DOSBoot drops a whole-disk fallback when all child registrations fail.** Source-only.
+
+**[EK9529](AROS-exec-kernel.md#ek9529) — ConClip shutdown can leave a synchronous request unanswered.** Source-only.
+
+**[EK712](AROS-exec-kernel.md#ek712) — Apple Silicon CreateSegList can return a non-executable jump segment when allocation or protection fails.** Source-only.
+
+**[EK9894](AROS-exec-kernel.md#ek9894) — m68kemu forwards guest callbacks to native callback call sites without an execution bridge.** Source-only.
+
+**[EK329](AROS-exec-kernel.md#ek329) — `OpenAsync()` can close a DOS FileHandle twice when async setup fails.** Source-only.
+
+**[EK10200](AROS-exec-kernel.md#ek10200) — Repeated console SCREEN options leak earlier screen-name allocations.** Source-only.
+
+**[EK345](AROS-exec-kernel.md#ek345) — A zero VESA refresh request reaches a division by zero in the PC bootstrap.** Source-only.
+
