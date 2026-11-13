@@ -135,13 +135,15 @@ After that call succeeds, `GfxInit()` can still return failure if `OOP_NewObject
 
 ## GD2662
 
-**Indexed summary:** `ReadPixelArray8()` can wrap the clipped output offset before the caller's array.
+**Indexed summary:** `ReadPixelArray8()` can form an output address outside the caller's array after clipping offsets narrow to signed `WORD`.
 
-**Source and trigger:** `do_render_with_gc()` stores the array-relative source offset in signed `WORD` variables and adds the distance clipped off the left or top edge (`rom/graphics/gfxfuncsupport.c:110-140,169-180`). `rp8_render()` uses those offsets directly to form the output pointer (`rom/graphics/readpixelarray8.c:21-32`; `rom/graphics/graphics_intern.h:295-296`). With `xstart=-32768`, `xstop=0`, and a bitmap clip beginning at x=0, the clipped-away offset is 32,768 and narrows to -32,768 before indexing the output array. The public function's documented allocation formula reserves the requested rectangle, not space before its base (`readpixelarray8.c:54-68,100-123`).
+**Source and trigger:** `do_render_with_gc()` stores array-relative offsets in signed `WORD` locals and adds the distance clipped from the left or top edge (`rom/graphics/gfxfuncsupport.c:110-140,169-180`). `rp8_render()` uses those offsets in `CHUNKY8_COORD_TO_BYTEIDX()` and passes the result to `HIDD_BM_GetImageLUT()` (`rom/graphics/readpixelarray8.c:21-32`; `rom/graphics/graphics_intern.h:295-296`). The public allocation formula reserves the padded requested rectangle, not space outside its base (`readpixelarray8.c:54-68,100-123`).
 
-**Consequence and scope:** A clipped read spanning that coordinate boundary can write returned pixel data before the caller's output array. Applies to `ReadPixelArray8()` when its requested rectangle is clipped and the array-relative offset does not fit signed WORD. High confidence from the coordinate widths and pointer calculation; no pixel read was run. Source-only.
+For a horizontal example, request `xstart=-32768,xstop=0` against a bitmap clipped to begin at x=0. The clipped-away source offset is 32768, which narrows to -32768 in `srcx`. A vertical example uses `ystart=-32768,ystop=0` against a bitmap clipped to y=0: the same narrowing occurs in `srcy`. The documented output buffer for that one-column, 32,769-row request is 16 * 32,769 bytes. In both cases the offset macro uses fixed-width unsigned `ULONG` arithmetic for the row stride, producing an out-of-array offset when the narrowed signed component is converted to unsigned. The generic `GetImageLUT()` path writes through the resulting pointer (`rom/hidds/gfx/gfx_bitmapclass.c:4160-4196`).
 
-**Review evidence:** [`AROS-graphics-desktop-coverage.md:L3473`](AROS-graphics-desktop-coverage.md#L3473).
+**Consequence and scope:** the HIDD write is directed outside the documented output allocation and can corrupt unrelated memory or fault. On a 32-bit target, the low 32-bit address calculation can wrap to a location before the array; on a 64-bit target, it can instead form a far positive out-of-array address. The exact manifestation depends on target pointer width, compiler lowering of the out-of-range signed-WORD conversion, and address accessibility. Applies to `ReadPixelArray8()` when clipping makes either array-relative offset exceed `WORD_MAX`; the checked-in caller census did not establish such an extreme request. **Confidence:** high for the signed-WORD narrowing and out-of-array address formation; medium for the concrete memory effect on a given target. Preserve offsets in a wide signed type and validate the full output span before forming the pointer. No pixel read, clip operation, or build was run; source-only.
+
+**Review evidence:** [`AROS-graphics-desktop-coverage.md#L3473`](AROS-graphics-desktop-coverage.md#L3473).
 
 ## GD2663
 
