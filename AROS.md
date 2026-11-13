@@ -17743,6 +17743,8 @@ The earlier dated Decoration checkpoints above are historical. The later source-
 
 **[GD15115](AROS-graphics-desktop.md#gd15115) — MUI String paste deletes a marked selection before clipboard reading succeeds.** If clipboard/IFF setup, parsing, or allocation fails, the prior selection has already been removed and no replacement text is inserted. Conditional on a marked selection and read failure; no clipboard operation was run. Source-only.
 
+**[GD15116](AROS-graphics-desktop.md#gd15116) — Text datatype can switch to a truncated replacement stack on 64-bit AROS.** A stubbed `getreg()` can wrap the low-word stack-bound calculation into the swap branch; `stk_Upper` is then computed through 32-bit `ULONG` arithmetic, and x86-64 `StackSwap` uses the truncated value as its stack pointer. Conditional on a narrow stack-address range and a replacement allocation above 4 GiB; optional module, source-only.
+
 
 **[GD9443](AROS-graphics-desktop.md#gd9443) — MUI String compares initial contents against an uninitialized buffer.** A String created with initial contents or an integer can call `strcmp()` before the allocated buffer is initialized. Maintained constructors include WBRename and FTManager; effects depend on allocator contents. Source-only.
 
