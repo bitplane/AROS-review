@@ -17640,6 +17640,8 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[GD15107](AROS-graphics-desktop.md#gd15107) — x86-64 AVX2 dispatch ignores whether the OS enabled AVX state.** A host/VM that reports AVX2 while OSXSAVE or XCR0 XMM/YMM state is disabled can dispatch AVX instructions and fault in the graphics HIDD, optional CyberGraphX, or custom AVX2 AHI path; standalone x86-64 setup enables that state. Distinct from EK10209's task-switch YMM preservation issue. Source-only.
 
+**[GD15108](AROS-graphics-desktop.md#gd15108) — Editor removal can leave an incomplete undo record if rollback-snapshot allocation fails.** The journal size advances before the removed-text segment is allocated; failure leaves an uninitialized operation type that the next Undo parses. Conditional on the explicitly built Editor target and the stated allocation failure. Source-only.
+
 
 **[OD4200](AROS-other-drivers.md#od4200) — VMware KMS accepts a framebuffer when dirty-tracker allocation fails.** A later same-buffer cursor update can then be missed; conditional on tracker OOM and cursor BO reuse. Optional VMware SVGA HIDD; source-only.
 
