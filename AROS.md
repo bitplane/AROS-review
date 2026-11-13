@@ -17642,7 +17642,7 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[GD15108](AROS-graphics-desktop.md#gd15108) — Editor removal can leave an incomplete undo record if rollback-snapshot allocation fails.** The journal size advances before the removed-text segment is allocated; failure leaves an uninitialized operation type that the next Undo parses. Conditional on the explicitly built Editor target and the stated allocation failure. Source-only.
 
-**[GD15109](AROS-graphics-desktop.md#gd15109) — Editor applies text edits when undo-record allocation fails.** Insert/remove/delete/join/split helpers continue after registration fails; Undo can skip the edit, and delete/join can leak an unlinked line. Conditional on undo-chunk allocation failure in the explicit Editor target. Source-only.
+**[GD15109](AROS-graphics-desktop.md#gd15109) — Editor applies text edits when undo-record allocation fails.** Insert/remove/delete/join/split helpers continue after registration fails; Undo can skip the edit, delete/join can leak an unlinked line, and Undo of a committed edit can dereference an empty redo journal after its record allocation fails. Conditional on journal allocation failure in the explicit Editor target. Source-only.
 
 
 **[OD4200](AROS-other-drivers.md#od4200) — VMware KMS accepts a framebuffer when dirty-tracker allocation fails.** A later same-buffer cursor update can then be missed; conditional on tracker OOM and cursor BO reuse. Optional VMware SVGA HIDD; source-only.
