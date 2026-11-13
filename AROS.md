@@ -15886,7 +15886,7 @@ Vulkan-Hpp function wrapper interval `23101-23700` (GD10223/GD10264 rechecked; n
 
 **[GD14782](AROS-graphics-desktop.md#gd14782-editor-save-reports-success-after-a-write-failure-explicit-optional-target) — Editor save ignores buffered write and close failures and returns success, allowing callers to clear the modified marker after a partial file write.**
 
-**[GD14783](AROS-graphics-desktop.md#gd14783-editor-cut-deletes-selected-text-after-a-failed-clipboard-write-explicit-optional-target) — Editor Cut ignores IFF clipboard write failures and deletes the selection after reporting success.**
+**[GD14783](AROS-graphics-desktop.md#gd14783) — Editor and MUI String Cut can delete selected text after a failed clipboard write.** Both callers discard clipboard-write status before deleting the selection; MUI String is in the selected muimaster class set, while Editor is an explicit optional target. No clipboard failure was induced. Source-only.
 
 **[GD14784](AROS-graphics-desktop.md#gd14784-editor-join-and-strip-deletes-the-next-line-after-insertion-fails-explicit-optional-target) — Editor “join and strip” deletes the next line even when appending its text fails, losing that line on allocation failure.**
 
