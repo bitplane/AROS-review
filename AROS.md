@@ -17636,6 +17636,8 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[OD11591](AROS-other-drivers.md#od11591) — CAMD USB-MIDI binding dereferences a NULL product name if Poseidon’s post-configuration fallback allocation fails.** Conditional on that allocation failure and the optional class module being installed and loaded; the class binder runs before generated CAMD-driver loading. Source-only.
 
+**[OD11592](AROS-other-drivers.md#od11592) — Nouveau AGP initialization dereferences an uninitialized host-bridge pointer after `agp_copy_info()` leaves `info.device` unset.** Conditional on an AGP-enabled Nouveau build and successful AGP HIDD bridge lookup; the checked-in source does not establish that the configuration is enabled. Source-only.
+
 **[GD15106](AROS-graphics-desktop.md#gd15106) — Generic Display::Show may copy an oversized OpenScreen raster past VMware's mode-sized framebuffer.** Conditional on the VMware display using the generic Show path and an OpenScreen raster exceeding its selected mode's active dimensions; the unchecked 32-bit CPU copy then writes outside the framebuffer surface. Source-only.
 
 **[GD15107](AROS-graphics-desktop.md#gd15107) — x86-64 AVX2 dispatch ignores whether the OS enabled AVX state.** A host/VM that reports AVX2 while OSXSAVE or XCR0 XMM/YMM state is disabled can dispatch AVX instructions and fault in the graphics HIDD, optional CyberGraphX, or custom AVX2 AHI path; standalone x86-64 setup enables that state. Distinct from EK10209's task-switch YMM preservation issue. Source-only.
