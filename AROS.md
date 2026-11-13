@@ -17706,3 +17706,5 @@ The earlier dated Decoration checkpoints above are historical. The later source-
 **[EK10951](AROS-exec-kernel.md#ek10951) — m68kemu returns NULL for the public DiskFont `OpenDiskFont()` vector at LVO 30, even when native code could open a font.** Conditional on an emulated guest requiring an available font; no maintained emulated guest caller was found. Source-only.
 
 **[EK10952](AROS-exec-kernel.md#ek10952) — m68kemu omits GadTools `CreateContext()` and `CreateGadgetA()`, so guest gadget-list setup fails.** Conditional on an emulated guest using these public vectors; no maintained emulated guest caller was found. Source-only.
+
+**[OD11594](AROS-other-drivers.md#od11594) — PCNet32 can report S2_ONLINE success when a DMA-ring allocation failed, leaving the interface down; partial rings also leak on allocation and IRQ-request failures.** Standard i386-PC and x86_64-PC workbench network aggregates select the driver. AROSTCP consequently treats the failed start as online, while subsequent data requests see the interface down. Source-only; no failure or device was exercised.
