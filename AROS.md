@@ -17676,3 +17676,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD2788](AROS-other-drivers.md#od2788) — USB HIDD initialization ignores starter-task creation failure.** With DOS open, failed `NewAddTask()` leaves initialization waiting forever for a signal the absent starter cannot send; without DOS, initialization can report success without creating the worker. Sam440 USB package or explicit USB-stack build; source-only.
 
 **[OD2789](AROS-other-drivers.md#od2789) — USB HIDD starter uses an unchecked stack allocation on Sam440.** A failed 10 KiB allocation gives Sam440 `PrepareContext()` a near-null stack and causes frame writes near `0x27e0` before task launch. Conditional on starter-stack allocation failure in the selected Sam440 USB package. Source-only.
+
+**[EK487](AROS-exec-kernel.md#ek487) — Hyper-V processor-frequency query discards the upper TSC-frequency word and multiplies the low word by 100 with 32-bit wrap.** Conditional on a standalone PC guest exposing the Microsoft Hyper-V interface and a `GCIT_ProcessorSpeed` query. Source-only.
