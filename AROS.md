@@ -17623,3 +17623,5 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 **[OD10060](AROS-other-drivers.md#od10060) — NV50 SST atomic validation can accept a mode whose payload exceeds link capacity even at minimum bpc; with no fitting training candidate, the training helper returns success without an attempt.** Conditional on an over-capacity mode reaching the atomic path; connector mode-list validation can reject it earlier. Source-only.
 
 **[OD10061](AROS-other-drivers.md#od10061) — Native Nouveau DP training returns the final LTTPR/sink result, so later success can mask an earlier repeater failure.** Conditional on LTTPR training where an upstream repeater fails and a later target succeeds; physical link behavior is unverified. Source-only.
+
+**[GD9472](AROS-graphics-desktop.md#gd9472) — MUI ChunkyImage narrows its public LONG row stride to UWORD.** A valid 65,536-byte stride becomes zero, so generated rows reuse the wrong source offsets; an explicit 65,535-byte stride also collides with the default sentinel. Conditional on public/custom clients supplying those strides; no checked-in setter caller was found. Source-only.
