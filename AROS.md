@@ -16745,13 +16745,11 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 **[GD15099](AROS-graphics-desktop.md#gd15099) — Replacing an external global Decoration theme can leave the old record and theme registered because screen disposal never decrements its count.** Requires the explicit Decoration service; no default Workbench inclusion is claimed. Source-only.
 
 
-**[GD14913](AROS-graphics-desktop.md#gd14913) — Vulkan-Hpp `mapMemory()` may read and return an unwritten output pointer after an error in no-exceptions builds when result assertions do not abort. Conditional on a driver leaving `ppData` untouched on failure; no non-generated in-tree caller was found.**
 
 **[GD14914](AROS-graphics-desktop.md#gd14914) — DiskInfo can read beyond its size-suffix table if a volume handler reports more than 1 EiB through `ACTION_INFO`.** The suffix-index defect is source-confirmed, but no checked-in InfoData producer or ordinary `C:Mount`-to-DiskInfo route establishes the required metadata; practical exposure is conditional on a custom/external handler or future producer. See [formatter and producer review](AROS-graphics-desktop-coverage.md#diskinfo-main-support-full-body-2026-11-03) and [caller/producer boundary recheck](AROS-graphics-desktop-coverage.md#diskinfo-no-volume-action-info-caller-boundary-gd14914-2026-11-12).
 
 **[GD14915](AROS-graphics-desktop.md#gd14915) — Scrollgroup ignores FreeHoriz and FreeVert movement limits [conditional].**
 
-**[GD14912](AROS-graphics-desktop.md#gd14912) — Vulkan-Hpp `getPipelineCacheData()` reads an undefined output size after a runtime error when no-exceptions result assertions are nonfatal. Conditional on a cache query error; no non-generated in-tree caller was found.**
 
 **[GD5694](AROS-graphics-desktop.md#gd5694) — MUI Window snapshot leaves alternate Y uninitialized before config serialization**
 **[GD5696](AROS-graphics-desktop.md#gd5696) — AmigaGuide can miss a resize at asynchronous layout completion**
