@@ -1512,6 +1512,17 @@ Checked-in callers provide fixed-size destinations: a 5 MiB kernel buffer, 64 Ki
 
 **Affected configuration and trigger:** explicitly built Parthenope Sam440 with DOS, SFS, ext2 or CD boot media containing a file larger than the selected caller's buffer. The active `bootiso-sam440-ppc` rule depends on `parthenope-sam440` (`arch/ppc-sam440/boot/mmakefile.src:11-14`), selecting this path when that boot-ISO target is built. **Confidence:** high for the capacity-free interface, fixed-size callers and full-length local copies; trigger requires a file exceeding the particular buffer. Add a capacity argument and reject files larger than the caller's destination before copying. No large file or boot was used; source-only.
 
+<a id="ek10960"></a>
+### EK10960 — TLSF aligned allocation shifts a signed `int` at the 2 GiB boundary [conditional]
+
+The VMM `AllocAligned()` contract accepts any power-of-two alignment greater than its minimum and does not document an upper limit (`workbench/system/VMM/globals.c:196-205`). On AROS, a managed memory header dispatches the request and its alignment directly to `mhe_AllocAligned` (`globals.c:355-367`); TLSF installs `tlsf_malloc_aligned()` for that callback (`rom/kernel/tlsf.c:1469-1481`). TLSF promotes the request with `align = 1 << MS(align)` before using it in the over-allocation size and pointer rounding (`tlsf.c:703-724`). For the valid alignment `0x80000000`, `MS()` returns 31 (`tlsf.c:136-142`) and the expression shifts a signed 32-bit `int` into a value it cannot represent, which is undefined behavior. The resulting value feeds `size + align` and the alignment mask, so the allocator has no defined behavior for this accepted request. No upper-bound check rejects it.
+
+**Trigger and consequence:** a VMM caller requests a modest allocation, such as one page, aligned to `0x80000000` from a TLSF-managed header. The valid power-of-two alignment reaches undefined signed-shift behavior before the allocator computes its reserve and returned address. The exact downstream result is compiler-dependent; the request may fail or produce an incorrectly aligned/malformed allocation.
+
+**Affected configuration:** the optional VMM path when it selects a TLSF-managed memory header, including default-TLSF PC configurations. All checked-in `AllocAligned()` callers use bounded page, table or ROM alignments; no maintained caller uses the 2 GiB value, so the trigger remains conditional on an external or future VMM caller.
+
+**Confidence:** high that this valid input reaches a signed shift whose result is unrepresentable on the supported 32-bit-`int` ABIs; the exact caller-visible result is not defined by C. Promote the shift to an unsigned pointer-width value and reject alignments or size-plus-alignment sums that cannot be represented. No allocation, VMM operation or build was run; source-only. See the [TLSF aligned-allocation contract trace](AROS-exec-kernel-coverage.md#tlsf-aligned-allocation-boundary-ek10960).
+
 <a id="ek10959"></a>
 ### EK10959 — PC framed alert underflows when the early console has fewer than two columns [conditional]
 
