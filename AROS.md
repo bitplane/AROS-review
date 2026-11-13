@@ -17640,3 +17640,6 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 
 **[OD4214](AROS-other-drivers.md#od4214) — VMware TTM fence-slot allocation failure can leave the current BO reservation locked.** Reverse backoff releases earlier BOs but skips the current one; selected validation and execbuf error paths do not back it off afterward. Later use of that BO can block or fail. Conditional on `dma_resv_list_alloc()` failing while fence capacity grows; optional VMware SVGA HIDD. Source-only.
+
+
+**[OD4215](AROS-other-drivers.md#od4215) — Nouveau MST can leak a port reference when an atomic state deleting a payload is aborted.** State duplication acquires a port reference, but deleted-payload state destruction skips its put; the successful commit-tail path balances it separately. Conditional on a later atomic-check failure after detaching an MST payload. Source-only.
