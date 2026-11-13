@@ -213,7 +213,7 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 | [EK9528](AROS-exec-kernel.md#ek9528) | pthread can invoke a PosixC thread hook after delayed expunge has unloaded its code. |
 | [EK9877](AROS-exec-kernel.md#ek9877) | Darwin/AArch64 bootstrap ignores kernel-thread creation failure and never starts the kernel. |
 | [EK9881](AROS-exec-kernel.md#ek9881) | i386 PC ACPI power-off enters ACPICA with maskable interrupts disabled. |
-| [EK9895](AROS-exec-kernel.md#ek9895) | m68kemu passes guest semaphore structures to native Exec without layout conversion. |
+| [EK9895](AROS-exec-kernel.md#ek9895) | m68kemu passes guest lists and semaphore structures to native Exec without layout conversion. |
 | [EK9900](AROS-exec-kernel.md#ek9900) | m68kemu can create a task with a null entry point when tag conversion fails. |
 | [EK9901](AROS-exec-kernel.md#ek9901) | `KrnFormatStr()` ignores callbacks that report failure with the documented zero return. |
 | [EK9902](AROS-exec-kernel.md#ek9902) | MorphOS PPC Exec stubs call missing implementation symbols. |
