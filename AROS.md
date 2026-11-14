@@ -17996,3 +17996,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD1954](AROS-other-drivers.md#od1954) — On UserGroup `getpass()`’s no-console path, the prompt goes to stdout although the API documents stderr. Source-only.**
 
+**[OD1935](AROS-other-drivers.md#od1935) — `ug_ConsoleName()` can read beyond its short `"XXX"` fallback string when given a larger buffer. Conditional on an interactive handle with a fallback port owner; source-only.**
+
