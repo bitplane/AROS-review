@@ -43307,8 +43307,9 @@ The optional `debug-tools-pcitool` target selects `locale.c` but does not select
 
 Thus the checked-in target has no source-level provider for the external `LocaleBase` symbol used by `locale.c`. This is a likely unresolved-base link failure for the explicit PCITool target. If a build environment supplies that symbol outside the selected source/link inputs, the code still never opens `locale.library`; `Locale_Initialize()` then skips `OpenCatalog()` when the supplied base is NULL and `_()` returns compiled strings, so translated catalogs are not used (`locale.c:20-46`). This finding is conditional on the optional target being built and on no external link input providing the base. The source path and generated startup behavior were inspected; no build or GUI/catalog operation was run, so link behavior was not reproduced.
 
-<a id="od11610-parallel-start-stop-requests-are-never-completed"></a>
-## OD11610 — Parallel device leaves `CMD_START` and `CMD_STOP` requests unanswered [unadvertised-command caller conditional]
+<a id="od4348-parallel-start-stop-requests-are-never-completed"></a>
+<a id="od4348"></a>
+## OD4348 — Parallel device leaves `CMD_START` and `CMD_STOP` requests unanswered [unadvertised-command caller conditional]
 
 `beginio()` has explicit `CMD_START` and `CMD_STOP` cases that immediately leave the switch without setting an error, replying the message, or clearing `IOF_QUICK` (`workbench/devs/parallel/parallel_init.c:544-552`). The common tail only releases the unit semaphore and returns (`:604-612`). Unlike `CMD_CLEAR`, `PDCMD_QUERY`, and `PDCMD_SETPARAMS`, these cases have no quick-reply path. `parallel.device` also omits both commands from its `NSCMD_DEVICEQUERY` supported-command array (`:45-58`), so normal clients should not issue them.
 
