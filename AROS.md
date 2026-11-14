@@ -18032,3 +18032,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[EK10968](AROS-exec-kernel.md#ek10968) — x86-64 PC kernel manifest selects an architecture-specific `kernel_memory.o` whose declared local source file is absent.** A clean x86-64 PC kernel build is therefore a source-supported failure candidate; it was not reproduced with a build. Source-only.
 **[EK10969](AROS-exec-kernel.md#ek10969) — PC APIC calibration can use Intel's base processor frequency as the LAPIC timer clock, distorting heartbeat intervals; values above 4,294 MHz also wrap during conversion.** Conditional on Intel CPUID leaf `0x16` and no Microsoft Hyper-V frequency path. Source-only.
+
+**[GD15142](AROS-graphics-desktop.md#gd15142) — On a framebuffer-less display that requires software composition, compositor-bitmap allocation failure is treated as success; the first screen can remain blank while `LoadView()` reports success. Conditional on the optional Compositor and allocation failure; source-only.**
