@@ -17996,6 +17996,10 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD1934](AROS-other-drivers.md#od1934) — UserGroup `getpass()` writes the trailing NUL one byte beyond its static buffer after input of 128 or more characters. Source-only.**
 
+**[OD1955](AROS-other-drivers.md#od1955) — UserGroup `LRandom()` multiplies and shifts promoted 16-bit words as signed `int`, invoking undefined arithmetic for some states on 32-bit-int targets. Conditional on seed values; source-only.**
+
+**[OD1956](AROS-other-drivers.md#od1956) — Concurrent `ug_GetSalt()` calls update one global `LRandom()` seed without synchronization. Conditional on overlapping tasks; source-only.**
+
 **[OD1954](AROS-other-drivers.md#od1954) — On UserGroup `getpass()`’s no-console path, the prompt goes to stdout although the API documents stderr. Source-only.**
 
 **[OD1936](AROS-other-drivers.md#od1936) — Legacy `setreuid()` disables its effective-UID privilege check, contrary to its documented rules. Conditional on security forwarding being inactive; source-only.**
