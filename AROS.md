@@ -17857,3 +17857,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD2857](AROS-other-drivers.md#od2857) — AHI debug logging indexes past the sample-size table for L7.1 and unknown sample types.** Requires low-or-higher device debug logging. Source-only.
 **OD1952 — AHI-Handler duration-to-byte calculation overflows its signed 32-bit length.** Long positive `SECONDS` values can wrap `totallength` negative; AUDIO reads and writes then return a negative count instead of processing the requested stream. Scoped to AHI-Handler builds and durations/formats exceeding `LONG_MAX` bytes. See [OD1952](AROS-other-drivers.md#od1952). Source-only; no audio request was run.
+
+**[GD15117](AROS-graphics-desktop.md#gd15117) — Printer source-hook crop offsets are applied twice.** The hook extracts the requested rectangle into a temporary bitmap at origin, then scaling applies the original `io_SrcX/io_SrcY` to that temporary bitmap. Nonzero offsets can shift or truncate the printed crop; any backend-specific out-of-range behavior is not asserted. Source-only.
