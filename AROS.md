@@ -17992,6 +17992,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 
 **[GD15140](AROS-graphics-desktop.md#gd15140) — TextEditor demo dereferences `CreateRexxMsg()` after its allocation fails, faulting the optional demo on its RunARexxScript path. Source-only.**
+**[OD1933](AROS-other-drivers.md#od1933) — Legacy `getlogin()` uses empty lock macros while `setlogin()` updates the same shared session string. Conditional on concurrent public callers with security forwarding inactive; source-only.**
+
 **[OD1934](AROS-other-drivers.md#od1934) — UserGroup `getpass()` writes the trailing NUL one byte beyond its static buffer after input of 128 or more characters. Source-only.**
 
 **[OD1954](AROS-other-drivers.md#od1954) — On UserGroup `getpass()`’s no-console path, the prompt goes to stdout although the API documents stderr. Source-only.**
