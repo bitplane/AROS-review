@@ -14135,7 +14135,7 @@ These existing coverage-ledger candidates now have detailed finding entries; thi
 
 **[OD3225](AROS-other-drivers.md#od3225) — BCM GENET RX traverses tracker, opener, and pending-read lists without synchronization. The tracker free path has no checked-in `S2_UNTRACKTYPE` caller; AROSTCP shutdown can free an opener through `CloseDevice()`. Its priority-5 shutdown task can preempt the priority-0 driver worker on single-CPU ARM32; SMP can overlap across CPUs. Source-only; no schedule was run.**
 
-**[OD3110](AROS-other-drivers.md#od3110) — BCM GENET marks its kernel IRQ as registered even when `KrnAddIRQHandler()` could not allocate a handler; later teardown passes the NULL token to a remover that dereferences it. Conditional on low memory during explicit Raspberry Pi GENET startup; source-only.**
+**[OD3110](AROS-other-drivers.md#od3110) — BCM GENET and PC AHCI can report kernel IRQ registration success when `KrnAddIRQHandler()` could not allocate a handler; later teardown passes the NULL token to a remover that dereferences it. AHCI may also proceed without a completion interrupt. Conditional on low memory during explicit Raspberry Pi GENET or PC AHCI startup; source-only.**
 
 **[OD3027](AROS-other-drivers.md#od3027) — BCM GENET request-port allocation failure leaks the task, stack, and `MemList` allocated earlier in `CreateUnit()`. Trigger requires low-memory failure during explicit Raspberry Pi GENET startup; source-only.**
 
