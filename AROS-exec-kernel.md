@@ -10828,8 +10828,8 @@ This is not retained as an active bug finding because no checked-in path reaches
 
 **Disposition:** withdrawn as a reachable API bug candidate. Retain the five stub bodies as a documented implementation gap in the coverage ledger. If the VMM initialization handshake is repaired or an independent supported initialization route is established, re-evaluate the vectors against the API guide. No manager, library, message, allocation, or build was run; source-only.
 
-<a id="ek10962"></a>
-## EK10962 — PC SMP `Wait()` can self-deadlock during task-list lock priority donation [conditional]
+<a id="ek10963"></a>
+## EK10963 — PC SMP `Wait()` can self-deadlock during task-list lock priority donation [conditional]
 
 On the x86-64 PC SMP path, `Wait()` acquires the current task's `tc_SpinLock`, sets `tc_State` to `TS_WAIT`, and then removes the task from `TaskRunning` through `exec_TaskRemoveRunning()` before it can enqueue the task on `TaskWait` (`rom/exec/wait.c:69-100`; `rom/exec/exec_intern.h:193-203`). That helper obtains `TaskRunningSpinLock` for writing while `Wait()` still holds `tc_SpinLock`; the comment in `Wait()` confirms the task lock stays held through the later context switch.
 
