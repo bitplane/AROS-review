@@ -43641,3 +43641,13 @@ Sources: `workbench/libs/usergroup/getutent.c:187-208,464-489`; `workbench/libs/
 **Trigger and consequence:** a caller enters 128 or more characters before newline or EOF. The returned password buffer is terminated out of bounds, modifying the adjacent static storage in the library's data image; exact neighboring state and resulting effect depend on the built layout. **Affected configuration:** `usergroup.library` callers using the selected `getpass()` vector. **Confidence:** high for the one-byte out-of-bounds store and trigger; no runtime effect was exercised. Reserve one byte for the terminator (for example, limit stored characters to `_PASSWORD_LEN - 1`) or enlarge the buffer and keep the bound consistent. No password was entered and no build was run; source-only.
 
 Sources: `workbench/libs/usergroup/getpass.c:79-104`; `workbench/libs/usergroup/usergroup.h:36`; `workbench/libs/usergroup/usergroup.conf:59`; `workbench/libs/usergroup/mmakefile.src:6-29`.
+
+
+<a id="od1954"></a>
+## OD1954 — UserGroup `getpass()` sends its fallback prompt to standard output [no-console path]
+
+The documented fallback is to read standard input and write the prompt to standard error (`workbench/libs/usergroup/getpass.c:42-46`). When opening `CONSOLE:` fails, the implementation uses `Input()` for `conin` but assigns `Output()` to `conout` (`:88-96`). DOS defines a separate standard-error handle and documents that it should be used instead of `Output()` to report errors (`compiler/include/dos/dosextens.h:189-191`). The prompt is therefore written to standard output on precisely the fallback path.
+
+**Trigger and consequence:** a caller invokes this `usergroup.library` vector in a process without an openable `CONSOLE:` device while standard output and standard error are distinct or redirected. The password prompt is sent to stdout, potentially contaminating command output, while the expected stderr prompt is absent. **Affected configuration:** selected UserGroup `getpass()` vector on the no-console fallback path; the POSIX CRT has a separate `fgets()` implementation and is not affected by this vector issue. **Confidence:** high for the documentation/code mismatch and chosen handle; practical impact depends on caller redirection. Use the process's standard error handle for `conout`. No console or redirected process was used; source-only.
+
+Sources: `workbench/libs/usergroup/getpass.c:42-46,78-96`; `compiler/include/dos/dosextens.h:189-191`; `compiler/crt/posixc/getpass.c:20-70`; `workbench/libs/usergroup/usergroup.conf:59`; `workbench/libs/usergroup/mmakefile.src:6-29`.
