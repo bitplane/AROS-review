@@ -17892,3 +17892,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11605](AROS-other-drivers.md#od11605) — AHIRecord skips partial AHI setup cleanup when `openAHI()` fails: depending on the failure stage it leaks its message port, I/O request, and, after a successful open, the `ahi.device` reference. Conditional on allocation or device-open failure in the optional AHIRecord target; source-only.**
 
 **[GD15120](AROS-graphics-desktop.md#gd15120) — Built-in printer conversion divides by zero for black pixels on four-color printers.** The fallback YMCB/BGRW conversion divides by the largest RGB channel; black makes that denominator zero. Conditional on a four-color printer using built-in conversion; source-only, target exception behavior unverified.
+
+**[GD15121](AROS-graphics-desktop.md#gd15121) — Printer unit startup can leave its worker blocked after reply-port allocation fails.** The process is already launched, but no startup message is sent; the parent then expunges its unit without removing the worker. Conditional; source-only.
+
+**[GD15122](AROS-graphics-desktop.md#gd15122) — Printer `pd_PRead()` can resubmit a still-pending timer request.** If a printer read completes before timeout, `pd_TIOR` remains queued and a subsequent read submits it again, which can corrupt the timer wait list. Requires a configured printer segment using repeated reads; source-only.
