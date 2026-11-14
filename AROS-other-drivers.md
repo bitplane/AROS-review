@@ -43380,6 +43380,7 @@ Sources: `workbench/hidds/nouveau/sources.drm.mak:74-80,157-164`; `workbench/hid
 
 Sources: `workbench/hidds/nouveau/drm/nouveau/nouveau_ttm.c:181-199,218-240,302-337,349-361`; `workbench/hidds/nouveau/drm/nouveau/nouveau_drm.c:665-735,917-923`; `workbench/hidds/nouveau/drm/nouveau/nouveau_drv.h:230-244`; `workbench/hidds/nouveau/drm/ttm/ttm_device.c:208-278`; `workbench/hidds/nouveau/drm/ttm/ttm_tt.c:386-400`.
 
+<a id="od4347"></a>
 ## OD4347 — PostScript segment omits the raster image for Greyscale 2 [printer.device explicitly selected]
 
 The printer preferences UI exposes “Greyscale 2” at `workbench/prefs/printer/editor.c:181-185,395`; that setting is stored as `PS_GREY_SCALE2` (value 3) in `PrintShade` and copied unchanged into `ps_PrintShade` by the PostScript segment (`workbench/printers/postscript/postscript.c:614`). `ps_RenderInit()` emits an image operator only for `SHADE_BW`, `SHADE_GREYSCALE`, and `SHADE_COLOR` (`:662-675`). `ps_RenderTransfer()` likewise has no case for value 3, while `ps_RenderFlush()` computes zero data length for it (`:700-735,756-768`). The dump can therefore return success while outputting no raster image/pixel data for this valid preference.
