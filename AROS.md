@@ -17635,7 +17635,7 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[OD11588](AROS-other-drivers.md#od11588) — PTP `Info()` on the volume root reports one block, fully used, when no listed storage has the root sentinel ID.** The PTP module is a prerequisite in PC i386/x86-64 USB package build graphs; inclusion in the `poseidon.pkg` payload or runtime loading is not established. Requires a root-volume lock; source-only.
 
-**[OD11589](AROS-other-drivers.md#od11589) — USB2OTG split-transfer IRQ paths traverse or mutate shared request queues without `hu_Lock`.** On Raspberry Pi ExecSMP, concurrent task-side submission or abort can race those intrusive-list operations and disrupt request scheduling. Source-only; interleaving not reproduced.
+**[OD11589](AROS-other-drivers.md#od11589) — USB2OTG split-transfer IRQ paths access shared request queues and TT-clear state without `hu_Lock`.** On Raspberry Pi ExecSMP, concurrent task-side queue operations can race those updates and disrupt request scheduling. Source-only; interleaving not reproduced.
 
 **[OD9796 expanded](AROS-other-drivers.md#od9796) — PCI USB RTIso Start can report success without scheduling work:** xHCI can fail initial context creation; on 64-bit PCIUSB UHCI/OHCI builds, failure to allocate the required low-address mirror for every prefilled buffer also leaves no active transfer. The caller sees success, but no completion can trigger refill. Source-only; no allocation failure or transfer was induced.
 
