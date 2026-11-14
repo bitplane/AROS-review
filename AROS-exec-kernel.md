@@ -10988,3 +10988,21 @@ The public long-double wrapper forwards every positive, finite, nonzero input to
 **Trigger and consequence:** call `logl()` with the minimum positive binary128 subnormal (or another positive subnormal). The returned logarithm is materially too large; for the minimum subnormal, the exponent component is 111 powers of two above the input's actual exponent, an error of about 77 in the logarithm. **Affected configuration:** AArch64 and RISC-V StdC builds selecting binary128 long-double math (`LDBL_MANT_DIG == 113`; `compiler/crt/stdc/include/aros/stdc/float.h:45-56`). **Confidence:** high for the missing subnormal normalization and resulting exponent mismatch from the source representation; no math call or build was run. Normalize the subnormal significand and adjust the exponent before table selection. Source-only.
 
 Sources: `compiler/crt/stdc/math/ld128/e_logl.c:197-240`; `compiler/crt/stdc/math/ld80/e_logl.c:102-137`; `compiler/crt/stdc/logl.c:51-62`; `compiler/crt/stdc/mmakefile.src:347-363,393-395`; `compiler/crt/stdc/include/aros/stdc/float.h:45-56`.
+
+<a id="ek10978"></a>
+## EK10978 — `expm1l()` overflows its reconstruction intermediate below the result limit
+
+Both selected long-double providers reduce the input to a nearest integer `k`, then reconstruct with `px = ldexpl(1.0L, k)` and `px * qx + (px - 1)` (`compiler/crt/stdc/math/ld80/s_expm1l.c:108-136`; `compiler/crt/stdc/math/ld128/s_expm1l.c:133-160`). For inputs just below their `MAXLOGL`/`maxlog` limit, the rounded reduction selects `k = 16384`. `2^16384` is outside both formats' finite range, so `ldexpl()` overflows to infinity before the residual terms are combined. For example, at the provider limit minus `0.25L`, the actual `exp(x)-1` remains a finite fraction of `LDBL_MAX`, but the residual `qx` is negative; the final expression combines negative infinity and positive infinity and produces NaN.
+
+**Trigger and consequence:** on an 80-bit or binary128 long-double target, call `expm1l()` with a finite value near its implementation limit, such as the corresponding `MAXLOGL - 0.25L`. The reduction reaches `k=16384`, the intermediate power overflows, and the function returns NaN for a representable result. **Affected configuration:** i386, x86-64, m68k, AArch64 and RISC-V StdC targets selecting these long-double providers (`compiler/crt/stdc/mmakefile.src:323-372,383-395`); PowerPC's separate provider omission is EK10971. **Confidence:** high for the integer reduction and unrepresentable intermediate; no math call or build was run. Reconstruct the near-maximum result without forming `2^16384` as a standalone long double. Source-only.
+
+Sources: `compiler/crt/stdc/math/ld80/s_expm1l.c:82-86,108-136`; `compiler/crt/stdc/math/ld128/s_expm1l.c:82-90,133-160`; `compiler/crt/stdc/mmakefile.src:323-372,383-395`; `compiler/crt/stdc/include/aros/stdc/float.h:45-74`.
+
+<a id="ek10979"></a>
+## EK10979 — 80-bit `expm1l(NaN)` converts NaN to an integer
+
+The selected 80-bit `expm1l()` provider tests only zero and finite range thresholds before reducing the input (`compiler/crt/stdc/math/ld80/s_expm1l.c:95-110`). For a NaN, both comparisons are false; `floorl(0.5 + x / xx)` remains NaN, and assigning it to integer `k` invokes undefined behavior because the floating value cannot be represented as an `int`. The matching binary128 provider explicitly detects NaN and returns it before this conversion (`compiler/crt/stdc/math/ld128/s_expm1l.c:101-119`).
+
+**Trigger and consequence:** call `expm1l(NAN)` on a selected 80-bit long-double build. The function reaches a NaN-to-integer conversion and has undefined C behavior instead of reliably propagating NaN. **Affected configuration:** i386, x86-64 and m68k StdC targets selecting `STDC_LONGDB80_MATH`; binary128 AArch64/RISC-V has an early NaN return. **Confidence:** high for the unchecked conversion and selected source path; no math call or build was run. Return NaN before performing the integer range reduction. Source-only.
+
+Sources: `compiler/crt/stdc/math/ld80/s_expm1l.c:89-110`; `compiler/crt/stdc/math/ld128/s_expm1l.c:101-119`; `compiler/crt/stdc/mmakefile.src:323-372,383-395`; `compiler/crt/stdc/include/aros/stdc/float.h:43-74`.
