@@ -11006,3 +11006,21 @@ The selected 80-bit `expm1l()` provider tests only zero and finite range thresho
 **Trigger and consequence:** call `expm1l(NAN)` on a selected 80-bit long-double build. The function reaches a NaN-to-integer conversion and has undefined C behavior instead of reliably propagating NaN. **Affected configuration:** i386, x86-64 and m68k StdC targets selecting `STDC_LONGDB80_MATH`; binary128 AArch64/RISC-V has an early NaN return. **Confidence:** high for the unchecked conversion and selected source path; no math call or build was run. Return NaN before performing the integer range reduction. Source-only.
 
 Sources: `compiler/crt/stdc/math/ld80/s_expm1l.c:89-110`; `compiler/crt/stdc/math/ld128/s_expm1l.c:101-119`; `compiler/crt/stdc/mmakefile.src:323-372,383-395`; `compiler/crt/stdc/include/aros/stdc/float.h:43-74`.
+
+<a id="ek10980"></a>
+## EK10980 — Binary128 `tgammal()` loses the gamma sign for negative nonintegers
+
+The selected binary128 gamma helper handles zero, negative integer poles and negative infinity, then returns `expl(lgammal(x))` for all other values (`compiler/crt/stdc/math/ld128/e_tgammal.c:28-38`). `lgammal()` returns `ln|Gamma(x)|`; the precision-specific adapter calls `lgammal_r()` with the StdC base's `_signgam` field, so the sign is produced separately (`compiler/crt/stdc/math/e_lgammal.c:25-29`; `compiler/crt/stdc/math/ld128/e_lgammal_r.c:246-255`). The gamma helper ignores that sign and exponentiates only the magnitude. The public `tgammal()` wrapper returns this result without applying `_signgam` (`compiler/crt/stdc/tgammal.c:52-70`).
+
+**Trigger and consequence:** on a binary128 long-double target, call `tgammal()` with a negative noninteger such as `-0.5L`. The helper returns positive `2*sqrt(pi)` instead of negative `-2*sqrt(pi)`; other intervals with negative gamma similarly receive the wrong sign. **Affected configuration:** AArch64 and RISC-V StdC builds selecting `STDC_LONGDB128_MATH` (`compiler/crt/stdc/mmakefile.src:347-372,393-395`). **Confidence:** high for the `ln|Gamma|` contract, separately written signgam and missing sign application; no gamma call or build was run. Apply the sign returned by `lgammal_r()` when reconstructing gamma. Source-only.
+
+Sources: `compiler/crt/stdc/math/ld128/e_tgammal.c:23-38`; `compiler/crt/stdc/math/e_lgammal.c:25-29`; `compiler/crt/stdc/math/ld128/e_lgammal_r.c:246-255`; `compiler/crt/stdc/tgammal.c:52-70`; `compiler/crt/stdc/mmakefile.src:347-372,393-395`.
+
+<a id="ek10981"></a>
+## EK10981 — 80-bit `tgammal()` applies the positive overflow limit to large negative inputs
+
+The selected ld80 implementation computes `q = fabsl(x)` and returns positive infinity whenever `q > MAXGAML`, before it checks whether `x` is negative or applies the reflection formula (`compiler/crt/stdc/math/ld80/e_tgammal.c:231-238,256-257`). `MAXGAML` is the cutoff for positive gamma growth. Gamma for a large negative noninteger instead has magnitude approximately `pi/Gamma(1-x)` and tends toward zero. For `x=-1756.5`, reflection gives a negative result with log magnitude about `-11369.96`, within the 80-bit subnormal range, while the early branch returns positive infinity. The public wrapper then reports false overflow (`compiler/crt/stdc/tgammal.c:54-68`).
+
+**Trigger and consequence:** on an 80-bit long-double target, call `tgammal()` with a negative noninteger whose absolute value exceeds `MAXGAML`, such as `-1756.5L`. The implementation returns positive infinity and raises overflow instead of returning the finite negative gamma value (which is a representable subnormal for this example). Large negative integer poles also take the same premature overflow return instead of the pole path. **Affected configuration:** i386, x86-64 and m68k StdC builds selecting `STDC_LONGDB80_MATH` (`compiler/crt/stdc/mmakefile.src:323-344,383-384`). **Confidence:** high for the branch ordering and reflection behavior; the example's representability follows from the Stirling/reflection bounds, but no project math call or build was run. Apply the positive overflow cutoff only on the positive-input path and use reflection for negative arguments. Source-only.
+
+Sources: `compiler/crt/stdc/math/ld80/e_tgammal.c:231-260`; `compiler/crt/stdc/tgammal.c:54-68`; `compiler/crt/stdc/mmakefile.src:323-344,383-384`; `compiler/crt/stdc/include/aros/stdc/float.h:43-74`.
