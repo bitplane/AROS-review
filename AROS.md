@@ -16476,6 +16476,8 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[OD9952](AROS-other-drivers.md#od9952) — PCITool skips library-open cleanup and reports success when a later required library fails to open.** Partial OOP/MUI references remain held and startup exits with `RETURN_OK`; conditional on the explicit PCITool target. Source-only.
 
+**[OD10142](AROS-other-drivers.md#od10142) — PCITool does not provide its locale library base.** The optional target has no source-level `LocaleBase` definition, open, or auto-open entry; likely unresolved base at link, and translations remain unavailable if an external link input supplies a null base. Link outcome unverified; source-only.
+
 **OD11606 (withdrawn):** duplicate of [OD9952](AROS-other-drivers.md#od9952); no separate finding is counted.
 
 **[OD11607](AROS-other-drivers.md#od11607) — PCITool exits successfully when MUI cannot construct its application object.** The GUI initialization failure falls through to `cleanup(NULL)` and `RETURN_OK`; conditional on the explicit PCITool target. Source-only.
