@@ -18038,6 +18038,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11634](AROS-other-drivers.md#od11634) — Trident reads a 32-bit unit value beyond a short imported `UNIT` chunk.** A malformed imported `STACKCFG` can make the optional preferences program read past the copied chunk; source-only.
 
+**[OD1762](AROS-other-drivers.md#od1762) — Trident window setup dereferences a missing event message port after `CreateMsgPort()` fails; a separate event-hook allocation failure leaves live GUI updates disabled. Conditional on allocation failure in the explicitly buildable preferences program; source-only.**
+
 **[EK10970](AROS-exec-kernel.md#ek10970) — The selected stdc `fenv.c` source cannot compile for m68k because its type-only header has no m68k `fenv_t` definition.** Conditional on building the m68k stdc library; source selection and missing type branch are confirmed, no build was run.
 
 **[EK10971](AROS-exec-kernel.md#ek10971) — PowerPC `float.h` advertises unsupported 80-bit long double while the stdc build omits its matching math bodies.** Selected wrappers such as `cosl()` can reference missing `__ieee754_*l` implementations; source-only build/link candidate, not reproduced.
