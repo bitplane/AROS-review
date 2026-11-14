@@ -43407,6 +43407,22 @@ This reaches Nouveau's NV50 cursor acquire path, which calls the helper with `ca
 
 Sources: `workbench/hidds/nouveau/drm/drm_atomic.c:642-653`; `workbench/hidds/nouveau/drm/drm_atomic_helper.c:892-944`; `workbench/hidds/nouveau/drm/drm_rect.c:91-103,129`; `workbench/hidds/nouveau/drm/nouveau/dispnv50/curs507a.c:107-143`; `workbench/hidds/nouveau/drm/nouveau/dispnv50/wndw.c:363-370`; `workbench/hidds/nouveau/drm/nouveau/dispnv50/curs507a.c:59-68`; `workbench/hidds/nouveau/drm/nouveau/dispnv50/cursc37a.c:38-47`; `workbench/hidds/nouveau/drm/nouveau/include/nvhw/class/cl507a.h:34-35`; `workbench/hidds/nouveau/drm/nouveau/include/nvhw/class/clc37a.h:29-30`.
 
+<a id="od11619-dp-aux-zero-speed-parameter-divides-by-zero"></a>
+## OD11619 — Zero DP AUX I²C speed parameter divides by zero [invalid configuration]
+
+`dp_aux_i2c_speed_khz` is an `int` module parameter with write permission (`0644`) and a description specifying the supported range as 1–400, but the value is never validated or clamped (`workbench/hidds/nouveau/drm/display/drm_dp_helper.c:1969-1972`). Every `drm_dp_i2c_do_msg()` computes its retry count using that value (`:1982-1995`). The duration calculation divides by `i2c_speed_khz` without checking for zero (`:1941-1948`). Nouveau registers this helper's AUX adapter for DP/eDP connectors and provides a transfer callback, so ordinary I²C-over-AUX traffic can reach the calculation (`nouveau/nouveau_connector.c:938-954,1400-1410`).
+
+**Trigger and consequence:** set the writable `dp_aux_i2c_speed_khz` module parameter to zero, then issue any I²C-over-AUX transfer on an active Nouveau DP/eDP connector. The retry-count calculation divides by zero before issuing the AUX request, causing a kernel arithmetic fault rather than rejecting or clamping the invalid value. **Affected configuration:** optional Nouveau DRM target with a registered DP/eDP AUX adapter; changing the parameter requires privileged system configuration. **Confidence:** high from the unvalidated parameter and direct division; no parameter change or transfer was performed. Validate or clamp the parameter to its documented range before using it in the duration calculation. Source-only.
+
+<a id="od11620-nouveau-ignores-edp-backlight-enable-failure"></a>
+## OD11620 — Nouveau silently ignores eDP backlight enable failures [optional backlight configuration]
+
+The selected `drm_edp_backlight_enable()` helper reports errors from the DPCD mode, brightness, or enable writes (`workbench/hidds/nouveau/drm/display/drm_dp_helper.c:4092-4108`). Nouveau's NV50 SOR atomic-enable path calls it for DPCD-controlled backlights but discards its return value (`nouveau/dispnv50/disp.c:1924-1938`); the surrounding enable path continues with encoder update (`:1947-1950`). The disable path separately checks and logs its result (`:1660-1668`), showing that failure reporting is available.
+
+**Trigger and consequence:** with `CONFIG_DRM_NOUVEAU_BACKLIGHT`, an eDP modeset reaches the DP enable path and an AUX/DPCD write in `drm_edp_backlight_enable()` fails. The mode/encoder enable continues without reporting the backlight error, and the panel may remain dark until a later operation retries enabling it. **Affected configuration:** optional Nouveau NV50 eDP output with a DPCD-controlled backlight. **Confidence:** high that the return is discarded and output setup continues; whether a particular failed write leaves a panel dark depends on panel state and DPCD behavior. No AUX failure, modeset, panel or build was exercised; source-only. Log or propagate the helper error and ensure the backlight-enable state can be retried.
+
+Sources: `workbench/hidds/nouveau/drm/display/drm_dp_helper.c:4092-4108`; `workbench/hidds/nouveau/drm/nouveau/dispnv50/disp.c:1660-1668,1924-1950`.
+
 <a id="od11616-nouveau-ttm-dma-map-clear-spins-on-zero-ref-lru-entry"></a>
 ## OD11616 — TTM DMA-map clearing can spin forever on a zero-reference LRU entry [no in-tree caller found]
 
