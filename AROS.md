@@ -18000,7 +18000,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD1956](AROS-other-drivers.md#od1956) — Concurrent `ug_GetSalt()` calls update one global `LRandom()` seed without synchronization. Conditional on overlapping tasks; source-only.**
 
-**[OD1957](AROS-other-drivers.md#od1957) — Security-backed `setregid()` can change the real GID and then return `EPERM` when validating the effective GID against the already-mutated saved/real IDs. Conditional on a non-root task with distinct saved and real GIDs; source-only.**
 
 **[OD1954](AROS-other-drivers.md#od1954) — On UserGroup `getpass()`’s no-console path, the prompt goes to stdout although the API documents stderr. Source-only.**
 
