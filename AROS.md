@@ -18037,3 +18037,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11633](AROS-other-drivers.md#od11633) — Trident's hardware-list display hook dereferences a NULL device name when a name-copy allocation fails.** `UpdateConfigToGUI()` inserts the node and later enables list rendering, whose hook immediately walks `devname`; applies to the optional `kernel-usb-trident` program. Source-only.
 
 **[OD11634](AROS-other-drivers.md#od11634) — Trident reads a 32-bit unit value beyond a short imported `UNIT` chunk.** A malformed imported `STACKCFG` can make the optional preferences program read past the copied chunk; source-only.
+
+**[EK10970](AROS-exec-kernel.md#ek10970) — The selected stdc `fenv.c` source cannot compile for m68k because its type-only header has no m68k `fenv_t` definition.** Conditional on building the m68k stdc library; source selection and missing type branch are confirmed, no build was run.
