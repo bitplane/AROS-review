@@ -17939,3 +17939,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15135](AROS-graphics-desktop.md#gd15135) — PTP read-error cleanup frees a buffer it does not own.** Conditional on continuation-transfer failure; source-only.
 
 **[GD15136](AROS-graphics-desktop.md#gd15136) — Oversized PTP data responses can underflow the remaining-buffer calculation.** Malformed responses can produce an out-of-range continuation transfer and use the wrong source for the final copy; source-only.
+
+**[OD11611](AROS-other-drivers.md#od11611) — Nouveau initialization fails on pre-Tesla GPUs when the optional HIDD is built.** Legacy VRAM-manager setup calls an AROS stub that returns `-ENOSYS`, so probing those devices aborts initialization; default-image inclusion is not claimed. Source-only.
