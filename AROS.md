@@ -17964,3 +17964,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15138](AROS-graphics-desktop.md#gd15138-planar-fillrect-steps-beyond-the-bitmap-at-the-maximum-word-row-target-dependent-boundary) — PlanarBM can step beyond a plane after filling row 32767.** The signed `WORD` row loop can wrap after the final valid row and access a row beyond the bitmap; conditional on target narrowing behavior and a sufficiently tall classic bitmap. Source-only.
 
 **[OD1599](AROS-other-drivers.md#od1599) — Poseidon hardware removal can wait indefinitely on a later busy device.** After the first busy device reaches the forced-release threshold, the shared counter is left at 29; a subsequent device advances it to 31 and then by twos, so the `== 30` fallback cannot fire. Conditional on multiple dead devices retaining pipes; source-only.
+
+**[OD4333](AROS-other-drivers.md#od4333-aros-libdrm-resources-leak-arrays) — VMware SVGA and Nouveau `drmModeFreeResources()` free only the outer result, leaking up to four separately allocated ID arrays on each resource query. Source-only.
