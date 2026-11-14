@@ -14474,7 +14474,7 @@ These existing coverage-ledger candidates now have detailed finding entries; thi
 
 **[OD10025](AROS-other-drivers.md#od10025) — Optional Nouveau VRAM-backed display push buffers are published after the visibility-flush wait times out.** Pascal default or forced-VRAM configuration; stale command fetch is hardware-conditional.
 
-**[OD10026](AROS-other-drivers.md#od10026) — Optional NV50 DP MST manager initialization can fail, then mode-config rollback finalizes its uninitialized private object.** Conditional on topology-state allocation failure after encoder registration.
+**[OD10026](AROS-other-drivers.md#od10026) — Optional Nouveau MST initialization can fail before private-object setup, then encoder cleanup finalizes the uninitialized object.** Conditional on ordered-workqueue or initial-state allocation failure; later output creation may mask the error while retaining the encoder, so normal teardown can also reach it.
 
 **[OD10027](AROS-other-drivers.md#od10027) — Optional NV50 SPWG LVDS enable can dereference NULL EDID after the BIOS strap-mode fallback accepts the panel.** Conditional on missing EDID and the relevant VBIOS configuration.
 
@@ -17701,8 +17701,6 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[OD4215](AROS-other-drivers.md#od4215) — Nouveau MST can leak a port reference when an atomic state deleting a payload is aborted.** State duplication acquires a port reference, but deleted-payload state destruction skips its put; the successful commit-tail path balances it separately. Conditional on a later atomic-check failure after detaching an MST payload. Source-only.
 
-
-**[OD4216](AROS-other-drivers.md#od4216) — Nouveau MST manager allocation failure reaches private-object teardown before that object was initialized.** Later encoder cleanup unconditionally finalizes the zeroed private object, and its list removal dereferences zero links. Conditional on workqueue or initial-state allocation failure; optional Nouveau MST output path. Source-only.
 
 
 **[OD4217](AROS-other-drivers.md#od4217) — the exported HDMI AVI colorimetry helper maps DCI-P3 RGB D65 to NO_DATA.** The DRM enum and Nouveau HDMI support mask include the format, but the helper table omits index 11. No checked-in caller was found; external/future-client impact only. Source-only.
