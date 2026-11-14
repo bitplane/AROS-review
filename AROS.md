@@ -18021,3 +18021,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 
 **[EK10967](AROS-exec-kernel.md#ek10967) — OpenSBI FDT PLIC selection can miss the boot hart’s supervisor context when an earlier CPU node has no supervisor context.** PLIC initialization then returns before enabling external interrupts, while startup continues. Conditional on the CPU/context topology in firmware; no matching checked-in tree or boot was found. Source-only.
+
+**[GD15141](AROS-graphics-desktop.md#gd15141) — On TextEditor demo `CreateArgstring()` allocation failure, a reply path unconditionally calls `DeleteArgstring(NULL)`, which derives and reads an invalid RexxArg header. Conditional on the external REXX service replying; source-only.**
