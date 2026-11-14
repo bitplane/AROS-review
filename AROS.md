@@ -17975,3 +17975,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[EK10966](AROS-exec-kernel.md#ek10966) — Console handler replies to only one queued read at EOF, then clears its EOF flag.** Other tasks sharing that explicit `NP_Input` can remain blocked if no further input arrives. Source-only.
 
 **[OD3984](AROS-other-drivers.md#od3984) — USB HID Control GUI cleanup signals interface release before its final binding access; on ExecSMP, release can free the binding first.** Conditional on overlapping GUI cleanup and interface release on an ExecSMP USB HID build; source-only.
+
+**[OD3340](AROS-other-drivers.md#od3340) — PCI mechanism 1 can direct a config data access to another CPU's selected device/register on x86-64 PC ExecSMP.** Conditional on overlapping legacy CF8/CFC transactions; source-only.
