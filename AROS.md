@@ -17966,3 +17966,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD1599](AROS-other-drivers.md#od1599) — Poseidon hardware removal can wait indefinitely on a later busy device.** After the first busy device reaches the forced-release threshold, the shared counter is left at 29; a subsequent device advances it to 31 and then by twos, so the `== 30` fallback cannot fire. Conditional on multiple dead devices retaining pipes; source-only.
 
 **[OD4333](AROS-other-drivers.md#od4333-aros-libdrm-resources-leak-arrays) — VMware SVGA and Nouveau `drmModeFreeResources()` free only the outer result, leaking up to four separately allocated ID arrays on each resource query. Source-only.
+
+**[OD11627](AROS-other-drivers.md#od11627-nouveau-object-payload-allocation-unchecked) — Nouveau object setup dereferences the payload pointer when its nonzero-length allocation fails, so acceleration initialization can fail at the memory access under memory pressure. Optional Nouveau target; source-only.
+**[OD11628](AROS-other-drivers.md#od11628-nouveau-pushbuf-map-failure-leaks-bo-reference) — A failed map of a replacement Nouveau push-buffer BO returns without dropping the acquired reference, retaining the BO and GEM handle. Conditional on map failure; source-only.
+**[OD11629](AROS-other-drivers.md#od11629-nouveau-pushbuf-submit-error-hidden) — Nouveau push-buffer cleanup overwrites a failed submit result and clears the rejected batch, allowing the flush/kick API to report success after losing commands. Conditional on submission failure; source-only.
