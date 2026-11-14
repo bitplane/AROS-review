@@ -18019,3 +18019,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD1935](AROS-other-drivers.md#od1935) — `ug_ConsoleName()` can read beyond its short `"XXX"` fallback string when given a larger buffer. Conditional on an interactive handle with a fallback port owner; source-only.**
 
+
+**[EK10966](AROS-exec-kernel.md#ek10966) — OpenSBI FDT PLIC selection can miss the boot hart’s supervisor context when an earlier CPU node has no supervisor context.** PLIC initialization then returns before enabling external interrupts, while startup continues. Conditional on the CPU/context topology in firmware; no matching checked-in tree or boot was found. Source-only.
