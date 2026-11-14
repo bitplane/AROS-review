@@ -10880,7 +10880,7 @@ When console input produces `INP_EOF`, `process_input()` sets `FHFLG_EOF` and fa
 Sources: `rom/dos/read.c:59-73`; `rom/dos/createnewproc.c:125-126,334-341,435-436`; `rom/filesys/console_handler/con_handler.c:1072-1089`; `rom/filesys/console_handler/support.c:995-1008,1031-1047,1166-1190`.
 
 
-## EK10966 — OpenSBI FDT parser can miss the boot hart's PLIC supervisor context [conditional]
+## EK10967 — OpenSBI FDT parser can miss the boot hart's PLIC supervisor context [conditional]
 
 `krnParseFDT()` counts every `/cpus/cpu@*` node when assigning `boot_cpu_index`, but selects the boot hart's PLIC context by counting only `interrupts-extended` pairs whose cause is 9 (`arch/riscv64-opensbi/kernel/kernel_fdt.c:118-123,176-189,201-225`). It ignores each pair's interrupt-controller phandle and assumes the cause-9 entries have the same ordinal as all CPU nodes. A valid topology with an earlier hart that has no supervisor-mode context (and therefore no cause-9 PLIC entry) shifts these ordinals. If that earlier hart is before the boot hart in `/cpus`, the parser leaves `plic_context` at -1; if later cause-9 entries exist, it can instead select another hart's context.
 
