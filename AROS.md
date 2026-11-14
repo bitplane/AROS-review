@@ -17851,7 +17851,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[EK345](AROS-exec-kernel.md#ek345) — A zero VESA refresh request reaches a division by zero in the PC bootstrap.** Source-only.
 
 
-**[OD11602](AROS-other-drivers.md#od11602) — AHI `CMD_READ` can divide by zero when a requested sample rate rounds its internal fixed-point step to zero.** The numeric `FREQUENCY` handler argument has no range check; conditional on a sufficiently high positive rate and a nonempty recording buffer. Source-only.
+**[OD11602](AROS-other-drivers.md#od11602) — AHI `CMD_READ` can divide by zero when its fixed-point source step rounds to zero.** The selected AHI-Handler accepts `FREQUENCY=-1`, which becomes an unsigned maximum request rate and a zero step; the failure follows when a nonempty recording buffer is processed. Source-only.
 
 **[OD9539](AROS-other-drivers.md#od9539) — AHI recording converters advance the continuation byte offset by pointer size instead of the four-byte stereo source-frame size on 64-bit builds.** AHI-Handler and RecordTest preserve this offset between reads, so it can skip data or overrun a later capture buffer. Source-only.
 
