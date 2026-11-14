@@ -17877,7 +17877,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11602](AROS-other-drivers.md#od11602) — AHI `CMD_READ` can divide by zero when its fixed-point source step rounds to zero.** The selected AHI-Handler accepts `FREQUENCY=-1`, which becomes an unsigned maximum request rate and a zero step; the failure follows when a nonempty recording buffer is processed. Source-only.
 
-**[OD11610](AROS-other-drivers.md#od11610-parallel-start-stop-requests-are-never-completed) — Parallel `CMD_START` and `CMD_STOP` leave direct requests unanswered.** `SendIO()` callers can wait indefinitely; `DoIO()` can return immediately with an incomplete request because `IOF_QUICK` remains set. These commands are not advertised in `NSCMD_DEVICEQUERY`; conditional on a caller issuing either. Source-only.
+**[OD4348](AROS-other-drivers.md#od4348-parallel-start-stop-requests-are-never-completed) — Parallel `CMD_START` and `CMD_STOP` leave direct requests incomplete.** `SendIO()` callers can wait indefinitely; `DoIO()` can return immediately with an incomplete request because `IOF_QUICK` remains set. These commands are not advertised in `NSCMD_DEVICEQUERY`; conditional on a caller issuing either. Source-only.
 
 **[OD9539](AROS-other-drivers.md#od9539) — AHI recording converters advance the continuation byte offset by pointer size instead of the four-byte stereo source-frame size on 64-bit builds.** AHI-Handler and RecordTest preserve this offset between reads, so it can skip data or overrun a later capture buffer. Source-only.
 
