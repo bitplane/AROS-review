@@ -12976,6 +12976,8 @@ Moira instruction-handler declaration crosswalk (2026-10-31): reconciled the sel
 
 **OD2389 — keyboard.device can leave a read queued after publishing its event:** on ExecSMP, a key callback can publish an event and skip draining the queue just before BeginIO inserts its pending request, leaving input blocked until another key arrives. See [OD2389](AROS-other-drivers.md#od2389) and the [empty-check/enqueue recheck](AROS-other-drivers-coverage.md#keyboard-pending-read-empty-check-enqueue-race-od2389-recheck). Source-only; no event or interleaving was run.
 
+**[OD2303](AROS-other-drivers.md#od2303) — keyboard.device opener-list updates use only processor-local `Forbid()`.** On Raspberry Pi ExecSMP, concurrent closes of separate valid opens, or an open overlapping a close, can race intrusive-list mutation and traversal. Source-only; no overlap was reproduced.
+
 
 Text.datatype public-header and AmigaGuide caller review (2026-10-31): completed the 40-line `textclass.h` API/field crosswalk. A provisional AmigaGuide `TDTA_WordWrap` candidate was withdrawn after tracing that attribute through the private node subclass and confirming the public datatype does not forward it and no checked-in caller sets it. Graphics/Desktop advances to 1,173/1,245 paths and 444,484/580,965 C/header lines. Summed area-ledger coverage is 4,591/5,001 entries (91.8%) and 1,661,503/2,209,873 lines (75.2%), leaving 410 entries and 548,370 lines without full-body credit; area entries may duplicate paths. See the [coverage ledger](AROS-graphics-desktop-coverage.md#textclass-public-header-api-and-amigaguide-wordwrap-candidate-withdrawn). Source-only.
 
