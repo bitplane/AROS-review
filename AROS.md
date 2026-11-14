@@ -11781,7 +11781,11 @@ ARMeb task-context and argument-caller pass (EK8918/EK10178 retained; 2026-10-30
 
 **EK10242 — Bifteck reports success after an interrupted or failed log write:** ignored `FPutC()`/`Close()` failures and an overwritten Ctrl-C error allow a truncated debug log to return `RETURN_OK` and clear `IoErr`. Applies to the explicit optional `debug-tools-bifteck` target. See [EK10242](AROS-exec-kernel.md#ek10242) and the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md#remaining-named-findsemaphore-caller-census-closure). No command or output failure was run; source-only.
 
-**EK10243 — PosixC pthread workers continue without a usable task-local runtime base when hook setup fails:** registry allocation and per-worker library-open failures do not stop the worker; failed slot publication after a successful open also leaks that base. A later PosixC call can fault. See [EK10243](AROS-exec-kernel.md#ek10243) and the [PosixC thread-hook coverage row](AROS-exec-kernel-coverage.md#L593). Source-only.
+**EK576 — PosixC pthread workers can enter user code without a runtime base if hook-registry allocation fails:** initialization reports success without registering the enter hook; later PosixC calls can fault. See [EK576](AROS-exec-kernel.md#ek576) and the [PosixC thread-hook coverage row](AROS-exec-kernel-coverage.md#L593). Source-only.
+
+**EK577 — PosixC pthread workers can enter user code without a runtime base if their base open fails:** the enter hook ignores `OpenLibrary()` failure and pthread startup does not stop before user code. See [EK577](AROS-exec-kernel.md#ek577) and the [PosixC thread-hook coverage row](AROS-exec-kernel-coverage.md#L593). Source-only.
+
+**EK10243 — PosixC pthread workers leak an opened library base when task-slot publication fails:** the enter hook ignores a failed `SetTaskStorageSlot()` result; leave then cannot recover or close the base. See [EK10243](AROS-exec-kernel.md#ek10243) and the [PosixC thread-hook coverage row](AROS-exec-kernel-coverage.md#L593). Source-only.
 
 
 **OD3776 — EMU10kx register transactions and interrupt-mask updates are not serialized across CPUs:** the AHI lock aliases are local interrupt masking only. On ExecSMP, overlapping calls can misdirect PTR/DATA or AC97 ADDRESS/DATA transactions, or lose independent INTE bit updates. Conditional on cross-CPU overlap. See [OD3776](AROS-other-drivers.md#od3776) and the [Other Drivers coverage ledger](AROS-other-drivers-coverage.md).
