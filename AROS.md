@@ -14537,7 +14537,7 @@ These existing coverage-ledger candidates now have detailed finding entries; thi
 **[GD9394](AROS-graphics-desktop.md#gd9394) — Intuition accepts negative window minimum sizes; later size-gadget and zoom paths cast them to unsigned limits, potentially snapping the window to its maximum. The trigger depends on caller-supplied negative minima; no checked-in direct `WindowLimits()` caller was found. Source-only.**
 
 
-**[OD4100](AROS-other-drivers.md#od4100) — Raspberry Pi USB2OTG ignores required AHB-idle, reset, FIFO-flush and channel-halt timeout results during initialization and recovery, then continues controller programming. The source-level omission is clear; the resulting hardware behavior is conditional. Source-only.
+**[OD4100](AROS-other-drivers.md#od4100) — Raspberry Pi USB2OTG ignores required idle, reset, FIFO-flush and channel-halt timeout results. In periodic recovery, it can clear software ownership and reuse a channel after both halt attempts time out; the hardware consequence remains conditional. Source-only.
 
 
 **[OD1522](AROS-other-drivers.md#od1522) — On Raspberry Pi ExecSMP builds using USB2OTG, an aligned bulk-IN DMA segment larger than 16 KiB can bypass the bounce buffer while ending partway through a cache line. Concurrent writes to another allocation sharing that edge line can race the controller's whole-line cache maintenance. This remains a conditional, medium-low-confidence candidate; no checked-in caller establishes the overlap. Source-only.
