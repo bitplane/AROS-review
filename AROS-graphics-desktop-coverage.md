@@ -21372,3 +21372,9 @@ Printer parent-device and preference-loader cross-area inventory reconciliation 
 
 | `workbench/devs/printer/printer.c` | 137 | 95 | Full body read; unit-range/system-unit split and `Printer_LoadPrefs()` path cross-checked; existing OD75/OD2016 reconciled; no new GD finding. |
 | `workbench/devs/printer/prefs.c` | 208 | 156 | Full body read; AddPart path semantics, caller-bounded unit suffix, IFF chunk sizing, endian import and partial defaults checked; OD75/OD2016 and GD15123 caller relation reconciled; no new finding. |
+
+Printer module-selection and private-interface cross-area pass (2026-11-14; three paths; 43 C/header code lines): read the complete `workbench/devs/printer/mmakefile.src` (21 lines), `printer.conf` (11 lines), and `printer_intern.h` (73 lines / 43 `cloc 2.06` C/header code lines). Matched the manifest's five selected translation units to the reviewed bodies, checked device version and BeginIO/AbortIO declarations against the configured vectors, and matched the private unit/base/request fields and function prototypes to their uses across the selected sources. Generated vector glue and final image/package selection remain outside this pass. No independent issue established; no build was run.
+
+| `workbench/devs/printer/mmakefile.src` | 21 | 0 | Full manifest read; selected translation units and module target checked; final package/image selection remains open. |
+| `workbench/devs/printer/printer.conf` | 11 | 0 | Full vector configuration read; version and BeginIO/AbortIO declarations matched to implementation; generated glue remains open. |
+| `workbench/devs/printer/printer_intern.h` | 73 | 43 | Full private header read; unit/base/request fields and prototypes matched against selected implementation; no independent defect established. |
