@@ -18045,3 +18045,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[EK10972](AROS-exec-kernel.md#ek10972) — `expl()` stores its long-double result in `double`, losing precision/range and falsely reporting overflow for some representable long-double results.** Applies to selected 80-bit and binary128 long-double targets; source-only.
 
 **[EK10974](AROS-exec-kernel.md#ek10974) — `powl(NAN, 0)` and `powl(1, NAN)` return NaN instead of 1 because the wrapper propagates NaNs before checking power identities.** Applies to distinct-long-double targets; source-only.
+**[EK10975](AROS-exec-kernel.md#ek10975) — Binary128 `sincosl()` writes its sine correction through the cosine output pointer, then overwrites it; one result is stale for finite range-reduced inputs.** Affects AArch64 and RISC-V long-double math; source-only, no call or build was run.
