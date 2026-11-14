@@ -16307,7 +16307,7 @@ UserGroup `ioerr2errno()` caller pass (2026-11-04; no new EK): checked both sele
 
 **[EK10834](AROS-exec-kernel.md#ek10834) — Double `fmod()`, `remquo()`, and `remainder()` can miscompute subnormal remainders.** A signed mantissa word skips the leading-bit count in exponent normalization; `remquo()` quotient bits can also be wrong. Source-only.
 
-**[EK10835](AROS-exec-kernel.md#ek10835) — Medium trigonometric argument reduction assumes round-to-nearest.** With upward rounding it can choose the wrong quadrant and pass an out-of-range argument to sine/cosine/tangent kernels in float and double paths, including `sincos`. Source-only.
+**[EK10835](AROS-exec-kernel.md#ek10835) — Medium trigonometric argument reduction relies on round-to-nearest.** Float and double paths, plus x86 80-bit long-double paths, can pass residuals outside kernel approximation bounds when the active rounding mode is directed; the long-double `sinl`, `cosl`, `sincosl`, and `tanl` routes are now included. Source-only.
 
 **[EK10836](AROS-exec-kernel.md#ek10836) — `jn`/`yn` order normalization overflows for `INT_MIN`.** The double and float kernels negate the signed order before recurrence. Source-only.
 
