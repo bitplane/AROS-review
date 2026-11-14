@@ -17973,6 +17973,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11629](AROS-other-drivers.md#od11629-nouveau-pushbuf-submit-error-hidden) — Nouveau push-buffer cleanup overwrites a failed submit result and clears the rejected batch, allowing the flush/kick API to report success after losing commands. Conditional on submission failure; source-only.
 
 **[OD11630](AROS-other-drivers.md#od11630-nouveau-hdmi-scdc-write-failure-continues) — Nouveau continues HDMI enable after a supported sink's SCDC configuration write fails; GPU scrambling settings can then disagree with the sink. Conditional on SCDC transaction failure; source-only.
+**[OD1931](AROS-other-drivers.md#od1931) — UserGroup multi-user `setlastlog()` callers share one utmp scan state, but its write-lock helpers are empty; concurrent calls can select and rewrite records from interleaved scan state. Conditional on correctly shaped callers because of OD11555. Source-only.**
+
 **[OD1930](AROS-other-drivers.md#od1930) — UserGroup `setlastlog()` can report success after utmp/lastlog persistence fails in the multi-user path; access is conditional because the generated vector ABI is separately misdeclared (OD11555). Source-only.**
 
 **[OD11631](AROS-other-drivers.md#od11631-kms-keymap-duplicate-check-and-publication-race-on-execsmp-conditional) — KMS uses only local `Forbid()` around the resident keymap duplicate check and insertion.** Concurrent same-name loads on different CPUs can publish duplicates or corrupt the resource list on ExecSMP; source-only, conditional on overlapping clients.
