@@ -18041,3 +18041,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[EK10970](AROS-exec-kernel.md#ek10970) — The selected stdc `fenv.c` source cannot compile for m68k because its type-only header has no m68k `fenv_t` definition.** Conditional on building the m68k stdc library; source selection and missing type branch are confirmed, no build was run.
 
 **[EK10971](AROS-exec-kernel.md#ek10971) — PowerPC `float.h` advertises unsupported 80-bit long double while the stdc build omits its matching math bodies.** Selected wrappers such as `cosl()` can reference missing `__ieee754_*l` implementations; source-only build/link candidate, not reproduced.
+
+**[EK10972](AROS-exec-kernel.md#ek10972) — `expl()` stores its long-double result in `double`, losing precision/range and falsely reporting overflow for some representable long-double results.** Applies to selected 80-bit and binary128 long-double targets; source-only.
