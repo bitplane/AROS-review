@@ -18002,6 +18002,10 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD1937](AROS-other-drivers.md#od1937) — Legacy `setgroups()` accepts a negative count and copies beyond its fixed 32-group array. Conditional on a legacy superuser caller; source-only.**
 
+**[OD1941](AROS-other-drivers.md#od1941) — Security-backed UserGroup `umask()` ignores failure to allocate/update its task protection node and returns the old mask as success. Conditional on allocation failure; source-only.**
+
+**[OD2873](AROS-other-drivers.md#od2873) — Security-backed group lookup silently omits members after the first 32 because it uses the per-user `NGROUPS` cap as a group-member cap. Conditional on larger groups; source-only.**
+
 **[OD1939](AROS-other-drivers.md#od1939) — Concurrent UserGroup `crypt()` calls share and overwrite the internal DES key schedule, so one call can return a hash computed with another call’s key. Conditional on overlap; source-only.**
 
 **[OD1942](AROS-other-drivers.md#od1942) — UserGroup `crypt()` indexes its 128-entry setting decoder with unchecked high-bit bytes. Conditional on malformed/non-ASCII setting input; source-only.**
