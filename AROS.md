@@ -17973,3 +17973,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11630](AROS-other-drivers.md#od11630-nouveau-hdmi-scdc-write-failure-continues) — Nouveau continues HDMI enable after a supported sink's SCDC configuration write fails; GPU scrambling settings can then disagree with the sink. Conditional on SCDC transaction failure; source-only.
 **[EK10966](AROS-exec-kernel.md#ek10966) — Console handler replies to only one queued read at EOF, then clears its EOF flag.** Other tasks sharing that explicit `NP_Input` can remain blocked if no further input arrives. Source-only.
+
+**[OD3984](AROS-other-drivers.md#od3984) — USB HID Control GUI cleanup signals interface release before its final binding access; on ExecSMP, release can free the binding first.** Conditional on overlapping GUI cleanup and interface release on an ExecSMP USB HID build; source-only.
