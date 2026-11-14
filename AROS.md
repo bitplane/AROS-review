@@ -17919,3 +17919,19 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD2698](AROS-other-drivers.md#od2698-concurrent-close-loses-shared-opener-decrement) — Concurrent serial and parallel closes can lose the last shared-opener decrement.** On ExecSMP, two closes can both observe count two and leave the closed unit at count one, retaining its unit and HIDD allocations. Source-only; conditional on overlapping closes on separate CPUs.
 
 **[OD11610](AROS-other-drivers.md#od11610-nouveau-ce-tiled-3d-offsets-wrap-at-32-bits) — Nouveau CE tiled 3D surface offsets can exceed 32 bits and lose the high word.** A sufficiently large supported tiled surface can make the copy engine use the wrong source or destination address. Hardware acceptance and allocation constraints are unverified; source-only.
+
+**[GD15129](AROS-graphics-desktop.md#gd15129) — PTP multi-packet reads request 12 bytes beyond the destination.** Large object reads can overwrite adjacent caller memory; source-level size calculation, no transfer exercised.
+
+**[GD15130](AROS-graphics-desktop.md#gd15130) — PTP in-place writes to existing files can dereference a NULL staging buffer.** Conditional on `ACTION_FINDUPDATE` followed by a non-extending write; source-only.
+
+**[GD15131](AROS-graphics-desktop.md#gd15131) — Replacing an existing PTP file reads its parent through a freed object.** Conditional on successful remote deletion during `ACTION_FINDOUTPUT`; source-only.
+
+**[GD15132](AROS-graphics-desktop.md#gd15132) — PTP rename reports success without moving a same-named object.** A same-name move between directories exits before `MoveObject`; source-only.
+
+**[GD15133](AROS-graphics-desktop.md#gd15133) — PTP startup dereferences a failed storage-info result.** Conditional on device response or allocation failure while enumerating storages; source-only.
+
+**[GD15134](AROS-graphics-desktop.md#gd15134) — PTP array count multiplication can wrap before the buffer bound check.** Malformed response counts can drive conversion beyond the response allocation; source-only.
+
+**[GD15135](AROS-graphics-desktop.md#gd15135) — PTP read-error cleanup frees a buffer it does not own.** Conditional on continuation-transfer failure; source-only.
+
+**[GD15136](AROS-graphics-desktop.md#gd15136) — Oversized PTP data responses can underflow the remaining-buffer calculation.** Malformed responses can produce an out-of-range continuation transfer and use the wrong source for the final copy; source-only.
