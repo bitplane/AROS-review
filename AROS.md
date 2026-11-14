@@ -16472,6 +16472,12 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[OD11411](AROS-other-drivers.md#od11411) — PCITool vendor lookup skips the final vendor and overruns an empty index.** A nonempty `pci.ids` file with no parsed vendors underflows the index bound; a final vendor is never compared by the binary search. Conditional on the explicitly buildable PCITool utility; source-only.
 
+**[OD11606](AROS-other-drivers.md#od11606) — PCITool leaves library and OOP attribute-base references open when a later library open fails.** MUI Master or utility.library failure after earlier acquisition skips `closeLibs()`; conditional on the explicit PCITool target. Source-only.
+
+**[OD11607](AROS-other-drivers.md#od11607) — PCITool exits with success after library or GUI initialization fails.** Required-library or application-construction failure falls through to `cleanup(NULL)`; conditional on the explicit PCITool target. Source-only.
+
+**[OD11608](AROS-other-drivers.md#od11608) — PCITool can save resource ranges left over from the previously selected device.** Missing BARs do not clear the corresponding save fields before all fields are serialized; conditional on selecting devices with different layouts before saving. Source-only.
+
 **[OD3664](AROS-other-drivers.md#od3664) — Sam440 EMAC advertises gigabit but resolves negotiated speed as only 10/100.** The setup path then configures the bridge and MAC at the wrong rate. Conditional on a selected 1000BASE-T PHY/link; source-only.
 
 **[OD2438](AROS-other-drivers.md#od2438) — EMAC uses uninitialized PHY values after MDIO read failures.** Autonegotiation setup and the initial status check ignore read failures, then consume unwritten local values and still report startup success. Conditional on an MDIO transaction failure; source-only.
