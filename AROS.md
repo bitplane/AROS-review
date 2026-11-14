@@ -18033,3 +18033,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[EK10968](AROS-exec-kernel.md#ek10968) — x86-64 PC kernel manifest selects an architecture-specific `kernel_memory.o` whose declared local source file is absent.** A clean x86-64 PC kernel build is therefore a source-supported failure candidate; it was not reproduced with a build. Source-only.
 **[EK10969](AROS-exec-kernel.md#ek10969) — PC APIC calibration can use Intel's base processor frequency as the LAPIC timer clock, distorting heartbeat intervals; values above 4,294 MHz also wrap during conversion.** Conditional on Intel CPUID leaf `0x16` and no Microsoft Hyper-V frequency path. Source-only.
+
+**[OD11633](AROS-other-drivers.md#od11633) — Trident's hardware-list display hook dereferences a NULL device name when a name-copy allocation fails.** `UpdateConfigToGUI()` inserts the node and later enables list rendering, whose hook immediately walks `devname`; applies to the optional `kernel-usb-trident` program. Source-only.
