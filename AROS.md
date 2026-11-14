@@ -17762,6 +17762,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11601](AROS-other-drivers.md#od11601) — AHI `FeedReaders()` stops servicing later read requests after replying to a completed one.** Concurrent readers can miss the current capture buffer and continue with a later segment. Conditional on multiple outstanding direct `CMD_READ` requests; source-only.
 
+**[OD3573](AROS-other-drivers.md#od3573) — AHI recording can remain active far beyond its idle delay after a short first read.** The first callback can complete the only request while the zero-initialized `RecordOffDelay` is still zero; the empty-list branch decrements it below zero. The eventual delay is target-dependent. Source-only.
+
 **[OD2779](AROS-other-drivers.md#od2779) — Closing the first PC serial unit can disable IRQ service for its paired port.** The PC Serial HIDD registers one interrupt server for each COM1/COM3 and COM2/COM4 pair, but removes it when the first-created unit closes even if its sibling remains open. A stale registration marker also prevents a later open from restoring the handler. Conditional on using paired PC serial units; source-only, no port or IRQ was exercised.
 
 **[OD3990](AROS-other-drivers.md#od3990) — PC serial IRQ callbacks can use a unit after disposal.** On x86_64-PC ExecSMP, a remote UART interrupt can retain a unit pointer while final close clears its slot and frees the HIDD object; local `Disable()` does not serialize the other CPU. The callback can then access freed unit state. Conditional on overlapping close and IRQ execution; source-only, no device or interrupt was exercised.
