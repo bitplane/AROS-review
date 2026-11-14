@@ -23167,60 +23167,44 @@ On raw mouse events, `inputhandler.c` obtains `screen` from `FindActiveScreen()`
 **Review evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#findactivescreen-meta-drag-null-dereference-gd15128).
 
 <a id="gd15129"></a>
-## GD15129 — PTP multi-packet reads request 12 bytes beyond the destination [conditional on object data over 500 bytes]
+## GD15129 — Duplicate PTP entry; see [OD4417](AROS-other-drivers.md#od4417)
 
-`nGetPTPRspData()` allocates no destination of its own; it receives a caller buffer and `buflen`. For a valid data container whose payload is larger than the first 500-byte USB payload, the exact-size branch requests `len - iolen + 12` bytes into `buf[iolen - 12]` (`rom/usb/classes/ptp/ptp.class.c:1006-1029`). The container length `len` includes its 12-byte header, but the destination contains only payload bytes. When the first transfer is 512 bytes and `buflen == len - 12`, the remaining payload capacity is `len - iolen`; the request is 12 bytes larger. `nPTPRead()` passes its DOS caller's buffer and the exact requested read length to this helper (`:2277-2282,2321-2342`), and a full-object read may also use this path. **Trigger and consequence:** read an object with more than 500 payload bytes through the non-cached PTP path. A complete second transfer can write 12 bytes past the requested output buffer, corrupting adjacent caller memory. **Affected configuration:** the explicitly buildable `kernel-usb-classes-ptp` target (`rom/usb/classes/ptp/mmakefile.src:5-11`); the parent USB classes aggregate is commented out (`rom/usb/classes/mmakefile.src:20-30`). **Confidence:** high for the size arithmetic and source/destination bounds; actual transfer completion was not exercised. Request only the remaining payload length (`len - iolen`) and check it against `buflen - (iolen - 12)` before submitting the pipe transfer. Source-only.
-
-Sources: `rom/usb/classes/ptp/ptp.class.c:1006-1029,2277-2342`; `rom/usb/classes/ptp/mmakefile.src:5-11`; `rom/usb/classes/mmakefile.src:20-30`.
+This PTP issue is already tracked under the canonical Other Drivers finding OD4417. No separate Graphics/Desktop finding is asserted.
 
 <a id="gd15130"></a>
-## GD15130 — PTP writes to an existing file can dereference a NULL staging buffer [conditional]
+## GD15130 — Duplicate PTP entry; see [OD4430](AROS-other-drivers.md#od4430)
 
-`nCreateFH()` allocates a fresh file handle and initializes its object pointer, but does not allocate or assign `pfh_Buffer` (`rom/usb/classes/ptp/ptp.class.c:3052-3078`; the PTP worker's pool is created with `MEMF_CLEAR` at `:4191`). The existing-file `ACTION_FINDUPDATE` path creates that handle and returns it (`:3314-3333`). `nPTPWrite()` allocates a staging buffer only when the new write extends beyond the current object size (`:2423-2468`). For an in-place write, a shorter write attempts to fetch the old object into `pfh_Buffer`, still NULL, while a full-size overwrite skips that fetch and copies directly through the NULL pointer (`:2472-2509`). **Trigger and consequence:** open an existing writable object with `MODE_READWRITE`/`ACTION_FINDUPDATE` and issue a write that does not extend its current size. The handler dereferences a NULL buffer before it can upload the modified object, so the write fails with a task fault instead of updating the file. **Affected configuration:** optional PTP class target, for devices advertising object-send support and writable objects. **Confidence:** high from the selected packet path and buffer lifetime; no device or write was run. Allocate/initialize the staging buffer for existing-file writes before fetching or copying data. Source-only.
-
-Sources: `rom/usb/classes/ptp/ptp.class.c:2398-2510,3052-3078,3314-3333,3646-3657`; `rom/usb/classes/ptp/ptp.h:301-309`.
+This PTP issue is already tracked under the canonical Other Drivers finding OD4430. No separate Graphics/Desktop finding is asserted.
 
 <a id="gd15131"></a>
-## GD15131 — Replacing an existing PTP file reads its parent through a freed object [conditional]
+## GD15131 — Duplicate PTP entry; see [OD4433](AROS-other-drivers.md#od4433)
 
-On `ACTION_FINDOUTPUT`, if the destination name already exists, the handler successfully deletes it, unlinks it, and calls `nPTPFreeObjectInfo()`; that helper frees the object with `nFreeVec()` (`rom/usb/classes/ptp/ptp.class.c:3354-3384,1771-1788`). The handler then evaluates `poi->poi_Parent` to update the directory timestamp (`:3385`), after `poi` has been freed. The separate `ACTION_DELETE_OBJECT` path updates the parent timestamp before freeing the object (`:3717-3725`). **Trigger and consequence:** open an existing file for output on a writable PTP device and let the remote delete succeed. The handler dereferences freed pool storage while replacing the file; it may fault or use a stale parent pointer, interrupting replacement and risking pool corruption. **Affected configuration:** optional PTP class target with object-send/delete support. **Confidence:** high for the free-before-read ordering; allocator reuse and runtime effect were not exercised. Save the parent pointer before freeing the object, then update the parent. Source-only.
-
-Sources: `rom/usb/classes/ptp/ptp.class.c:1771-1788,3354-3387,3717-3725`.
+This PTP issue is already tracked under the canonical Other Drivers finding OD4433. No separate Graphics/Desktop finding is asserted.
 
 <a id="gd15132"></a>
-## GD15132 — PTP rename reports success without moving a same-named object [conditional]
+## GD15132 — Duplicate PTP entry; see [OD4426](AROS-other-drivers.md#od4426)
 
-The DOS `Rename()` implementation sends the old and new parent locks plus their final-component BSTR names in `ACTION_RENAME_OBJECT` (`rom/dos/rename.c:175-200`). The PTP handler compares those names; when they are equal, `dp_Res2` remains zero, and the `if (!dp->dp_Res2) break;` branch exits before looking up the source object or calling `nPTPMoveObject()` (`rom/usb/classes/ptp/ptp.class.c:3730-3782`). Thus a valid move such as `dirA/photo.jpg` to `dirB/photo.jpg` returns success while leaving the object in `dirA`. If the names differ, the comparison sets an error but execution falls through and calls `nSearchObject()` with the handler's uninitialized local `buf` (`:3177-3183,3741-3779`), so that rejected rename can also perform a lookup using indeterminate path bytes. **Trigger and consequence:** rename/move a file between PTP directories using the same final name, on a device advertising `MoveObject`. The API reports success but the object is not moved. **Affected configuration:** optional PTP target and a PTP device supporting `MoveObject`. **Confidence:** high for the same-name no-op and inverted success test; no rename was run. Continue the move path when names match, and reject differing names before using any path buffer (or implement the requested rename semantics). Source-only.
-
-Sources: `rom/dos/rename.c:175-200`; `rom/usb/classes/ptp/ptp.class.c:3177-3183,3730-3782,2648-2694`.
+This PTP issue is already tracked under the canonical Other Drivers finding OD4426. No separate Graphics/Desktop finding is asserted.
 
 <a id="gd15133"></a>
-## GD15133 — PTP startup dereferences a failed storage-info result [conditional]
+## GD15133 — Duplicate PTP entry; see [OD4419](AROS-other-drivers.md#od4419)
 
-During `nPTPTask()` startup, each storage ID is passed to `nPTPGetStorageInfo()`, and its result is immediately dereferenced by `AddTail()` without a NULL check (`rom/usb/classes/ptp/ptp.class.c:3982-3999`). The helper returns NULL when the device command/response fails or either storage/object allocation fails (`:2170-2207,2270-2272`). **Trigger and consequence:** a storage-info transaction fails or the pool cannot allocate a storage record during binding startup. The PTP worker dereferences NULL instead of skipping/reporting the unavailable storage; the task can stop before registering its DOS device and volume. **Affected configuration:** optional PTP class on any device returning at least one storage ID. **Confidence:** high for the unchecked nullable return and listed failure paths; no device failure or allocation failure was induced. Check the result before linking it and unwind or continue startup consistently. Source-only.
-
-Sources: `rom/usb/classes/ptp/ptp.class.c:2170-2207,2270-2272,3982-3999`.
+This PTP issue is already tracked under the canonical Other Drivers finding OD4419. No separate Graphics/Desktop finding is asserted.
 
 <a id="gd15134"></a>
-## GD15134 — PTP array count multiplication can wrap before the buffer bound check [malformed response conditional]
+## GD15134 — Duplicate PTP entry; see [OD4421](AROS-other-drivers.md#od4421)
 
-`nConvertArrayULONG()` reads an untrusted 32-bit element count and checks `(cnt << 2) > maxlen` before iterating and converting that many array elements in place (`rom/usb/classes/ptp/ptp.class.c:1289-1324`). The four-byte multiplication can wrap in `ULONG`; for example, a count of `0x40000001` becomes four, which can pass a short-buffer check, after which the loop reads and writes over a billion entries beyond the allocated response. The helper is used for the device's StorageIDs and directory ObjectHandles arrays (`:1737-1767,2124-2153,2756-2771`). **Trigger and consequence:** a PTP response contains a count whose byte-size multiplication wraps while its actual data buffer is short. Array conversion then walks beyond the response allocation, causing memory corruption or a task fault. **Affected configuration:** optional PTP target when a device returns a malformed StorageIDs/ObjectHandles response. **Confidence:** high for the integer-width comparison and unbounded loop; malformed data was not supplied. Compare `cnt` against `maxlen / sizeof(ULONG)` without multiplying, and reject the response instead of accepting a truncated or wrapped count. Source-only.
-
-Sources: `rom/usb/classes/ptp/ptp.class.c:1289-1324,1737-1767,2124-2153,2756-2771`.
+This PTP issue is already tracked under the canonical Other Drivers finding OD4421. No separate Graphics/Desktop finding is asserted.
 
 <a id="gd15135"></a>
-## GD15135 — PTP read-error cleanup frees a buffer it does not own [conditional]
+## GD15135 — Duplicate PTP entry; see [OD4476](AROS-other-drivers.md#od4476)
 
-When a continuation transfer in `nGetPTPRspData()` fails, the error path calls `nFreeVec(nch, buf)` (`rom/usb/classes/ptp/ptp.class.c:1021-1056`). The selected `nPTPRead()` caller passes the DOS packet's caller-owned output buffer directly (`:2277-2282,2321-2342`); that pointer was not allocated from the PTP memory pool. A transfer error therefore passes a foreign pointer to `FreePooled`, risking pool corruption or a fault while reporting an ordinary failed read. The same helper is also used for a pool-owned write staging buffer; in that caller, freeing it here leaves `pfh_Buffer` pointing at freed storage for later cleanup. **Trigger and consequence:** a multi-packet read or write receives an I/O error while fetching continuation data. Error cleanup frees the caller's read buffer (or leaves a stale write-buffer pointer), corrupting ownership and potentially the pool. **Affected configuration:** optional PTP target during a failed continuation transfer. **Confidence:** high for the direct caller buffer and unconditional pool free; no transfer error was induced. Leave caller buffers owned by callers, and report the transfer error without freeing borrowed storage. Source-only.
-
-Sources: `rom/usb/classes/ptp/ptp.class.c:1021-1056,2277-2342,2472-2491`; `rom/usb/classes/ptp/ptp.h:301-309`.
+This PTP issue is already tracked under the canonical Other Drivers finding OD4476. No separate Graphics/Desktop finding is asserted.
 
 <a id="gd15136"></a>
-## GD15136 — Oversized PTP data responses can underflow the remaining-buffer calculation [malformed response conditional]
+## GD15136 — Duplicate PTP entry; see [OD4417](AROS-other-drivers.md#od4417)
 
-`nGetPTPRspData()` notices when the declared payload exceeds `buflen` but only logs the condition and continues (`rom/usb/classes/ptp/ptp.class.c:1006-1013`). If the initial packet already contains more payload than the destination can hold and the container continues, the non-exact-size branch computes `remlen = buflen - iolen + 12` in unsigned `ULONG` (`:1014-1045`). When `buflen < iolen - 12`, this underflows; the resulting value is used as a continuation transfer length and the destination begins at `buf[iolen - 12]`, already past the supplied buffer. The final partial copy also uses the pipe object pointer as its source instead of the received `nch_InBuf` (`:1042-1046`). **Trigger and consequence:** a device returns a multi-packet data container larger than the requested output capacity. The helper can issue an enormous transfer into an out-of-range destination and, on its partial-copy path, copy bytes from the pipe object instead of the received packet. The device response is malformed or inconsistent with the requested object length. **Affected configuration:** optional PTP target handling an oversized response. **Confidence:** high for the unchecked size mismatch, unsigned underflow, and incorrect copy source; no malformed response or transfer was exercised. Reject a payload larger than `buflen` before copying or submitting more transfers, and copy the final fragment from the receive buffer. Source-only.
-
-Sources: `rom/usb/classes/ptp/ptp.class.c:1006-1046,2277-2342,2398-2491`.
+This PTP issue is already tracked under the canonical Other Drivers finding OD4417. No separate Graphics/Desktop finding is asserted.
 
 <a id="gd15137"></a>
 ## GD15137 — Wanderer frees the notification port before ending preference notifications [pending-notification conditional]
