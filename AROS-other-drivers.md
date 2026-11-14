@@ -24103,6 +24103,14 @@ PCITool explicit-target source inventory and partial body pass (OD9895/OD9896 ad
 
 
 <a id="od9898"></a>
+<a id="od9898-pcitool-saves-stale-bar-and-rom-fields-after-selection-change"></a>
+## OD9898 — PCITool saves stale BAR and ROM fields after changing the selected device [conditional]
+
+`select_function()` clears the visible `RangeList` but does not reset the corresponding `SaveDeviceInfo` fields before processing a new selection (`rom/hidds/pci/pcitool/main.c:388-410`). BAR strings are copied into `Rangelist_0` through `_5` only when the reported base is nonzero (`:394-410,416-457`); for absent/zero BARs, those fields retain whatever a previous selection stored. The bridge branch updates slots 2–5 but not slots 0–1 (`:412-488`). The ROM path also leaves `ROM_Base` unchanged when `RomSize` is nonzero but `RomBase` is zero, even though the UI displays `MSG_UNUSED` (`:355-376`). The Save action serializes the structure's fields (`main.c:161-166`; `saveinfo.c:17-118`) and only then clears them, so selecting a second device before saving can export the first device's resource values as if they belonged to the second.
+
+**Trigger and consequence:** select a device with a BAR or ROM base, select a device with the corresponding resource absent/zero or a different bridge layout, then save before another save has cleared the structure. The report contains stale resource data under the newly selected device. Reset the saved fields on each selection and explicitly set absent resources to empty/unused values. **Affected configuration:** explicit `debug-tools-pcitool` target when selecting devices with different BAR/bridge/ROM layouts before saving; the parent `debug-tools` edge is disabled in the inspected manifest. **Confidence:** high for the conditional assignments and unconditional serialization; no PCI device, GUI, save operation, or build was exercised. Source-only.
+
+<a id="od9898"></a>
 PCITool `main.c` full-body pass (OD9897/OD9898 added; 2026-10-26): read all 782 physical lines (675 `cloc 2.06` C code lines) in source order. Reviewed library and attribute-base acquisition/cleanup, PCI enumeration/list hooks, row selection and display-field population, BAR/ROM and bridge-range handling, save/save-all callbacks, MUI construction and notifications, and shutdown. Added OD9897 for narrowing `IPTR` BAR base/size values to `unsigned int` in `memoryPrint()` on 64-bit targets, and OD9898 for saved BAR/ROM fields not being reset or updated in absent/unassigned resource branches before unconditional export. This completes full-body review of the main PCI ID, save-info and UI C bodies plus their directly relevant headers; `support.c`, `locale.c`, `support.h`, `locale.h`, and target manifest remain represented but not fully reviewed. Crediting the already inventoried main source advances the reconciled Other Drivers ledger from 1,312/1,866 paths and 767,868/1,239,046 C/header lines to **1,313/1,866 paths (70.4%)** and **768,543/1,239,046 C/header lines (62.0%)**. The denominator covers ledger-represented paths only; PCITool remains optional and external callers/platform behavior remain open. No build, device, GUI or file export was run; source-only.
 
 
@@ -43263,9 +43271,11 @@ After either failure, `main()` falls through to `cleanup(NULL)`, whose null-mess
 This repeated OD9952's PCITool later-library-open failure path, skipped `closeLibs()` call, and leaked library/attribute-base references. OD9952 is the canonical detailed finding and also records the success exit status. No additional finding is counted.
 
 <a id="od11607"></a>
-## OD11607 (withdrawn; duplicate of OD9952)
+## OD11607 — PCITool exits successfully when MUI application construction fails [conditional]
 
-This repeated OD9952's `openLibs()` failure path falling through to `cleanup(NULL)` and returning success. It did not establish a distinct false-success case for `GUIinit()`: `GUIinit()` can return false when `ApplicationObject` is NULL, but that path is separate from the library-open failure described by OD9952 and needs independent lifecycle evidence before promotion. No additional finding is counted.
+`GUIinit()` initializes `retval` to false, constructs the MUI `ApplicationObject`, and sets `retval` true only when that constructor returns a non-NULL application (`rom/hidds/pci/pcitool/main.c:513-517,715-740`). When `GUIinit()` returns false, `main()` skips the UI body but still closes the libraries and then calls `cleanup(NULL)` (`:753-779`); the null-message path exits with `RETURN_OK` (`:93-111`).
+
+**Trigger and consequence:** run the explicit PCITool target when MUI cannot allocate or construct its application object. The utility exits with success despite never creating its UI, so callers cannot detect failed startup. Return a failure status from this branch and report the construction failure. **Affected configuration:** explicit `debug-tools-pcitool` target when `ApplicationObject` construction fails; the parent `debug-tools` edge is disabled in the inspected manifest. **Confidence:** high for the false return and success cleanup path; no allocation failure or application construction was induced. Source-only; distinct from OD9952's required-library open failure.
 
 <a id="od11608"></a>
 ## OD11608 (withdrawn; duplicate of OD9898)
