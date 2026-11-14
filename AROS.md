@@ -17930,21 +17930,21 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11610](AROS-other-drivers.md#od11610) — Nouveau CE tiled 3D surface offsets can exceed 32 bits and lose the high word.** A sufficiently large supported tiled surface can make the copy engine use the wrong source or destination address. Hardware acceptance and allocation constraints are unverified; source-only.
 
-**[GD15129](AROS-graphics-desktop.md#gd15129) — PTP multi-packet reads request 12 bytes beyond the destination.** Large object reads can overwrite adjacent caller memory; source-level size calculation, no transfer exercised.
+**[GD15129](AROS-graphics-desktop.md#gd15129) — Duplicate PTP entry; canonical finding: [OD4417](AROS-other-drivers.md#od4417).**
 
-**[GD15130](AROS-graphics-desktop.md#gd15130) — PTP in-place writes to existing files can dereference a NULL staging buffer.** Conditional on `ACTION_FINDUPDATE` followed by a non-extending write; source-only.
+**[GD15130](AROS-graphics-desktop.md#gd15130) — Duplicate PTP entry; canonical finding: [OD4430](AROS-other-drivers.md#od4430).**
 
-**[GD15131](AROS-graphics-desktop.md#gd15131) — Replacing an existing PTP file reads its parent through a freed object.** Conditional on successful remote deletion during `ACTION_FINDOUTPUT`; source-only.
+**[GD15131](AROS-graphics-desktop.md#gd15131) — Duplicate PTP entry; canonical finding: [OD4433](AROS-other-drivers.md#od4433).**
 
-**[GD15132](AROS-graphics-desktop.md#gd15132) — PTP rename reports success without moving a same-named object.** A same-name move between directories exits before `MoveObject`; source-only.
+**[GD15132](AROS-graphics-desktop.md#gd15132) — Duplicate PTP entry; canonical finding: [OD4426](AROS-other-drivers.md#od4426).**
 
-**[GD15133](AROS-graphics-desktop.md#gd15133) — PTP startup dereferences a failed storage-info result.** Conditional on device response or allocation failure while enumerating storages; source-only.
+**[GD15133](AROS-graphics-desktop.md#gd15133) — Duplicate PTP entry; canonical finding: [OD4419](AROS-other-drivers.md#od4419).**
 
-**[GD15134](AROS-graphics-desktop.md#gd15134) — PTP array count multiplication can wrap before the buffer bound check.** Malformed response counts can drive conversion beyond the response allocation; source-only.
+**[GD15134](AROS-graphics-desktop.md#gd15134) — Duplicate PTP entry; canonical finding: [OD4421](AROS-other-drivers.md#od4421).**
 
-**[GD15135](AROS-graphics-desktop.md#gd15135) — PTP read-error cleanup frees a buffer it does not own.** Conditional on continuation-transfer failure; source-only.
+**[GD15135](AROS-graphics-desktop.md#gd15135) — Duplicate PTP entry; canonical finding: [OD4476](AROS-other-drivers.md#od4476).**
 
-**[GD15136](AROS-graphics-desktop.md#gd15136) — Oversized PTP data responses can underflow the remaining-buffer calculation.** Malformed responses can produce an out-of-range continuation transfer and use the wrong source for the final copy; source-only.
+**[GD15136](AROS-graphics-desktop.md#gd15136) — Duplicate PTP entry; canonical finding: [OD4417](AROS-other-drivers.md#od4417).**
 
 **[OD11611](AROS-other-drivers.md#od11611) — Nouveau initialization fails on pre-Tesla GPUs when the optional HIDD is built.** Legacy VRAM-manager setup calls an AROS stub that returns `-ENOSYS`, so probing those devices aborts initialization; default-image inclusion is not claimed. Source-only.
 **[OD11612](AROS-other-drivers.md#od11612) — Nouveau manager setup failures can leave stale TTM global state.** A post-registration VRAM/GTT error skips teardown; probe cleanup frees the containing device while its embedded TTM node remains in the global list, which a later swapout can traverse. A later GTT failure can also leave the VRAM manager. Optional Nouveau target; source-only.
