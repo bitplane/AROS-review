@@ -17996,7 +17996,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD1934](AROS-other-drivers.md#od1934) — UserGroup `getpass()` writes the trailing NUL one byte beyond its static buffer after input of 128 or more characters. Source-only.**
 
-**[OD1955](AROS-other-drivers.md#od1955) — UserGroup `LRandom()` multiplies and shifts promoted 16-bit words as signed `int`, invoking undefined arithmetic for some states on 32-bit-int targets. Conditional on seed values; source-only.**
+**[OD1955](AROS-other-drivers.md#od1955) — UserGroup `LRandom()` multiplies and shifts promoted 16-bit words as signed `int`, invoking undefined signed shifts on 32-bit-int targets and signed multiplication overflow where `long` is 32 bits. Conditional on seed values; source-only.**
 
 **[OD1956](AROS-other-drivers.md#od1956) — Concurrent `ug_GetSalt()` calls update one global `LRandom()` seed without synchronization. Conditional on overlapping tasks; source-only.**
 
