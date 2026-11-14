@@ -17875,4 +17875,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11604](AROS-other-drivers.md#od11604) — AHI recording rate conversion wraps at mix rates above 131071 Hz, producing the wrong sample step and recording rate.** Confirmed source paths include HDAudio and Envy24HT at 176.4/192 kHz; conditional on the selected hardware recording at that rate. Source-only.
 
-**[OD11605](AROS-other-drivers.md#od11605) — AHIRecord returns from a failed audio-mode requester allocation after `ahi.device` opened, without closing the device or freeing its request and message port. Conditional on memory exhaustion in the optional AHIRecord target; source-only.**
+**[OD11605](AROS-other-drivers.md#od11605) — AHIRecord skips partial AHI setup cleanup when `openAHI()` fails: depending on the failure stage it leaks its message port, I/O request, and, after a successful open, the `ahi.device` reference. Conditional on allocation or device-open failure in the optional AHIRecord target; source-only.**
