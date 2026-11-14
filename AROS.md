@@ -17852,3 +17852,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD9539](AROS-other-drivers.md#od9539) — AHI recording converters advance the continuation byte offset by pointer size instead of the four-byte stereo source-frame size on 64-bit builds.** AHI-Handler and RecordTest preserve this offset between reads, so it can skip data or overrun a later capture buffer. Source-only.
 
+
+**[OD2856](AROS-other-drivers.md#od2856) — AHI read/write requests can divide by zero for unsupported sample types before returning `AHIE_BADSAMPLETYPE`.** Conditional on a direct device client using a type whose frame size is zero. Source-only.
+
+**[OD2857](AROS-other-drivers.md#od2857) — AHI debug logging indexes past the sample-size table for L7.1 and unknown sample types.** Requires low-or-higher device debug logging. Source-only.
