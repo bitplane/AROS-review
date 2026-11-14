@@ -43281,3 +43281,11 @@ This repeated OD9952's PCITool later-library-open failure path, skipped `closeLi
 ## OD11608 (withdrawn; duplicate of OD9898)
 
 This repeated OD9898's stale BAR/ROM save-field root cause: selection branches leave fields unchanged when a resource is absent, then save serializes the retained fields. No additional finding is counted.
+
+<a id="od10142"></a>
+<a id="od10142-pcitool-locale-base-is-unprovided"></a>
+## OD10142 — PCITool does not provide its locale library base [conditional]
+
+The optional `debug-tools-pcitool` target selects `locale.c` but does not select any source that defines or opens `LocaleBase` (`rom/hidds/pci/pcitool/mmakefile.src:10-15`). The generated `<proto/locale.h>` declares `LocaleBase` as an external base pointer; it does not initialize or open the library (`tools/fd2inline/fd2inline.c:2811-2865`). In the selected PCITool sources, `LocaleBase` is only tested in `locale.c` (`:22,35,52`); `main.c` opens OOP, MUI Master, and Utility, but not `locale.library` (`main.c:49-67`). The source set contains no `ADD2LIBS` entry for `locale.library`, which is the mechanism that contributes an auto-open library to the program's `LIBS` symbol set (`compiler/include/aros/symbolsets.h:118-151`; `compiler/autoinit/libraries.c:23-52`).
+
+Thus the checked-in target has no source-level provider for the external `LocaleBase` symbol used by `locale.c`. This is a likely unresolved-base link failure for the explicit PCITool target. If a build environment supplies that symbol outside the selected source/link inputs, the code still never opens `locale.library`; `Locale_Initialize()` then skips `OpenCatalog()` when the supplied base is NULL and `_()` returns compiled strings, so translated catalogs are not used (`locale.c:20-46`). This finding is conditional on the optional target being built and on no external link input providing the base. The source path and generated startup behavior were inspected; no build or GUI/catalog operation was run, so link behavior was not reproduced.
