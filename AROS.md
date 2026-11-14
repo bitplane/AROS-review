@@ -17992,3 +17992,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 
 **[GD15140](AROS-graphics-desktop.md#gd15140) — TextEditor demo dereferences `CreateRexxMsg()` after its allocation fails, faulting the optional demo on its RunARexxScript path. Source-only.**
+**[OD1934](AROS-other-drivers.md#od1934) — UserGroup `getpass()` writes the trailing NUL one byte beyond its static buffer after input of 128 or more characters. Source-only.**
+
