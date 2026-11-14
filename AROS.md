@@ -266,6 +266,8 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 
 **[GD4662](AROS-graphics-desktop.md#gd4662) — Empty-destination region copies can leak partially allocated rectangle chunks when allocation fails after a large copy. Hyperlayers ignores the failed result in visibility restoration; `DeleteLayer()` can continue with an empty visible-region snapshot and report success without reconstructing an overlapping lower layer's exposed visibility. The `ChangeLayerVisibility()`/Intuition Show/Hide route applies to non-MorphOS builds; MorphOS uses cgxsystem. Conditional on build, region size, chunk-pool exhaustion, and layer geometry. Source-only.**
 
+**[GD4650](AROS-graphics-desktop.md#gd4650) — Generic ColorMap growth leaves gaps between the old end and a sparse SetColors update uninitialized, while publishing them as valid entries. `GetColor()` and selected display/conversion consumers can read those entries and produce allocator-dependent palette colors. Reachable through generic bitmap SetColors, including public `SetRGB32()`; source-only.**
+
 
 **[GD4022](AROS-graphics-desktop.md#gd4022) — GIF LZW decoding accepts a non-literal code immediately after a clear code and can use uninitialized dictionary entries, producing invalid pixels; an out-of-table prefix access depends on the contents of that uninitialized entry. Applies to malformed data handled by the explicitly buildable GIF datatype. See the [state-machine recheck](AROS-graphics-desktop-coverage.md#gif-lzw-dictionary-state-recheck-gd4022). Source-only.**
 
