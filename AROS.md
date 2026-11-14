@@ -18000,6 +18000,10 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD1937](AROS-other-drivers.md#od1937) — Legacy `setgroups()` accepts a negative count and copies beyond its fixed 32-group array. Conditional on a legacy superuser caller; source-only.**
 
+**[OD1939](AROS-other-drivers.md#od1939) — Concurrent UserGroup `crypt()` calls share and overwrite the internal DES key schedule, so one call can return a hash computed with another call’s key. Conditional on overlap; source-only.**
+
+**[OD1942](AROS-other-drivers.md#od1942) — UserGroup `crypt()` indexes its 128-entry setting decoder with unchecked high-bit bytes. Conditional on malformed/non-ASCII setting input; source-only.**
+
 **[OD1938](AROS-other-drivers.md#od1938) — Legacy `setsid()` returns success without changing session state. Conditional on callers relying on the documented session behavior; source-only.**
 
 **[OD1935](AROS-other-drivers.md#od1935) — `ug_ConsoleName()` can read beyond its short `"XXX"` fallback string when given a larger buffer. Conditional on an interactive handle with a fallback port owner; source-only.**
