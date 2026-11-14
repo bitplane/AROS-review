@@ -2,6 +2,8 @@
 
 ## Exec/Kernel findings reconciled into the index (2026-11-02)
 
+**[EK10962](AROS-exec-kernel.md#ek10962) — PC x86-64 ExecSMP `Wait()` holds the current task lock while taking `TaskRunningSpinLock`; priority donation then calls `SetTaskPri()` on that same task, which spins trying to reacquire its already-held lock. Requires a higher-priority waiter and lower-priority task-context list-lock owner. The waiter remains marked `TS_WAIT` on `TaskRunning`. No contention was run; source-only.**
+
 **[EK30](AROS-exec-kernel.md#ek30) — MungWall overhead addition can make `AllocMem()`, `AllocAbs()`, or plain-pool `AllocPooled()` reserve only a byte before writing wall metadata using the original near-maximum size. Conditional on MungWall, the corresponding large request, and successful small allocation; `AllocPooled()` additionally requires a non-managed pool. Source-only.**
 
 **EK10163 — m68kemu formatting thunks pass a null argument stream after allocation failure:** Locale `FormatString`, Utility `VSNPrintf`, DOS `VPrintf`, and DOS `VFPrintf` can pass the failed converter allocation to a formatter that reads its argument stream. Trigger requires an argument-bearing format and temporary allocation failure; literal-only formats are excluded. See [EK10163](AROS-exec-kernel.md#ek10163) and the [format-stream caller census](AROS-exec-kernel-coverage.md#L8572). Source-only.
