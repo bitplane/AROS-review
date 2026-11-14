@@ -17996,5 +17996,11 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD1954](AROS-other-drivers.md#od1954) — On UserGroup `getpass()`’s no-console path, the prompt goes to stdout although the API documents stderr. Source-only.**
 
+**[OD1936](AROS-other-drivers.md#od1936) — Legacy `setreuid()` disables its effective-UID privilege check, contrary to its documented rules. Conditional on security forwarding being inactive; source-only.**
+
+**[OD1937](AROS-other-drivers.md#od1937) — Legacy `setgroups()` accepts a negative count and copies beyond its fixed 32-group array. Conditional on a legacy superuser caller; source-only.**
+
+**[OD1938](AROS-other-drivers.md#od1938) — Legacy `setsid()` returns success without changing session state. Conditional on callers relying on the documented session behavior; source-only.**
+
 **[OD1935](AROS-other-drivers.md#od1935) — `ug_ConsoleName()` can read beyond its short `"XXX"` fallback string when given a larger buffer. Conditional on an interactive handle with a fallback port owner; source-only.**
 
