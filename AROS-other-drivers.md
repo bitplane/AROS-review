@@ -42527,6 +42527,27 @@ The SiS900 worker allocates `sis900u_signal_0` with `AllocSignal(-1)`, which ret
 **Cross-subsystem reference (2026-11-11):** the VC4 display client treats a failed `DMAWaitChannel()` result as idle, while the DMA resource discards `dma_channel_quiesce()` failure. The exact timeout-plus-reset-failure consequence for reusable CB and BO pin ownership is documented once as [GD15088](AROS-graphics-desktop.md#gd15088); this is not counted as a separate Other Drivers finding. The DMA resource body was already fully credited above; no path or LOC total changes. No transfer or reset failure was induced; source-only.
 
 
+<a id="od3051"></a>
+## OD3051 — PCNet32 dereferences failed private-state allocation [conditional]
+
+After a PCNet32 PCI BAR is mapped successfully, `CreateUnit()` stores the result of `AllocMem(sizeof(struct fe_priv), ...)` in `pcnu_fe_priv`, then immediately writes `fep_pcnet_init_block` through that pointer. The NULL check occurs only afterward (`workbench/devs/networks/pcnet32/unit.c:1080-1083,1095-1108`). If the private-state allocation fails, unit construction faults in the PCI enumeration callback before its normal `DeleteUnit()` failure cleanup can run (`pcnet32_init.c:64-74`).
+
+**Trigger and consequence:** `fe_priv` allocation failure after a successful BAR map; the enumerating task faults while constructing the unit. **Affected configuration:** the active network aggregate selects PCNet32 for standard i386-PC and x86-64-PC builds, and the local manifest maps both aliases to the x86 implementation (`workbench/devs/networks/mmakefile.src:3-15`; `workbench/devs/networks/pcnet32/mmakefile.src:4-13`). **Confidence:** high for the pointer ordering; conditional on allocation failure. Check the allocation before initializing its fields and route failure through cleanup. No allocation failure, PCI enumeration, or build was induced; source-only.
+
+<a id="od3052"></a>
+## OD3052 — PCNet32 worker faults when its DMA initialization block allocation fails [conditional]
+
+After `fe_priv` allocation succeeds, `CreateUnit()` stores the result of `HIDD_PCIDriver_AllocPCIMem()` in `fep_pcnet_init_block` without checking it (`workbench/devs/networks/pcnet32/unit.c:1095-1100`). On selected PCIPC, the inherited generic allocator returns NULL when its backing `AllocVec()` fails (`arch/all-pc/hidds/pcipc/pcipc.conf:6-8,18-28`; `rom/hidds/pci/pcidriverclass.c:194-212`). Once the timer setup succeeds, the worker calls `dev->initialize(dev)` before sending the creator's startup message (`unit.c:968-983`). `pcnet32_initialize()` then stores the DMA ring fields through `np->fep_pcnet_init_block` (`pcnet32.c:192-209`). With a NULL init block this faults before the handshake, while `CreateUnit()` waits on its sync port (`unit.c:1318-1330`), so unit enumeration remains stuck.
+
+**Trigger and consequence:** init-block DMA allocation failure after successful unit/private-state allocation and worker/timer setup; the worker faults before reporting readiness and the creator waits indefinitely. **Affected configuration:** standard i386-PC and x86-64-PC network builds selecting PCNet32. **Confidence:** high for the unchecked result and call ordering; conditional on DMA allocation failure and successful preceding setup. Check the DMA allocation and report startup failure to the creator before publishing the unit. This is distinct from OD3058's missing free of a successfully allocated persistent DMA block. No allocation failure, worker, PCI device, or build was induced; source-only.
+
+<a id="od3053"></a>
+## OD3053 — PCNet32 uses a missing DMA descriptor ring on Open [conditional]
+
+`pcnet32_initialize()` assigns the descriptor-ring allocation result to `np->ring_addr` without checking for NULL, then publishes ring addresses in the valid initialization block and returns (`workbench/devs/networks/pcnet32/pcnet32.c:192-214`). The worker can therefore complete its startup handshake with no ring (`unit.c:976-984,1318-1335`). On a later `Open`/start, `pcnet32_open()` first allocates its RX and TX packet buffers; when both succeed it enters descriptor initialization and dereferences `np->ring_addr` in the TX loop (`pcnet32.c:306-320,324-362`). A failed ring allocation with successful later packet-buffer allocations therefore reaches invalid ring storage during Open. The selected x86 PCIPC allocator returns NULL on backing-allocation failure as described under OD3052.
+
+**Trigger and consequence:** descriptor-ring DMA allocation failure during worker initialization, followed by a device Open where both per-open packet-buffer allocations succeed; descriptor setup dereferences the absent ring and the Open path faults. **Affected configuration:** standard i386-PC and x86-64-PC network builds selecting PCNet32. **Confidence:** high for the unchecked allocation and later use; conditional on the stated allocation sequence. Reject the unit before its startup handshake when ring allocation fails and unwind any resources already acquired. The ring's missing teardown free after successful allocation is separately recorded as OD3058. No allocation failure, Open, device, or build was run; source-only.
+
 <a id="od3055"></a>
 ## OD3055 — Network drivers fault or leak unit construction after request-port allocation failure [conditional]
 
