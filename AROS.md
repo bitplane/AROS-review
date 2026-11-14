@@ -15008,6 +15008,12 @@ Coverage-link repair: GD10288's coverage link now resolves to the explicit `setr
 
 **[OD3033](AROS-other-drivers.md#od3033) — E1000 request-port allocation failure faults unit creation and can leak ports.** The failed first queue remains NULL for an unconditional write-queue flag assignment; later failed construction may lose subsequent allocations. Explicit i386/x86_64 E1000 builds. Source-only.
 
+**[OD3051](AROS-other-drivers.md#od3051) — PCNet32 dereferences failed private-state allocation.** If `fe_priv` allocation fails after the PCI BAR is mapped, `CreateUnit()` writes through the NULL pointer before its check. Standard i386-PC and x86-64-PC network builds select this implementation. Source-only.
+
+**[OD3052](AROS-other-drivers.md#od3052) — PCNet32 worker faults when DMA initialization-block allocation fails.** Initialization dereferences the unchecked result before the worker's startup handshake, leaving the unit creator waiting indefinitely. Selected standard i386-PC and x86-64-PC builds; distinct from OD3058's successful-allocation teardown leak. Source-only.
+
+**[OD3053](AROS-other-drivers.md#od3053) — PCNet32 uses a missing DMA descriptor ring on Open.** If ring allocation fails but later RX/TX buffers succeed, descriptor initialization dereferences the absent ring. Selected standard i386-PC and x86-64-PC builds; ring teardown leak is separately covered by OD3058. Source-only.
+
 **[OD3055](AROS-other-drivers.md#od3055) — PCNet32, nForce and SiS900 request-port allocation failures fault or leak unit construction.** An unchecked `WRITE_QUEUE` pointer faults after its allocation fails; later queue allocation failures can strand subsequent ports. The active networks aggregate selects SiS900 for i386 and x86-64 PC targets, PCNet32 for i386/x86-64, and nForce for i386 (`workbench/devs/networks/mmakefile.src:3-15`; module manifests). Source-only.
 
 
