@@ -17902,3 +17902,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15123](AROS-graphics-desktop.md#gd15123) — Printer initialization leaks its `timer.device` open when PostScript renderer preinitialization rejects invalid saved settings.** The failure cleanup frees the timer signal but never closes the successfully opened timer request. Conditional on the optional PostScript printer segment and unsupported persisted settings; source-only.
 
 **[GD15124](AROS-graphics-desktop.md#gd15124) — Printer close skips unit teardown if it cannot allocate a temporary reply port.** Exec invalidates the caller's request anyway, leaving the worker, printer/timer opens, and parent unit registration active. Conditional on low-memory or signal exhaustion at close; source-only.
+
+**[GD15125](AROS-graphics-desktop.md#gd15125) — Registering a screen notification from its hook can deadlock Intuition.** The dispatcher calls hooks while holding a shared list lock; a hook that registers another notification waits exclusively on that same lock. Conditional on external hook reentrancy; source-only.
