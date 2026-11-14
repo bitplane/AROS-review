@@ -17973,7 +17973,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11629](AROS-other-drivers.md#od11629-nouveau-pushbuf-submit-error-hidden) — Nouveau push-buffer cleanup overwrites a failed submit result and clears the rejected batch, allowing the flush/kick API to report success after losing commands. Conditional on submission failure; source-only.
 
 **[OD11630](AROS-other-drivers.md#od11630-nouveau-hdmi-scdc-write-failure-continues) — Nouveau continues HDMI enable after a supported sink's SCDC configuration write fails; GPU scrambling settings can then disagree with the sink. Conditional on SCDC transaction failure; source-only.
-**[OD1928](AROS-other-drivers.md#od1928) — UserGroup reuses the utmp scan byte offset as the lastlog write offset through an aliased union, which can overwrite another user’s lastlog record. A matched `getlastlog()` cursor is also advanced past the match. Conditional multi-user finding; call path is qualified by OD11555. Source-only.**
+**[OD1928](AROS-other-drivers.md#od1928) — UserGroup reuses the utmp scan byte offset as the lastlog write offset through an aliased union, which can overwrite another user’s lastlog record. Conditional multi-user finding; call path is qualified by OD11555. Source-only.**
 
 **[OD1932](AROS-other-drivers.md#od1932) — UserGroup’s multi-user utmp format aliases console and host to one field, so supplying both makes the host overwrite the console. Conditional on a correctly shaped call because of OD11555. Source-only.**
 
