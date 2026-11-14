@@ -11196,6 +11196,7 @@ Exec/Kernel PPC helper call-site census (2026-10-30): rechecked the linked Efika
 - [EK871](AROS-exec-kernel.md#ek871): failed TLSF control-state initialization is ignored before AArch64 extra-range publication or managed `CreatePool()` allocation.
 - [EK277](AROS-exec-kernel.md#ek277): concurrent ExecSMP parent/child teardown can leave child cleanup using a freed former-parent ETask and the wrong child-list lock.
 - [EK325](AROS-exec-kernel.md#ek325): concurrent PC APIC MSI allocation can reserve the same vector run from an unsynchronized cursor; no selected overlapping schedule is established.
+- [EK810](AROS-exec-kernel.md#ek810): PC APIC MSI vector reservations are not reclaimed on PCIPC release or legacy MSI setup failure, so repeated cycles can exhaust the finite allocator range.
 - [EK372](AROS-exec-kernel.md#ek372): WaitX resubmits a completed `UNIT_WAITUNTIL` request while its reply remains linked; confirmed for the shared generic path (including PC, AArch64 Raspberry Pi and OpenSBI wrappers), plus m68k-Amiga and Efika timer backends.
 - [EK876](AROS-exec-kernel.md#ek876): ReAction class readers can retain a preference semaphore embedded in a library base across final expunge; overlap is conditional.
 - [EK8843](AROS-exec-kernel.md#ek8843): concurrent direct ARM/AArch64 SMP CPU-load queries can overwrite the shared per-core sample baseline; no maintained overlapping caller is established.
