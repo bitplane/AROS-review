@@ -17856,3 +17856,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD2856](AROS-other-drivers.md#od2856) — AHI read/write requests can divide by zero for unsupported sample types before returning `AHIE_BADSAMPLETYPE`.** Conditional on a direct device client using a type whose frame size is zero. Source-only.
 
 **[OD2857](AROS-other-drivers.md#od2857) — AHI debug logging indexes past the sample-size table for L7.1 and unknown sample types.** Requires low-or-higher device debug logging. Source-only.
+**OD1952 — AHI-Handler duration-to-byte calculation overflows its signed 32-bit length.** Long positive `SECONDS` values can wrap `totallength` negative; AUDIO reads and writes then return a negative count instead of processing the requested stream. Scoped to AHI-Handler builds and durations/formats exceeding `LONG_MAX` bytes. See [OD1952](AROS-other-drivers.md#od1952). Source-only; no audio request was run.
