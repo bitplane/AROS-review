@@ -17979,3 +17979,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD3984](AROS-other-drivers.md#od3984) — USB HID Control GUI cleanup signals interface release before its final binding access; on ExecSMP, release can free the binding first.** Conditional on overlapping GUI cleanup and interface release on an ExecSMP USB HID build; source-only.
 
 **[OD3340](AROS-other-drivers.md#od3340) — PCI mechanism 1 can direct a config data access to another CPU's selected device/register on x86-64 PC ExecSMP.** Conditional on overlapping legacy CF8/CFC transactions; source-only.
+
+
+**[GD15140](AROS-graphics-desktop.md#gd15140) — TextEditor demo dereferences `CreateRexxMsg()` after its allocation fails, faulting the optional demo on its RunARexxScript path. Source-only.**
