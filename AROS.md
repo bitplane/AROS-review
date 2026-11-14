@@ -17896,3 +17896,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15121](AROS-graphics-desktop.md#gd15121) — Printer unit startup can leave its worker blocked after reply-port allocation fails.** The process is already launched, but no startup message is sent; the parent then expunges its unit without removing the worker. Conditional; source-only.
 
 **[GD15122](AROS-graphics-desktop.md#gd15122) — Printer `pd_PRead()` can resubmit a still-pending timer request.** If a printer read completes before timeout, `pd_TIOR` remains queued and a subsequent read submits it again, which can corrupt the timer wait list. Requires a configured printer segment using repeated reads; source-only.
+
+**[GD15123](AROS-graphics-desktop.md#gd15123) — Printer initialization leaks its `timer.device` open when PostScript renderer preinitialization rejects invalid saved settings.** The failure cleanup frees the timer signal but never closes the successfully opened timer request. Conditional on the optional PostScript printer segment and unsupported persisted settings; source-only.
