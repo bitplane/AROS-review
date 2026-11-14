@@ -262,6 +262,8 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 
 ## Graphics/Desktop findings reconciled into the index (2026-11-02)
 
+**[GD5762](AROS-graphics-desktop.md#gd5762) — Failed graphics.library initialization frees its base without removing the embedded `fontsem` from Exec's public semaphore list. A later `FindSemaphore()` traversal follows the dangling node into freed storage. Conditional on a failure after semaphore publication; GD9624 is a duplicate and withdrawn. Source-only; no init failure or later list operation was induced.**
+
 **[GD4662](AROS-graphics-desktop.md#gd4662) — Empty-destination region copies can leak partially allocated rectangle chunks when allocation fails after a large copy. Hyperlayers ignores the failed result in visibility restoration; `DeleteLayer()` can continue with an empty visible-region snapshot and report success without reconstructing an overlapping lower layer's exposed visibility. Conditional on the region size, chunk-pool exhaustion, and layer geometry. Source-only.**
 
 
