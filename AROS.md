@@ -17990,6 +17990,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD1930](AROS-other-drivers.md#od1930) — UserGroup `setlastlog()` can report success after utmp/lastlog persistence fails in the multi-user path; access is conditional because the generated vector ABI is separately misdeclared (OD11555). Source-only.**
 
 **[OD11631](AROS-other-drivers.md#od11631-kms-keymap-duplicate-check-and-publication-race-on-execsmp-conditional) — KMS uses only local `Forbid()` around the resident keymap duplicate check and insertion.** Concurrent same-name loads on different CPUs can publish duplicates or corrupt the resource list on ExecSMP; source-only, conditional on overlapping clients.
+**[OD11632](AROS-other-drivers.md#od11632) — CAMD USB MIDI reads Poseidon-owned configuration-form pointers outside the config semaphore.** A concurrent full-config replacement can free the form while the ExecSMP class task traverses or later queries it; requires an overlapping external/second reload caller. Source-only.
 **[EK10966](AROS-exec-kernel.md#ek10966) — Console handler replies to only one queued read at EOF, then clears its EOF flag.** Other tasks sharing that explicit `NP_Input` can remain blocked if no further input arrives. Source-only.
 
 **[OD3984](AROS-other-drivers.md#od3984) — USB HID Control GUI cleanup signals interface release before its final binding access; on ExecSMP, release can free the binding first.** Conditional on overlapping GUI cleanup and interface release on an ExecSMP USB HID build; source-only.
