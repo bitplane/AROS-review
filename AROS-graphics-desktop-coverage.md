@@ -21327,3 +21327,6 @@ MUI header tracking-array growth failure refinement (GD15114 expanded; no body/p
 
 
 Graphics.library semaphore finding reconciliation (GD9624 withdrawn as duplicate of GD5762; 2026-11-14; no source-body/path/LOC credit): compared the two detailed entries and re-read the selected `FindSemaphore()`/`FindName()` traversal. Both entries describe the same `fontsem` publication-before-failure path and dangling list node after generated INITLIB rollback frees the graphics.library base; no separate trigger or consequence supports GD9624. Kept GD5762 active, marked GD9624 withdrawn in the detail report, and retained historical coverage notes without changing their dated meaning. `FindName()` dereferences each node's successor and name, confirming the later traversal consequence already described by the active finding. No allocation failure, initialization, or semaphore lookup was induced; source-only.
+
+
+GD5762 active detail and master-index reconciliation (2026-11-14; no source-body/path/LOC credit): strengthened the canonical GD5762 section with the exact Exec `FindSemaphore()` → `FindName()` dereference path formerly described in duplicate GD9624, and added GD5762 to the master index. GD9624 remains explicitly withdrawn as the duplicate; source/body totals are unchanged. No init failure or semaphore-list operation was induced; source-only.
