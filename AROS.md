@@ -17862,3 +17862,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15117](AROS-graphics-desktop.md#gd15117) — Printer source-hook crop offsets are applied twice.** The hook extracts the requested rectangle into a temporary bitmap at origin, then scaling applies the original `io_SrcX/io_SrcY` to that temporary bitmap. Nonzero offsets can shift or truncate the printed crop; any backend-specific out-of-range behavior is not asserted. Source-only.
 
 **[GD15118](AROS-graphics-desktop.md#gd15118) — Printer source-hook bitmap leaks if a later color-row or destination-bitmap allocation fails.** The temporary source bitmap is freed only on the successful destination-bitmap path; the affected cleanup is limited to source-hook requests. Conditional; source-only.
+
+**[OD11603](AROS-other-drivers.md#od11603) — AHI recording rate conversion wraps at HDAudio mix rates above 131071 Hz, producing the wrong sample step and recorded rate.** Conditional on a HDAudio codec/ADC exposing and accepting 176.4 or 192 kHz; source-only.
