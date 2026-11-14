@@ -43286,6 +43286,17 @@ This repeated OD9952's PCITool later-library-open failure path, skipped `closeLi
 
 This repeated OD9898's stale BAR/ROM save-field root cause: selection branches leave fields unchanged when a resource is absent, then save serializes the retained fields. No additional finding is counted.
 
+<a id="od11609"></a>
+## OD11609 — Prism2 Intersil scan-result entry length is used as an unchecked divisor [malformed firmware record conditional]
+
+`SendScanResults()` reads the total record length and entry length from the Intersil host-scan result buffer, then calculates the result count as `(length - 3) * 2 / entry_length` (`workbench/devs/networks/prism2/unit.c:2752-2758`). The buffer is populated by `P2ReadRec()`, which checks only that the total byte count fits `SCAN_BUFFER_SIZE`; it does not validate the record's minimum shape or the entry-length field (`:3636-3651`). A successfully read record with a zero entry length therefore reaches a zero divisor. The count is also trusted to advance and index the result buffer without checking that each entry contains the fields used later in `SendScanResults()`.
+
+The selected Prism2 target is included by the network card aggregate on i386, x86_64, m68k and PPC (`workbench/devs/networks/mmakefile.src:30-33,45-53`); the Intersil branch is selected when firmware identification reports that type (`unit.c:490-495`). `P2_INFO_HOSTSCANRESULTS` reaches `InfoInt()`, which signals `scan_complete_signal` after the record read; the unit task then calls `SendScanResults()` (`unit.c:2498-2503,3876-3878`). This candidate is separate from OD3157/OD3188, where `P2ReadRec()`'s signed length conversion or oversized-record rejection leaves stale scan data, and from OD3158's SSID length copy.
+
+**Trigger and consequence:** an Intersil firmware host-scan result record is accepted by `P2ReadRec()` but declares a zero entry length. Scan completion then evaluates the zero divisor in the Prism2 unit task; exact target manifestation is unverified. **Affected configuration:** Prism2 devices using Intersil firmware and the `P2_INFO_HOSTSCANRESULTS` path, conditional on a malformed or inconsistent card record. **Confidence:** high that the source accepts the field without validation and divides by it; medium that supported firmware can produce such a record. Validate the total record shape, require a nonzero minimum entry length, and bound the count by the remaining record bytes before iterating. No scan, firmware record, device, build or runtime behavior was exercised; source-only.
+
+Sources: `workbench/devs/networks/prism2/unit.c:490-495,2498-2503,2752-2777,3636-3651,3876-3878`; `workbench/devs/networks/prism2/mmakefile.src:4-7`; `workbench/devs/networks/mmakefile.src:30-33,45-53`.
+
 <a id="od10142"></a>
 <a id="od10142-pcitool-locale-base-is-unprovided"></a>
 ## OD10142 — PCITool does not provide its locale library base [conditional]
