@@ -16472,11 +16472,15 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[OD11411](AROS-other-drivers.md#od11411) — PCITool vendor lookup skips the final vendor and overruns an empty index.** A nonempty `pci.ids` file with no parsed vendors underflows the index bound; a final vendor is never compared by the binary search. Conditional on the explicitly buildable PCITool utility; source-only.
 
-**[OD11606](AROS-other-drivers.md#od11606) — PCITool leaves library and OOP attribute-base references open when a later library open fails.** MUI Master or utility.library failure after earlier acquisition skips `closeLibs()`; conditional on the explicit PCITool target. Source-only.
+**[OD9898](AROS-other-drivers.md#od9898) — PCITool can save stale BAR/ROM values from the previously selected device.** Missing or zero resources leave save fields untouched before serialization; conditional on changing the selection before saving in the explicit PCITool target. Source-only.
 
-**[OD11607](AROS-other-drivers.md#od11607) — PCITool exits with success after library or GUI initialization fails.** Required-library or application-construction failure falls through to `cleanup(NULL)`; conditional on the explicit PCITool target. Source-only.
+**[OD9952](AROS-other-drivers.md#od9952) — PCITool skips library-open cleanup and reports success when a later required library fails to open.** Partial OOP/MUI references remain held and startup exits with `RETURN_OK`; conditional on the explicit PCITool target. Source-only.
 
-**[OD11608](AROS-other-drivers.md#od11608) — PCITool can save resource ranges left over from the previously selected device.** Missing BARs do not clear the corresponding save fields before all fields are serialized; conditional on selecting devices with different layouts before saving. Source-only.
+**OD11606 (withdrawn):** duplicate of [OD9952](AROS-other-drivers.md#od9952); no separate finding is counted.
+
+**[OD11607](AROS-other-drivers.md#od11607) — PCITool exits successfully when MUI cannot construct its application object.** The GUI initialization failure falls through to `cleanup(NULL)` and `RETURN_OK`; conditional on the explicit PCITool target. Source-only.
+
+**OD11608 (withdrawn):** duplicate of [OD9898](AROS-other-drivers.md#od9898); no separate finding is counted.
 
 **[OD3664](AROS-other-drivers.md#od3664) — Sam440 EMAC advertises gigabit but resolves negotiated speed as only 10/100.** The setup path then configures the bridge and MAC at the wrong rate. Conditional on a selected 1000BASE-T PHY/link; source-only.
 
