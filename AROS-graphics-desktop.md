@@ -23144,6 +23144,7 @@ The path is selected by LinuxFB: it advertises `vHidd_FrameBuffer_Mirrored` (`ar
 
 **Coverage:** [Generic display and CursorFB full-body rows](AROS-graphics-desktop-coverage.md#generic-display-cursorfb-mirrored-visible-instance-mismatch-gd15127).
 
+<a id="gd15128"></a>
 ## GD15128 — Meta-drag dereferences a missing active screen [conditional]
 
 `FindActiveScreen()` returns `NULL` when no screen belongs to the active monitor (`rom/intuition/inputhandler_support.c:1448-1487`). Intuition explicitly supports a monitor without an active screen: `ActivateMonitor()` assigns a 160×160 fallback coordinate range when `FindFirstScreen()` returns NULL (`rom/intuition/misc.c:69-115`). Closing the last screen also leaves the monitor selection unchanged because `int_closescreen()` calls `ActivateMonitor()` only when `IntuitionBase->ActiveScreen` remains non-NULL (`rom/intuition/closescreen.c:388-414`). The default `ic_MetaDrag` preference is `IEQUALIFIER_LCOMMAND` (`rom/intuition/intuition_misc.c:124`).
