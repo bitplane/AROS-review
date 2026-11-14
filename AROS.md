@@ -14312,7 +14312,7 @@ These existing coverage-ledger candidates now have detailed finding entries; thi
 
 **EK844 — Sashimi can return a freed resource on ExecSMP:** `OpenResource()` releases the ResourceList read lock before Sashimi increments its open count; local-only `Forbid()` does not close that gap, and the count updates themselves can race. See [EK844](AROS-exec-kernel.md#ek844) and the [resource lifetime trace](AROS-exec-kernel-coverage.md#L1977). Optional debug tool; source-only, no interleaving was run.
 
-**EK845 — Sashimi frees a resource after removal rejects it as busy:** `Off` cleanup ignores `RemoveSashimiResource()`'s in-use result and frees the still-published resource, leaving a dangling ResourceList node. See [EK845](AROS-exec-kernel.md#ek845) and the [removal cleanup trace](AROS-exec-kernel-coverage.md#L2006). Source-only; no `Off` sequence was run.
+**EK845 — Sashimi can free a transient resource after an `OFF` request fails to remove it:** when no resource exists, `OFF` creates one, skips the owner loop, then frees it even if another invocation opened it and removal reported it busy. This can leave a dangling ResourceList node; the trigger is conditional on overlap. See [EK845](AROS-exec-kernel.md#ek845) and the [removal cleanup trace](AROS-exec-kernel-coverage.md#L2006). Source-only; no `OFF` overlap was run.
 
 **EK846 — Concurrent Sashimi starts can add duplicate resource names on ExecSMP:** the absence check uses local `Forbid()`, then `AddResource()` locks only the later insertion, so two starts can both publish. See [EK846](AROS-exec-kernel.md#ek846) and the [duplicate publication trace](AROS-exec-kernel-coverage.md#L1848). Optional debug tool; source-only, no duplicate publication was run.
 
