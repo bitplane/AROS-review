@@ -44214,8 +44214,8 @@ For `PF_CHIP_8513`, the receive parser consumes a two-byte length prefix by adva
 
 **Trigger and consequence:** an ADM8513 receive completes with at least four bytes (the parser’s minimum-length guard) and reaches the common status check. The parser can use bytes beyond that transfer (which may belong to the adjacent slot) to decide whether the packet has an error, producing a wrong accept/drop decision; this read does not itself modify that adjacent buffer. **Affected configuration:** Pegasus class bound to a device identified as `PF_CHIP_8513`. **Confidence:** high for the pointer/length mismatch and actual-length caller; the effect of the adjacent-slot overlap depends on transfer timing and was not exercised. Reduce `len` when consuming the prefix, or index status relative to the remaining payload length. No device or transfer was used; source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
 
-<a id="od11641-ahi-warpup-elfloader-logs-unsupported-relocation-through-unbounded-table-index"></a>
-## OD11641 — AHI WarpUp ELF loader indexes past its relocation-name table [conditional]
+<a id="od11643-ahi-warpup-elfloader-logs-unsupported-relocation-through-unbounded-table-index"></a>
+## OD11643 — AHI WarpUp ELF loader indexes past its relocation-name table [conditional]
 
 The loader's `reloc_name` array contains entries for relocation values 0 through 36 (`workbench/devs/AHI/Device/elfloader.c:307-345`). In `relocate()`, any relocation type not handled by the switch enters the diagnostic path and uses `ELF32_R_TYPE(r->r_info)` directly as an index into this array (`:260-261,785-850`). The extracted relocation type is an unsigned byte, and the default case has no range check before passing `reloc_name[index]` to `KPrintF` as `%s`. An unsupported type of 37 or greater therefore reads beyond the array; formatting that value can fault or emit invalid diagnostic text before the loader can return a clean relocation failure.
 
