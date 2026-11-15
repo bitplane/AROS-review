@@ -546,6 +546,8 @@ P96Gfx bitmap palette-failure cleanup recheck (GD5995 detailed, 2026-10-25): tra
 
 **[GD15173](AROS-graphics-desktop.md#gd15173) — MultiView zoom-in multiplies image dimensions into 16-bit `UWORD` temporaries, so a reachable zoom can wrap an axis and request the wrong output size. Conditional on dimensions and zoom factor; source-only.**
 
+**[GD15174](AROS-graphics-desktop.md#gd15174) — `AllocSpriteDataA()` narrows out-of-range replication factors to zero, so the generic scaler can return a cleared, blank sprite as success. Requires a direct caller using an unrepresentable factor; source-only.**
+
 # Graphics and Desktop coverage ledger
 
 This ledger is being reconstructed. On 2026-10-22 this path was found to contain a byte-for-byte copy of the master index (`../AROS.md`) rather than the prior per-file review ledger. The master index remains preserved separately. No backup of the old ledger was found in the checked workspace, temp, cache, or source locations. Therefore its previous per-file rows, reviewed/unreviewed line totals, and historical review notes are not recoverable from the current files. Do not interpret this reconstructed ledger as a completeness claim.
