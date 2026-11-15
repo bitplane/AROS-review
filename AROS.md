@@ -18070,3 +18070,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[EK10990](AROS-exec-kernel.md#ek10990) — POSIXC `fdopen()` masks the parser’s `-1` error into `O_RDWR`, so invalid mode strings are accepted for read/write descriptors. Source-only; no maintained invalid-mode caller was found.**
 
 **[EK10991](AROS-exec-kernel.md#ek10991) — POSIXC `freopen()` passes an invalid mode parser result as open flags; with a missing path, it can create and return a read/write stream instead of reporting `EINVAL`. Source-only; no maintained invalid-mode caller was found.**
+**[EK10992](AROS-exec-kernel.md#ek10992) — POSIXC stat/lstat fallback helpers leak their allocated path copy when relative-path resolution fails early. Repeated failures can consume task memory. Source-only; no failure was induced.**
