@@ -18318,3 +18318,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15204](AROS-graphics-desktop.md#gd15204--external-imageadjust-entry-can-survive-a-failed-path-copy-and-apply-the-fallback-pattern)** — Imageadjust returns a partial external-list entry when copying its relative path fails; double-click can apply the default pattern instead of the displayed file. Conditional on pool allocation failure; AROS MUI/Popimage path; source-only.
 
 **[OD4074](AROS-other-drivers.md#od4074--eaudio-control-wrappers-share-one-unsynchronized-completion-task-slot)** — EAudio synchronous control wrappers share one unsynchronized waiter task slot; overlapping calls can wake the wrong caller. Conditional on external concurrent clients; optional EAudio target; no in-tree triggering pair found. Source-only.
+
+**[OD4472](AROS-other-drivers.md#od4472)** — NVMe returns success from AbortIO without cancelling the in-flight request. Conditional on clients relying on cancellation; no in-tree targeted caller established. Source-only.
+
+**[OD11667](AROS-other-drivers.md#od11667)** — NVMe advertises CMD_UPDATE but returns success without issuing Flush; configured AFS/SFS/NTFS use can leave writes in an enabled volatile cache. Conditional on NVMe configuration and controller cache state. Source-only.
