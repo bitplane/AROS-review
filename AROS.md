@@ -14627,7 +14627,7 @@ Coverage-link repair: GD10288's coverage link now resolves to the explicit `setr
 **OD11127 — Nouveau DP link training and AUX error handling dereference the RM response pointer after transport failure clears it.** Applies to R535-family GSP display paths. See [OD11127](AROS-other-drivers.md#od11127) and the [DP control error-path trace](AROS-other-drivers-coverage.md#nouveau-r535-displayport-control-error-review). Source-only.
 
 
-**OD11128 — Nouveau display output discovery leaks its RM response on `TYPE_NONE` and invalid output metadata.** Conditional on one of those RM responses during R535-family display initialization. See [OD11128](AROS-other-drivers.md#od11128) and the [output discovery lifetime trace](AROS-other-drivers-coverage.md#nouveau-r535-display-output-and-acpi-review). Source-only.
+**OD11128 — Nouveau display output discovery leaks its RM response on `TYPE_NONE` and invalid output metadata.** On GA102/TU102 GSP display paths, `TYPE_NONE` skips that output and leaks its response; an unsupported type/protocol leaks its response and aborts the current discovery pass. See [OD11128](AROS-other-drivers.md#od11128) and the [output discovery lifetime trace](AROS-other-drivers-coverage.md#nouveau-r535-display-output-and-acpi-review). Source-only.
 
 **OD11129 — Nouveau's x86 ACPI backlight `_DSM` parser does not bound copies to its 4 KiB RM buffer.** Conditional on a supported firmware method returning more than 4 KiB of packed data. See [OD11129](AROS-other-drivers.md#od11129) and the [ACPI backlight parser trace](AROS-other-drivers-coverage.md#nouveau-r535-display-output-and-acpi-review). Source-only.
 
