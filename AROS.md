@@ -18338,3 +18338,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11673](AROS-other-drivers.md#od11673)** — Nouveau and VMware MST messages always carry sequence bit zero, and replies are not matched by sequence; later sideband transactions may be mistaken for duplicates or stale replies. Optional display HIDDs; source-only, consequence conditional on branch handling.
 
 **[OD11674](AROS-other-drivers.md#od11674)** — Remote MST DPCD writes of 252–255 bytes overflow the fixed sideband message buffer; a 251-byte write wraps the one-byte message length to zero. Conditional on an external remote-AUX client requesting a large transfer; source-only.
+
+**[OD11675](AROS-other-drivers.md#od11675)** — Nouveau NV50 payload Part 1 advances slot counters before programming and does not roll them back on failure; later MST allocations can use stale slot positions. Conditional on a topology change or DPCD payload-write failure; source-only.
