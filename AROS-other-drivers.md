@@ -30948,7 +30948,6 @@ Nouveau GK20A partial instance-memory constructor cleanup recheck (OD10296 detai
 <a id="nouveau-r535-display-control-rpc-cleanup-od10297"></a>
 Nouveau R535 display-control RPC cleanup recheck (OD10297 detailed section restored; 2026-11-03; no source-body/path/LOC credit): traced successful output-info RPC acquisition into the `TYPE_NONE` and unsupported type/protocol returns, then checked the R535/R570/R580 backlight control callbacks and push ownership. The unsupported output branches omit `ctrl_done()`; backlight callbacks return on RM-status errors while their reply parameter remains owned/non-NULL. Restored OD10297 with the transport-failure exclusion and no claim of a fixed exhaustion threshold. No RM request, display operation, GPU access, or build was run; source-only.
 
-<a id="od10298"></a>
 <a id="nouveau-r535-display-constructor-allocation-recheck-od10298"></a>
 Nouveau R535 display-constructor allocation recheck (OD10298 detailed section restored; 2026-11-03; no source-body/path/LOC credit): traced `nvkm_disp_new_()`'s initial allocation failure and output assignment into `r535_disp_new()`. The helper leaves `*pdisp` NULL on `-ENOMEM`; R535 frees its function table but then unconditionally initializes a mutex through that pointer. Restored OD10298 for the GA102/TU102 GSP/RM path. No allocation failure, display initialization, GPU access, or build was run; source-only.
 
