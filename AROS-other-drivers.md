@@ -38402,7 +38402,7 @@ The two direct in-tree callers of `nvif_outp_dp_aux_xfer()` are bounded: `nouvea
 **Trigger and consequence:** another in-kernel NVIF client or a future caller supplies a size above 16 to one of the selected AUX paths. Copies then read beyond the source or write beyond the fixed request/RM/handler array; the exact first affected object depends on which layer receives the oversized call. **Affected configuration:** explicitly buildable Nouveau display paths using the NVIF output AUX method; this is retained as a low-current-reachability source candidate, not a demonstrated in-tree request. **Confidence:** high for the unchecked size-to-array mismatch; low for current in-tree reachability. Validate size against the method buffer capacity at the dispatch boundary and before every fixed-buffer copy. No AUX request, GPU operation, or build was run; source-only.
 
 <a id="od11133"></a>
-## OD11133 — Nouveau R535 display constructor dereferences the output pointer after allocation failure [optional Nouveau]
+## OD11133 — Nouveau R535 display constructor mishandles allocation-failure unwind [optional Nouveau]
 
 `nvkm_disp_new_()` assigns its allocation result to `*pdisp` and returns `-ENOMEM` if it is NULL. `r535_disp_new()` frees its temporary function table when that call returns an error, then unconditionally dereferences `(*pdisp)->super.mutex` before returning. If allocation of the display object fails, the constructor dereferences NULL instead of propagating the error.
 
