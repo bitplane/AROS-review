@@ -18238,3 +18238,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11650](AROS-other-drivers.md#od11650) — P96 hardware-cursor pen updates pass a null pixel format into ColorMap, causing a null dereference when a paletted display bitmap is shown. Conditional on hardware-sprite support; source-only.**
 **[OD11651](AROS-other-drivers.md#od11651) — P96 Gfx object construction dereferences failed name, mode-tag, and RTG mode allocations. Conditional on low memory during driver registration; source-only.**
 **[OD11652](AROS-other-drivers.md#od11652) — P96 Gfx construction leaks its sprite ColorMap when later display or enumerator creation fails. Source-only.**
+**[OD11653](AROS-other-drivers.md#od11653) — Nouveau's legacy BIOS I2C debug log reads an unset AUX channel byte. Conditional on legacy BMP fallback and enabled subdevice debug logging; diagnostic-only, source-only.**
