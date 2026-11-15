@@ -18071,3 +18071,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[EK10991](AROS-exec-kernel.md#ek10991) — POSIXC `freopen()` passes an invalid mode parser result as open flags; with a missing path, it can create and return a read/write stream instead of reporting `EINVAL`. Source-only; no maintained invalid-mode caller was found.**
 **[EK10992](AROS-exec-kernel.md#ek10992) — POSIXC stat/lstat fallback helpers leak their allocated path copy when relative-path resolution fails early. Repeated failures can consume task memory. Source-only; no failure was induced.**
+**[GD5331](AROS-graphics-desktop.md#gd5331) — VGAGfx mode changes and cursor updates use independent locks while programming shared VGA registers and visible-bitmap state. Concurrent operations can leave mode or cursor state inconsistent. Conditional on overlapping display/cursor activity with ExecSMP; source-only.**
