@@ -17395,3 +17395,13 @@ StdC C11 UTF conversion full-body and narrow-wchar caller pass (EK10988 added; f
 | `compiler/crt/stdc/c16rtomb.c` | 42 | Full body read; BMP/surrogate input, pending state and UTF-8 delegation checked; EK10988. |
 | `compiler/crt/stdc/mbrtoc32.c` | 15 | Full body read; `wchar_t` result narrowing checked; EK10988. |
 | `compiler/crt/stdc/c32rtomb.c` | 10 | Full body read; `char32_t` to `wchar_t` narrowing checked; EK10988. |
+
+StdC legacy multibyte API and locale-call-chain pass (EK10678 expanded; five newly represented selected paths, 164 `cloc 2.06` C code lines; 2026-11-15): read complete `mbtowc.c` (56 code lines), `mblen.c` (50), `mbstowcs.c` (31), `mbrlen.c` (11), and `wctomb.c` (16), all selected through `STDC_WCHAR_COMMON` (`compiler/crt/stdc/mmakefile.src:408-419`). Reconciled `mbstowcs()`'s locale-specific maximum-length argument and NUL/size-query handling, `mbrlen()`'s delegation to `mbrtowc()`, and `wctomb()`'s delegation to `wcrtomb()`. Expanded EK10678: `mbtowc()` and `mblen()` independently hard-code UTF-8 and ignore `LC_CTYPE`, while `wctomb()` inherits `wcrtomb()`'s locale-independent UTF-8 output. The initial C locale has `__lc_mb_max = 1`; therefore the direct legacy decoder APIs accept multibyte UTF-8 contrary to the selected locale and encoder APIs emit UTF-8 there. `mbstowcs()` passes the locale maximum and does not establish that same direct mismatch under C. Repository caller search found the expected `mbstowcs()`/`mblen()` internal paths, format-conversion callers and the selected CUnit coverage; no separate independent defect was confirmed in these five bodies. No conversion or test was run. This extends the represented Exec/Kernel checkpoint from 2,073/2,073 paths and 313,443/373,710 C/header code lines to **2,078/2,078 paths (100%)** and **313,607/373,874 C/header code lines (83.9%)**. Broader locale/API behavior and runtime/compiler configurations remain open; source-only.
+
+| Selected C source | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `compiler/crt/stdc/mbtowc.c` | 56 | Full body read; UTF-8 decoder branches and ignored locale state checked; EK10678. |
+| `compiler/crt/stdc/mblen.c` | 50 | Full body read; duplicated UTF-8 length decoder and ignored locale state checked; EK10678. |
+| `compiler/crt/stdc/mbstowcs.c` | 31 | Full body read; destination limit, size query, termination and `mbtowc()` locale-length caller argument checked. |
+| `compiler/crt/stdc/mbrlen.c` | 11 | Full body read; state fallback and `mbrtowc()` delegation checked; inherits EK10678. |
+| `compiler/crt/stdc/wctomb.c` | 16 | Full body read; NULL reset and `wcrtomb()` delegation checked; inherits EK10678. |
