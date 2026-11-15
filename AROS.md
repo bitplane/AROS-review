@@ -18109,6 +18109,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15163](AROS-graphics-desktop.md#gd15163) — Disposing a buffered Wanderer IconList leaves its private layer, RastPort, bitmap and `Layer_Info` allocated. Conditional on buffered rendering being enabled; source-only.**
 **[GD15166](AROS-graphics-desktop.md#gd15166) — VMM copies configured paging-device names into 40-byte globals without checking the name length; long partition/device names can overflow the buffers during config loading. Conditional on an optional VMM handler using a long device name; source-only.**
 **[GD15167](AROS-graphics-desktop.md#gd15167) — The legacy VMM converter copies long hotkey lines into 80-byte fields before stripping the newline; an overlong disable value can overwrite later config fields. Conditional on such a legacy preferences value; source-only.**
+**[GD15168](AROS-graphics-desktop.md#gd15168) — The legacy VMM converter reuses one global config object for ENVARC and ENV; an older second file can inherit version-specific settings from the first. Conditional on both files using different legacy versions; source-only.**
 
 
 
