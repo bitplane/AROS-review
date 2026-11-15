@@ -23412,6 +23412,19 @@ The standard-timing loop in `G45_parse_ddc()` skips entries only when the decode
 
 <a id="gd15161"></a>
 
+<a id="gd15162"></a>
+
+## GD15162 — VMM config reload discards the current task policies before validating the replacement [conditional]
+
+When the running manager receives its config-file notification, `NewConfigReceived()` calls `NoMoreVM()` before it attempts to read the replacement config (`workbench/system/VMM/VM_Manager.c:484-496`; notification registration and signal dispatch at `VM_Manager_Init.c:732-736` and `VM_Manager.c:641-660`). `NoMoreVM()` flushes the policy hash, removes and frees every `TaskInfo` entry, and resets the default public/nonpublic paging thresholds to `USE_NEVER` (`workbench/system/VMM/forbidden_tasks.c:407-434`). If `ReadConfigFile()` then fails to open or validate the header, or fails while reading a later task entry, the manager reports a continuing runtime error and returns without restoring the old list or reverting any newly inserted entries (`VM_Manager.c:492-496`; `globals.c:170-182`; `config.c:79-164`). Earlier replacement entries can therefore remain as a partial policy set, while the previous policy set is already gone; on a header failure the table stays empty. The manager's notification loop continues running after this return.
+
+This can follow the source-supported GD15095 save-failure path: RAM Handler `MODE_NEWFILE` deletes an existing destination, a failed allocation can produce an incomplete replacement, and closing the changed file notifies the manager. The trigger here is specifically that the running manager receives a config-change notification for an unreadable or incomplete replacement; other filesystem/configuration failures can reach the same reader error paths.
+
+**Consequence:** a failed reload silently leaves VMM running with an empty or partially rebuilt per-task paging policy, rather than preserving the last valid configuration. Later allocations are classified against the incomplete replacement state and can receive different paging treatment. **Affected configuration:** optional VMM manager and handler after runtime config notification; practical AROS startup reachability remains uncertain as recorded in GD9419/GD10558. **Confidence:** high for destructive pre-read reset, early-return paths, and continuing error handling; occurrence requires a notified config replacement that fails parsing. Parse into temporary state and swap policies only after the complete config succeeds, or restore the previous policy on failure. No config reload, filesystem failure, task allocation, or build was exercised. Source-only.
+
+Sources: `workbench/system/VMM/VM_Manager.c:484-496,641-660`; `workbench/system/VMM/VM_Manager_Init.c:732-736`; `workbench/system/VMM/forbidden_tasks.c:407-434`; `workbench/system/VMM/config.c:64-164`; `workbench/system/VMM/globals.c:170-182`.
+
+
 ## GD15161 — VMM max-memory reduction can stop after one empty frame [conditional]
 
 A `VMCMD_NewConfig` message calls `NewConfigReceived()` in the page handler. When `NumPageFrames * PAGESIZE` exceeds the new `CurrentConfig.MaxMem`, it removes one free trap record, sets `FaultAddress = 0`, marks it `REDUCE_TASK`, and queues a page-removal request (`workbench/system/VMM/pagehandler.c:452-490,507-516`). `RemFrame()` evicts a temporary frame and `RemFrameFinish()` chooses a second allocated frame to remove (`workbench/system/VMM/fault.c:819-840,692-742`). If that selected frame is `PT_EMPTY`, the function removes it from the allocation/frame lists and frees its memory (`:786-810`), but does not set `ThisFault->FaultAddress` to a nonzero progress marker. The subsequent `InformTask()` repeats reduction only when the new maximum is still exceeded **and** `FaultAddress != 0` (`:39-58`). Thus an empty-frame removal ends the request after one page even when other empty frames remain and `NumPageFrames * PAGESIZE` is still above `MaxMem`.
