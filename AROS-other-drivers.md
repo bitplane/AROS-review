@@ -43848,8 +43848,8 @@ The AHIRecord target compiles this encoder with `FLAC__INTEGER_ONLY_LIBRARY`, an
 
 Sources: `workbench/tools/AHIRecord/FLAC/format.c:568-594`; `workbench/tools/AHIRecord/FLAC/stream_encoder.c:583-591,3536-3552,3728-3730,3752-3759,3983-4035`; `workbench/tools/AHIRecord/FLAC/stream_decoder.c:2744-2746`; `workbench/tools/AHIRecord/mmakefile.src:6-26`; `workbench/tools/AHIRecord/AHIRecord.c:17,2944-2956,3007-3014`.
 
-<a id="od11637"></a>
-## OD11637 — AHIRecord ignores FLAC encoder setup failures
+<a id="od1336"></a>
+## OD1336 — AHIRecord ignores FLAC encoder setup failures
 
 In the selected FLAC16 setup path, AHIRecord opens the destination file, assigns `FLAC__stream_encoder_new()` directly to `FlacEncoder`, calls four setters through that pointer, ignores their results, ignores `FLAC__stream_encoder_init_stream()`'s status, then sets `FileOpen = TRUE` and signals the master task that the saver is ready (`workbench/tools/AHIRecord/AHIRecord.c:2944-2959`). The constructor can return NULL after any of its allocation failures (`workbench/tools/AHIRecord/FLAC/stream_encoder.c:526-558`). The setters dereference the encoder's protected/private state (`:1440-1487`), so a constructor allocation failure reaches a NULL dereference before readiness is signaled. If initialization fails for a non-NULL encoder, its API returns a non-OK status; for example, the selected write callback can report a fatal error when `fwrite()` writes fewer bytes than requested (`AHIRecord.c:952-964`, `stream_encoder.c:637-664,1129-1142`). AHIRecord nevertheless publishes `FileOpen`, so its master proceeds as though the FLAC saver is usable. On the next audio block, `process_interleaved()` fails and the recorder reports a write error; if no block arrives before shutdown, the setup failure is not reported through that path. The task later calls `finish()` and deletes the encoder without checking the finish result (`AHIRecord.c:3093-3097`).
 
