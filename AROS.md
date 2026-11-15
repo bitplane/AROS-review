@@ -18108,7 +18108,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[GD15163](AROS-graphics-desktop.md#gd15163) — Disposing a buffered Wanderer IconList leaves its private layer, RastPort, bitmap and `Layer_Info` allocated. Conditional on buffered rendering being enabled; source-only.**
 
-**[GD15164](AROS-graphics-desktop.md#gd15164) — Android graphics startup calls inherited input-driver registration on keyboard/mouse consumers whose input-subsystem pointer is NULL; startup faults before display registration. Conditional on the optional target being buildable (GD14340); source-only.**
 
 
 **[OD11640](AROS-other-drivers.md#od11640) — BWFM overwrites its stored hardware MAC on `S2_CONFIGINTERFACE` and then returns that configured address as both current and original in `S2_GETSTATIONADDRESS`. Conditional on a client setting a non-factory address; source-only.**
