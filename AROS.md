@@ -18149,3 +18149,59 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD3586](AROS-other-drivers.md#od3586) — A zero-length DenebUSB bulk request can program a reused PTD with stale buffer length and start fields. Conditional on PTD reuse after nonzero I/O; source-only.**
 **[OD3587](AROS-other-drivers.md#od3587) — DenebUSB's ISO completion test can reply before `iouh_Actual` reaches `iouh_Length` when fewer than one max packet remains. Conditional on the request/packet boundary; source-only.**
 **[OD9689](AROS-other-drivers.md#od9689) — The USB boot-keyboard, USB HID, and Bluetooth HID reset-list probes temporarily register stack Interrupt nodes with NULL callbacks; a reset event during that interval makes keyboard.device call the NULL function pointer. Conditional on the reset window and the relevant class/reset path; source-only.**
+
+**[OD2184](AROS-other-drivers.md#od2184) — USB HID worker can miss its one-shot detach signal during DOS readiness [conditional]; source-only.**
+**[OD11259](AROS-other-drivers.md#od11259) — Nouveau MXM ROM discovery reads the structure length past its six-byte probe buffer [conditional]; source-only.**
+**[OD11260](AROS-other-drivers.md#od11260) — Nouveau MXM shadow-table allocations are not released at subdevice teardown [conditional]; source-only.**
+**[OD11245](AROS-other-drivers.md#od11245) — Nouveau XPIO parser returns failure after populating data and accepts a short entry; source-only.**
+**[OD11246](AROS-other-drivers.md#od11246) — Nouveau ICCSense initialization leaks its parsed power-rail table; source-only.**
+**[OD11248](AROS-other-drivers.md#od11248) — Nouveau GPIO voltage parsing wraps the count for a 256-entry VID range; source-only.**
+**[OD11249](AROS-other-drivers.md#od11249) — Nouveau voltage-map links recurse without cycle detection; source-only.**
+**[OD11250](AROS-other-drivers.md#od11250) — Nouveau linear fan control divides by zero for equal BIOS temperature bounds; source-only.**
+**[OD11251](AROS-other-drivers.md#od11251) — Nouveau fault-buffer setup leaks partially initialized buffers on failure; source-only.**
+**[OD11252](AROS-other-drivers.md#od11252) — Nouveau interrupt registration can leak an allocation on partial failure; source-only.**
+**[OD11253](AROS-other-drivers.md#od11253) — Nouveau MEMX completion drops PMU send failures and logs uninitialized reply words; source-only.**
+**[OD11261](AROS-other-drivers.md#od11261) — Nouveau generation bus constructors discard I2C setup failures [optional Nouveau HIDD]; source-only.**
+**[OD11263](AROS-other-drivers.md#od11263) — Nouveau AUX constructors ignore I2C adapter-registration errors; source-only.**
+**[OD11295](AROS-other-drivers.md#od11295) — Nouveau R535/R570/R580 object free ignores RM failure status; source-only.**
+**[OD11312](AROS-other-drivers.md#od11312) — Nouveau legacy FIFO ignores a hash-puller timeout before invalidating state; source-only.**
+**[OD11372](AROS-other-drivers.md#od11372) — Raspberry Pi mailbox callers do not isolate mailbox cache lines; source-only.**
+**[OD11373](AROS-other-drivers.md#od11373) — Candidate: Nouveau fan PWM can program a zero period; source-only.**
+**[OD11376](AROS-other-drivers.md#od11376) — Vulkan-Hpp enhanced map-memory wrappers can return an indeterminate pointer on failure; source-only.**
+**[OD11377](AROS-other-drivers.md#od11377) — Vulkan-Hpp pipeline batch helpers can leak partial results; source-only.**
+**[OD11378](AROS-other-drivers.md#od11378) — Copying an unlinked Vulkan-Hpp StructureChain retains source pointers; source-only.**
+**[OD11379](AROS-other-drivers.md#od11379) — Candidate: Vulkan-Hpp result wrappers retain outputs for non-value statuses; source-only.**
+**[OD11380](AROS-other-drivers.md#od11380) — Vulkan-Hpp array proxies truncate oversized container counts; source-only.**
+**[OD11382](AROS-other-drivers.md#od11382) — Vulkan-Hpp TransformMatrixKHR copies nested arrays through an incompatible type; source-only.**
+**[OD11390](AROS-other-drivers.md#od11390) — Vulkan-Hpp format stringification omits `R16G16_S10_5_NV`; source-only.**
+**[OD11391](AROS-other-drivers.md#od11391) — Vulkan-Hpp ApplicationInfo hash dereferences default-null strings; source-only.**
+**[OD11393](AROS-other-drivers.md#od11393) — Vulkan-Hpp CUDA function hash dereferences a nullable name; source-only.**
+**[OD11394](AROS-other-drivers.md#od11394) — Vulkan-Hpp AMDX stage-node string operations dereference null names; source-only.**
+**[OD11395](AROS-other-drivers.md#od11395) — Vulkan-Hpp shader-create string operations dereference null names; source-only.**
+**[OD11398](AROS-other-drivers.md#od11398) — Vulkan-Hpp display-property string operations do not handle null names; source-only.**
+**[OD11399](AROS-other-drivers.md#od11399) — Vulkan HIDD never applies the advertised exclusive-compute GPU lock; source-only.**
+**[OD4091](AROS-other-drivers.md#od4091) — USB keyboard key-state allocation narrows the descriptor array count; source-only.**
+**[OD4343](AROS-other-drivers.md#od4343) — Printer command formatting reuses a buffer still owned by asynchronous I/O; source-only.**
+**[OD4345](AROS-other-drivers.md#od4345) — Printer CSI parsing writes beyond its four-byte parameter array; source-only.**
+**[OD9744](AROS-other-drivers.md#od9744) — ATA polling can report an incomplete PIO transfer as complete; source-only.**
+**[OD11522](AROS-other-drivers.md#od11522) — BTCtrl can report discovery finished when WAIT setup fails; source-only.**
+**[OD11523](AROS-other-drivers.md#od11523) — BTCtrl silently succeeds when remote-name request allocation fails; source-only.**
+**[OD2319](AROS-other-drivers.md#od2319) — RTL8139 failed-startup cleanup can signal a reclaimed worker task; source-only.**
+**[OD2436](AROS-other-drivers.md#od2436) — e1000 shutdown passes a signal number where Exec needs a mask; source-only.**
+**[OD11524](AROS-other-drivers.md#od11524) — Nouveau `NvI2C=1` selects a transfer callback compiled as unavailable; source-only.**
+**[OD11525](AROS-other-drivers.md#od11525) — Nouveau ICCSense one-init leaks its parsed BIOS rail table; source-only.**
+**[OD11526](AROS-other-drivers.md#od11526) — Nouveau ICCSense power calculation can overflow signed arithmetic; source-only.**
+**[OD1574](AROS-other-drivers.md#od1574) — Efika timer can count a delayed whole-second remainder twice [latent behind OD9941]; source-only.**
+**[OD9876](AROS-other-drivers.md#od9876) — BWFM scan-start failure is reported as a successful empty scan [conditional]; source-only.**
+**[OD3626](AROS-other-drivers.md#od3626) — SANA-II association callback reports success after setup failures [conditional]; source-only.**
+**[OD3627](AROS-other-drivers.md#od3627) — SANA-II event callback retains freed driver state after live interface removal [external dynamic-removal caller required]; source-only.**
+**[OD3629](AROS-other-drivers.md#od3629) — SANA-II initialization ignores failure to register its completion signal [conditional]; source-only.**
+**[OD3630](AROS-other-drivers.md#od3630) — SANA-II scan setup leaks its pool when a later allocation fails [conditional]; source-only.**
+**[OD3631](AROS-other-drivers.md#od3631) — SANA-II keepalive timeout retains freed driver state after live removal [external dynamic-removal caller required]; source-only.**
+**[OD3632](AROS-other-drivers.md#od3632) — SANA-II hardware-mode allocation failures dereference NULL and leak partial arrays [conditional]; source-only.**
+**[OD3946](AROS-other-drivers.md#od3946) — SANA-II association leaks its temporary SSID buffer [conditional]; source-only.**
+**[OD3633](AROS-other-drivers.md#od3633) — Oversized SANA-II WPA IE is discarded and BWFM falls back to open security [external caller required]; source-only.**
+**[OD3634](AROS-other-drivers.md#od3634) — BWFM continues the join after WPA/RSN setup commands fail [conditional]; source-only.**
+**[OD3610](AROS-other-drivers.md#od3610) — BWFM silently drops WPA/RSN scan metadata when its optional IE allocation fails [conditional]; source-only.**
+**[OD9873](AROS-other-drivers.md#od9873) — BWFM publishes up to eight scan results without their WPA/RSN information elements [conditional]; source-only.**
+**[OD9796](AROS-other-drivers.md#od9796) — PCI USB real-time isochronous start can report success without scheduling a transfer [conditional]; source-only.**
