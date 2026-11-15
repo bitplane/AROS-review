@@ -18273,3 +18273,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15185](AROS-graphics-desktop.md#gd15185) — RexxSupport `OPENPORT` publishes its port and library reference before Rexx registration setup; later reply-object allocation failure returns without rollback. Optional explicit target; source-only.**
 
 **[GD15186](AROS-graphics-desktop.md#gd15186) — RexxSupport `CLOSEPORT` returns on Rexx/reply-object setup failure without releasing the tracked port or partial temporary objects. Optional explicit target; source-only.**
+
+**[GD15187](AROS-graphics-desktop.md#gd15187) — RexxSupport `GETPKT` links the `NULL` result of an empty `GetMsg()` into its outstanding-message list, faulting in `AddTail()`. Conditional on an empty-queue call or competing consumers; optional explicit target; source-only.**
