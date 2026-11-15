@@ -11058,3 +11058,13 @@ The embedded `isprint()` example in the selected `__ctype.c` source says `isprin
 **Trigger and consequence:** a developer reads the generated `isprint()` API documentation and uses the newline example as the expected result. The example teaches the wrong answer; the implementation itself classifies newline correctly. Correct the example to `false`. **Affected configuration:** generated StdC API documentation sourced from `compiler/crt/stdc/__ctype.c`. **Confidence:** high for the mismatch; no documentation was generated. Documentation-only; no runtime defect is claimed.
 
 Sources: `compiler/crt/stdc/__ctype.c:21-25,721-745`; `compiler/crt/stdc/include/aros/stdc/ctype.h:53-55`.
+
+
+<a id="ek10986"></a>
+## EK10986 — Inline `isascii()` accepts values that wrap into ASCII
+
+The selected public ctype header implements `isascii(c)` in inline mode as `((unsigned char)(c) <= 0x7f)` (`compiler/crt/stdc/include/aros/stdc/ctype.h:70-71`). Narrowing first makes values outside the byte range wrap: for example, `isascii(256)` tests zero and returns true. The selected no-inline/link-library implementation instead checks the original integer with `(c & ~0x7f) == 0` and returns false for 256 (`compiler/crt/stdc/ctype.c:89-92`). The public function description defines the result as whether the input is an ASCII character (`compiler/crt/stdc/__ctype.c:529-542`).
+
+**Trigger and consequence:** compile a client with the POSIX/XSI/GNU feature selection that exposes `isascii()` and the normal inline ctype mode, then call it with an integer outside `[-128,255]` whose low byte is ASCII, such as 256 or -256. The inline form reports true for a non-ASCII value, unlike the selected out-of-line form. A caller using it to validate a wider integer can accept an invalid value. The checked in-tree callers pass character bytes or `getc()` results; none of the inspected AROS callers demonstrates this wider-integer trigger, so the consequence is limited to clients that pass such values. **Affected configuration:** clients that use the inline `compiler/crt/stdc/include/aros/stdc/ctype.h` definition; the `STDC_NOINLINE_CTYPE` implementation is not affected. **Confidence:** high for the source-level mismatch; no call or build was run. Check the original integer before narrowing, for example `(unsigned)c <= 0x7f`. Source-only.
+
+Sources: `compiler/crt/stdc/include/aros/stdc/ctype.h:66-72`; `compiler/crt/stdc/ctype.c:88-92`; `compiler/crt/stdc/__ctype.c:529-542`; selected ctype link-library input `compiler/crt/stdc/mmakefile.src:755-764,839-913`.
