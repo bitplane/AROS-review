@@ -39280,6 +39280,13 @@ The Nouveau DRM compatibility layer implements `pci_disable_device()` as an empt
 
 Sources: wrappers in `workbench/hidds/nouveau/drm-compat/linux_pci.c:306-324`; generic setter clearing `PCICMF_BUSMASTER` in `rom/hidds/pci/pcideviceclass.c:1332-1340`; selected callers in `workbench/hidds/nouveau/drm/nouveau/nouveau_drm.c:918,947,1059,1138` and `nvkm/engine/device/pci.c:1612,1635,1692`. Source-only review.
 
+<a id="od4413"></a>
+## OD4413 — WASAPI initialization loses its temporary replacement stack [optional WASAPI AHI driver]
+
+After `WASAPI_HostLib_Init()` succeeds, `WASAPI_Init()` allocates a 100,000-byte stack with `AllocMem()` and passes it to synchronous `NewStackSwap()` (`workbench/devs/AHI/Drivers/WASAPI/WASAPI-bridge/WASAPI.c:151-175`). The local stack pointer goes out of scope when `NewStackSwap()` returns, but the allocation is never released. `WASAPI_Cleanup()` has no saved pointer and does not free this block (`:182-189`). This remains true if `WASAPI_COMInit()` fails and `WASAPI_Init()` returns FALSE after the swap. The common AHI library lifecycle calls `DriverCleanup()` after a successful driver initialization and on `DriverInit()` failure through `_LibExpunge()` (`workbench/devs/AHI/Drivers/WASAPI/WASAPI-init.c:14-36,44-54`; `workbench/devs/AHI/Drivers/Common/library.c:460-468,483-499`), but that cleanup cannot recover the lost stack pointer.
+
+**Trigger and consequence:** the optional driver reaches a successful 100,000-byte `AllocMem()` in `WASAPI_Init()`. Once `NewStackSwap()` returns, that memory is no longer used but remains allocated; driver cleanup and expunge cannot reclaim it. Each such initialization attempt permanently loses 100,000 bytes of public memory until reboot. **Scope:** optional hosted WASAPI AHI driver, selected when the configure-time `HAVE_WASAPI` check succeeds (`workbench/devs/AHI/configure.in:340-343`; `Drivers/Makefile.in:83-84`). **Confidence:** high for the allocation, synchronous return, missing free, and lack of retained ownership; no WASAPI driver, allocation, stack swap, or build was run. Free the replacement stack after `NewStackSwap()` returns, including its failure-result path. Source-only.
+
 <a id="od4414"></a>
 ## OD4414 — WASAPI cleanup leaves acquired COM interfaces unreleased [optional MinGW WASAPI AHI driver]
 
