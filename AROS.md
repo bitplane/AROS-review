@@ -18227,3 +18227,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11649](AROS-other-drivers.md#od11649) — P96 mode registration can omit all 15-bit pixel formats when the card also supports CLUT. Conditional on the card's supported-format mask; source-only.**
 **[OD11650](AROS-other-drivers.md#od11650) — P96 hardware-cursor pen updates pass a null pixel format into ColorMap, causing a null dereference when a paletted display bitmap is shown. Conditional on hardware-sprite support; source-only.**
 **[OD11651](AROS-other-drivers.md#od11651) — P96 Gfx object construction dereferences failed name, mode-tag, and RTG mode allocations. Conditional on low memory during driver registration; source-only.**
+**[OD11652](AROS-other-drivers.md#od11652) — P96 Gfx construction leaks its sprite ColorMap when later display or enumerator creation fails. Source-only.**
