@@ -37937,6 +37937,15 @@ Conditional on selected builds including BTHID and Preferences, a device present
 Sources: `rom/bluetooth/classes/bthid/bthid.class.c:224-277`; `rom/bluetooth/bluetooth/classes.c:288-301,414-440,873-879,917-920`; `rom/bluetooth/prefs/ActionClass.c:1625`. Source-only review.
 
 
+<a id="od3000"></a>
+## OD3000 — ATAPI readiness transport failure can mark absent media present [conditional]
+
+`atapi_TestUnitOK()` issues TEST UNIT READY twice, clears `sense[2]` before each request, ignores the return value from `unit->au_DirectSCSI()`, and interprets a zero sense key as “not absent” (`rom/devs/ata/lowlevel.c:2323-2382`). `atapi_DirectSCSI()` initializes `scsi_SenseActual` to zero and only requests/populates sense data for a CHECK CONDITION; on `IOERR_UNITBUSY`, it sets SCSI BUSY and returns without sense data (`:1112-1181`). Thus a failure of the second readiness request that does not provide CHECK CONDITION leaves key zero, which is interpreted as ready. The first request's sense does not help because the second iteration clears the key before calling the transport.
+
+This is observable at initial ATAPI setup: the packet-device branch does not initialize `AF_DiscPresent`, then calls `atapi_TestUnitOK()` after identifying the device (`lowlevel.c:1779-1816,1831-1865`). A transport failure on that probe sets `AF_DiscPresent` despite no successful readiness result. It can also occur in the removable-media `cmd_TestChanged()` poll: if the unit was marked absent, the same failed result is treated as a transition to present, sets `AF_DiscChanged`, increments `au_ChangeNum`, and sends change notifications (`workbench/devs/ata/ata.c:315-345`; `lowlevel.c:2367-2379`). The `TD_CHANGESTATE` query then reports present, and the removable CMD_READ/CMD_WRITE guards no longer reject the request as absent (`ata.c:53-62,106-115,166-175,222-231,373-384`). The eventual data command may still fail at the device, but the media state and change notification are wrong.
+
+**Trigger and consequence:** a selected removable ATAPI unit is probed during setup or periodic media checking, and the second TEST UNIT READY returns a transport error such as `IOERR_UNITBUSY` without CHECK CONDITION sense data. The driver can publish or notify false media presence and allow read/write dispatch against absent media. **Affected configuration:** `kernel-ata` with a removable ATAPI device; the ATA device is listed in the i386-PC and x86-64-PC boot packages (`arch/i386-pc/boot/mmakefile.src:73-79`; `arch/x86_64-pc/boot/mmakefile.src:66-69`), while other controller/package paths depend on their platform targets. **Confidence:** high for the ignored-return/zero-key state transition; conditional on a readiness transport failure without sense data. A failed or invalid response must not be treated as a successful ready indication. No device, readiness request, media change, or build was exercised; source-only review.
+
 <a id="od10974"></a>
 ## OD10974 — A late PCI ATA interrupt can route the selected unit's BSY status to its PIO handler [medium-confidence timing candidate]
 
