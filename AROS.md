@@ -16792,7 +16792,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 ## Graphics/Desktop findings added to the master index (2026-11-06)
 
-**[GD15095](AROS-graphics-desktop.md#gd15095) — VMM MUI ignores short/error config writes and reports save success after truncating the destination.**
+**[GD15095](AROS-graphics-desktop.md#gd15095) — VMM MUI ignores config write results; RAM Handler can delete the old file and return a short write on allocation failure while the UI reports success.**
 
 **[GD15096](AROS-graphics-desktop.md#gd15096) — x86-64 CyberGraphX tint rounds component multiplication while the generic path truncates, producing one-level pixel differences for some inputs.** The API does not specify rounding, so this remains a low-confidence cross-target consistency candidate. See the [full-body overlay review](AROS-graphics-desktop-coverage.md#x86-64-cybergraphx-tint-overlay-full-body-and-arithmetic-parity-pass-gd15096-candidate-2026-11-12). Source-only.
 
