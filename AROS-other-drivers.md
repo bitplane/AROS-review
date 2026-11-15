@@ -44085,6 +44085,76 @@ The generated `_set_libinit()` path calls registered library expunge functions a
 
 **Trigger and consequence:** a prerequisite for class initialization fails before `MakeLibrary()` successfully assigns the device base, and generated rollback invokes the class expunge hook. The hook dereferences the NULL base while handling the original initialization failure, so module loading can fault instead of returning a clean failure. **Affected configuration:** the listed USB class modules on an early `libInit()` failure before device-base assignment. **Confidence:** high for generated rollback ordering and the unchecked first expunge access; no prerequisite failure or module load was induced. Make expunge safe for partially initialized state and release only resources that were successfully acquired. Source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
 
+<a id="od3367"></a>
+## OD3367 — USB serial and printer writes inspect the IN stream's error after OUT transfer [five classes]
+
+After writing a request to `ncp_EPOutStream`, the USB CDC ACM, CP210x, PL2303, Palm PDA, and printer workers call `psdGetStreamError()` on `ncp_EPInStream` (`cdcacm.class.c:911-913`; corresponding selected write paths are in `serialcp210x.class.c:732-734`, `serialpl2303.class.c:856-858`, `palmpda.class.c:725-727`, and `printer.class.c:711-713`). Poseidon's stream error query returns the error state for the stream passed to it; it does not query a device-wide last-operation result.
+
+**Trigger and consequence:** an OUT write fails while the separate IN stream has no error. The worker can reply the write request as successful because it checks the wrong stream; conversely, an unrelated IN-stream error can be attributed to the OUT write. **Affected configuration:** the five named USB class drivers when clients submit writes and the two stream error states differ. **Confidence:** high for the mismatched stream argument and per-stream error contract; no transfer was run. Check the OUT stream after `psdStreamWrite()` and report that operation's result. Source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
+
+<a id="od3374"></a>
+## OD3374 — LAN78xx multicast ranges program only the lower endpoint's hash
+
+`S2_ADDMULTICASTADDRESSES` stores inclusive lower and upper addresses, and the software helper enumerates the requested range. The hardware-filter update instead calculates one VHF hash from `mar_LowerAddr` for each stored range and enables only that hash bit (`rom/usb/classes/lan78xx/dev.c:525-595,702-738`; `lan78xx.class.c:641-656,993-1037`).
+
+**Trigger and consequence:** a client requests reception of a multicast address range containing more than its lower endpoint, while the interface is not in promiscuous mode. The hardware filter does not enable hash bits for the other range members, so their packets can be discarded before software sees them unless their hashes collide with an enabled bit. **Affected configuration:** LAN78xx non-promiscuous multicast reception with a multi-address range. **Confidence:** high for range storage and lower-endpoint-only hashing; no multicast request or device was exercised. Hash every address in the requested range, or reject ranges that the hardware filter cannot represent. Source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
+
+<a id="od3375"></a>
+## OD3375 — LAN78xx reports worker readiness before hardware initialization succeeds
+
+The worker signals its binding caller immediately after `nAllocEth()` and before calling `nInitHardware()` (`rom/usb/classes/lan78xx/lan78xx.class.c:514-547`). The binder waits for this signal and checks that `ncp_Task` is non-NULL, but does not wait for or inspect the hardware-init result (`:255-274`). `nInitHardware()` returns a status, and its failure is ignored; the worker continues into its normal command loop (`:909-928,1697-1842`).
+
+**Trigger and consequence:** a LAN78xx device's hardware initialization fails after the worker's ready signal. Binding is reported successful and the unit can be opened or configured despite incomplete hardware setup; later operations may be reported online without a functioning controller. **Affected configuration:** LAN78xx when `nInitHardware()` reports failure. **Confidence:** high for signal ordering, ignored return, and continued worker operation; no hardware or failed control request was exercised. Publish readiness only after successful initialization, and propagate initialization failure to binding with complete rollback. Source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
+
+<a id="od3376"></a>
+## OD3376 — LAN78xx can appear online without link polling after timer setup fails
+
+The LAN78xx unit starts with `ncp_LinkUp` clear; only `lan78xx_link_poll()` updates it, and the receive loop arms bulk-IN pipes only when it is set. Link polling is driven by an optional timer request: failures to create the timer port/request or open `timer.device` leave `timerOpen` false, so no timer signal or poll is scheduled (`rom/usb/classes/lan78xx/lan78xx.class.c:202-204,528-560,626-638,963-975,1911-1941`). Separately, `nSetOnline()` marks the SANA-II interface online and publishes ONLINE without requiring a successful link poll (`:949-975`).
+
+**Trigger and consequence:** timer setup fails, then a client configures or brings the unit online. The interface reports ONLINE, but `ncp_LinkUp` remains false, so RX is never armed and physical link transitions are not reported. **Affected configuration:** LAN78xx with timer-port/request allocation or timer-device open failure. **Confidence:** high for the sole link-state writer, timer-gated polling, and independent online publication; no timer failure or device was exercised. Treat link monitoring setup failure as an initialization error or provide a fallback polling source before accepting the unit. Source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
+
+<a id="od3377"></a>
+## OD3377 — LAN78xx CMD_FLUSH leaves the worker-owned bulk OUT request active
+
+The LAN78xx worker removes a write request from `ncp_WriteQueue`, stores it in `ncp_WritePending`, and submits the USB transfer. The device's `CMD_FLUSH` path invokes `AbortRW()` for queued work; the active request is no longer in that queue, and the flush path does not abort or wait for its pipe (`rom/usb/classes/lan78xx/dev.c:375-390,1419-1424`; `lan78xx.class.c:572-594,676-681,700-706,1142-1144`).
+
+**Trigger and consequence:** `CMD_FLUSH` runs while a bulk OUT request is in flight. The command can return after queued requests are handled while the worker-owned request and USB transfer remain pending, contrary to a flush of all outstanding writes. **Affected configuration:** LAN78xx with an active write at flush time. **Confidence:** high for queue ownership transfer and the flush's limited queue handling; no write or flush was issued. Include the active pipe/request in the flush operation and complete it before replying to CMD_FLUSH. Source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
+
+<a id="od3378"></a>
+## OD3378 — LAN78xx S2_CONFIGINTERFACE changes the software MAC without programming the NIC
+
+The LAN78xx SANA-II `S2_CONFIGINTERFACE` handler copies the requested station address into the unit state and dispatches the configuration request to the worker (`rom/usb/classes/lan78xx/dev.c:471-505`). The worker marks the interface configured and brings it online, but does not call `lan78xx_set_macaddr()` there (`lan78xx.class.c:641-648`). The only selected hardware-programming call is in the chip initialization path (`:1662-1675`).
+
+**Trigger and consequence:** a client configures a station address different from the factory address after initialization. The software state and reported address change, but the NIC's RX address/perfect-filter registers retain the earlier value, so reception and transmitted source identity can disagree with the configured address. **Affected configuration:** LAN78xx after a non-factory `S2_CONFIGINTERFACE` request. The selected AROSTCP path supplies the factory `ss_hwaddr`; no maintained in-tree override caller was established. **Confidence:** high for the request update and sole hardware-programming call; no request or device was used. Program the new address in the controller before acknowledging configuration. Source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
+
+<a id="od3379"></a>
+## OD3379 — USB Ethernet S2_CONFIGINTERFACE checks the wrong station-address group bit [seven classes]
+
+ASIX, CDC Ethernet, Davicom, EthWrap, MosChip, Pegasus, and RNDIS test bit `0x80` of the first station-address octet when validating `S2_CONFIGINTERFACE`, while their multicast-address validators use bit `0x01` (`rom/usb/classes/asixeth/dev.c:511-528,587-595`; equivalent handlers were compared in the six peer `dev.c` files). In Ethernet addresses, the least significant bit of the first octet distinguishes group from individual addresses.
+
+**Trigger and consequence:** a client supplies a group address with bit 0 set but bit 7 clear, or a unicast address with bit 7 set. The validation accepts a multicast station address or rejects a valid unicast address. **Affected configuration:** the seven named USB Ethernet device drivers when an in-tree or external client requests a non-factory station address; selected AROSTCP passes the factory address, so that caller does not establish the trigger. **Confidence:** high for the bit mismatch and Ethernet address-bit convention; no configuration request was issued. Test the group bit (`address[0] & 1`) and apply the same rule used by multicast validation. Source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
+
+<a id="od3400"></a>
+## OD3400 — ASIX aggregated RX parsing advances past an odd record without its pad byte [AX88178/AX88772]
+
+For AX88178/AX88772 aggregated receive data, `nReadPacket()` validates a record length rounded to an even boundary, but advances its pointer and remaining-byte count by the unrounded record length (`rom/usb/classes/asixeth/asixeth.class.c:1883-1904`). The RX worker supplies the actual USB pipe length directly (`:743-760`). The next loop iteration therefore treats the one-byte pad after an odd-length record as the next record's length prefix.
+
+**Trigger and consequence:** the adapter returns an aggregate containing an odd-length Ethernet record followed by another record. The parser starts the next record at the pad byte, misreads its length, and can discard or misparse the rest of the aggregate; subsequent valid packets in that transfer may not be delivered. **Affected configuration:** ASIX AX88178/AX88772 devices that return an aggregate containing an odd-sized record and padding. **Confidence:** high for the rounded validation versus unrounded advancement; no USB transfer was run. Advance by the validated padded record extent and keep the remaining-length calculation consistent. Source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
+
+<a id="od3407"></a>
+## OD3407 — USB Ethernet RX reuses stale BCAST/MCAST output flags [nine classes]
+
+The nine selected USB Ethernet/Bluetooth PAN receive helpers set `SANA2IOF_BCAST` or `SANA2IOF_MCAST` with `|=` when classifying a packet, but do not first clear either output bit. PCI Ethernet peer drivers clear both before classification. The selected AROSTCP read-request producer assigns a fresh input-flags value before each submission (`workbench/network/stacks/AROSTCP/bsdsocket/net/if_sana.c:752-766,985-990`), but the class API can also receive reused request structures from other clients.
+
+**Trigger and consequence:** an external client reuses an `IOSana2Req` whose previous packet set BCAST/MCAST, then receives a packet with a different destination class. The stale bit remains set, so the completed request reports an incorrect broadcast/multicast classification. **Affected configuration:** ASIX, CDC Ethernet, Davicom, EthWrap, LAN78xx, MosChip, Pegasus, RNDIS, and Bluetooth PAN with a client that reuses input flags without resetting driver-owned output bits. **Confidence:** high for the write-only flag updates and caller request reuse condition; the selected AROSTCP path clears the flags and no packet was used. Clear both output bits before classifying each received packet. Source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
+
+<a id="od3408"></a>
+## OD3408 — USB Ethernet write-copy failure can leave the request unreplied [seven classes]
+
+In ASIX, CDC Ethernet, Davicom, EthWrap, MosChip, Pegasus, and RNDIS, `nWritePacket()` sets SANA-II error fields and returns FALSE when the client's `CopyFromBuff` hook fails, but does not reply the request in that branch. Their worker drains the write queue and calls `nWritePacket()` without checking its return; it sets `ncp_WritePending` and submits a pipe only on the success path. The later pipe-completion handler is the normal writer-reply path (`asixeth.class.c:1693-1755,812`; peer call sites were checked). LAN78xx is excluded: it replies directly on this failure path.
+
+**Trigger and consequence:** a queued SANA-II write reaches the worker and its `CopyFromBuff` callback returns NULL. The worker removes the request from its queue, no USB write is submitted, and no pending slot is established, so no later completion replies it; the caller can wait indefinitely despite the error fields being set. **Affected configuration:** the seven named USB Ethernet classes with a client copy hook that reports failure. **Confidence:** high for the failure return, ignored result, and absence of another completion route; no callback or write was run. Reply the request on the copy-failure path or make the worker own and complete every request regardless of `nWritePacket()` result. Source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
+
 <a id="od9689"></a>
 ## OD9689 — Reset-list probe can be called as a NULL keyboard callback [conditional]
 
