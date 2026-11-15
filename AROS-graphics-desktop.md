@@ -133,6 +133,7 @@ After that call succeeds, `GfxInit()` can still return failure if `OOP_NewObject
 
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md#L2595`](AROS-graphics-desktop-coverage.md#L2595); event worker full-body credit is recorded in the SDL inventory.
 
+<a id="gd2662"></a>
 ## GD2662
 
 **Indexed summary:** `ReadPixelArray8()` can form an output address outside the caller's array after clipping offsets narrow to signed `WORD`.
@@ -444,6 +445,7 @@ This ID-only candidate was rechecked against the selected Wanderer ImageBackFill
 
 **Disposition:** Unverified legacy placeholder. The current report and coverage ledger provide no source location, trigger, consequence, or finding-specific evidence from which to re-establish this candidate. It is not retained as an active bug finding pending provenance.
 
+<a id="gd2876"></a>
 ## GD2876
 
 **The Text datatype dereferences a NULL font when font initialization fails.** `_OM_NEW()` zeroes the object instance, optionally copies `DTA_TextAttr.ta_Name`, then calls `InitText()` without checking its result; it immediately reads `td->font->tf_YSize` and `td->font->tf_Flags` (`workbench/classes/datatypes/text/textclass.c:2206-2246`). `InitText()` can return zero with `td->font` still NULL: when no font name is present, it copies `GfxBase->DefaultFont`'s name with `StrCopy()` and proceeds only if that allocation succeeds; when a selected font cannot be opened, it copies and tries `topaz.font`, then returns zero if that fallback also fails (`textclass.c:261-298`). `StrCopy()` returns NULL when its input is NULL/empty or `AllocVec()` fails (`workbench/classes/datatypes/text/support.c:115-126`), and `OpenFont()` returns NULL when no loaded font matches (`rom/graphics/openfont.c:27-35,58-93`). Thus, for example, failure to allocate the default-font-name copy leaves `td->font` NULL and `_OM_NEW()` dereferences it; a missing requested font followed by an unavailable fallback is another route.
@@ -1291,6 +1293,7 @@ The count is reachable through the ColorMap interface: `CM__Root__New()` accepts
 
 **Disposition:** Unverified legacy placeholder. The current report and coverage ledger provide no source location, trigger, consequence, or finding-specific evidence from which to re-establish this candidate. It is not retained as an active bug finding pending provenance.
 
+<a id="gd4650"></a>
 ## GD4650
 
 **Generic HIDD ColorMap growth publishes newly allocated palette slots without initializing them.** The ColorMap constructor allocates its initial `HIDDT_Color` array with `MEMF_CLEAR` (`rom/hidds/gfx/gfx_colormapclass.c:94-99`). In contrast, `CM__Hidd_ColorMap__SetColors()` grows the array with `AllocMem(..., MEMF_ANY)`, copies only the old `entries`, then publishes the larger `entries` count (`:245-263`). It writes only the requested range afterward (`:266-285`). If `firstColor` is beyond the old end, the intervening entries retain allocator contents while being counted as valid colors. For example, growing a 16-entry map by setting color 20 leaves slots 16-19 unwritten.
@@ -1324,6 +1327,7 @@ This is reachable through the selected generic bitmap path: `BM__Hidd_BitMap__Se
 
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#L1235), sprite allocation bodies and selected movement/change implementations reviewed.
 
+<a id="gd4662"></a>
 ## GD4662
 
 **Empty-destination region copies leak the partial rectangle chunks after allocation failure, and selected layer callers continue with incomplete regions (conditional region-state corruption and memory leak; high source confidence).** `_LinkRegionRectangleList()` saves `prev = *dstptr` once, appends each copied rectangle through `_NewRegionRectangle()`, and on allocation failure only attempts to free the appended suffix when `prev` is non-NULL (`rom/graphics/intregions.c:224-250`). For an empty destination, `prev` is NULL, so a failure after successful chunk allocations skips rollback. Each region chunk stores 128 rectangles and a pool supplies 20 chunks (`rom/graphics/graphics_intern.h:48-66,449-460`); with no reusable free chunks available, allocation of a further pool can fail while copying rectangle 2,561. `_NewRegionRectangle()` then writes NULL through the tail pointer (`intregions.c:149-176`), losing the head pointer to the 2,560 already allocated rectangles; the saved NULL `prev` prevents rollback.
@@ -1388,6 +1392,7 @@ On the Radeon framebuffer path, the selected primitives proceed with hardware co
 
 **Review evidence:** [`AROS-graphics-desktop-coverage.md:L1276`](AROS-graphics-desktop-coverage.md#L1276), [`AROS-graphics-desktop-coverage.md:L1286`](AROS-graphics-desktop-coverage.md#L1286). The header publication, sole initialization path, callback owner, ATI expunge, and generated base teardown were rechecked for this entry.
 
+<a id="gd4715"></a>
 ## GD4715
 
 **IconVolumeList leaks a loaded DiskObject when per-entry private allocation fails [conditional].** For each new visible volume/device entry, `IconVolumeList__MUIM_IconList_Update()` first tries to allocate a `VolumeIcon_Private`, then calls `GetIconTags()` regardless of whether the private allocation succeeded (`workbench/system/Wanderer/Classes/iconvolumelist.c:754-769`). `MUIM_IconList_CreateEntry()` is guarded by `volPrivate && ...` (`:771-773`). If `volPrivate` is NULL but `GetIconTags()` returned a DiskObject, the short-circuit skips CreateEntry; this local `volDOB` is not freed on that branch, and destroying the temporary DOSVolumeList only frees its pool, not the DiskObject.
@@ -1470,6 +1475,7 @@ The same path has a sharper allocation-failure case. On a shape change, `windeco
 
 **Disposition:** Unverified legacy placeholder. The current report and coverage ledger provide no source location, trigger, consequence, or finding-specific evidence from which to re-establish this candidate. It is not retained as an active bug finding pending provenance.
 
+<a id="gd4755"></a>
 ## GD4755
 
 **`BltPattern()` mishandles exponent 16 when an area pattern is supplied.** The public `SetAfPt()` macro stores its `n` argument directly in the signed-byte `RastPort.AreaPtSz` without a range check (`compiler/include/graphics/gfxmacros.h:34-38`; `compiler/include/graphics/rastport.h:58-67`). For either `+16` or `-16`, the pattern renderer computes `1L << 16` and stores 65,536 in signed `WORD patternheight` (`rom/graphics/bltpattern.c:163-167`), which narrows to zero on the 16-bit WORD target ABI. When the generic render callback runs, it evaluates `(... ) % patternheight` before drawing (`:35`), so a zero height reaches division by zero/undefined behavior. For `+16` with a non-NULL mask and without `INVERSVID`, the separate solid-pattern test computes `1U << 16`, stores zero in `UWORD rows`, and executes no validation iterations; it therefore treats the pattern as solid and delegates to `BltTemplate()` (`:134-153`), ignoring the actual pattern rows.
@@ -1755,6 +1761,7 @@ The selected `P96` monitor opens the named card library before opening `p96gfx.h
 
 **Disposition:** Unverified legacy placeholder. The current report and coverage ledger provide no source location, trigger, consequence, or finding-specific evidence from which to re-establish this candidate. It is not retained as an active bug finding pending provenance.
 
+<a id="gd4988"></a>
 ## GD4988
 
 **IconVolumeList leaks `VolumeIcon_Private` when inherited entry construction fails before taking ownership [conditional].** The new-entry path allocates `volPrivate` and passes it as `udata` to the inherited `MUIM_IconList_CreateEntry()` (`workbench/system/Wanderer/Classes/iconvolumelist.c:754-773`). `IconList__MUIM_IconList_CreateEntry()` zeroes its entry, performs the initial entry allocation and several fallible text/name allocations, then only assigns `message->udata` to `entry->ie_IconListEntry.udata` at `:4554` (`workbench/system/Wanderer/Classes/iconlist.c:4430-4554`). If the entry allocation fails, CreateEntry returns NULL without freeing `udata`; if an earlier allocation fails after the entry exists, its DestroyEntry dispatch reaches `IconVolumeList__MUIM_IconList_DestroyEntry()`, which captures `entry->udata` before calling the superclass and frees the private object only when that value is non-NULL (`iconvolumelist.c:852-867`). Because the field remains zero before the assignment, cleanup cannot release the caller's allocation. The volume-list caller does not free `volPrivate` after CreateEntry returns NULL. Failures after the assignment do reach the subclass free path and are not included here.
@@ -2240,6 +2247,7 @@ The EFI stub accepts GOP `PixelBitMask` modes down to an 8-bit pixel width: its 
 
 **Disposition:** Unverified legacy placeholder. The current report and coverage ledger provide no source location, trigger, consequence, or finding-specific evidence from which to re-establish this candidate. It is not retained as an active bug finding pending provenance.
 
+<a id="gd5167"></a>
 ## GD5167
 
 **PSI builds an EditWindow title by concatenating an imported fixed-width screen name without bounds.** `ScreenPanel_Edit()` passes `desc->Name` from the selected public-screen descriptor as `MUIA_EditWindow_Title` (`workbench/prefs/PSI/screenpanel_class.c:80-97`). `EditWindow_New()` copies a localized title into `wtitle[PSD_MAXLEN_TITLE + 20]`, appends a space, then uses unbounded `strcat()` with that tag value (`workbench/prefs/PSI/editwindow_class.c:24-28,59-63`). The public-screen file reader copies all 32 Name bytes without checking for a NUL (`workbench/libs/muiscreen/readpubfile.c:61-70`). A malformed record with unterminated Name and adjacent fixed-width strings can therefore make `strcat()` read beyond the Name field and append more than the remaining title buffer capacity. The PSI Copy action is a second unsafe sink: it duplicates the selected descriptor, then `strcpy(namebuf, new->Name)` copies an unterminated fixed-width name into `namebuf[PSD_MAXLEN_NAME]` with no bound (`workbench/prefs/PSI/screenpanel_class.c:147-160`). A 32-byte nonterminated Name followed by nonzero Title bytes therefore overruns this stack buffer before the bounded `stccpy()` call. The Copy button is connected directly to this method (`:324-327`), and loaded records enter the same ScreenList through `MUIS_ReadPubFile()` (`screenlist_class.c:144-167`).
@@ -4819,6 +4827,7 @@ This candidate concerns `workbench/devs/AHI/Examples/Low-level/HardDiskRecord/Ha
 
 **Consequence and confidence:** High confidence that every nonzero PixelTime query returns PixelClock instead, and that 1–999 Hz reaches a zero divisor in the getter. No query or mode was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd5730"></a>
 ## GD5730
 
 **Finding:** The generic DMEnum's recursive `querymode()` allocates the final ModeID array at its terminal recursion frame, using `mq->numfound + 1` entries for all matches plus the invalid-ID sentinel (`rom/hidds/gfx/gfx_dmenumclass.c:175-204`). It does not check `AllocVec()` before advancing the returned pointer and writing that sentinel. On allocation failure, pointer arithmetic on NULL is undefined and the sentinel store writes through the resulting invalid address. Exec documents that `AllocVec()` returns NULL when an allocation fails (`rom/exec/allocvec.c:14-34,57-80`), confirming this failure result is part of the selected allocator contract. This happens even when there are zero matching modes because the function still allocates the one-element sentinel array.
@@ -5056,6 +5065,7 @@ The same format/word mismatch also affects `ProcessPixelArrayBrightnessFunc()` o
 
 **Affected configuration and consequence:** `Flood()` on a RastPort with an area pattern and `AreaPtSz == 0` monochrome, or any multicolor pattern (`AreaPtSz < 0`), regardless of whether the fast planar bitmap path or ReadPixel/WritePixel fallback is used. Zero-exponent mono patterns are not applied according to their bit mask/foreground/background pens; multicolor fills are rendered as pen zero. The maintained Flood callers traced in the coverage ledger use no area pattern or outline mode, so in-tree exposure was not established. **Confidence:** high for the branch mismatch and zero-valued multicolor result; no Flood operation was run.
 
+<a id="gd5762"></a>
 ## GD5762
 
 **Finding:** A failed graphics.library initialization leaves its embedded TextFonts semaphore linked in Exec after freeing the library base that contains it.
@@ -5406,6 +5416,7 @@ The work buffer is either the application's `StringInfo.Buffer` or a separate `S
 
 **Affected configuration and consequence:** Generic Intuition callers of `DoSyncAction()` outside the input-device task, when temporary message-port allocation fails. **Confidence:** high for the skipped callback and lack of an error result; each caller's resulting state depends on its own contract. No allocation failure or synchronous action was induced; source-only.
 
+<a id="gd5814"></a>
 ## GD5814
 
 **FindHighestScreen() can use a different monitor's screen as the active monitor's upper mouse bound.** It initializes `highest` to `IntuitionBase->FirstScreen`, then skips screens whose monitor differs from `ActiveMonitor`; it never clears or replaces the initial value merely because that first screen was skipped (`rom/intuition/inputhandler_support.c:1429-1443`). It replaces `highest` only when a matching screen has a smaller `TopEdge`. `OpenScreen()` explicitly notes that the current `FirstScreen` can belong to another monitor when activating a monitor (`rom/intuition/openscreen.c:2458-2462`). The input handler uses the returned screen's `TopEdge` to clamp mouse Y (`rom/intuition/inputhandler.c:1580-1589`).
@@ -6064,6 +6075,7 @@ The same generic path is reached by HeadlessGfx if its root object is created bu
 
 **Display-driver removal omits the callback's registered userdata argument.** `SetDisplayDriverCallback()` saves the callback and its registered `userdata` in the graphics display-chain head (`rom/graphics/setdisplaydrivercallback.c:74-79`). When a display is enabled, `display_Enable()` calls the callback with that value and stores the callback's return value in the per-display `mdd->display_userdata` field (`rom/graphics/graphics_display.c:334-340`). On removal, the first argument is correctly the stored per-display object, but `display_Expunge()` also passes that same per-display object as the third `userdata` argument (`graphics_display.c:241-243`); the documented contract requires the original value supplied to `SetDisplayDriverCallback()` (`setdisplaydrivercallback.c:35-49`). Pass `CDD(GfxBase)->mdisplay.display_userdata` as the removal callback's third argument. **Affected configuration and trigger:** a private Graphics API client registers a callback with non-NULL userdata and needs that userdata during a display-removal notification. The only checked-in caller is Intuition's `DisplayDriverNotify()` (`rom/intuition/intuition_init.c:300`), whose removal branch ignores its third argument and disposes the first argument (`rom/intuition/monitorclass.c:50-76`), so no current in-tree failure was established. **Consequence:** another callback client can lose its registered context during teardown and may use the per-display return object as if it were that context. **Confidence:** high for the argument mismatch; impact is conditional on a private API client consuming userdata during removal. No callback or display removal was run; source-only.
 
+<a id="gd5908"></a>
 ## GD5908
 
 **Display-mode lookup and bitmap creation can race display removal and dereference freed state.** `FindDisplayInfo()` walks `GFXPRIVATE_MONITORFIRST`, then scans the selected driver's embedded `modes[]` array without obtaining `displaydb_sem` (`rom/graphics/finddisplayinfo.c:54-84`). `NextDisplayInfo()` similarly reads the display list and mode records without a shared lock (`rom/graphics/nextdisplayinfo.c:55-91`). `GetDisplayInfoData()` accepts the raw handle returned by `FindDisplayInfo()` and dereferences its driver and mode fields before querying the HIDD objects; when given a handle it does not revalidate that the handle remains registered (`rom/graphics/getdisplayinfodata.c:149-176`).
@@ -6274,6 +6286,7 @@ The other selected multi-format tables checked here are depth-descending in Rade
 
 **Affected configuration and trigger:** open task details for a selected task/process and allow its detail update to run. **Consequence:** the Status row displays the task name instead of task state; the intended Name row retains its initial name, while the status value is never populated. **Confidence:** high for the duplicated member assignment and update path; no UI was opened. Source-only.
 
+<a id="gd5953"></a>
 ## GD5953
 
 **Intuition retains the previous vertical relative-mouse remainder when `PointerTicks` is set to zero.** In the zero case, the input handler clears `DeltaMouseX_Correction` twice and never clears `DeltaMouseY_Correction` (`rom/intuition/inputhandler.c:1341-1346`). Each subsequent relative event adds both stored corrections before processing the new delta (`:1314-1318`). Zero is reachable through the public `SetPrefs()` API: `struct Preferences` exposes `PointerTicks` (`compiler/include/intuition/preferences.h:40-58`), and `SetPrefs()` copies the caller's supplied prefix directly into `ActivePreferences` without validating this field (`rom/intuition/setprefs.c:72-93`). The normal Input Preferences editor maps its available values to 1, 2, or 4 ticks, so it does not create zero through its standard control (`workbench/prefs/input/ipeditor.c:439,538`; raw preference import also copies the stored value directly at `workbench/prefs/input/prefs.c:307-319`).
@@ -6500,6 +6513,7 @@ This runs during the selected m68k AmigaVideo HIDD startup, before driver regist
 
 **Affected configuration and trigger:** m68k AmigaVideo HIDD startup when the 200-byte `MEMF_CHIP` allocation fails. **Consequence:** CPU stores target the null-derived low address range instead of the copper buffer; if execution continues, the driver also publishes those invalid addresses as copper lists and enables DMA. The exact fault or low-memory effect depends on the machine's address mapping and was not reproduced. Check allocation success and unwind/restore the chipset before publishing the list or enabling DMA. **Confidence:** high for the unchecked allocation, null-derived target and subsequent publication; hardware-specific outcome remains untested. Source-only.
 
+<a id="gd5993"></a>
 ## GD5993
 
 **AmigaVideo failed initialization leaves interrupt callbacks referencing freed module memory.** `AmigaVideo_Init()` calls `initcustom()` before it attempts display-driver registration (`arch/m68k-amiga/hidd/amigavideo/startup.c:34-48`). `initcustom()` publishes the VBlank server with `AddIntServer()`, installs `gfx_blit` into the system blitter vector with `SetIntVector()`, and registers/enables the CIA timing callback `gfx_beamsync` (`amigavideo_chipset.c:1915-1950`; callback bodies at `:1171-1185,1266-1290`). It then initializes the chipset and returns without an unwind path.
@@ -7941,6 +7955,7 @@ When `LoadExternalSyncs()` parses a valid non-comment line in `DEVS:modelines.tx
 The custom-modeline parser rejects a zero pixel-clock field but applies no upper or lower bound to the nonzero clock; it converts the supplied kHz value to Hz in the `aHidd_Sync_PixelClock` tag (`arch/m68k-amiga/hidd/sagagfx/sagagfx_hiddclass.c:91-99,119-120`). The PLL table starts with a zero-frequency sentinel followed by its first valid entry at 3 MHz (`arch/m68k-amiga/hidd/sagagfx/sagagfx_hw.c:45-48`). `saga_pll_clock_lookup()` compares a request below the midpoint between those entries and returns index zero; `SAGA_SetPLL()` then programs that row's all-zero register data (`:6480-6508,6520-6558`). The SAGA display Show path calls `SAGA_SetPLL()` with the bitmap's selected pixel clock (`sagagfx_hiddclass.c:716-733`).
 
 **Trigger and consequence:** a valid custom mode has a positive pixel clock below 1.5 MHz (the parser's kHz input is below 1500). The mode is admitted and selected, then the SAGA PLL programming path uses the zero sentinel entry instead of a valid PLL configuration; the requested display timing cannot be produced correctly. **Affected configuration:** SAGA HIDD in the m68k Amiga boot-disk graph, with a custom modeline below that threshold. **Confidence:** high for parser acceptance, lookup boundary, zero sentinel and Show caller; hardware response was not exercised. Reject clocks below the first supported range or report the mode invalid before registration. No modeline, PLL, display operation or build was run; source-only.
+<a id="gd6223"></a>
 ## GD6223
 
 **Finding:** Appearance Preferences renders planar-screen previews into a one-plane bitmap.
@@ -9382,6 +9397,7 @@ The public definitions mark horizontal and vertical spacing as settable/gettable
 
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md), MUI Group runtime spacing-setter and relayout caller pass dated 2026-10-24.
 
+<a id="gd9443"></a>
 ## GD9443
 
 **String construction compares initial contents against an uninitialized buffer (conditional invalid read; high source confidence).** `String__OM_NEW()` collects an initial `MUIA_String_Contents` or `MUIA_String_Integer` value into `str`, allocates the string buffer through `Buffer_Alloc()`, then calls `Buffer_SetNewContents(data, str)` (`workbench/libs/muimaster/classes/string.c:519-533,563-566`). `Buffer_Alloc()` requests `MEMF_ANY`, not `MEMF_CLEAR`, and does not initialize `data->Buffer` for non-secret Strings (`:174-208`). When `str` is non-NULL, `Buffer_SetNewContents()` calls `strcmp(data->Buffer, str)` before writing any bytes or terminator to that allocation (`:228-250`). This reads indeterminate bytes; if the allocation contains no NUL within `BufferSize`, `strcmp()` continues beyond the buffer. If the comparison happens to report equality, the routine returns before copying/terminating the requested contents or updating `NumChars` and `AckBuffer`. The earlier `Buffer_SetNewContents(data, "")` call at line 487 occurs before allocation, so its NULL-buffer guard makes it a no-op and does not initialize the later allocation.
@@ -9390,6 +9406,7 @@ The public definitions mark horizontal and vertical spacing as settable/gettable
 
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md), MUI String initial-buffer and constructor caller pass dated 2026-10-24.
 
+<a id="gd9444"></a>
 ## GD9444
 
 **Setting `MUIA_String_DisplayPos` also moves the String cursor and clears selection (high source confidence; API-semantic defect).** The public String attribute is set/get (`workbench/libs/muimaster/classes/string.h:28-29`). Its OM_SET case stores the supplied value in both `BufferPos` and `DispPos`, clears `MSDF_MARKING`, sets the redraw reason to `MOVE_CURSOR`, and requests an update redraw (`classes/string.c:667-672`). OM_GET returns `DispPos` for this attribute while the distinct `MUIA_String_BufferPos` getter returns `BufferPos` (`:756-762`). Thus an application changing only the display offset also repositions the edit cursor and drops any active selection. On the next draw, `UpdateDisp()` uses the new BufferPos when deciding whether to adjust the viewport, so the requested display position may also be normalized to keep that moved cursor visible (`:950-1029`).
@@ -9598,6 +9615,7 @@ The maintained BetterString implementation updates its display offset and reques
 **MUI Bodychunk uses signed 16-bit dimensions and counters for LONG-sized bitmaps.** MUIA_Bitmap_Width and MUIA_Bitmap_Height are stored as LONG values and `make_bitmap()` only checks that they are positive (`workbench/libs/muimaster/classes/bodychunk.c:115-120,227-232`). It passes `data->width` to `planar2chunky()`'s signed WORD width parameter and uses signed WORD for its x/y loops (`:29-35,151-175`). On wrap-style conversion, a 32,768-pixel one-row bitmap narrows to -32,768, so the converter processes no pixels; the cleared `chunkyline` is still sent to `WritePixelLine8()` at the full LONG width and setup can return success with a black row. With a one-pixel-wide, 32,768-row bitmap, the signed y counter reaches its limit before the LONG height; on wrap-style conversion it becomes negative, still satisfies `y < data->height`, and advances `bodyptr` beyond the declared rows rather than reaching normal cleanup. AROS defines WORD as signed 16-bit (`compiler/include/exec/types.h:58-62`). Standard bitmap allocation stores row bytes and row count as UWORD and does not reject these dimensions, so the bounds fit bitmap metadata (`compiler/include/graphics/gfx.h:33-40`; `rom/graphics/allocbitmap.c:49-56,485-537`).
 
 **Affected configuration and trigger:** default muimaster builds selecting Bodychunk and Bitmap (`workbench/libs/muimaster/mmakefile.src:60-66`) when a client supplies positive dimensions above 32,767 and corresponding valid planar or ByteRun1 Body data. The maintained caller census found fixed small dimensions: PSI tables use 33x30, About MUI uses 100x100, and embedded network/UI icons use dimensions no larger than 32x20 or 24x14. Large dimensions therefore require a public/custom client. **Consequence:** oversized width can silently produce incorrect/blank pixels; oversized height can continue processing beyond the declared image and caller-provided body buffer. Reject dimensions outside the signed WORD range or use dimension types and loop counters that can represent accepted bitmap sizes. **Confidence:** medium. The signed-width mismatch, missing upper-bound checks and counter limits are explicit, but out-of-range conversion behavior depends on the target compiler; no maintained caller exercises these dimensions. No oversized Bodychunk or render was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
+<a id="gd9472"></a>
 ## GD9472
 
 **MUI ChunkyImage narrows its public LONG row stride to UWORD.** The public MUIA_ChunkyImage_Modulo declaration is a settable/gettable LONG (workbench/libs/muimaster/classes/chunkyimage.h:22-23), but the instance field is UWORD (chunkyimage.c:20-27). The constructor and OM_SET store the LONG tag into that UWORD field (:126-128,189-191), and Setup passes the narrowed value to WriteChunkyPixels (:84-86). WriteChunkyPixels uses the stride in its row-offset expression, y * bytes_per_row + x (rom/graphics/writechunkypixels.c:18-24,61-70; rom/graphics/graphics_intern.h:295-296). Thus a valid 65,536-byte stride narrows to zero, causing successive destination rows to read from the same source row. The constructor also uses 0xFFFF as its “unspecified” sentinel and replaces that value with width (:108,141-142), so an explicit valid 65,535-byte stride is indistinguishable from omission.
@@ -10635,6 +10653,7 @@ There is a second trigger for the same missing-unregistration invariant: `GFX_Cl
 **Affected configuration and trigger:** (1) selected graphics.library/gfx.hidd when `HW_AddDriver()` succeeds but a later display-object or planar/GC-cache allocation fails. The stale node remains in the global tree, but SysExplorer cannot perform its GUI scan while graphics.library is unavailable: `muimaster_init()` requires `OpenLibrary("graphics.library", 39)` (`workbench/libs/muimaster/muimaster_init.c:56-60`). The concrete later-scan sequence therefore requires a subsequent successful graphics.library initialization before SysExplorer starts. LDDemon can retry a resident library through `FindResident()`/`InitResident()` after a failed load/init (`rom/lddemon/lddemon.c:449-463`), and `InitResident()` adds the library only when its init returns non-NULL (`rom/exec/initresident.c:125-155`); this retry and later scan were not executed. (2) a direct gfx.hidd open/close lifecycle that reaches expunge without the graphics.library open reference. **Consequence:** the first path exposes a disposed OOP driver object through the global subsystem list; the second retains the subsystem instance in the global root after its class is removed. **Confidence:** high for both missing-unregistration paths and consequences; only the first has a checked-in selected caller chain to later enumeration. No allocation failure, library expunge, or SysExplorer scan was induced. Source-only.
 
 
+<a id="gd9630"></a>
 ## GD9630
 
 **Finding:** TurboPrint source-hook graphics dumps retain `PDERR_INTERNALMEMORY` after successful temporary allocation and row processing.
@@ -10951,6 +10970,7 @@ The same shutdown also omits `MUI_DeleteCustomClass(volMcc)`. `volMcc` is succes
 **Affected configuration and trigger:** hosted X11 when VidMode enumeration is enabled, standard modes are not forced, and the server returns one or more mode records. **Consequence:** the Xlib-owned mode-list allocation is lost during each successful display construction, or during the described later error paths, and remains until process teardown. **Confidence:** high for the returned list being retained and never freed in this constructor; actual host allocation behavior and repeated display-construction frequency were not exercised. No display was created; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
 
+<a id="gd9690"></a>
 ## GD9690
 
 **X11 display construction dereferences a failed secondary display connection.** `X11Display__Root__New()` first calls `initx11stuff()`, which opens and retains the driver's primary X connection (`arch/all-hosted/hidd/x11/x11gfx_displayclass.c:274-278`; `arch/all-hosted/hidd/x11/x11_init.c:127-133`). It then separately calls `XOpenDisplay(NULL)` into local `disp` and unconditionally passes that result to `XDefaultScreen()` (`x11gfx_displayclass.c:282-283`). There is no NULL check or cleanup branch before the host call. The host API table defines the nullable `Display *` return and accepts a `Display *` for `XDefaultScreen()` (`x11_hostlib.h:24,98`).
@@ -11648,6 +11668,7 @@ MUI Application allocates a `timerequest_ext` and stores it in the input node on
 **Aboutbox dereferences the optional credits attribute when it is omitted.** `MUIA_Aboutbox_Credits` is described as optional in the class documentation (`workbench/classes/zune/aboutbox/MCC_Aboutbox.doc:86-92`). The constructor leaves `data->credits` unset when the tag is absent (`workbench/classes/zune/aboutbox/Aboutbox.c:498-519`), but every successful Window Setup calls `ParseCredits()` (`:616-634`, specifically :627-628). That function assigns the NULL field to `credits` and immediately evaluates `*credits++` in its loop condition (`:163-178`), causing an invalid read. **Trigger:** construct and set up an Aboutbox without supplying the documented optional Credits tag. **Consequence:** setup can fault instead of showing the remaining application information; treat absent credits as an empty string and skip parsing. **Affected configuration:** builds selecting Aboutbox.mcc and omitting `MUIA_Aboutbox_Credits`, as the documented API permits. **Confidence:** high; the NULL default, unconditional call, and dereference are direct; no GUI was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
 
+<a id="gd9785"></a>
 ## GD9785
 
 **Calltips applies the left-margin flag to vertical positioning and ignores the top-margin flag [API-intent candidate].** `setRectangle()` subtracts the root group's top margin only when `data->marginLeft` is true (`workbench/classes/zune/calltips/Calltips.c:21-25`). The constructor stores `MUIA_Calltips_MarginLeft` and `MUIA_Calltips_MarginTop` in separate fields (`:80-93,119-126`), but `marginTop` is never consulted by the positioning code. The public header defines both tags by name, but no additional in-tree contract or direct C client was found. **Trigger:** construct Calltips with different left/top margin settings, or change its rectangle while the root group has a nonzero top margin. **Consequence:** vertical placement follows the left-margin setting: disabling top-margin compensation has no effect, and disabling left-margin compensation also disables it vertically. Use `marginTop` for the top coordinate if the separate top-margin tag is intended to control vertical compensation. **Affected configuration:** builds selecting optional Calltips.mcc. **Confidence:** high for the field mismatch and resulting calculation; medium that the behavior violates the intended public contract because the tag semantics are not documented beyond their names and there are no checked-in clients. No MUI window was opened; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
