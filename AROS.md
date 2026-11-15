@@ -18322,3 +18322,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD4472](AROS-other-drivers.md#od4472)** — NVMe returns success from AbortIO without cancelling the in-flight request. Conditional on clients relying on cancellation; no in-tree targeted caller established. Source-only.
 
 **[OD11667](AROS-other-drivers.md#od11667)** — NVMe advertises CMD_UPDATE but returns success without issuing Flush; configured AFS/SFS/NTFS use can leave writes in an enabled volatile cache. Conditional on NVMe configuration and controller cache state. Source-only.
+
+**[GD15205](AROS-graphics-desktop.md#gd15205)** — RexxSupport can delete a port while another query is blocked in WAITPKT, leaving a hung waiter or a freed-port access. Conditional on overlapping independent Rexx query calls; optional target; source-only.
