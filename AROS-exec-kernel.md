@@ -11123,3 +11123,13 @@ Both `__stat_from_path()` and `__stat64_from_path()` allocate `mypath` before re
 **Trigger and consequence:** `stat()`/`lstat()` or their 64-bit forms reach the exclusive-object or soft-link fallback with a relative path, then current-directory resolution or absolute-path allocation fails. Each call leaks the path-copy allocation; repeated failures can consume task memory. **Affected configuration:** selected POSIXC stat fallback helpers; requires a relative path and one of the early errors above. **Confidence:** high for the allocation/cleanup mismatch; no allocation failure or stat call was induced. Keep `mypath` initialized to NULL and free it in the shared cleanup, clearing it after the successful transfer/free. Source-only.
 
 Sources: `compiler/crt/posixc/__stat.c:229-295,358-370,375-443,504-516`; `compiler/crt/posixc/stat.c:93-104`; `compiler/crt/posixc/lstat.c:76-90`; `compiler/crt/posixc/stat64.c:93-104`; `compiler/crt/posixc/lstat64.c:76-90`.
+
+
+<a id="ek10993"></a>
+## EK10993 — POSIXC debug `regerror()` asserts on a valid zero-size query
+
+`regerror()` unconditionally asserts that `errbuf` is non-NULL before it checks `errbuf_size` (`compiler/crt/posixc/regex/regerror.c:177-179`). Its own POSIXC regex manual says that when `errbuf_size` is zero, `errbuf` is ignored and the call still returns the required message size (`compiler/crt/posixc/regex/regex.3:410-417`). The copy is already guarded by `if (errbuf_size > 0)` (`regerror.c:198-200`), so the unconditional assertion is the only obstacle to a null buffer for a size query. The source defines `NDEBUG` only when `DEBUG` is false (`regerror.c:76-82`); the common make configuration adds debug flags when `DEBUG=yes` (`config/make.cfg.in:253-264`).
+
+**Trigger and consequence:** in a debug POSIXC build, a caller invokes `regerror()` with `errbuf_size == 0` and `errbuf == NULL` to query the required length. The valid request trips the assertion instead of returning that length. The checked-in example passes a non-null buffer and no maintained caller exercises this size-query case; the affected caller is a POSIXC client using the documented interface. **Affected configuration:** debug builds with `DEBUG` enabled; release builds define `NDEBUG` in this source and skip the assertion. **Confidence:** high for the source/manual mismatch and debug guard; no debug build or call was run. Source-only.
+
+Sources: `compiler/crt/posixc/regex/regerror.c:76-82,177-200`; `compiler/crt/posixc/regex/regex.3:410-417`; `config/make.cfg.in:253-264`; selected `POSIXC` manifest `compiler/crt/posixc/mmakefile.src:182`.
