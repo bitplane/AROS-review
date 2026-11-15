@@ -18312,3 +18312,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[GD15203](AROS-graphics-desktop.md#gd15203) — RexxSupport FORBID/PERMIT use library-global nesting flags around task-local Exec state, so concurrent callers on ExecSMP can skip or misbalance Forbid/Permit. Conditional on overlapping Rexx tasks; optional explicit target; source-only.**
 **[OD11665](AROS-other-drivers.md#od11665) — Nouveau Falcon command timeouts leave sequence slots allocated across retries or SEC2 fini/reinit cycles, eventually preventing later commands.** Conditional on repeated timed synchronous PMU/SEC2 command timeouts in the optional Nouveau HIDD; source-only.
+**[OD11666](AROS-other-drivers.md#od11666) — Nouveau can lose the saved atomic display state when restoring it fails during system resume, yet report resume success.** Conditional on an atomic restore error after suspend; optional Nouveau HIDD; source-only.
