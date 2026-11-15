@@ -18262,4 +18262,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 
 
-**[GD15179](AROS-graphics-desktop.md#gd15179) — Icon autoscaling can pass factors above `ScalerDiv()`'s documented range; the signed remainder multiplication overflows for large icons and yields an unreliable output dimension. Conditional on large dimensions plus TPD autoscaling metadata; source-only.**
+**[GD15181](AROS-graphics-desktop.md#gd15179) — Icon autoscaling can pass factors above `ScalerDiv()`'s documented range; the signed remainder multiplication overflows for large icons and yields an unreliable output dimension. Conditional on large dimensions plus TPD autoscaling metadata; source-only.**
