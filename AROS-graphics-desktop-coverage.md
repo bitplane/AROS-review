@@ -22074,3 +22074,12 @@ RexxSupport selected memory and message-helper body pass (five newly credited se
 | `workbench/libs/rexxsupport/statef.c` | 68 | Full body read; path lock, FIB examination, RawDoFmt callback, output Argstring and cleanup traced. GD15193 covers missing lock release; GD15194 covers unchecked formatting-buffer allocation. |
 
 Crediting these three selected paths adds 410 `cloc 2.06` C code lines to the committed checkpoint of 1,302/1,307 paths and 463,614/585,714 C/header code lines, yielding **1,305/1,307 paths (99.8%)** and **464,024/585,714 C/header code lines (79.2%)**. `showdir`, `showlist` and `statef` are selected by `workbench/libs/rexxsupport/mmakefile.src:6-21`; dispatch exposes all three at `arexxdispatch.c:46-48`. Caller census found no maintained Rexx script invocation; the findings remain conditional on clients of the explicitly buildable optional target. DOS lock, allocation-failure and command behavior were source-inferred; no command, failure or build was run.
+
+
+### RexxSupport DELAY helper pass
+
+| File | `cloc 2.06` code lines | Review status and findings |
+|---|---:|---|
+| `workbench/libs/rexxsupport/delay.c` | 34 | Full body read; digit validation, `atoi()`/`strtol()` range behavior and conversion to DOS `Delay(ULONG)` traced. GD15196 records the missing numeric-range validation and potentially narrowed/saturated tick count. The command is selected by `workbench/libs/rexxsupport/mmakefile.src:6-21` and exposed by `arexxdispatch.c:32`. |
+
+Crediting this selected path adds 34 C code lines to the preceding checkpoint of 1,305/1,307 paths and 464,024/585,714 C/header code lines, yielding **1,306/1,307 paths (99.9%)** and **464,058/585,714 C/header code lines (79.2%)**. The optional target's default-image reachability is not claimed. Numeric conversion and DOS wait behavior were traced from source; no command or delay was run.

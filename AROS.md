@@ -18291,3 +18291,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15194](AROS-graphics-desktop.md#gd15194) — RexxSupport `SHOWDIR`, `SHOWLIST` and `STATEF` dereference unchecked output or control allocations under memory pressure. Optional explicit target; source-only.**
 
 **[GD15195](AROS-graphics-desktop.md#gd15195) — RexxSupport `SHOWLIST` calls unbounded `strlen()` on a length-prefixed BSTR; the PTP producer stores no trailing NUL. Conditional on standard BSTR build and PTP entries; source-only.**
+
+**[GD15196](AROS-graphics-desktop.md#gd15196) — RexxSupport `DELAY` accepts decimal values outside `int` range and passes narrowed or saturated tick counts to DOS. Conditional on large arguments; optional explicit target; source-only.**
