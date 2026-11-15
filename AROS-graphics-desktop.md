@@ -7913,31 +7913,26 @@ This entry duplicates GD4772; the source finding and full-body caller evidence a
 
 **Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L2004`](AROS-graphics-desktop-coverage.md#L2004). Recheck the cited note and its scope before treating this candidate as confirmed.
 
-## GD6219
+## GD6219 — SAGA graphics HIDD leaks initialization resources when startup fails [conditional]
 
-**Indexed summary:** The SAGA graphics HIDD leaks initialization resources when a later startup step fails.
+`SAGAGfx_Init()` creates `xsd->mempool` before obtaining nine OOP attribute bases (`arch/m68k-amiga/hidd/sagagfx/sagagfx_init.c:81-119`). If `GetAttrBases()` fails, its helper releases the attribute bases obtained so far but the initializer returns without deleting the pool. If the later `OpenLibrary("graphics.library", 41)` fails, the initializer returns FALSE while retaining both the pool and all nine attribute bases (`:121-140`). The module registers this routine with `ADD2INITLIB` but defines no `ADD2EXPUNGELIB` cleanup callback; generated library initialization runs the expunge set after init failure and then frees the base (`compiler/autoinit/functions.c:42-79`). Thus rollback has no callback to release these earlier resources.
 
-**Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L2009`](AROS-graphics-desktop-coverage.md#L2009), [`AROS-graphics-desktop-coverage.md:L2017`](AROS-graphics-desktop-coverage.md#L2017), [`AROS-graphics-desktop-coverage.md:L2666`](AROS-graphics-desktop-coverage.md#L2666). Recheck the cited note and its scope before treating this candidate as confirmed.
+**Trigger and consequence:** SAGA hardware detection succeeds, pool creation succeeds, and either one attribute-base acquisition fails or the subsequent graphics.library open fails. The failed driver load leaks the pool; the graphics-open failure also leaks every acquired attribute base. **Affected configuration:** `hidd-m68k-sagagfx` is a dependency of `kernel-link-amiga-m68k` (`arch/m68k-amiga/boot/mmakefile.src:7-92`), which is itself selected by `bootdisk-amiga-m68k-gen` (`arch/m68k-amiga/boot/floppy/mmakefile.src:6-12`). **Confidence:** high for acquisition order and missing rollback; occurrence requires one of the specified startup failures. Add an expunge cleanup that safely releases the pool and acquired bases on failed initialization. No initialization failure or build was induced; source-only.
+## GD6220 — SAGA bitmap returns after its framebuffer allocation fails [conditional]
 
-## GD6220
+`SAGABitMap::New()` stores the result of `AllocVecPooled()` in `data->VideoBuffer` without checking it, rounds that pointer upward, and publishes the result as the bitmap's chunky buffer (`arch/m68k-amiga/hidd/sagagfx/sagagfx_onbitmap.c:64-68`). If allocation returns NULL, the arithmetic produces the low address `0x20`; the constructor continues and returns the bitmap (`:69-143`). The selected `SAGAGfx::Show()` later writes `bmdata->VideoData` to `SAGA_VIDEO_BPLPTR` (`sagagfx_hiddclass.c:716-733`), while inherited chunky drawing methods use the published buffer. The failure path therefore leaves a seemingly constructed bitmap with an invalid pixel-buffer/scanout address.
 
-**Indexed summary:** SAGA framebuffer allocation failure still produces a bitmap with a NULL pixel buffer.
+**Trigger and consequence:** creation of a SAGA on-screen bitmap reaches the aligned framebuffer allocation and the pool allocation fails. Subsequent rendering may write through the invalid buffer, and showing the bitmap programs the invalid pointer for scanout. **Affected configuration:** the SAGA HIDD selected by the m68k Amiga boot-disk graph (see GD6219). **Confidence:** high for the unchecked NULL result, `0x20` alignment result on the selected 32-bit target, constructor success, and later buffer consumers; allocator failure was not induced. Reject construction and dispose the superclass bitmap when the backing allocation fails. No bitmap or display operation was run; source-only.
+## GD6221 — SAGA modeline allocation failures are dereferenced [conditional]
 
-**Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L2018`](AROS-graphics-desktop-coverage.md#L2018), [`AROS-graphics-desktop-coverage.md:L2666`](AROS-graphics-desktop-coverage.md#L2666). Recheck the cited note and its scope before treating this candidate as confirmed.
+When `LoadExternalSyncs()` parses a valid non-comment line in `DEVS:modelines.txt`, it allocates a 14-entry tag array and a 32-byte description but does not check either result before linking or writing through them (`arch/m68k-amiga/hidd/sagagfx/sagagfx_hiddclass.c:91-119`). A NULL tag allocation is dereferenced at `lastTag[1]` or `tags[0]`; a NULL description is passed to `snprintf()`. The function is called while constructing the SAGA display and its returned tags are supplied to the mode enumerator (`:326-358`).
 
-## GD6221
+**Trigger and consequence:** a valid user modeline is present and either the tag-array or description allocation fails. Driver construction can fault instead of skipping the custom mode or returning a clean failure; failure of the second allocation also strands the successful tag allocation. **Affected configuration:** the SAGA HIDD in the m68k Amiga boot-disk graph; the trigger additionally requires a process-context load and a valid modeline file. **Confidence:** high for unchecked allocations and immediate consumers; no modeline or allocation failure was exercised. Check each allocation and unwind the partially created mode tags before continuing or failing construction. No driver load or build was run; source-only.
+## GD6222 — SAGA accepts custom pixel clocks that select the zero PLL entry [conditional]
 
-**Indexed summary:** SAGA custom-modeline allocation failures are dereferenced during driver construction.
+The custom-modeline parser rejects a zero pixel-clock field but applies no upper or lower bound to the nonzero clock; it converts the supplied kHz value to Hz in the `aHidd_Sync_PixelClock` tag (`arch/m68k-amiga/hidd/sagagfx/sagagfx_hiddclass.c:91-99,119-120`). The PLL table starts with a zero-frequency sentinel followed by its first valid entry at 3 MHz (`arch/m68k-amiga/hidd/sagagfx/sagagfx_hw.c:45-48`). `saga_pll_clock_lookup()` compares a request below the midpoint between those entries and returns index zero; `SAGA_SetPLL()` then programs that row's all-zero register data (`:6480-6508,6520-6558`). The SAGA display Show path calls `SAGA_SetPLL()` with the bitmap's selected pixel clock (`sagagfx_hiddclass.c:716-733`).
 
-**Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L2019`](AROS-graphics-desktop-coverage.md#L2019), [`AROS-graphics-desktop-coverage.md:L2024`](AROS-graphics-desktop-coverage.md#L2024), [`AROS-graphics-desktop-coverage.md:L2666`](AROS-graphics-desktop-coverage.md#L2666). Recheck the cited note and its scope before treating this candidate as confirmed.
-
-## GD6222
-
-**Indexed summary:** SAGA accepts low custom pixel clocks that select the zero PLL table entry.
-
-**Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L2020`](AROS-graphics-desktop-coverage.md#L2020), [`AROS-graphics-desktop-coverage.md:L2026`](AROS-graphics-desktop-coverage.md#L2026), [`AROS-graphics-desktop-coverage.md:L2028`](AROS-graphics-desktop-coverage.md#L2028), [`AROS-graphics-desktop-coverage.md:L2666`](AROS-graphics-desktop-coverage.md#L2666). Recheck the cited note and its scope before treating this candidate as confirmed.
-
-<a id="gd6223"></a>
+**Trigger and consequence:** a valid custom mode has a positive pixel clock below 1.5 MHz (the parser's kHz input is below 1500). The mode is admitted and selected, then the SAGA PLL programming path uses the zero sentinel entry instead of a valid PLL configuration; the requested display timing cannot be produced correctly. **Affected configuration:** SAGA HIDD in the m68k Amiga boot-disk graph, with a custom modeline below that threshold. **Confidence:** high for parser acceptance, lookup boundary, zero sentinel and Show caller; hardware response was not exercised. Reject clocks below the first supported range or report the mode invalid before registration. No modeline, PLL, display operation or build was run; source-only.
 ## GD6223
 
 **Finding:** Appearance Preferences renders planar-screen previews into a one-plane bitmap.
