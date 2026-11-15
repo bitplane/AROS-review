@@ -210,7 +210,7 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 | [EK9520](AROS-exec-kernel.md#ek9520) | m68k AROSBootstrap's `LoadSegment` free callback only removes bookkeeping and leaks the allocation. |
 | [EK9521](AROS-exec-kernel.md#ek9521) | Hosted Unix accepts IRQ registrations that are reserved or outside its signal-dispatch range. |
 | [EK9522](AROS-exec-kernel.md#ek9522) | EFI GetTime advertises the wrong capabilities structure type. |
-| [EK9524](AROS-exec-kernel.md#ek9524) | TLSF corruption diagnostics omit frames on generic-stub targets. |
+| [EK9524](AROS-exec-kernel.md#ek9524) | TLSF corruption diagnostics omit frames on generic-stub targets; current selected path is i386-PC, with ARM and SiFive-U source paths qualified for missing prerequisites/no boot handoff. |
 | [EK9525](AROS-exec-kernel.md#ek9525) | Concurrent x86-64 protection calls can overwrite each other’s split page table. |
 | [EK9527](AROS-exec-kernel.md#ek9527) | Concurrent ExecSMP dead-end alerts can interleave the shared diagnostic text. |
 | [EK9528](AROS-exec-kernel.md#ek9528) | pthread can invoke a PosixC thread hook after delayed expunge has unloaded its code. |
