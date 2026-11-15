@@ -18342,3 +18342,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11675](AROS-other-drivers.md#od11675)** — Nouveau NV50 payload Part 1 advances slot counters before programming and does not roll them back on failure; later MST allocations can use stale slot positions. Conditional on a topology change or DPCD payload-write failure; source-only.
 
 **[OD11676](AROS-other-drivers.md#od11676)** — Nouveau marks MST enabled before setup succeeds; after a failed attempt, a later detect retry returns success without reinitializing the topology. Conditional on a failed first enable followed by retry; source-only.
+**[OD11677](AROS-other-drivers.md#od11677)** — MST topology dump indentation writes beyond its ten-byte stack buffer for branch LCT values of 10 or more. Conditional on a caller requesting a dump of a sufficiently deep topology; source-only.
