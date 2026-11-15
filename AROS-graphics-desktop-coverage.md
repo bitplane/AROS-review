@@ -22146,3 +22146,12 @@ The optional RexxSupport target ledger advances to 23/25 selected source paths r
 | workbench/libs/rexxsupport/forbid.c | 82 | Full body read; Rexx nesting-variable reads/writes, initial/local nesting transitions and Exec Forbid()/Permit() pairing traced. GD15202 records the unchecked binary-int read from the returned Rexx Argstring. Both result-Argstring allocations are unchecked and are included in GD15197. The commands are selected by workbench/libs/rexxsupport/mmakefile.src:6-21 and exposed by arexxdispatch.c:34,43. |
 
 The optional RexxSupport target ledger advances to 24/25 selected source paths reviewed. One remains: closeportrsrc.c. This pass adds 82 reviewed C code lines. The Rexx variable's value and the scheduler state were source-traced; no command, variable collision, or task scheduling behavior was run.
+
+
+### RexxSupport ClosePortRsrc callback pass
+
+| File | cloc 2.06 code lines | Review status and findings |
+|---|---:|---|
+| workbench/libs/rexxsupport/closeportrsrc.c | 13 | Full body read; Rexx resource callback vector and PortNode layout traced through the selected closeport registration path and portcleanup(). The callback's cast matches the first-member RexxRsrc layout; cleanup owns the node, message port, pending replies and allocations. No independent callback defect established. |
+
+All 25 source paths selected by workbench/libs/rexxsupport/mmakefile.src (22 FILES entries, rexxsupport_init.c, and two FUNCS implementations) now have recorded body passes. This closes only the optional RexxSupport selected-source body list; external Rexx clients and broader Graphics/Desktop, Exec/Kernel and Other Drivers caller/configuration scope remain open. This final body adds 13 reviewed C code lines. No resource callback, port operation or build was run.
