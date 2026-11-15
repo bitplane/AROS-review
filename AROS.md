@@ -18267,3 +18267,9 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15182](AROS-graphics-desktop.md#gd15182) — Finite icon scale-box fitting multiplies source height by maximum width without overflow checking; a large tall icon can wrap the intermediate and be laid out at a badly distorted size. Conditional on large PNG dimensions and configured scale box; source-only.**
 
 **[GD15183](AROS-graphics-desktop.md#gd15183) — PNG icon dimensions above 65,535 narrow to zero at `ScalerDiv()`'s `UWORD` inputs, yielding a zero layout dimension under finite scale-box sizing. Conditional on large PNG dimensions; source-only.**
+
+**[GD15184](AROS-graphics-desktop.md#gd15184) — RexxSupport `OPENPORT` dereferences unchecked node/name allocations and strands the already-created port on failure. Optional explicit target; source-only.**
+
+**[GD15185](AROS-graphics-desktop.md#gd15185) — RexxSupport `OPENPORT` publishes its port and library reference before Rexx registration setup; later reply-object allocation failure returns without rollback. Optional explicit target; source-only.**
+
+**[GD15186](AROS-graphics-desktop.md#gd15186) — RexxSupport `CLOSEPORT` returns on Rexx/reply-object setup failure without releasing the tracked port or partial temporary objects. Optional explicit target; source-only.**
