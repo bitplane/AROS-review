@@ -10973,7 +10973,7 @@ Exec/Kernel PPC helper call-site census (2026-10-30): rechecked the linked Efika
 
 **OD10297 — Nouveau R535 display control paths leak reply RPCs:** unsupported output-type returns omit `ctrl_done()`, and R535/R570/R580 backlight callbacks leak still-owned replies on RM-status errors. See [OD10297](AROS-other-drivers.md#od10297) and the [display-control cleanup recheck](AROS-other-drivers-coverage.md#nouveau-r535-display-control-rpc-cleanup-od10297). No RM request, display operation, GPU access or build was run; source-only.
 
-**OD10298 — R535 display constructor dereferences NULL after display allocation failure:** `nvkm_disp_new_()` leaves `*pdisp` NULL on `-ENOMEM`, but `r535_disp_new()` then initializes a mutex through it. Conditional on allocation failure in the GA102/TU102 GSP/RM path. See [OD10298](AROS-other-drivers.md#od10298) and the [constructor-allocation recheck](AROS-other-drivers-coverage.md#nouveau-r535-display-constructor-allocation-recheck-od10298).
+**OD10298 — Nouveau R535 display constructor mishandles allocation-failure unwind.** A NULL display allocation is dereferenced; if event-reference allocation fails later, R535 frees the function table before registered-subdevice teardown uses it. Applies to GSP display paths selected through the TU102/GA102 constructor families across Turing, Ampere, Ada and Blackwell device-table entries. See [OD10298](AROS-other-drivers.md#od10298). Source-only.
 
 
 **OD10299 — RM control-read helper leaks reply RPCs on RM status errors:** `nvkm_gsp_rm_ctrl_rd()` returns `ERR_PTR` without releasing a reply retained by selected R535/R570/R580 control push paths; transport failures that clear the pointer are excluded. See [OD10299](AROS-other-drivers.md#od10299) and the [control-read cleanup recheck](AROS-other-drivers-coverage.md#nouveau-rm-control-read-cleanup-od10299).
@@ -14639,7 +14639,7 @@ Coverage-link repair: GD10288's coverage link now resolves to the explicit `setr
 
 **OD11132 — Nouveau writes DP link rates through unchecked signed indices into an eight-entry table.** The checked-in DPCD producer supplies indices 0–7; an invalid index requires another NVIF client or future caller. See [OD11132](AROS-other-drivers.md#od11132) and the [link-rate bounds trace](AROS-other-drivers-coverage.md#nouveau-r535-display-aux-rates-and-constructor-review). Source-only.
 
-**OD11133 — Nouveau R535 display constructor mishandles allocation failures.** A NULL display allocation is dereferenced; a later event-reference allocation failure frees the function table before registered-subdevice teardown uses it. GSP path selected by the TU102/GA102 constructor families across Turing, Ampere, Ada and Blackwell device-table entries. See [OD11133](AROS-other-drivers.md#od11133) and the [constructor allocation trace](AROS-other-drivers-coverage.md#nouveau-r535-display-aux-rates-and-constructor-review). Source-only.
+
 
 
 **OD11134 — R570/R580 Nouveau suspend errors can leave channels stopped or BAR2 disabled.** Conditional on an RPC or later suspend failure after state changes. See [OD11134](AROS-other-drivers.md#od11134) and the [FBSR suspend/resume trace](AROS-other-drivers-coverage.md#nouveau-r535-r570-r580-fbsr-complete-body-review). Source-only.
