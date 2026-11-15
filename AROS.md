@@ -18068,3 +18068,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[EK10988](AROS-exec-kernel.md#ek10988) — C11 `char16_t`/`char32_t` conversions route through `wchar_t`, narrowing valid Unicode when the selected `wchar_t` is less than 32 bits. Conditional on a narrow-wchar StdC build; no current configured AROS target using one was established. Source-only.**
 **[EK10989](AROS-exec-kernel.md#ek10989) — stdcio byte and wide I/O leave stream-orientation flags unchanged, so `fwide()` can report or set an orientation that contradicts prior I/O. Source-only.**
 **[EK10990](AROS-exec-kernel.md#ek10990) — POSIXC `fdopen()` masks the parser’s `-1` error into `O_RDWR`, so invalid mode strings are accepted for read/write descriptors. Source-only; no maintained invalid-mode caller was found.**
+
+**[EK10991](AROS-exec-kernel.md#ek10991) — POSIXC `freopen()` passes an invalid mode parser result as open flags; with a missing path, it can create and return a read/write stream instead of reporting `EINVAL`. Source-only; no maintained invalid-mode caller was found.**
