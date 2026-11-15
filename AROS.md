@@ -18275,3 +18275,13 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15186](AROS-graphics-desktop.md#gd15186) — RexxSupport `CLOSEPORT` returns on Rexx/reply-object setup failure without releasing the tracked port or partial temporary objects. Optional explicit target; source-only.**
 
 **[GD15187](AROS-graphics-desktop.md#gd15187) — RexxSupport `GETPKT` links the `NULL` result of an empty `GetMsg()` into its outstanding-message list, faulting in `AddTail()`. Conditional on an empty-queue call or competing consumers; optional explicit target; source-only.**
+
+**[GD15188](AROS-graphics-desktop.md#gd15188) — RexxSupport `ALLOCMEM` decodes its documented little-endian flag bytes in reverse order; `MEMF_CLEAR` is passed as `MEMF_LOCAL`. Optional explicit target; source-only.**
+
+**[GD15189](AROS-graphics-desktop.md#gd15189) — RexxSupport `NEXT` offsets from the Argstring buffer instead of the encoded pointer target, so it cannot return a list node's successor as documented. Optional explicit target; external callers only; source-only.**
+
+**[GD15190](AROS-graphics-desktop.md#gd15190) — RexxSupport `GETARG`, `REPLY` and `TYPEPKT` load native pointers before checking the Argstring length. Conditional on short external arguments; optional explicit target; source-only.**
+
+**[GD15191](AROS-graphics-desktop.md#gd15191) — RexxSupport `TYPEPKT` leaves its result byte uninitialized for selectors other than A/C/F, while returning success. Optional explicit target; source-only.**
+
+**[GD15192](AROS-graphics-desktop.md#gd15192) — RexxSupport `ALLOCMEM` leaks a successful allocation if creating the Argstring for its returned pointer fails. Conditional on partial memory pressure; optional explicit target; source-only.**
