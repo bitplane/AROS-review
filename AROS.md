@@ -16461,7 +16461,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 **[EK10857](AROS-exec-kernel.md#ek10857) — `system_no_sh()` dereferences failed command-buffer allocations.** Failed `strdup()` or command-buffer `malloc()` results are used without checks. Source-only.
 
 
-**[EK10859](AROS-exec-kernel.md#ek10859) — Unix-path `system(NULL)` reports a shell without checking for one.** NIX-mode callers receive `1` even when `bin:sh` cannot be locked, contrary to the documented availability query. Source-only.
+**[EK10859](AROS-exec-kernel.md#ek10859) — Unix-path `system()` mishandles NULL queries and empty commands.** NIX-mode callers receive `1` for `system(NULL)` even when `bin:sh` cannot be locked, and `system("")` returns `1` without executing the empty command. Source-only.
 
 
 **[OD11408](AROS-other-drivers.md#od11408) — PCI xHCI grouped functions can mis-map root-hub ports.** If an earlier controller with a populated port count fails initialization and a later one succeeds, the failed controller still occupies the map prefix while the advertised count includes only successful controllers, shifting or hiding healthy ports. Even when all functions initialize, root-hub dispatch passes global indices as controller-local indices, so later functions can access the wrong port or exceed local arrays. Conditional on grouped multifunction PCI hardware; source-only.
