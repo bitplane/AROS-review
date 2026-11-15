@@ -9920,13 +9920,7 @@ The flag publication for B is protected by `SEM_ASYNC`, but A clears the complet
 
 ## GD9523
 
-**Indexed summary:** Text datatype dereferences its font after initialization failure.
-
-**Source and trigger:** The selected Text datatype's `_OM_NEW()` calls `InitText(td)` and ignores its return (`workbench/classes/datatypes/text/textclass.c:2238`). `InitText()` can return zero if it cannot copy the default/requested font name or if both the requested font and the `topaz.font` fallback fail to open (`:246-299`). `_OM_NEW()` immediately dereferences `td->font->tf_YSize` and later reads `tf_Flags`/`tf_XSize` (`:2243-2244`). A failed name allocation or unavailable font/fallback therefore reaches a NULL font dereference during normal object construction.
-
-**Consequence and scope:** Construction can fault instead of failing cleanly when the selected `text.datatype` cannot establish either font. The path also applies to subclasses that construct the Text superclass, including `ascii.datatype`. High confidence in the unchecked return and dereference; the failure combination is conditional. No font failure or object construction was induced.
-
-**Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md), Text datatype full-body pass dated 2026-10-24.
+**Disposition:** Withdrawn as a duplicate of [GD2876](#gd2876). Both entries describe the same root cause and trigger: `_OM_NEW()` ignores `InitText()` failure and dereferences `td->font` when font initialization fails. GD2876 is the canonical finding and retains the more detailed selected-target and font-failure trace. No separate defect was established for GD9523.
 
 ## GD9524
 
