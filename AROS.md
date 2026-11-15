@@ -18107,6 +18107,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15162](AROS-graphics-desktop.md#gd15162) — VMM runtime config reload deletes the current task paging policies before parsing the replacement; a read error leaves an empty or partial policy set while the manager continues. Conditional on a failed notified config reload; startup reachability remains uncertain. Source-only.**
 
 **[GD15163](AROS-graphics-desktop.md#gd15163) — Disposing a buffered Wanderer IconList leaves its private layer, RastPort, bitmap and `Layer_Info` allocated. Conditional on buffered rendering being enabled; source-only.**
+**[GD15166](AROS-graphics-desktop.md#gd15166) — VMM copies configured paging-device names into 40-byte globals without checking the name length; long partition/device names can overflow the buffers during config loading. Conditional on an optional VMM handler using a long device name; source-only.**
 
 
 
