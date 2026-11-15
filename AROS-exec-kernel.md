@@ -11049,3 +11049,12 @@ The selected Berkeley double core returns `x / zero` when finite `x > 171.63` (`
 **Trigger and consequence:** on a target advertising `MATH_ERREXCEPT`, call `tgamma()` with a finite argument greater than 171.63, such as `172.0`. The call returns positive infinity and reports `ERANGE`/`FE_OVERFLOW`, but also leaves `FE_DIVBYZERO` raised even though the input is not a zero pole. Clients using `fetestexcept()` can misclassify the result. **Affected configuration:** StdC shared-library math builds selecting `math/bsdsrc/b_tgamma.c` and `tgamma.c`; `STDC_MATH_RAW` and `STDC_MATH` select these sources (`compiler/crt/stdc/mmakefile.src:67-70,520-521`). The public math header advertises `MATH_ERREXCEPT` except on m68k (`compiler/crt/stdc/include/aros/stdc/math.h:72-77`). **Confidence:** high for the selected source path and exception classification on exception-reporting targets; no call or exception flag was exercised. Produce the overflow result without a divide-by-zero operation, leaving the wrapper's overflow handling intact. Source-only.
 
 Sources: `compiler/crt/stdc/math/bsdsrc/b_tgamma.c:63-70,123,131-135`; `compiler/crt/stdc/tgamma.c:50-65`; `compiler/crt/stdc/mmakefile.src:67-70,520-521`; `compiler/crt/stdc/include/aros/stdc/math.h:72-77`.
+
+<a id="ek10985"></a>
+## EK10985 — `isprint()` documentation example marks newline printable
+
+The embedded `isprint()` example in the selected `__ctype.c` source says `isprint('\n') -> true` (`compiler/crt/stdc/__ctype.c:721-745`). The selected ctype table instead marks newline as `_ctype_cntrl | _ctype_space` and does not set `_ctype_print` (`__ctype.c:21-25`); `isprint()` tests only `_ctype_print` (`compiler/crt/stdc/include/aros/stdc/ctype.h:53-55`). This matches the C-locale classification: newline is not printable.
+
+**Trigger and consequence:** a developer reads the generated `isprint()` API documentation and uses the newline example as the expected result. The example teaches the wrong answer; the implementation itself classifies newline correctly. Correct the example to `false`. **Affected configuration:** generated StdC API documentation sourced from `compiler/crt/stdc/__ctype.c`. **Confidence:** high for the mismatch; no documentation was generated. Documentation-only; no runtime defect is claimed.
+
+Sources: `compiler/crt/stdc/__ctype.c:21-25,721-745`; `compiler/crt/stdc/include/aros/stdc/ctype.h:53-55`.
