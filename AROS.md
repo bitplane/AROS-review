@@ -18110,6 +18110,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15166](AROS-graphics-desktop.md#gd15166) — VMM copies configured paging-device names into 40-byte globals without checking the name length; long partition/device names can overflow the buffers during config loading. Conditional on an optional VMM handler using a long device name; source-only.**
 **[GD15167](AROS-graphics-desktop.md#gd15167) — The legacy VMM converter copies long hotkey lines into 80-byte fields before stripping the newline; an overlong disable value can overwrite later config fields. Conditional on such a legacy preferences value; source-only.**
 **[GD15168](AROS-graphics-desktop.md#gd15168) — The legacy VMM converter reuses one global config object for ENVARC and ENV; an older second file can inherit version-specific settings from the first. Conditional on both files using different legacy versions; source-only.**
+**[GD15169](AROS-graphics-desktop.md#gd15169) — ReadMMUConfig truncates ENV/ENVARC mapping tables before checking MMU support or both output opens; a failed run can erase the saved table. Conditional on using the optional VMM tool; source-only.**
 
 
 
