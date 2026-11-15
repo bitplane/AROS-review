@@ -18305,3 +18305,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15201](AROS-graphics-desktop.md#gd15201) — RexxSupport OFFSET accepts overflowing strtol() input as a saturated pointer displacement. Conditional on oversized offsets; optional explicit target; source-only.**
 
 **[GD15202](AROS-graphics-desktop.md#gd15202) — RexxSupport FORBID and PERMIT read their script-visible nesting variable as a binary int without validating its Argstring length. Conditional on a short preexisting value; optional explicit target; source-only.**
+
+**[GD15203](AROS-graphics-desktop.md#gd15203) — RexxSupport FORBID/PERMIT use library-global nesting flags around task-local Exec state, so concurrent callers on ExecSMP can skip or misbalance Forbid/Permit. Conditional on overlapping Rexx tasks; optional explicit target; source-only.**

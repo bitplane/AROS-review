@@ -22155,3 +22155,8 @@ The optional RexxSupport target ledger advances to 24/25 selected source paths r
 | workbench/libs/rexxsupport/closeportrsrc.c | 13 | Full body read; Rexx resource callback vector and PortNode layout traced through the selected closeport registration path and portcleanup(). The callback's cast matches the first-member RexxRsrc layout; cleanup owns the node, message port, pending replies and allocations. No independent callback defect established. |
 
 All 25 source paths selected by workbench/libs/rexxsupport/mmakefile.src (22 FILES entries, rexxsupport_init.c, and two FUNCS implementations) now have recorded body passes. This closes only the optional RexxSupport selected-source body list; external Rexx clients and broader Graphics/Desktop, Exec/Kernel and Other Drivers caller/configuration scope remain open. This final body adds 13 reviewed C code lines. No resource callback, port operation or build was run.
+
+
+### RexxSupport FORBID/PERMIT concurrency follow-up
+
+Caller and Exec semantics were rechecked after the full helper-body pass. On ExecSMP, Forbid()/Permit() only affect the calling processor, while forbid.c's inforbid/forbid_nest state is static to the shared library and unlocked. Added GD15203 for the resulting cross-task state mismatch when separate Rexx tasks overlap calls on different CPUs. This adds no new body/path/LOC credit; concurrent dispatch and scheduler behavior were not run.
