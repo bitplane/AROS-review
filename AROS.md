@@ -18332,3 +18332,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11670](AROS-other-drivers.md#od11670)** — Serial mouse resynchronization can loop forever when a three-byte input group contains no Microsoft packet header. Legacy serialmouse HIDD; source-only.
 
 **[OD11671](AROS-other-drivers.md#od11671)** — Nouveau MST accepts four setup writes before an I²C read but masks the count to two bits, so all four setup writes are omitted. Selected Nouveau MST I²C-over-AUX path; source-only.
+
+**[OD11672](AROS-other-drivers.md#od11672)** — Nouveau MST ignores ACK parse failures and marks truncated responses successful; a short path-resources reply can overwrite valid port bandwidth state with zeroes. Conditional on malformed device/link responses; source-only.
