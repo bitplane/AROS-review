@@ -14025,13 +14025,11 @@ There is also no synchronization for concurrent first calls. A second caller can
 
 
 <a id="gd10217"></a>
-## GD10217 — Vulkan extension inspection can decrement before the dependency map begins
+## GD10217 — Duplicate of OD11387; reclassified to Other Drivers
 
-The public getExtensionDepends(version, extension) helper finds the first dependency-version key not less than version with lower_bound(). When that key is not an exact match, it unconditionally assigns std::prev(depIt) (workbench/hidds/vulkan/include/vulkan/vulkan_extension_inspection.hpp:3038-3064). The generated dependency table contains entries whose first key is later than 1.0; for example, VK_KHR_video_queue has keys VK_VERSION_1_1 and VK_VERSION_1_3 (:665-670). A call with the accepted VK_VERSION_1_0 token and that extension makes lower_bound() return begin(), and the subsequent std::prev(begin()) is undefined behavior. The debug assertion explicitly accepts VK_VERSION_1_0 (:3041-3043), and the function's boolean result path is designed to report when no prior dependency-version record exists (:3057-3060).
+**Disposition: duplicate, no separate Graphics/Desktop finding.** GD10217 described the same `getExtensionDepends()` pre-first-version iterator decrement now recorded canonically as [OD11387](AROS-other-drivers.md#od11387). The optional Vulkan-Hpp header belongs to the Other Drivers report. OD11387 expands the trigger from the original `VK_KHR_video_queue` example to all nine dependency entries whose first version key is later than `VK_VERSION_1_0`.
 
-**Trigger and consequence:** a consumer queries dependencies for an extension whose table begins at 1.1 or later using an earlier accepted core-version token. The helper performs an invalid iterator decrement, so the result of extension-dependency inspection is undefined; no specific crash or returned value is asserted. **Affected configuration:** the Vulkan target copies this generated header into the public include tree (workbench/hidds/vulkan/mmakefile.src:10-23) and is selected through an active `workbench-hidds` virtual edge; repository search found no checked-in call to this overload. The trigger is therefore an external consumer of the explicitly built Vulkan-Hpp header, not a claimed default-image path. **Confidence:** high for the invalid iterator operation under the stated inputs; in-tree reachability is not established. Check for depIt == dependencies.begin() before decrementing and return the no-prior-version result. No Vulkan API call, generated output or build was run; source-only.
-
-**Review evidence:** [Vulkan extension-inspection header coverage](AROS-graphics-desktop-coverage.md#L9161).
+**Review evidence:** [Vulkan extension-inspection coverage](AROS-graphics-desktop-coverage.md#L9417).
 
 
 <a id="gd10218"></a>
