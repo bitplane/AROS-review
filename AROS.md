@@ -14639,7 +14639,7 @@ Coverage-link repair: GD10288's coverage link now resolves to the explicit `setr
 
 **OD11132 — Nouveau writes DP link rates through unchecked signed indices into an eight-entry table.** The checked-in DPCD producer supplies indices 0–7; an invalid index requires another NVIF client or future caller. See [OD11132](AROS-other-drivers.md#od11132) and the [link-rate bounds trace](AROS-other-drivers-coverage.md#nouveau-r535-display-aux-rates-and-constructor-review). Source-only.
 
-**OD11133 — Nouveau display creation dereferences NULL when the display object allocation fails.** See [OD11133](AROS-other-drivers.md#od11133) and the [constructor allocation trace](AROS-other-drivers-coverage.md#nouveau-r535-display-aux-rates-and-constructor-review). Source-only.
+**OD11133 — Nouveau R535 display constructor mishandles allocation failures.** A NULL display allocation is dereferenced; a later event-reference allocation failure frees the function table before registered-subdevice teardown uses it. GA102/TU102 GSP path. See [OD11133](AROS-other-drivers.md#od11133) and the [constructor allocation trace](AROS-other-drivers-coverage.md#nouveau-r535-display-aux-rates-and-constructor-review). Source-only.
 
 
 **OD11134 — R570/R580 Nouveau suspend errors can leave channels stopped or BAR2 disabled.** Conditional on an RPC or later suspend failure after state changes. See [OD11134](AROS-other-drivers.md#od11134) and the [FBSR suspend/resume trace](AROS-other-drivers-coverage.md#nouveau-r535-r570-r580-fbsr-complete-body-review). Source-only.
