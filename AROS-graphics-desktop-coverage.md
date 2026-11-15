@@ -22083,3 +22083,12 @@ Crediting these three selected paths adds 410 `cloc 2.06` C code lines to the co
 | `workbench/libs/rexxsupport/delay.c` | 34 | Full body read; digit validation, `atoi()`/`strtol()` range behavior and conversion to DOS `Delay(ULONG)` traced. GD15196 records the missing numeric-range validation and potentially narrowed/saturated tick count. The command is selected by `workbench/libs/rexxsupport/mmakefile.src:6-21` and exposed by `arexxdispatch.c:32`. |
 
 Crediting this selected path adds 34 C code lines to the preceding checkpoint of 1,305/1,307 paths and 464,024/585,714 C/header code lines, yielding **1,306/1,307 paths (99.9%)** and **464,058/585,714 C/header code lines (79.2%)**. The optional target's default-image reachability is not claimed. Numeric conversion and DOS wait behavior were traced from source; no command or delay was run.
+
+
+### RexxSupport NULL helper pass
+
+| File | `cloc 2.06` code lines | Review status and findings |
+|---|---:|---|
+| `workbench/libs/rexxsupport/null.c` | 16 | Full body read; pointer-byte encoding, `CreateArgstring()` failure contract and `ReturnRexxQuery()` status/result forwarding traced. GD15197 records the success status returned with a NULL result after Argstring allocation failure. The command is selected by `workbench/libs/rexxsupport/mmakefile.src:6-21` and exposed by `arexxdispatch.c:43`. |
+
+Crediting this selected path adds 16 C code lines to the preceding checkpoint of 1,306/1,307 paths and 464,058/585,714 C/header code lines, yielding **1,307/1,307 paths (100.0%)** and **464,074/585,714 C/header code lines (79.2%)**. This only closes the current selected-path count; remaining large-file body and broader subsystem/caller review are still open. No allocation failure or Rexx command was run.
