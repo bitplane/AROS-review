@@ -18220,3 +18220,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[EK793](AROS-exec-kernel.md#ek793) — OpenSBI ELF tables, section copies and allocation arithmetic are not bounded by the package member extent; inconsistent ELF input can prevent reliable boot.**
 **[EK800](AROS-exec-kernel.md#ek800) — The UEFI-loaded OpenSBI BSP package places its first ELF64 payload at a four-byte offset from eight-byte alignment; module loading can trap when the EEI does not handle unaligned access.**
 **[EK801](AROS-exec-kernel.md#ek801) — OpenSBI rejects a valid ELF section with zero alignment as allocation failure; conditional on a supplied module containing a nonempty allocatable zero-alignment section.**
+**[OD11645](AROS-other-drivers.md#od11645) — P96 HIDD dereferences a NULL VRAM MemHeader allocation when low memory prevents card initialization. Conditional on a selected Amiga m68k P96 card with resolutions and allocation failure; source-only.**
