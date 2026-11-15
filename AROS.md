@@ -14635,7 +14635,7 @@ Coverage-link repair: GD10288's coverage link now resolves to the explicit `setr
 **OD11130 — Nouveau R535 display hotplug handling skips the 32nd display-mask bit.** Conditional on display ID 31 being reported. See [OD11130](AROS-other-drivers.md#od11130) and the [HPD notification bounds trace](AROS-other-drivers-coverage.md#nouveau-r535-hpd-notification-bounds-review). Source-only.
 
 
-**OD11131 — Nouveau DP AUX size is unchecked across fixed 16-byte request, RM, and legacy handler buffers.** Conditional on a request size above 16 reaching a traced AUX implementation. See [OD11131](AROS-other-drivers.md#od11131) and the [AUX bounds trace](AROS-other-drivers-coverage.md#nouveau-r535-display-aux-rates-and-constructor-review). Source-only.
+**OD11131 — Nouveau DP AUX dispatch passes an unchecked size into fixed 16-byte request/RM/handler buffers.** No selected in-tree oversized caller was found; the two direct callers are bounded and the legacy NVIF ioctl does not forward arbitrary output methods. Retained as a low-current-reachability API-contract candidate; source-only.
 
 **OD11132 — Nouveau writes DP link rates through unchecked signed indices into an eight-entry table.** The checked-in DPCD producer supplies indices 0–7; an invalid index requires another NVIF client or future caller. See [OD11132](AROS-other-drivers.md#od11132) and the [link-rate bounds trace](AROS-other-drivers-coverage.md#nouveau-r535-display-aux-rates-and-constructor-review). Source-only.
 
