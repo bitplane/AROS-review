@@ -41245,6 +41245,7 @@ Bluetooth `hwconn.c` full-body closure (OD3808 retained; 2026-11-07; `rom/blueto
 
 
 <a id="od11522-btctrl-wait-discovery-allocation-failure-reports-completion"></a>
+<a id="od11522"></a>
 ## OD11522 — BTCtrl can report discovery finished when WAIT setup fails
 
 `WaitForDiscovery()` returns immediately if `CreateMsgPort()` fails or if `btAddEventHandler()` cannot allocate/register its hook (`rom/bluetooth/bluetooth/shellcommands/BTCtrl.c:122-142`). Its caller unconditionally prints “Discovery finished.” after the helper returns, and neither failure sets the command return code (`:230-243,362-371`). `btAddEventHandler()` explicitly returns NULL when its hook allocation fails (`rom/bluetooth/bluetooth/classes.c:663-685`). The successful `btStartDiscovery()` call has already begun asynchronous discovery before `WAIT` is handled.
@@ -41252,6 +41253,7 @@ Bluetooth `hwconn.c` full-body closure (OD3808 retained; 2026-11-07; `rom/blueto
 **Trigger and consequence:** invoke `BTCtrl SCAN WAIT` while message-port or event-hook allocation fails. The scan remains active, but the command claims it finished and exits with success, so scripts and users receive a false completion result. **Affected configuration:** selected Bluetooth library shell command. **Confidence:** high for both allocation-failure returns, caller message, and unchanged status; no allocation failure or scan was induced. Propagate a wait-setup result to `main`, report the failure, and avoid printing a completion message unless a discovery-stop event or stopped state was observed. Source-only.
 
 <a id="od11523-btctrl-remote-name-allocation-failure-reports-success"></a>
+<a id="od11523"></a>
 ## OD11523 — BTCtrl silently succeeds when remote-name request allocation fails
 
 For `DEVICE ... REMOTENAME`, `main()` conditionally creates a message port and channel, but has no `else` path or return-code update when either allocation fails (`rom/bluetooth/bluetooth/shellcommands/BTCtrl.c:256-285`). The default command result remains `RETURN_OK` (`:161-164,362-371`), and no diagnostic is printed. The selected code does report channel I/O errors after a request is issued, so the missing result applies specifically to setup failures before `btDoChannel()`.
@@ -41260,6 +41262,7 @@ For `DEVICE ... REMOTENAME`, `main()` conditionally creates a message port and c
 
 
 <a id="od2319-rtl8139-failed-startup-can-signal-reclaimed-worker"></a>
+<a id="od2319"></a>
 ## OD2319 — RTL8139 failed-startup cleanup can signal a reclaimed worker task
 
 When the RTL8139 worker cannot complete setup, `RTL8139_Schedular()` stores NULL in the startup record, posts its handshake message, and waits for the parent to release it (`workbench/devs/networks/rtl8139/unit.c:792-826,835-843`). After receiving the message, `CreateUnit()` reads the failure status and signals the worker; it then frees the startup record and falls through to `DeleteUnit()` (`unit.c:1098-1113,1143`). The worker's failed-setup branch cleans up and returns after the handshake (`unit.c:896-915`). `DeleteUnit()` unconditionally signals through the saved `rtl8139u_Process` pointer before checking whether the named worker has exited (`unit.c:1153-1164`). On ExecSMP, the worker can exit and the Exec service task can free its task allocation (`rom/exec/remtask.c:132-163`; `rom/exec/service.c:56-90`) before the parent reaches that signal. `Signal()` dereferences the supplied task to inspect state and affinity (`rom/exec/signal.c:182-206`), so the failed-startup path can access a reclaimed task structure.
@@ -41268,6 +41271,7 @@ When the RTL8139 worker cannot complete setup, `RTL8139_Schedular()` stores NULL
 
 
 <a id="od2436-e1000-shutdown-signal-is-a-bit-number-not-mask"></a>
+<a id="od2436"></a>
 ## OD2436 — e1000 shutdown passes a signal number where Exec needs a mask
 
 The e1000 worker creates its reply, input, and timer message ports before allocating its four private signals (`workbench/devs/networks/e1000/unit.c:530-569`). New Exec tasks inherit `TaskSigAlloc == 0xFFFF`, reserving bits 0–15; `CreateMsgPort()` allocates the lowest available bit (`rom/exec/prepareexecbase.c:319`; `rom/exec/newaddtask.c:249-252`; `rom/exec/createmsgport.c:56-65`). On the normal setup path, the three ports therefore use bits 16–18 and `e1ku_signal_0` is 19. The worker waits on masks for input bit 17 and private bits 19–22 (`unit.c:571-579`), but `DeleteUnit()` passes the bit number 19 directly to `Signal()` instead of the mask `1UL << 19`, then immediately frees request ports, PCI state, and the unit without waiting for the worker (`unit.c:1084-1111`). Signal mask 19 sets bits 0, 1, and 4, none of which wakes this wait set. The worker therefore remains blocked and skips its timer/request-port cleanup (`unit.c:580-594`). The selected SANA-II path publishes requests to the worker's input port (`workbench/devs/networks/e1000/e1000_init.c:472`).
@@ -41276,6 +41280,7 @@ The e1000 worker creates its reply, input, and timer message ports before alloca
 
 
 <a id="od11524-nouveau-nvi2c-selects-unavailable-transfer-callback"></a>
+<a id="od11524"></a>
 ## OD11524 — Nouveau `NvI2C=1` selects a transfer callback compiled as unavailable
 
 The selected Nouveau build includes `nvkm/subdev/i2c/bit.c` but its `USER_CPPFLAGS` define debug/GSP options only; it does not define `CONFIG_NOUVEAU_I2C_INTERNAL` (`workbench/hidds/nouveau/mmakefile.src:240`). Consequently, `nvkm_i2c_bit_xfer()` is compiled as the fallback that always returns `-ENODEV` (`workbench/hidds/nouveau/drm/nouveau/nvkm/subdev/i2c/bit.c:212-217`). The four selected NV04, NV4E, NV50 and GF119 bus tables assign that function to `bus->func->xfer` (`busnv04.c:79`, `busnv4e.c:70`, `busnv50.c:86`, `busgf119.c:79`). In `nvkm_i2c_bus_ctor()`, setting the `NvI2C` boolean option selects `nvkm_i2c_bus_algo`, whose master transfer acquires the bus then calls that callback (`bus.c:78-86,214-250`). The default option is false, so these buses normally use the generic `i2c_bit_algo` and are not affected. However, the AROS Nouveau driver imports `NOUVEAU_CONFIG` from the global environment (`nouveau_drm.c:93-94`; `patches/drm-aros.diff:947-961`) and passes it to NVKM at device creation (`nouveau_drm.c:879`), making `NvI2C=1` a reachable configuration.
@@ -41284,6 +41289,7 @@ The selected Nouveau build includes `nvkm/subdev/i2c/bit.c` but its `USER_CPPFLA
 
 
 <a id="od11525-nouveau-iccsense-oneinit-leaks-parsed-bios-rail-table"></a>
+<a id="od11525"></a>
 ## OD11525 — Nouveau ICCSense one-init leaks its parsed BIOS rail table
 
 `nvbios_iccsense_parse()` allocates `cnt` rail records with `kmalloc_array()` and stores the pointer in the caller's `struct nvbios_iccsense` (`workbench/hidds/nouveau/drm/nouveau/nvkm/subdev/bios/iccsense.c:75-79`). The only caller, `nvkm_iccsense_oneinit()`, places that structure on its stack, iterates the records, and returns without freeing `stbl.rail` (`workbench/hidds/nouveau/drm/nouveau/nvkm/subdev/iccsense/base.c:221-243,259-294`). The ICCSense destructor frees the separately allocated sensor and live-rail list nodes, but has no pointer to this temporary parsed array (`base.c:131-145`). For every successful parse with at least one entry, the array becomes unreachable at return and remains allocated for the device lifetime.
@@ -41291,6 +41297,7 @@ The selected Nouveau build includes `nvkm/subdev/i2c/bit.c` but its `USER_CPPFLA
 **Trigger and consequence:** initialize an optional Nouveau device whose BIOS has a supported, nonempty ICCSENSE table. One rail-array allocation is permanently leaked per ICCSense one-init; it is bounded by the BIOS entry count but is not released on normal completion or the later `-ENOMEM` exit. **Affected configuration:** optional Nouveau HIDD on supported devices with a populated ICCSENSE BIOS table. **Confidence:** high for the allocation, sole caller, and missing release; no device or allocation failure was exercised. Free the parsed rail array after the consumer loop and on every post-parse return. Source-only.
 
 <a id="od11526-nouveau-iccsense-power-calculation-overflows-signed-int"></a>
+<a id="od11526"></a>
 ## OD11526 — Nouveau ICCSense power calculation can overflow signed arithmetic
 
 `nvkm_iccsense_poll_lane()` reads 16-bit I2C register results into `int`, shifts them, then evaluates `vbus * vshunt * lsb / shunt` with the division last (`workbench/hidds/nouveau/drm/nouveau/nvkm/subdev/iccsense/base.c:49-63`). `nv_rd16i2cr()` returns the assembled 16-bit register value as an `int` (`workbench/hidds/nouveau/drm/nouveau/include/nvkm/subdev/i2c.h:103-119`); neither the helper nor the caller widens or bounds the multiplication. For example, an INA3221 reading of `vbus=3000`, `vshunt=4095`, `lsb=320`, and a configured 5-milliohm resistor yields an intermediate product of 3,931,200,000, although the mathematical quotient (786,240,000) fits a signed 32-bit `int`. The multiplication therefore overflows signed `int` before the divisor can reduce it. The aggregate `result += res` in `nvkm_iccsense_read_all()` is also unchecked (`:109-126`).
@@ -43650,6 +43657,7 @@ PCI configuration mechanism 1 uses a shared address register at CF8 and data reg
 **Trigger and consequence:** on x86-64 PC ExecSMP, two CPUs perform mechanism-1 config accesses concurrently. If CPU A writes its CF8 address, CPU B writes a different address before A accesses CFC, A's subsequent data read or write applies to B's selected device/register. This can return unrelated config data or modify the wrong device's configuration. It requires both callers to take a legacy mechanism-1 path and overlapping address/data operations; no specific in-tree concurrent workload was established.
 
 **Affected configuration and confidence:** x86-64 PC builds with ExecSMP enabled and legacy PCI config fallback in use; `configure.in` enables ExecSMP for the x86-64 `smp` variant (`:1647-1671`), while the checked i386 PC configuration does not. High confidence in the shared-port interleaving and local-only exclusion; occurrence depends on concurrent config callers selecting mechanism 1. Serialize the complete CF8/CFC transaction with one cross-CPU lock shared by every mechanism-1 user. No PCI access, device, interleaving, or build was run; source-only.
+<a id="od11631"></a>
 ## OD11631 — KMS keymap duplicate check and publication race on ExecSMP [conditional]
 
 `OpenKeymap()` protects both resident-list lookups and insertion only with `Forbid()`/`Permit()` (`workbench/libs/kms/openkeymap.c:78-88,135-152`). Exec documents that `Forbid()` prevents task switches only on the current CPU in ExecSMP; it does not serialize another processor (`rom/exec/forbid.c:55-66`). The second lookup and `Enqueue()` are therefore not one cross-CPU atomic check-and-publish operation.
