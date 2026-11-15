@@ -17197,6 +17197,7 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[OD11529](AROS-other-drivers.md#od11529-via-ac97-interrupt-header-tests-wrong-os4-macro) — VIA-AC97 declares incompatible interrupt prototypes on AmigaOS 4 because the header checks the wrong case of the OS macro.** AmigaOS 4 driver builds fail at compile time; source-only.
 
 **[OD11530](AROS-other-drivers.md#od11530-pci-express-capability-cycle-hangs-query) — a cyclic PCIe extended-capability pointer chain makes the HIDD capability query loop indefinitely.** Conditional on malformed PCI configuration; the checked-in PCITool caller can hang while displaying that device; source-only.
+**[OD11663](AROS-other-drivers.md#od11663) — PCITool can wrap PCIe serial-number payload reads past the 4-KiB config space back to the PCI header on the PCIPC ECAM path.** Conditional on a truncated/malformed capability at `0xffc`; source-only.
 
 **[GD6026](AROS-graphics-desktop.md#gd6026-ftmanager-staged-init-resource-leak) — FTManager GUI startup returns after FreeType or a later custom-class initialization failure without releasing previously acquired Codesets, FreeType, or custom-class resources.** Conditional on partial successful initialization; source-only.
 
