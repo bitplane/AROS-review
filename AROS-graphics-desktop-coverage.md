@@ -22137,3 +22137,12 @@ The optional RexxSupport target ledger advances to 22/25 selected source paths r
 | workbench/libs/rexxsupport/baddr.c | 20 | Full body read; pointer-sized Argstring validation, BPTR extraction and implementation-independent BADDR conversion traced against compiler/include/dos/bptr.h. No conversion or bounds defect established. GD15197 now also records the unchecked output Argstring allocation shared by BADDR, OFFSET and DELAY. |
 
 The optional RexxSupport target ledger advances to 23/25 selected source paths reviewed. Two remain: forbid.c and closeportrsrc.c. This pass adds 20 reviewed C code lines. No BADDR command or pointer conversion was run.
+
+
+### RexxSupport FORBID/PERMIT helper pass
+
+| File | cloc 2.06 code lines | Review status and findings |
+|---|---:|---|
+| workbench/libs/rexxsupport/forbid.c | 82 | Full body read; Rexx nesting-variable reads/writes, initial/local nesting transitions and Exec Forbid()/Permit() pairing traced. GD15202 records the unchecked binary-int read from the returned Rexx Argstring. Both result-Argstring allocations are unchecked and are included in GD15197. The commands are selected by workbench/libs/rexxsupport/mmakefile.src:6-21 and exposed by arexxdispatch.c:34,43. |
+
+The optional RexxSupport target ledger advances to 24/25 selected source paths reviewed. One remains: closeportrsrc.c. This pass adds 82 reviewed C code lines. The Rexx variable's value and the scheduler state were source-traced; no command, variable collision, or task scheduling behavior was run.
