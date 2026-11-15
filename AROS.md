@@ -18259,4 +18259,3 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[GD15178](AROS-graphics-desktop.md#gd15178) — Generic PlanarBM accepts depth above the eight-entry `BitMap.Planes[]` array and writes plane pointers past the allocated structure; drawing and disposal also iterate beyond the array. Conditional on direct HIDD planar-bitmap creation; standard `AllocBitMap()` selects chunky formats above depth eight. Source-only.**
 
-**[GD15179](AROS-graphics-desktop.md#gd15179) — Graphics.library leaks each driver's shared configuration allocation when its last display is removed, and also leaks it on registration failures after allocation. Conditional on driver removal/hotplug or failed registration retries; source-only.**
