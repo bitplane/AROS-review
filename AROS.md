@@ -15410,7 +15410,7 @@ Vulkan-Hpp function wrapper interval `23101-23700` (GD10223/GD10264 rechecked; n
 
 
 
-**[OD11234](AROS-other-drivers.md#od11234) — Nouveau R535 display oneinit failure skips RM client teardown.** If a later R535 display initialization step fails after the GSP RM client/device are created, oneinit failure leaves `use.enabled` false, so cleanup skips the RM teardown before the containing display object is freed; the client IDR can temporarily retain a pointer into freed storage. Conditional on a later RM/resource failure in selected TU102/GA102 GSP display setup. Source-only.
+**[OD11234](AROS-other-drivers.md#od11234) — Failed Nouveau R535 display oneinit can leave a stale GSP client event entry.** After HPD/DP-IRQ events are registered, a later RAMHT or interrupt setup failure skips display RM cleanup; reverse teardown frees the embedded client while it remains in the GSP IDR. A pending POST_EVENT processed in that interval can traverse the freed event list. Conditional on a matching event during teardown on Turing, Ampere, Ada or Blackwell GSP display paths routed through the TU102/GA102 constructors; source-only.
 
 **[OD11235](AROS-other-drivers.md#od11235) — GM20B clock initialization overwrites its computed DVFS state with zeros.** On GM20B speedo >= 1, if startup voltage maps to the lowest VID, a final initialization call programs the zero-initialized pending state over the computed detector coefficient; the equal-voltage initial P-state skips correction. Conditional Tegra clock-state candidate; source-only.
 
