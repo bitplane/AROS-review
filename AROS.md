@@ -18285,3 +18285,9 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15191](AROS-graphics-desktop.md#gd15191) — RexxSupport `TYPEPKT` leaves its result byte uninitialized for selectors other than A/C/F, while returning success. Optional explicit target; source-only.**
 
 **[GD15192](AROS-graphics-desktop.md#gd15192) — RexxSupport `ALLOCMEM` leaks a successful allocation if creating the Argstring for its returned pointer fails. Conditional on partial memory pressure; optional explicit target; source-only.**
+
+**[GD15193](AROS-graphics-desktop.md#gd15193) — RexxSupport `SHOWDIR` and `STATEF` fail to `UnLock()` successfully acquired paths, accumulating DOS locks. Optional explicit target; source-only.**
+
+**[GD15194](AROS-graphics-desktop.md#gd15194) — RexxSupport `SHOWDIR`, `SHOWLIST` and `STATEF` dereference unchecked output or control allocations under memory pressure. Optional explicit target; source-only.**
+
+**[GD15195](AROS-graphics-desktop.md#gd15195) — RexxSupport `SHOWLIST` calls unbounded `strlen()` on a length-prefixed BSTR; the PTP producer stores no trailing NUL. Conditional on standard BSTR build and PTP entries; source-only.**
