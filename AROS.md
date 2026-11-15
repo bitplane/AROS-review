@@ -18261,3 +18261,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15178](AROS-graphics-desktop.md#gd15178) — Generic PlanarBM accepts depth above the eight-entry `BitMap.Planes[]` array and writes plane pointers past the allocated structure; drawing and disposal also iterate beyond the array. Conditional on direct HIDD planar-bitmap creation; standard `AllocBitMap()` selects chunky formats above depth eight. Source-only.**
 
 
+
+**[GD15179](AROS-graphics-desktop.md#gd15179) — Icon autoscaling can pass factors above `ScalerDiv()`'s documented range; the signed remainder multiplication overflows for large icons and yields an unreliable output dimension. Conditional on large dimensions plus TPD autoscaling metadata; source-only.**
