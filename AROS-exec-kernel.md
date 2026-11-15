@@ -11165,3 +11165,39 @@ Sources: `compiler/crt/posixc/regex/regcomp.c:260-329,1186-1252`; `compiler/crt/
 **Trigger and consequence:** initialize POSIXC standard streams while DOS input/output is attached to a non-native-64-bit filesystem, then switch a stream with `SelectInput()` or `SelectOutput()` to a file on a filesystem that supports 64-bit packets and call `updatestdio()`. The FCB keeps `_FCB_FS64` clear, so subsequent `lseek64()`/`ftello()`-class operations on that stream use the 32-bit fallback and can fail once the file position exceeds `LONG` range, despite DOS64 support. No checked-in caller of `updatestdio()` was found; the public API and documented DOS redirection use are the relevant route. **Affected configuration:** POSIXC builds with dos64.library available and a standard stream redirected between filesystems with different native 64-bit support. **Confidence:** high for the stale per-FCB flag and fallback selection; no handle redirection or large-file operation was run. Clear and reprobe the capability after replacing each standard handle. Source-only.
 
 Sources: `compiler/crt/posixc/__dos64.c:34-68`; `compiler/crt/posixc/__fdesc.c:543,681-683,822-843`; `compiler/crt/posixc/updatestdio.c:17-20,39-41`; `compiler/crt/posixc/mmakefile.src:7,248`.
+
+<a id="ek792"></a>
+## EK792 — OpenSBI package records are read without checking their extents against the initrd
+
+`krnLoadPackage()` receives the FDT initrd length as `pkgsize` and computes `end`, but after checking only the four-byte magic it skips the eight-byte header and reads each record's name length, name, data length and payload without checking that those fields and spans fit before `end` (`arch/riscv64-opensbi/kernel/kernel_elf.c:415-445`). It also does not compare the header's declared package size with the supplied extent. The package writer emits a declared size and complete records (`tools/package/pkg:201-227`), but the boot parser does not enforce either bound.
+
+**Trigger and consequence:** OpenSBI boots with a truncated or inconsistent initrd package. The parser can read past the supplied initrd extent while decoding a record and may interpret unrelated following data as a module, causing package load failure or a boot fault. **Affected configuration:** the explicit RISC-V64 OpenSBI boot flow when an initrd package is supplied. **Confidence:** high for the missing extent checks; the resulting failure depends on the supplied package and memory layout. Validate the package header and every record field and payload against the FDT-provided initrd extent before advancing. No malformed package or boot was used; source-only.
+
+Sources: `arch/riscv64-opensbi/kernel/kernel_elf.c:415-459`; `arch/riscv64-opensbi/kernel/kernel_startup.c:796-814`; `tools/package/pkg:201-227`.
+
+<a id="ek793"></a>
+## EK793 — OpenSBI ELF module metadata and section copies are not bounded by the package member length
+
+The outer package parser has each member's `datalen`, but calls `krnLoadModule(data, name)` without passing that length (`arch/riscv64-opensbi/kernel/kernel_elf.c:437-454`). The ELF loader checks only the magic and machine before using the ELF header's section-table offset/count/entry size, section offsets and sizes, relocation tables, symbol indexes, and string offsets (`:56-59,221-307`). Thus a truncated or inconsistent ELF member is not confined to its declared package-member extent. The bump allocator also checks `addr + size > alloc_end` without detecting arithmetic wrap and stores that sum as the next allocation pointer (`:38-53`).
+
+**Trigger and consequence:** the boot package contains a truncated or inconsistent ELF module, such as metadata outside the member or an overflowing allocatable-section extent. The loader can consume bytes beyond the member, reject the package after partial loading, or copy/clear section data outside the intended allocation range, preventing reliable boot. **Affected configuration:** RISC-V64 OpenSBI when loading a package containing such an ELF member. **Confidence:** high for the missing member length and unchecked addition; impact requires inconsistent ELF input and was not reproduced. Pass the member extent through the ELF loader and validate table/section/relocation ranges and allocation arithmetic before use. No malformed module or boot was used; source-only.
+
+Sources: `arch/riscv64-opensbi/kernel/kernel_elf.c:38-59,221-307,415-459`.
+
+<a id="ek800"></a>
+## EK800 — OpenSBI package payloads are not aligned for the ELF64 structures the loader reads
+
+The package writer rounds the stored path field to a four-byte boundary, writes the data-length word, and then writes payload bytes without padding the payload start to the ELF64 header's eight-byte alignment (`tools/package/pkg:105-109`). The selected BSP package includes `USB/hub`; its basename `hub.class` produces a 12-byte stored path and, from an eight-byte-aligned package start, places the first payload at offset 28 (`arch/riscv64-opensbi/boot/mmakefile.src:97-120`). `krnLoadModule()` casts that payload directly to `struct elfheader *`; the ELF64 header has 64-bit fields at offset 24 and later (`arch/riscv64-opensbi/kernel/kernel_elf.c:221-240`; `compiler/include/dos/elf.h:232-248`). The next package record is also not guaranteed aligned because payload lengths are not padded.
+
+**Trigger and consequence:** the selected package is loaded at an address congruent to four modulo eight and the RISC-V execution environment does not transparently handle the resulting unaligned 64-bit accesses. ELF header or section metadata reads can trap during module loading and stop boot. **Affected configuration:** the explicit `boot-opensbi-riscv64` flow when it supplies the generated BSP package; the actual initrd base alignment and EEI handling vary. **Confidence:** high for the writer's offsets and direct ELF64 structure access; conditional on runtime alignment handling. Align each payload to the ELF structure requirement (or copy headers through aligned storage) and account for padding in the package format. No package, boot, or hardware was exercised; source-only.
+
+Sources: `tools/package/pkg:105-109`; `arch/riscv64-opensbi/boot/mmakefile.src:97-120`; `arch/riscv64-opensbi/kernel/kernel_elf.c:221-240`; `compiler/include/dos/elf.h:232-248`.
+
+<a id="ek801"></a>
+## EK801 — OpenSBI treats a valid zero ELF section alignment as allocation failure
+
+ELF defines `sh_addralign` values zero and one as imposing no alignment constraint ([ELF Generic ABI, section headers](https://gabi.xinuos.com/v42/elf/03-sheader.html)). For a nonempty `SHF_ALLOC` section with `sh_addralign == 0`, `krnBumpAlloc()` computes `addr = (alloc_ptr - 1) & ~((IPTR)0 - 1)`, yielding zero (`arch/riscv64-opensbi/kernel/kernel_elf.c:38-45`). It then returns a null pointer (or rejects the allocation), which `krnLoadModule()` treats as failure before copying or clearing the section (`:243-270`); `krnLoadPackage()` aborts the package (`:453-459`) and startup proceeds without its modules.
+
+**Trigger and consequence:** a supplied BSP ELF contains a nonempty allocatable section whose legal `sh_addralign` is zero. The package is rejected and its boot modules are unavailable. **Affected configuration:** RISC-V64 OpenSBI when such an ELF is present in the initrd. **Confidence:** high for the alignment semantics and zero-address calculation; no checked-in generated BSP ELF was inspected to establish whether the stock modules contain this value. Normalize zero alignment to one before rounding, or reject it explicitly as an unsupported input. No ELF package or boot was used; source-only.
+
+Sources: `arch/riscv64-opensbi/kernel/kernel_elf.c:38-45,243-270,453-459`; [ELF Generic ABI, section headers](https://gabi.xinuos.com/v42/elf/03-sheader.html).

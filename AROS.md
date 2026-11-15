@@ -18212,3 +18212,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD3610](AROS-other-drivers.md#od3610) — BWFM silently drops WPA/RSN scan metadata when its optional IE allocation fails [conditional]; source-only.**
 **[OD9873](AROS-other-drivers.md#od9873) — BWFM publishes up to eight scan results without their WPA/RSN information elements [conditional]; source-only.**
 **[OD9796](AROS-other-drivers.md#od9796) — PCI USB real-time isochronous start can report success without scheduling a transfer [conditional]; source-only.**
+
+**[EK792](AROS-exec-kernel.md#ek792) — OpenSBI package record extents are not checked against the FDT initrd; a truncated or inconsistent boot package can be read past its supplied extent.**
+**[EK793](AROS-exec-kernel.md#ek793) — OpenSBI ELF tables, section copies and allocation arithmetic are not bounded by the package member extent; inconsistent ELF input can prevent reliable boot.**
+**[EK800](AROS-exec-kernel.md#ek800) — OpenSBI package payloads may misalign ELF64 structures; module loading can trap when the EEI does not handle unaligned access.**
+**[EK801](AROS-exec-kernel.md#ek801) — OpenSBI rejects a valid ELF section with zero alignment as allocation failure; conditional on a supplied module containing a nonempty allocatable zero-alignment section.**
