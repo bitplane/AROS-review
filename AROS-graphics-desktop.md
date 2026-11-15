@@ -6312,6 +6312,8 @@ The other selected multi-format tables checked here are depth-descending in Rade
 
 **Affected configuration and trigger:** hosted X11 host-library initialization; earlier host libraries load successfully, then libc loading fails (for example, a required libc symbol is unavailable). **Consequence:** rollback passes an already-closed handle to `HostLib_Close()` a second time; hostlib behavior for this stale handle is external and may range from a harmless error to invalid handle handling. **Confidence:** high for both close calls and the non-NULL global surviving between them; no host-library failure was induced. Source-only.
 
+<a id="gd5960"></a>
+
 ## GD5960 — X11 callers leak unused VidMode mode lists [conditional]
 
 The X.Org VidMode API returns the mode array from `XF86VidModeGetAllModeLines()` as dynamically allocated caller-owned data that must be released with `XFree()` (see the [XF86VidMode manual](https://www.x.org/docs/man/man.pdf)); the X11 HIDD already loads `XFree` (`arch/all-hosted/hidd/x11/x11_hostlib.c:81`; function pointer at `x11_hostlib.h:64`). Two selected callers leave returned arrays allocated after they stop using them.
