@@ -18343,3 +18343,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11676](AROS-other-drivers.md#od11676)** — Nouveau marks MST enabled before setup succeeds; after a failed attempt, a later detect retry returns success without reinitializing the topology. Conditional on a failed first enable followed by retry; source-only.
 **[OD11677](AROS-other-drivers.md#od11677)** — MST topology dump indentation writes beyond its ten-byte stack buffer for branch LCT values of 10 or more. Conditional on a caller requesting a dump of a sufficiently deep topology; source-only.
+**[OD11678](AROS-other-drivers.md#od11678)** — Nouveau pushbuf retry exhaustion skips cleanup for the slow-path-reserved buffer: it can leave the BO reserved, its GEM reference retained, and its list node linked to a stack list head. Requires repeated reservation deadlocks through the 100,000-retry cap; optional Nouveau target, source-only.
