@@ -2,6 +2,8 @@
 
 ## Exec/Kernel findings reconciled into the index (2026-11-02)
 
+**[EK602](AROS-exec-kernel.md#ek602) — POSIXC can leak an open script handle if shebang argument construction fails during allocation. Requires a script and allocation failure; repeated failures in a long-lived process can retain DOS handles. Source-only.**
+
 **[EK10963](AROS-exec-kernel.md#ek10963) — PC x86-64 ExecSMP `Wait()` holds the current task lock while taking `TaskRunningSpinLock`; priority donation then calls `SetTaskPri()` on that same task, which spins trying to reacquire its already-held lock. Requires a higher-priority waiter and lower-priority task-context list-lock owner. The waiter remains marked `TS_WAIT` on `TaskRunning`. No contention was run; source-only.**
 
 **[EK30](AROS-exec-kernel.md#ek30) — MungWall overhead addition can make `AllocMem()`, `AllocAbs()`, or plain-pool `AllocPooled()` reserve only a byte before writing wall metadata using the original near-maximum size. Conditional on MungWall, the corresponding large request, and successful small allocation; `AllocPooled()` additionally requires a non-managed pool. Source-only.**
