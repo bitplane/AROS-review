@@ -18105,3 +18105,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15162](AROS-graphics-desktop.md#gd15162) — VMM runtime config reload deletes the current task paging policies before parsing the replacement; a read error leaves an empty or partial policy set while the manager continues. Conditional on a failed notified config reload; startup reachability remains uncertain. Source-only.**
 
 **[GD15163](AROS-graphics-desktop.md#gd15163) — Disposing a buffered Wanderer IconList leaves its private layer, RastPort, bitmap and `Layer_Info` allocated. Conditional on buffered rendering being enabled; source-only.**
+
+
+**[OD11640](AROS-other-drivers.md#od11640) — BWFM overwrites its stored hardware MAC on `S2_CONFIGINTERFACE` and then returns that configured address as both current and original in `S2_GETSTATIONADDRESS`. Conditional on a client setting a non-factory address; source-only.**
