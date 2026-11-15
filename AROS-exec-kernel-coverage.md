@@ -17405,3 +17405,9 @@ StdC legacy multibyte API and locale-call-chain pass (EK10678 expanded; five new
 | `compiler/crt/stdc/mbstowcs.c` | 31 | Full body read; destination limit, size query, termination and `mbtowc()` locale-length caller argument checked. |
 | `compiler/crt/stdc/mbrlen.c` | 11 | Full body read; state fallback and `mbrtowc()` delegation checked; inherits EK10678. |
 | `compiler/crt/stdc/wctomb.c` | 16 | Full body read; NULL reset and `wcrtomb()` delegation checked; inherits EK10678. |
+
+Stdcio stream-orientation full-body and selected-I/O caller pass (EK10989 added; one newly represented selected path, 24 `cloc 2.06` C code lines; 2026-11-15): read all of `fwide.c` and traced its two orientation flags against fresh FILE initialization in `fopen.c`/`__stdio.c` and the selected `fgetc()`, `fputc()`, `fgetwc()`, and `fputwc()` bodies. Those I/O routines neither establish nor enforce either orientation bit; `fgetwc()` obtains bytes through `fgetc()`. Repository-wide search within stdcio found `fwide.c` is the only implementation reading or writing these flags. Added EK10989 for I/O-before-`fwide()` leaving the stream marked unoriented and for subsequently allowing a contradictory orientation. The existing CUnit `fwide()` test checks explicit orientation changes on otherwise idle temporary streams but does not exercise byte or wide I/O first; it was inspected, not run. This adds one selected path and 24 C lines to the represented Exec/Kernel checkpoint of **2,079/2,079 paths (100%)** and **313,631/373,898 C/header code lines (83.9%)**. The four I/O bodies were already fully credited; no other path or LOC changes. No stream operation or build was run; source-only.
+
+| Selected C source | `cloc 2.06` C code lines | Review status and remaining scope |
+|---|---:|---|
+| `compiler/crt/stdc/fwide.c` | 24 | Full body read; orientation-bit state checked against stream initialization and selected byte/wide I/O methods; EK10989. |
