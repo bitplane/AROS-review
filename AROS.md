@@ -18263,3 +18263,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 
 **[GD15181](AROS-graphics-desktop.md#gd15181) — Icon autoscaling can pass factors above `ScalerDiv()`'s documented range; the signed remainder multiplication overflows for large icons and yields an unreliable output dimension. Conditional on large dimensions plus TPD autoscaling metadata; source-only.**
+
+**[GD15182](AROS-graphics-desktop.md#gd15182) — Finite icon scale-box fitting multiplies source height by maximum width without overflow checking; a large tall icon can wrap the intermediate and be laid out at a badly distorted size. Conditional on large PNG dimensions and configured scale box; source-only.**
