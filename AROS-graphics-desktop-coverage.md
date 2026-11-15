@@ -22154,7 +22154,7 @@ The optional RexxSupport target ledger advances to 24/25 selected source paths r
 |---|---:|---|
 | workbench/libs/rexxsupport/closeportrsrc.c | 13 | Full body read; Rexx resource callback vector and PortNode layout traced through the selected closeport registration path and portcleanup(). The callback's cast matches the first-member RexxRsrc layout; cleanup owns the node, message port, pending replies and allocations. No independent callback defect established. |
 
-All 25 source paths selected by workbench/libs/rexxsupport/mmakefile.src (22 FILES entries, rexxsupport_init.c, and two FUNCS implementations) now have recorded body passes. This closes only the optional RexxSupport selected-source body list; external Rexx clients and broader Graphics/Desktop, Exec/Kernel and Other Drivers caller/configuration scope remain open. This final body adds 13 reviewed C code lines. No resource callback, port operation or build was run.
+All 25 source paths selected by workbench/libs/rexxsupport/mmakefile.src (22 FILES entries, rexxsupport_init.c, and two FUNCS implementations) now have recorded body passes: 25/25 selected C paths and 1,187/1,187 cloc 2.06 C code lines. This closes only the optional RexxSupport selected-source body list; external Rexx clients and broader Graphics/Desktop, Exec/Kernel and Other Drivers caller/configuration scope remain open. This final body adds 13 reviewed C code lines. No resource callback, port operation or build was run.
 
 
 ### RexxSupport FORBID/PERMIT concurrency follow-up
