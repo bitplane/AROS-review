@@ -8592,6 +8592,13 @@ Three `AllocPooled()` results in `__exec.c` are used without checking for alloca
 
 **Trigger and consequence:** `execvp()`/`execlp()` can fail while copying PATH, ordinary `exec*()` preparation can fail while allocating the initial argument buffer, or script execution can fail while copying the interpreter name. The code then writes through NULL instead of returning `-1` with `ENOMEM`. **Affected configuration:** selected POSIXC exec implementation; requires the corresponding pooled allocation to fail. **Confidence:** high for all three unchecked results and immediate dereferences; no allocation failure or exec was induced. Check each allocation and use the existing cleanup path before writing. Source-only; see the [exec preparation review](AROS-exec-kernel-coverage.md#posixc-exec-wrapper-and-path-conversion-review-ek601-ek10664).
 
+<a id="ek602"></a>
+### EK602 — POSIXC script argument construction leaks an open script handle on allocation failure [low impact, high source confidence]
+
+`__exec_prepare_regular()` opens the candidate file at `compiler/crt/posixc/__exec.c:290` and keeps `fh` open while it reads and parses a `#!` line (`:292-342`). If appending the interpreter arguments or script name fails, the code jumps to `error` at `:331-335`; the matching `Close(fh)` at `:345` is bypassed. `__exec_cleanup()` frees the pool and segment but has no access to this local handle (`:608-627`). `appendargs()` can fail when `escape()` cannot allocate its temporary string or when `appendarg()` cannot grow the pooled command-line buffer (`:755-775,731-753`).
+
+**Trigger and consequence:** execute a script with a shebang whose interpreter arguments or script path require argument-buffer growth (or contain whitespace requiring the temporary escape allocation), then allocation fails during `appendargs()`. `exec*()` returns with the script's DOS file handle still open. Repeated failures in a long-lived process can retain handles and eventually prevent other file opens. **Affected configuration:** selected POSIXC regular exec path for shebang scripts; requires the relevant allocation failure. **Confidence:** high for the open handle, failure branch, and bypassed close; no allocation failure or script execution was induced. Close `fh` before every post-open error exit, or centralize it in cleanup. Source-only.
+
 <a id="ek10664"></a>
 ### EK10664 — POSIXC exec paths pass failed Unix-to-Amiga conversions to DOS [medium impact, high source confidence]
 
