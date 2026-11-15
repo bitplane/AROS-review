@@ -22128,3 +22128,12 @@ The optional RexxSupport target ledger advances to 21/25 selected source paths r
 | workbench/libs/rexxsupport/offset.c | 25 | Full body read; decimal parser/end-pointer checks, native pointer Argstring length check, pointer addition and output Argstring traced. GD15201 records unchecked strtol() range overflow accepted as a saturated displacement. The command is selected by workbench/libs/rexxsupport/mmakefile.src:6-21 and exposed by arexxdispatch.c:41. |
 
 The optional RexxSupport target ledger advances to 22/25 selected source paths reviewed. Three remain: baddr.c, forbid.c, and closeportrsrc.c. This pass adds 25 reviewed C code lines. No pointer operation or Rexx command was run.
+
+
+### RexxSupport BADDR helper pass
+
+| File | cloc 2.06 code lines | Review status and findings |
+|---|---:|---|
+| workbench/libs/rexxsupport/baddr.c | 20 | Full body read; pointer-sized Argstring validation, BPTR extraction and implementation-independent BADDR conversion traced against compiler/include/dos/bptr.h. No conversion or bounds defect established. GD15197 now also records the unchecked output Argstring allocation shared by BADDR, OFFSET and DELAY. |
+
+The optional RexxSupport target ledger advances to 23/25 selected source paths reviewed. Two remain: forbid.c and closeportrsrc.c. This pass adds 20 reviewed C code lines. No BADDR command or pointer conversion was run.
