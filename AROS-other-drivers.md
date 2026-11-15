@@ -38817,6 +38817,15 @@ Sources: module recipe in `workbench/devs/networks/emac/mmakefile.src:7-12`; Sam
 
 Sources: unit-number scan, record initialization and delayed list insertion in `rom/usb/classes/audio/usbaudio.class.c:278-321`; AHI ID derived from unit number at `:1056`; mode registration at `:1928-1987` and removal at `:2092`; AHI same-ID replacement in `workbench/devs/AHI/Device/database.c:358-375`; Poseidon binding dispatch in `rom/usb/poseidon/poseidon.library.c:6350-6390`; concurrent downstream hub scans in `rom/usb/classes/hub/hub.class.c:435-441,493-522`; local-only `Forbid()` semantics on ExecSMP in `rom/exec/forbid.c`. No device binding, AHI operation, schedule, or build was exercised; source-only review.
 
+<a id="od3235"></a>
+## OD3235 — USB hub binding list is not synchronized across ExecSMP CPUs [optional USB hub class]
+
+The hub class keeps all live `NepClassHub` records in the class-wide `nh_Bindings` list. Binding startup appends a record under `Forbid()`, release removes it under `Forbid()` and then frees it, and `UCM_HubPowerCyclePort`/`UCM_HubDisablePort` traverse the same list and update the matching record under `Forbid()` (`rom/usb/classes/hub/hub.class.c:122-128,141-175,282-318`). Exec documents that `Forbid()` on ExecSMP excludes task switches only on the calling processor; it does not serialize these list operations against another CPU (`rom/exec/forbid.c:47-60`). `AddTail()` and `Remove()` each update multiple linked-list pointers (`rom/exec/addtail.c:53-68`; `rom/exec/remove.c:47-64`).
+
+The race has maintained entry paths. Each hub worker calls `psdHubClassScan()` for its downstream devices during initial discovery and reconnect/rescan (`hub.class.c:428-442,493-522`); Poseidon scans under a shared PBase read lock and locks only the individual device (`rom/usb/poseidon/poseidon.library.c:6271-6301,6350-6390`). Distinct workers can therefore bind separate hubs concurrently and append to the same class list on separate CPUs. Separately, the maintained PoPo event/UI paths request power-cycle or port-disable operations (`rom/usb/poseidon/popo.gui.c:895-901,1538`), causing the class to traverse records while a release on another CPU can unlink and free one.
+
+**Trigger and consequence:** on ExecSMP, two hub workers bind distinct hub devices concurrently, or a PoPo port-control request overlaps binding release. Concurrent list mutations can lose links or corrupt traversal; lookup racing removal can continue through a freed `NepClassHub` record. **Scope:** the explicitly buildable `kernel-usb-classes-hub` module when loaded by Poseidon on ExecSMP; no default-image inclusion is inferred. **Confidence:** high for the unsynchronized multi-pointer updates and the selected concurrent worker topology; exact corruption depends on the interleaving. Protect the entire class-list traversal/mutation and record lifetime with a cross-CPU lock or another shared synchronization mechanism. No hub binding, GUI request, release, SMP schedule, or build was exercised; source-only review.
+
 <a id="od3237"></a>
 ## OD3237 — AHCI disk SCSI translator reads beyond short CDBs [optional QuickPart caller]
 
