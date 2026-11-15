@@ -18301,3 +18301,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15199](AROS-graphics-desktop.md#gd15199) — RexxSupport MAKEDIR can create a directory, then return success without its result when Argstring allocation fails. Conditional on memory pressure; optional explicit target; source-only.**
 
 **[GD15200](AROS-graphics-desktop.md#gd15200) — RexxSupport RENAME can complete a rename, then report success without its result when Argstring allocation fails. Conditional on memory pressure; optional explicit target; source-only.**
+
+**[GD15201](AROS-graphics-desktop.md#gd15201) — RexxSupport OFFSET accepts overflowing strtol() input as a saturated pointer displacement. Conditional on oversized offsets; optional explicit target; source-only.**

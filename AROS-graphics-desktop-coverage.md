@@ -22119,3 +22119,12 @@ The optional RexxSupport target ledger advances to 20/25 selected source paths r
 | workbench/libs/rexxsupport/rename.c | 18 | Full body read; DOS Rename() result, output Argstring construction and query status/result forwarding traced. GD15200 records the unchecked result allocation after the rename operation. The command is selected by workbench/libs/rexxsupport/mmakefile.src:6-21 and exposed by arexxdispatch.c:44. |
 
 The optional RexxSupport target ledger advances to 21/25 selected source paths reviewed. Four remain: offset.c, baddr.c, forbid.c, and closeportrsrc.c. This pass adds 18 reviewed C code lines. No rename or memory failure was induced.
+
+
+### RexxSupport OFFSET helper pass
+
+| File | cloc 2.06 code lines | Review status and findings |
+|---|---:|---|
+| workbench/libs/rexxsupport/offset.c | 25 | Full body read; decimal parser/end-pointer checks, native pointer Argstring length check, pointer addition and output Argstring traced. GD15201 records unchecked strtol() range overflow accepted as a saturated displacement. The command is selected by workbench/libs/rexxsupport/mmakefile.src:6-21 and exposed by arexxdispatch.c:41. |
+
+The optional RexxSupport target ledger advances to 22/25 selected source paths reviewed. Three remain: baddr.c, forbid.c, and closeportrsrc.c. This pass adds 25 reviewed C code lines. No pointer operation or Rexx command was run.
