@@ -18297,3 +18297,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15197](AROS-graphics-desktop.md#gd15197) — RexxSupport `NULL` returns success without a result when its pointer Argstring allocation fails. Conditional on memory pressure; optional explicit target; source-only.**
 
 **[GD15198](AROS-graphics-desktop.md#gd15198) — RexxSupport `DELETE` can remove a file, then report success without its result if Argstring allocation fails. Conditional on memory pressure; optional explicit target; source-only.**
+
+**[GD15199](AROS-graphics-desktop.md#gd15199) — RexxSupport MAKEDIR can create a directory, then return success without its result when Argstring allocation fails. Conditional on memory pressure; optional explicit target; source-only.**

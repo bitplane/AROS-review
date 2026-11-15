@@ -22101,3 +22101,12 @@ Crediting this selected path adds 16 C code lines to the preceding checkpoint of
 | `workbench/libs/rexxsupport/delete.c` | 18 | Full body read; `DeleteFile()` side-effect/result contract, result Argstring allocation and query reply status traced. GD15198 records that successful deletion can be followed by an unchecked result-allocation failure while the helper still returns `RC_OK`. The command is selected by `workbench/libs/rexxsupport/mmakefile.src:6-21` and exposed by `arexxdispatch.c:33`. |
 
 The optional RexxSupport target review is being tracked as an explicit source list supplement because it was added after the historical aggregate path checkpoint. Of its 25 selected C source paths (the `FILES` entries, `rexxsupport_init.c`, and the two `FUNCS` implementations), 19 bodies have now been read and recorded; six remain: `offset.c`, `baddr.c`, `makedir.c`, `rename.c`, `forbid.c`, and the `closeportrsrc` implementation. `delete.c` adds 18 reviewed C code lines to the source-only total. No DELETE command or memory failure was induced.
+
+
+### RexxSupport MAKEDIR helper pass
+
+| File | cloc 2.06 code lines | Review status and findings |
+|---|---:|---|
+| workbench/libs/rexxsupport/makedir.c | 24 | Full body read; CreateDir() lock/result contract, lock release and both result-Argstring failure paths traced. GD15199 records the unchecked result allocation after a successful directory creation. The command is selected by workbench/libs/rexxsupport/mmakefile.src:6-21 and exposed by arexxdispatch.c:38. |
+
+The optional RexxSupport target ledger advances to 20/25 selected source paths reviewed. Five remain: offset.c, baddr.c, rename.c, forbid.c, and closeportrsrc.c. This pass adds 24 reviewed C code lines. No directory creation or memory failure was induced.
