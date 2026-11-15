@@ -17475,7 +17475,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **[GD15069](AROS-graphics-desktop.md#gd15069) — Disabling generic GFX fast paths exposes a `DRAWPIXEL` fallback that dispatches to `PutPixel` and a `GETIMAGE` fallback with the wrong argument count. Conditional on disabling those currently hard-enabled optimizations; source-only.**
 
-**[GD15070](AROS-graphics-desktop.md#gd15070) — A variable sync mode with zero PixelClock can pass construction via the fallback timing, then divide by zero when its `do_monitor` callback recalculates HTotal. Conditional on an external or separately built client constructing and updating that mode; MonEd is excluded from the active Workbench graph. Source-only.**
+**[GD15070](AROS-graphics-desktop.md#gd15070) — A variable sync mode can pass construction with zero PixelClock or zero derived `total_colorclocks`, then divide by that field in `do_monitor`. Conditional on an external or separately built client constructing and updating the mode; MonEd is excluded from the active Workbench graph. Source-only.**
 
 **[GD15071](AROS-graphics-desktop.md#gd15071) — Generic DMEnum ModeIDs alias when a provider supplies over 256 syncs or pixel formats, so later IDs resolve to earlier modes. X11 and optional Nouveau pass dynamically sourced mode lists without a source-level 256-entry cap; actual >256-mode reachability remains unverified. Source-only.**
 
