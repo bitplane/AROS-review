@@ -18111,3 +18111,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 
 **[OD11640](AROS-other-drivers.md#od11640) — BWFM overwrites its stored hardware MAC on `S2_CONFIGINTERFACE` and then returns that configured address as both current and original in `S2_GETSTATIONADDRESS`. Conditional on a client setting a non-factory address; source-only.**
+**[GD15165](AROS-graphics-desktop.md#gd15165-vulkan-hpp-raii-dispatcher-allocation-can-leak-new-native-handles) — If Vulkan successfully creates an instance or device but RAII dispatcher allocation then throws, wrapper construction fails before its destructor can release the native handle. Conditional on allocation failure in exception-enabled downstream Vulkan-Hpp RAII clients; source-only.**
