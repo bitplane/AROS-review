@@ -22092,3 +22092,12 @@ Crediting this selected path adds 34 C code lines to the preceding checkpoint of
 | `workbench/libs/rexxsupport/null.c` | 16 | Full body read; pointer-byte encoding, `CreateArgstring()` failure contract and `ReturnRexxQuery()` status/result forwarding traced. GD15197 records the success status returned with a NULL result after Argstring allocation failure. The command is selected by `workbench/libs/rexxsupport/mmakefile.src:6-21` and exposed by `arexxdispatch.c:43`. |
 
 Crediting this selected path adds 16 C code lines to the preceding checkpoint of 1,306/1,307 paths and 464,058/585,714 C/header code lines, yielding **1,307/1,307 paths (100.0%)** and **464,074/585,714 C/header code lines (79.2%)**. This only closes the current selected-path count; remaining large-file body and broader subsystem/caller review are still open. No allocation failure or Rexx command was run.
+
+
+### RexxSupport DELETE helper pass
+
+| File | `cloc 2.06` code lines | Review status and findings |
+|---|---:|---|
+| `workbench/libs/rexxsupport/delete.c` | 18 | Full body read; `DeleteFile()` side-effect/result contract, result Argstring allocation and query reply status traced. GD15198 records that successful deletion can be followed by an unchecked result-allocation failure while the helper still returns `RC_OK`. The command is selected by `workbench/libs/rexxsupport/mmakefile.src:6-21` and exposed by `arexxdispatch.c:33`. |
+
+The optional RexxSupport target review is being tracked as an explicit source list supplement because it was added after the historical aggregate path checkpoint. Of its 25 selected C source paths (the `FILES` entries, `rexxsupport_init.c`, and the two `FUNCS` implementations), 19 bodies have now been read and recorded; six remain: `offset.c`, `baddr.c`, `makedir.c`, `rename.c`, `forbid.c`, and the `closeportrsrc` implementation. `delete.c` adds 18 reviewed C code lines to the source-only total. No DELETE command or memory failure was induced.
