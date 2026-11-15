@@ -18324,3 +18324,9 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11667](AROS-other-drivers.md#od11667)** — NVMe advertises CMD_UPDATE but returns success without issuing Flush; configured AFS/SFS/NTFS use can leave writes in an enabled volatile cache. Conditional on NVMe configuration and controller cache state. Source-only.
 
 **[GD15205](AROS-graphics-desktop.md#gd15205)** — RexxSupport can delete a port while another query is blocked in WAITPKT, leaving a hung waiter or a freed-port access. Conditional on overlapping independent Rexx query calls; optional target; source-only.
+
+**[OD11668](AROS-other-drivers.md#od11668)** — Serial mouse HIDD detects IntelliMouse and other protocol types but decodes all input as three-byte Microsoft packets; non-Microsoft mice can report incorrect or lost movement/buttons. Legacy i386-PC/x86-64-PC package; source-only.
+
+**[OD11669](AROS-other-drivers.md#od11669)** — Serial mouse PnP fallback reads an uninitialized response byte after an unrecognized partial/noisy response. Legacy i386-PC/x86-64-PC package; source-only.
+
+**[OD11670](AROS-other-drivers.md#od11670)** — Serial mouse resynchronization can loop forever when a three-byte input group contains no Microsoft packet header. Legacy serialmouse HIDD; source-only.
