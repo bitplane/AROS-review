@@ -552,7 +552,7 @@ P96Gfx bitmap palette-failure cleanup recheck (GD5995 detailed, 2026-10-25): tra
 
 **[GD15175](AROS-graphics-desktop.md#gd15175) — `AllocSpriteDataA()` rejects a documented `SPRITEA_OutputHeight` larger than the source bitmap. Only direct API callers are implicated; the intended contract should be confirmed. Source-only.**
 
-**[GD15176](AROS-graphics-desktop.md#gd15176) — `AllocSpriteDataA()` can scale beyond its allocated sprite width when a source row exceeds the requested width; the generic ChunkyBM path can write past the buffer. Direct API caller and generic-target conditions apply. Source-only.**
+**[GD15176](AROS-graphics-desktop.md#gd15176) — `AllocSpriteDataA()` can scale wider than its allocated sprite when source width or X replication exceeds `SPRITEA_Width`; generic ChunkyBM can write past the row buffer. Direct API caller and target conditions apply. Source-only.**
 
 # Graphics and Desktop coverage ledger
 
