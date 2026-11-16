@@ -39015,13 +39015,15 @@ Sources: root-name initialization in `rom/usb/classes/ptp/ptp.class.c:4227-4239`
 Sources: child fetch/skip and unconditional fetched flag in `rom/usb/classes/ptp/ptp.class.c:2755-2784`; lazy-load callers at `:2824-2827,3861-3864`. Source-only review.
 
 <a id="od4425"></a>
-## OD4425 — PTP format failure returns before committing refreshed storage records [optional USB PTP class]
+## OD4425 — PTP format can lose storage records and return with an inconsistent cache [optional USB PTP class]
 
-`nPTPFormatStore()` removes each storage record before formatting it, then collects refreshed records in a temporary `newinfos` list. If a later format command fails, its error branch returns immediately without merging or freeing the already collected replacements. The original storage records already removed are gone, while their root-object children may already have been linked during refresh; later storage entries are not processed. The caller sees a format error and the in-memory volume/storage cache is left partially updated and inconsistent.
+`nPTPFormatStore()` removes each writable storage record before formatting it, then collects refreshed records in a temporary `newinfos` list. If a later format command fails, its error branch returns immediately without merging or freeing the replacements already collected. The original storage records already removed are gone, while their replacement root-object children may already have been linked; later stores are not processed.
 
-**Trigger and consequence:** formatting spans multiple writable stores, an earlier store formats and refreshes successfully, and a later store's command/response fails. The cache loses previously removed storage entries and may retain detached replacement records/children. **Scope:** optional PTP multi-store format path. **Confidence:** high for the staged-list and early-return ownership flow; no format operation was run.
+There is also a loss path after a successful remote format. The function sets `dp_Res2 = 0`, removes and frees the old storage record and its root child, then calls `nPTPGetStorageInfo()` to rebuild them. If that refresh fails (for example, its command/response or one of its required allocations fails), `nPTPGetStorageInfo()` returns NULL; the caller skips `AddTail()` and does not change the success result. Even for a single writable store, DOS is told formatting succeeded while the storage disappears from both the cached storage list and root directory.
 
-Sources: temporary-list setup, per-store removal/refresh and early returns in `rom/usb/classes/ptp/ptp.class.c:2569-2644`; refresh links its root child at `:2254-2268`; DOS format dispatch at `:3223-3228`. Source-only review.
+**Trigger and consequence:** (1) a format spans multiple writable stores, an earlier store formats and refreshes successfully, and a later format command/response fails; or (2) a store formats successfully but its subsequent `GetStorageInfo` refresh fails. The cache can lose old storage records, strand earlier replacements in `newinfos`, or omit a formatted volume while reporting success. **Scope:** optional PTP format path. **Confidence:** high for both remove-before-refresh and staged-list return behavior; no format operation or failure was induced.
+
+Sources: storage-record/root-child removal in `nPTPFreeStorageInfo()` (`rom/usb/classes/ptp/ptp.class.c:2155-2167`); refresh failure/success returns and root-child publication in `nPTPGetStorageInfo()` (`:2170-2272`); `nPTPFormatStore()` result assignment, removal, refresh, conditional reinsertion and early exits (`:2569-2644`); DOS format dispatch (`:3223-3228`). Source-only review.
 
 <a id="od4426"></a>
 ## OD4426 — PTP rename can search with an uninitialized path and move a cached object while returning an error [optional USB PTP class]
