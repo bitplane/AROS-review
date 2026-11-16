@@ -18374,3 +18374,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15210](AROS-graphics-desktop.md#gd15210) — The Font Manager opens a Type 1 face before storing its selected AFM file, so AFM-only kerning and metrics are omitted from the preview. Source-only.**
 
 **[GD15211](AROS-graphics-desktop.md#gd15211) — A short binary `ftcodepage` setting partially overwrites the fallback character map when the Codesets fallback is unavailable. Source-only.**
+
+**[GD15212](AROS-graphics-desktop.md#gd15212) — The Font Manager preview can apply kerning across an unmapped character that it substitutes with a space. Source-only.**
