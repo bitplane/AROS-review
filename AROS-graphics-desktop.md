@@ -23899,3 +23899,31 @@ For example, with `ctf_Depth == 2` and `ctf_PlanePick == 0x02`, the count is one
 The threshold does not require a single glyph wider than 65,535 pixels: it is the sum across the available character maps. For example, a 31-pixel font with roughly 257 glyphs averaging just over 2,040 pixels wide crosses the modulo boundary; its full-width cleared character-data allocation is about 2 MiB. The actual trigger depends on a font whose scaled outlines produce that aggregate width and on the FreeType-backed diskfont path accepting it; no maintained font or caller establishing such a width was found. This is independent of GD15208, which concerns vertical glyph dimensions narrowing inside each `GlyphMap`.
 
 **Trigger and consequence:** open a FreeType-backed outline font whose available glyph-map widths round to at least 524,288 pixels in aggregate. `tf_Modulo` wraps from 65,536 bytes to zero (or another incorrect stride), and the glyph-copy loop and later text rendering use that wrong row pitch, producing corrupted or missing glyph rows. **Affected configuration:** the optional FreeType2 engine used by the explicitly buildable standalone diskfont.library module; practical font availability is unverified. **Confidence:** high for the UWORD truncation and mismatched allocated/copied row stride; medium for occurrence because no installed font meeting the aggregate-width trigger was found. Reject aggregate widths that cannot be represented by `tf_Modulo` before allocation, or store/use a representable stride. No font was opened, allocated, rendered, or built; source-only.
+
+
+<a id="gd15219"></a>
+### GD15219 — MUI class initialization callbacks are invoked without their documented base argument [conditional callback ABI mismatch]
+
+The shared MCC/MCP startup template documents both `PreClassInit(struct Library *base)` and `PostClassExpunge(struct Library *base)` (`workbench/classes/zune/texteditor/include/mccinit.c:148-155`), but calls them as `PreClassInit()` and `PostClassExpunge()` without passing the library base (`:738-740,851-855`). A custom class implementing either callback to the documented signature either fails compilation when a prior prototype is visible or receives no valid base argument under a permissive calling convention.
+
+**Trigger and consequence:** a class enables `PRECLASSINIT` or `POSTCLASSEXPUNGE` and implements the documented callback signature. The startup template does not supply the required base, preventing a correct callback call or making the callback operate without its expected library state. **Affected configuration:** custom MCC/MCP builds using the shared TextEditor, NList or BetterString startup template and one of these optional callback macros. No checked-in library defines either macro. **Confidence:** high for the documented-signature/call-arity mismatch; no current in-tree consumer or runtime effect is established. Pass `&base->lh_Library` as documented or correct the callback contract. No build was run; source-only.
+
+Sources: `workbench/classes/zune/texteditor/include/mccinit.c:148-155,738-740,851-855`; byte-identical NList copy and reviewed BetterString variant.
+
+<a id="gd15220"></a>
+### GD15220 — Enabling `CLASSCLOSE` makes the shared MUI startup template fail to compile [conditional build failure]
+
+In the optional `CLASSCLOSE` branch of `LibClose()`, the template assigns `success = callMccFunction(mccLibClose, base)` but declares no `success` variable in that function (`workbench/classes/zune/texteditor/include/mccinit.c:1203-1215`). The only `success` declaration found in the template is local to `LibOpen()` and cannot be referenced here. A class enabling the documented `CLASSCLOSE` callback therefore fails compilation with an undeclared identifier.
+
+**Trigger and consequence:** define `CLASSCLOSE` for a custom MCC/MCP using one of the shared templates; compilation fails in `LibClose()`. **Affected configuration:** optional custom MUI class builds. A checkout-wide search found no current `CLASSCLOSE` definition, so no existing AROS target is claimed broken. **Confidence:** high for the preprocessor branch and missing local declaration; no build was run. Declare and use a local result, or directly invoke the callback wrapper. Source-only.
+
+Sources: `workbench/classes/zune/texteditor/include/mccinit.c:1203-1215`; byte-identical NList copy and reviewed BetterString variant.
+
+<a id="gd15221"></a>
+### GD15221 — A failed MUI `ClassOpen()` loses a pending delayed-expunge request [conditional library leak]
+
+`LibExpunge()` sets `LIBF_DELEXP` when `lib_OpenCnt` is nonzero (`workbench/classes/zune/texteditor/include/mccinit.c:1080-1090`). A later `LibOpen()` increments the count and immediately clears that flag before invoking the optional `ClassOpen()` callback (`:1134-1138`). If the callback fails, the code decrements the count and returns NULL (`:1154-1162`) but does not restore `LIBF_DELEXP` or expunge when the count returns to zero. The final close consequently sees no pending request and leaves the library resident.
+
+**Trigger and consequence:** with one existing open, request expunge, then attempt another open while `LIBF_DELEXP` is set; the optional `ClassOpen()` callback fails, then the existing client closes. The failed open clears the pending expunge, and the last close does not delete the library, retaining its base and initialized resources. **Affected configuration:** custom MCC/MCP builds that define `CLASSOPEN`; no checked-in definition was found. **Confidence:** high for flag/count transitions in the template; no in-tree callback trigger or runtime sequence was established. Preserve the delayed-expunge state when the callback fails, and perform the pending expunge when the final open closes. No library lifecycle was exercised; source-only.
+
+Sources: `workbench/classes/zune/texteditor/include/mccinit.c:1080-1090,1134-1162,1218-1230`; byte-identical NList copy and reviewed BetterString variant.
