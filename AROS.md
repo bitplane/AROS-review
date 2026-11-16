@@ -3,6 +3,7 @@
 ## Exec/Kernel findings reconciled into the index (2026-11-02)
 
 **[EK11005](AROS-exec-kernel.md#ek11005) — On PC, a reset callback below priority -100 can hang the shutdown chain after the timer callback replaces the normal timer IRQ handler. The later callback’s 10-second timeout request is never serviced. Requires an external or future callback with priority below -100 that does not return; no in-tree trigger was found. Source-only.**
+**[EK11006](AROS-exec-kernel.md#ek11006) — i386 task switching leaves x87 state unsaved when CPUID reports FXSR without SSE/SSE2.** Conditional on that feature combination and x87-using tasks; stale or cross-task floating-point results can follow a context switch. Hardware reachability remains unverified. See the [FXSR-only context trace](AROS-exec-kernel-coverage.md#i386-fxsr-only-x87-context-gap-ek11006). Source-only; no CPU or build was used.
 
 **[EK602](AROS-exec-kernel.md#ek602) — POSIXC can leak an open script handle if shebang argument construction fails during allocation. Requires a script and allocation failure; repeated failures in a long-lived process can retain DOS handles. Source-only.**
 
