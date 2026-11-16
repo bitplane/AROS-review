@@ -17014,7 +17014,7 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[OD2704](AROS-other-drivers.md#od2704) — VirtIO reports the requested length after a short successful read.** It ignores the used length and marks all requested bytes valid; conditional on a successful short completion. Selected modern VirtIO block builds; source-only.
 
-**[OD2805](AROS-other-drivers.md#od2805) — VirtIO misuses some negotiated block-size values.** Certain values make capacity division disagree with the exported power-of-two block size; values below 512 also allow protocol-invalid sub-512-byte reads/writes. Conditional on the device configuration; selected VirtIO block builds; source-only.
+**[OD2805](AROS-other-drivers.md#od2805) — VirtIO misuses negotiated `blk_size` hints as protocol block units.** Some values misstate capacity or allow sub-512-byte requests; values 1–3 also cause an undefined shift while constructing DOS `DE_SIZEBLOCK`. Conditional on the device configuration; selected VirtIO block builds; source-only.
 
 **[OD2842](AROS-other-drivers.md#od2842) — VirtIO reset polling reports success after its unsigned countdown wraps.** A nonzero device status at the polling limit wraps the counter and is accepted as reset success; conditional on a slow/stuck reset. Selected VirtIO block builds; source-only.
 
