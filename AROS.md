@@ -18370,3 +18370,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15208](AROS-graphics-desktop.md#gd15208) — FreeType accepts glyph dimensions that overflow diskfont’s 16-bit glyph metrics, causing large glyphs to be cropped from the wrong rows; conditional on custom font metrics and a tall glyph. Source-only.**
 
 **[GD15209](AROS-graphics-desktop.md#gd15209) — Positive FreeType kerning makes the Font Manager preview treat a signed adjustment as unsigned and retain its previous image; conditional on a positive kern pair in the preview string. Source-only.**
+
+**[GD15210](AROS-graphics-desktop.md#gd15210) — The Font Manager opens a Type 1 face before storing its selected AFM file, so AFM-only kerning and metrics are omitted from the preview. Source-only.**
