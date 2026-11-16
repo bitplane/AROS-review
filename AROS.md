@@ -14203,6 +14203,8 @@ These existing coverage-ledger candidates now have detailed finding entries; thi
 
 **[OD10031](AROS-other-drivers.md#od10031-nouveau-nvif-edid-error-skips-pm-release-and-preserves-old-edid) — A failed NVIF EDID read on a connector without an I²C adapter returns before releasing the runtime-PM usage reference or replacing a previously published EDID. The stale-EDID effect requires an earlier successful read. Source-only.**
 
+**[OD10036](AROS-other-drivers.md#od10036-nouveau-abi16-failed-channel-allocation-leaves-gem-handle)** — A later heap-init failure in Nouveau ABI16 channel setup leaves its notifier GEM handle in the per-file table; the maintained AROS libdrm caller discards the handle value along with the failed local request. Conditional on notifier-heap initialization failure; optional Nouveau path, source-only.**
+
 
 
 **[OD11229](AROS-other-drivers.md#od11229-nouveau-connector-continues-after-drm-connector-init-failure) — Nouveau ignores a failed `drm_connector_init()`; if initial DRM mode-object allocation fails before `connector->funcs` is set, construction continues and the later reset call dereferences the NULL function pointer. Conditional on that allocation failure in the selected Nouveau DRM path. Source-only.**
