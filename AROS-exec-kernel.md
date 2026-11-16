@@ -239,6 +239,24 @@ The target uses the shared i386 kernel overlay (`arch/i386-all/kernel/mmakefile.
 
 **Trigger and consequence:** the processor reports FPU and FXSR support but reports neither SSE nor SSE2, and two or more tasks use x87 across a task switch. Their floating-point calculations can use stale or cross-task state. **Affected configuration:** i386 targets selecting `arch/i386-all/kernel/cpu_init.c`, including i386-PC; actual processor models with this exact feature combination are not established by this source-only pass. **Confidence:** high for the zero-flag/no-save path under the stated feature bits; medium for hardware reachability and observed symptoms, which require a CPU with that feature combination and x87-using tasks. Initialize an x87 context whenever the FPU feature is present, including an FXSR-without-SSE fallback, and preserve it through the selected switch path. No CPU, task switch, floating-point operation or build was exercised; source-only.
 
+<a id="ek11007"></a>
+### EK11007 — PReP target depends on an undefined `kernel-ppc` target [conditional build failure]
+
+The `prep` configure branch sets `AROS_TARGET_ARCH=prep` and `AROS_TARGET_CPU=ppc` (`configure.in:1690-1694`). The default `AROS` target includes `kernel-$(ARCH)-$(CPU)` (`config/mmakefile.src:12`), which resolves to `kernel-prep-ppc`. The PReP architecture manifest defines that virtual target with prerequisites `kernel-bootstrap-prep-ppc`, `kernel-resource-prep-ppc`, `kernel-ppc`, and `kernel-link-prep-ppc` (`arch/ppc-all/mmakefile.src:14-18`). A checkout-wide target-definition search finds no active `kernel-ppc` rule; the only local candidate is double-commented as `## #MM- kernel-ppc` (`:20-21`). The maintained generic kernel architecture build instead names its object target `kernel-kernel-ppc` (`rom/kernel/mmakefile.src:59-77`; `arch/ppc-all/kernel/mmakefile.src:26-28`), which does not satisfy the stale `kernel-ppc` prerequisite.
+
+**Trigger and consequence:** configure with the supported `prep` target and request the normal `AROS` build. MetaMake reaches `kernel-prep-ppc`, and make cannot resolve its `kernel-ppc` prerequisite, so the configured PReP image target cannot complete. **Affected configuration:** the legacy PReP PowerPC target (`ARCH=prep`, `CPU=ppc`). **Confidence:** high for the configured dependency chain and absence of an active prerequisite rule; no build was run, and the source itself labels the legacy conversion untested. Restore the intended prerequisite target or remove/replace the stale dependency. Source-only.
+
+Sources: `configure.in:1690-1694`; `config/mmakefile.src:12-13`; `arch/ppc-all/mmakefile.src:14-21`; `rom/kernel/mmakefile.src:59-77`; `arch/ppc-all/kernel/mmakefile.src:26-28`.
+
+<a id="ek11008"></a>
+### EK11008 — PReP kernel resident treats failed allocation as a non-NULL base [conditional early-boot fault]
+
+The legacy PReP `Kernel_init()` allocates space for the resident's negative vectors and base, then adds `neg` before testing the resulting pointer (`arch/ppc-all/prep/kernel/kernel_init.c:65-78`). If `AllocMem()` returns NULL, integer addition converts that NULL result to the nonzero address `neg`; the following `if (KernelBase)` succeeds and the initializer writes base fields, installs the function table, and calls `AddResource()` through that invalid pointer. The selected PReP resource manifest includes this initializer (`arch/ppc-all/prep/kernel/mmakefile.src:10-13`); its current top-level build path is separately blocked by EK11007.
+
+**Trigger and consequence:** if the PReP kernel resource is initialized and its `AllocMem(neg + sizeof(struct KernelBase), MEMF_CLEAR | MEMF_PUBLIC)` request fails, the initializer dereferences the small non-NULL offset instead of returning NULL. Depending on the early memory map, this faults during boot or writes resource state to the wrong low address. **Affected configuration:** the legacy PReP PowerPC kernel resource, if its build/link path is restored or invoked independently. **Confidence:** high for NULL-plus-positive-offset and subsequent dereferences; the exact fault versus low-memory corruption depends on the platform map, and reachability is conditional on target integration and allocation failure. Check the raw allocation result before adding `neg`. No allocation failure, build or boot was run; source-only.
+
+Sources: `arch/ppc-all/prep/kernel/kernel_init.c:65-78`; `arch/ppc-all/prep/kernel/mmakefile.src:10-13`; `rom/exec/allocmem.c:42-76`.
+
 <a id="ek822"></a>
 ### EK822 — PC AP bootstrap leaks ETask affinity state during secondary-core setup [conditional allocation-failure leak; high source confidence]
 
