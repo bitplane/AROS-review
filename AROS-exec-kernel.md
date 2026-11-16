@@ -230,6 +230,15 @@ The built-in PC reboot handlers have priorities `-110` and `-128`, so the timer 
 
 Sources: `rom/exec/doresetcallbacks.c:20-23,69-96,147-168`; `rom/exec/enqueue.c:68-107`; `arch/all-pc/timer/timer_init.c:34-99,177-182`; `arch/all-pc/exec/platform_init.c:435-468`; `rom/timer/lowlevel.c:187-224`; `arch/all-pc/timer/beginio.c:23-40`; `arch/all-pc/timer/ticks.c:127-183`.
 
+<a id="ek11006"></a>
+### EK11006 — i386 kernel omits x87 task-state switching when FXSR is reported without SSE [conditional]
+
+`cpu_Init()` enters the `CPUID.1 EDX.FXSR` branch, then switches only on the SSE and SSE2 bits. If FXSR is set while both SSE bits are clear, none of the switch cases assigns `kb_ContextFlags` or extends `kb_ContextSize` (`arch/i386-all/kernel/cpu_init.c:28-70`). `AllocKernelBase()` clears the base (`rom/kernel/allockernelbase.c:13-29`), so the flags remain zero. `KrnCreateContext()` then returns without allocating or initializing an FPU-state tail (`arch/i386-all/kernel/createcontext.c:29-52`); the selected i386 scheduler saves x87 state only when `kb_ContextFlags` contains `ECF_FPU` and restores state only when the task context carries `ECF_FPU` or `ECF_FPFXS` (`arch/i386-pc/kernel/kernel_cpu.c:48-68,74-97`). Thus tasks using x87 can retain no per-task state and overwrite or observe another task's live FPU registers across a context switch.
+
+The target uses the shared i386 kernel overlay (`arch/i386-all/kernel/mmakefile.src:20-35`), and its compiler baseline is i486 without a soft-float flag (`configure.in:1364-1382,1436-1448`). The PC processor resource represents FPU, FXSR, SSE, and SSE2 as separate CPUID feature bits (`arch/all-pc/processor/processor_arch_intern.h:81-83,118-123`); the kernel initializer does not use the FPU bit to supply an x87-only fallback when its FXSR/SSE combination falls through.
+
+**Trigger and consequence:** the processor reports FPU and FXSR support but reports neither SSE nor SSE2, and two or more tasks use x87 across a task switch. Their floating-point calculations can use stale or cross-task state. **Affected configuration:** i386 targets selecting `arch/i386-all/kernel/cpu_init.c`, including i386-PC; actual processor models with this exact feature combination are not established by this source-only pass. **Confidence:** high for the zero-flag/no-save path under the stated feature bits; medium for hardware reachability and observed symptoms, which require a CPU with that feature combination and x87-using tasks. Initialize an x87 context whenever the FPU feature is present, including an FXSR-without-SSE fallback, and preserve it through the selected switch path. No CPU, task switch, floating-point operation or build was exercised; source-only.
+
 <a id="ek822"></a>
 ### EK822 — PC AP bootstrap leaks ETask affinity state during secondary-core setup [conditional allocation-failure leak; high source confidence]
 
