@@ -12,6 +12,7 @@
 **[EK11012](AROS-exec-kernel.md#ek11012) — PReP `of_set_symbol_lookup()` stores the record's old value instead of its `value_to_sym` argument.** No in-tree caller found; source-only.  
 **[EK11013](AROS-exec-kernel.md#ek11013) — PReP Open Firmware header duplicates the `of_child()` prototype where `of_parent()` should be declared.** No in-tree caller found; source-only.  
 **[EK11014](AROS-exec-kernel.md#ek11014) — PReP image packer uses host-width `unsigned long` for fixed 32-bit image and MBR fields, corrupting metadata on LP64 hosts.** No image was built; source-only.
+**[EK11015](AROS-exec-kernel.md#ek11015) — PReP `PhysToBus()` adds the same offset as `BusToPhys()`, so the documented reverse pair does not round-trip.** No in-tree caller was found; hardware-aperture consequence remains conditional. Source-only.
 
 **[EK602](AROS-exec-kernel.md#ek602) — POSIXC can leak an open script handle if shebang argument construction fails during allocation. Requires a script and allocation failure; repeated failures in a long-lived process can retain DOS handles. Source-only.**
 
