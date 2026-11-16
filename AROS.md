@@ -16967,7 +16967,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 GD10227's batch unique-handle ownership-transfer finding also covers both `Device::createPipelineBinariesKHRUnique()` overloads (`vulkan_funcs.hpp:28687-28790`); optional pipeline-binary API, allocation-failure conditional, source-only.
 
-**[GD14910](AROS-graphics-desktop.md#gd14910) — Vulkan loader reads the output-only instance-version pointer.** `vkEnumerateInstanceVersion()` reads the caller's output value before dispatch when the HIDD object exists; a normal uninitialized output variable therefore triggers undefined behavior. Source-only.
+**[GD14910](AROS-graphics-desktop.md#gd14910) — Vulkan loader reads output-only query values before dispatch.** The instance-version call and four count-query functions read caller values even when those parameters are output-only, causing undefined behavior for uninitialized count-only queries. VulkanProbe initializes its outputs and does not trigger the issue. Source-only.
 **[GD14911](AROS-graphics-desktop.md#gd14911) — Info dereferences a failed fallback `.info` path allocation.** If the original Workbench file match fails and allocating the appended `.info` path also fails, `sprintf()` writes through NULL. Selected Info target; source-only.
 
 **[OD11469](AROS-other-drivers.md#od11469) — DiskImage XAD/XPK leak the reopened output handle when nested discovery rejects a successfully extracted zero-byte image. Conditional on decoder support for an empty output; optional explicit plugin targets only. Source-only.
