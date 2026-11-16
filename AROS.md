@@ -18377,3 +18377,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[GD15212](AROS-graphics-desktop.md#gd15212) — The Font Manager preview can apply kerning across an unmapped character that it substitutes with a space. Source-only.**
 **[GD15213](AROS-graphics-desktop.md#gd15213)** — Diskfont color-font conversion copies the first N planes instead of the planes selected by a sparse `PlanePick` mask, producing incorrect glyph pixels/colors. Conditional on loading such a color font; standalone diskfont module, source-only.
+**[GD15214](AROS-graphics-desktop.md#gd15214)** — A non-EOF font-directory enumeration error can leave `NewFontContents()` copying accumulated records past a zero-entry result allocation when an `.otag` companion exists. Conditional on filesystem enumeration failure; standalone diskfont module, source-only.
