@@ -18362,3 +18362,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11683](AROS-other-drivers.md#od11683)** — IPMI KCS/BT may resend a state-changing command after the request was written but its response timed out. Conditional on the BMC having accepted the first command; the selected x86-64 PC package includes the IPMI HIDD and the `IPMI RAW` client can issue arbitrary commands. Source-only.
 **[OD11684](AROS-other-drivers.md#od11684)** — A queued asynchronous BWFM association can complete and report CONNECT after another client has taken the interface offline. Conditional on concurrent SANA-II association/offline requests; Raspberry Pi BWFM device, source-only.
 **[OD11685](AROS-other-drivers.md#od11685)** — Filesave recording startup leaks the child process's inherited current-directory lock when the selected drawer cannot be locked; conditional on the drawer becoming unavailable during worker startup. Source-only.
+
+**[GD15206](AROS-graphics-desktop.md#gd15206) — Diskfont can leak its replacement glyph map when a FreeType font has no drawable byte-range glyphs but does have U+25A1; conditional on that font cmap. Source-only.**
