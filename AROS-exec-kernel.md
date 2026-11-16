@@ -257,6 +257,55 @@ The legacy PReP `Kernel_init()` allocates space for the resident's negative vect
 
 Sources: `arch/ppc-all/prep/kernel/kernel_init.c:65-78`; `arch/ppc-all/prep/kernel/mmakefile.src:10-13`; `rom/exec/allocmem.c:42-76`.
 
+
+### EK11009 — PReP bootstrap relocation copies four times the image span [conditional memory overwrite]
+
+In the PReP entry assembly, `r5` is loaded with `_END + 3`, then `srwi r21,r21,2` shifts the incoming, unrelated `r21` value. The next instruction overwrites it with `r5 - r4`, the byte span from `startup` to `_END` (`arch/ppc-all/prep/startup/startup.S:56-63`). The relocation loop uses that value as a count of 4-byte `lwzu`/`stwu` iterations (`:71-78`), despite the comment saying the count is in words. For a kernel image of N bytes, it therefore reads and writes about 4N bytes when firmware loads the image away from its linked address. The write extends well beyond the linked image and can overwrite adjacent RAM; the read can also leave the loaded image extent. The bootstrap comment explicitly allows firmware to load the image at arbitrary addresses, making the relocation branch part of the intended path.
+
+**Trigger and consequence:** a PReP firmware load address different from the linked `startup` address enters `reloc`; the image-sized byte difference is treated as a word count and the copy overruns source and destination extents. **Affected configuration:** legacy PReP bootstrap, conditional on the target being buildable and firmware selecting a nonlinked load address. **Confidence:** high for the count-unit mismatch and 4x iteration count; exact adjacent-memory effects depend on placement. Convert the byte span to words before loading CTR. No build or boot was run; source-only.
+
+Sources: `arch/ppc-all/prep/startup/startup.S:56-78`; target chain `arch/ppc-all/prep/mmakefile.src:12-21`.
+
+### EK11010 — PReP bootstrap clears four times the BSS span [conditional memory overwrite]
+
+The same entry routine computes `_END - _EDATA` as a byte count (`arch/ppc-all/prep/startup/startup.S:105-115`), loads that byte count directly into CTR, and performs one 4-byte `stwu` per iteration (`:116-119`). Thus a BSS region of B bytes causes 4B bytes to be zeroed, overrunning the BSS by 3B bytes and corrupting following image/RAM state. The Open Firmware client implementation contains several static service records, so a nonempty BSS is expected in this source set; exact link placement was not inspected.
+
+**Trigger and consequence:** `_END > _EDATA` during PReP startup. The loop zeroes four times the intended range and can erase adjacent initialized data or runtime state. **Affected configuration:** legacy PReP bootstrap, if its image is built and entered. **Confidence:** high for the byte-count/word-store mismatch; the exact overwrite destination depends on linker layout. Divide the byte span by four before using it as the loop count. No link or boot was run; source-only.
+
+Sources: `arch/ppc-all/prep/startup/startup.S:105-119`; `arch/ppc-all/prep/startup/of1275.c` (static service records).
+
+### EK11011 — PReP C startup never transfers control to the kernel [startup hang]
+
+After constructing the Multiboot structure and memory map, `cstart()` leaves the call to `cmain(MULTIBOOT_BOOTLOADER_MAGIC, (ULONG)mb)` commented out and executes `do {} while(1)` (`arch/ppc-all/prep/startup/c_start.c:185-230`). The selected PReP image therefore reaches an unconditional infinite loop instead of entering the kernel.
+
+**Trigger and consequence:** any execution that reaches the end of `cstart()` remains in the loop; no AROS kernel entry follows. **Affected configuration:** legacy PReP bootstrap, conditional on successful build and reaching `cstart()`. **Confidence:** high for the checked-in control flow; the PReP path is separately build-blocked by EK11007 and the source labels its conversion untested. No boot was run; source-only.
+
+Sources: `arch/ppc-all/prep/startup/c_start.c:185-230`; `arch/ppc-all/prep/startup/startup.S:154-172`.
+
+### EK11012 — Open Firmware symbol-lookup wrapper ignores its second argument [conditional API misconfiguration]
+
+`of_set_symbol_lookup()` accepts `value_to_sym` but assigns `s.value_to_sym = s.value_to_sym` instead of storing the argument (`arch/ppc-all/prep/startup/of1275.c:397-407`). The Open Firmware service record therefore receives its previous static value (initially zero) rather than the requested reverse lookup callback.
+
+**Trigger and consequence:** a client calls this wrapper with a non-NULL `value_to_sym`; firmware keeps or installs the wrong callback, so value-to-symbol lookups fail or use stale callback state. **Affected configuration:** PReP Open Firmware client helper; no checked-in caller was found. **Confidence:** high for the assignment typo and service-record result; no in-tree use or firmware behavior was established. Assign the function parameter to the record. No firmware call was made; source-only.
+
+Sources: `arch/ppc-all/prep/startup/of1275.c:397-407`.
+
+### EK11013 — Open Firmware header declares `of_parent()` as a second `of_child()` [API declaration mismatch]
+
+The header contains `int of_child(int phandle, int *parent_phandle);` where the `of_parent()` prototype belongs (`arch/ppc-all/prep/startup/of1275.h:42-58`). The implementation defines `of_parent()` (`of1275.c:54-64`), but users including this header receive no declaration for it and instead see a duplicate `of_child()` declaration. A strict compiler can reject a caller for an undeclared function; permissive C modes may compile it with an implicit declaration, leaving diagnostics and type checking absent.
+
+**Trigger and consequence:** a PReP Open Firmware client calls `of_parent()` using the supplied header; the API declaration is missing, so strict builds fail or permissive builds lose prototype checking. **Affected configuration:** PReP Open Firmware helper clients; no in-tree caller was found. **Confidence:** high for the header/definition mismatch; whether the configured compiler makes this fatal depends on warning policy. Replace the duplicate declaration with `of_parent()`. No build was run; source-only.
+
+Sources: `arch/ppc-all/prep/startup/of1275.h:42-58`; `arch/ppc-all/prep/startup/of1275.c:54-64`.
+
+### EK11014 — PReP image packer serializes host-width `long` fields into a 32-bit image format [host-dependent image corruption]
+
+The host utility `preplink` represents the PReP image entry offset, image length, and MBR sector fields as `unsigned long`, and writes `sizeof(long)` bytes for the leading header fields (`arch/ppc-all/prep/preplink.c:39-47,75-89,101-107`). The output layout is fixed: the payload is placed at offset `0x400` (`arch/ppc-all/prep/mmakefile.src:16-21`, `preplink.c:107`). A 64-bit host gives `unsigned long` an eight-byte width, shifting the second header value from the expected 32-bit slot and widening partition fields; in particular the 8-byte `number_of_sectors` write extends into the next 16-byte MBR partition entry. The host compiler is the configured native `HOST_CC` (`config/host.cfg.in:19`; `configure.in:226`), not the 32-bit PPC target compiler.
+
+**Trigger and consequence:** build the PReP image with a 64-bit host compiler. The boot header and partition table no longer have their expected 32-bit field layout, so the generated image metadata is malformed and can fail to boot or be recognized. **Affected configuration:** PReP image packaging on LP64 hosts. **Confidence:** high for host-width structure/write layout; the downstream parser's exact acceptance was not run. Use fixed-width 32-bit fields and fixed offsets. No image was built; source-only.
+
+Sources: `arch/ppc-all/prep/preplink.c:39-47,75-107`; `arch/ppc-all/prep/mmakefile.src:16-21`; `config/host.cfg.in:19`; `configure.in:226`.
+
 <a id="ek822"></a>
 ### EK822 — PC AP bootstrap leaks ETask affinity state during secondary-core setup [conditional allocation-failure leak; high source confidence]
 
