@@ -15537,7 +15537,7 @@ Vulkan-Hpp function wrapper interval `23101-23700` (GD10223/GD10264 rechecked; n
 
 **[OD4424](AROS-other-drivers.md#od4424) — PTP directory loading marks partial metadata results as permanently fetched.**
 
-**[OD4425](AROS-other-drivers.md#od4425) — PTP format failure returns before committing refreshed storage records.**
+**[OD4425](AROS-other-drivers.md#od4425) — PTP format can lose storage records after a refresh failure or return before committing earlier refreshed records.**
 
 **[OD4444](AROS-other-drivers.md#od4444) — PTP read/write range checks can wrap near the 4-GiB boundary.**
 
