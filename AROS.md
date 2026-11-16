@@ -18366,3 +18366,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15206](AROS-graphics-desktop.md#gd15206) — Diskfont can leak its replacement glyph map when a FreeType font has no drawable byte-range glyphs but does have U+25A1; conditional on that font cmap. Source-only.**
 
 **[GD15207](AROS-graphics-desktop.md#gd15207) — An accepted FreeType diskfont size factor can exceed the 16-bit DPI fields used for glyph rendering while space width uses the untruncated value; conditional on a large factor or requested DPI. Source-only.**
+
+**[GD15208](AROS-graphics-desktop.md#gd15208) — FreeType accepts glyph dimensions that overflow diskfont’s 16-bit glyph metrics, causing large glyphs to be cropped from the wrong rows; conditional on custom font metrics and a tall glyph. Source-only.**
