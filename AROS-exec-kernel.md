@@ -210,6 +210,15 @@ The PC bootstrap stores its handoff `TagItem64` list in the fixed `km[32]` array
 
 **Coverage evidence:** [PC Multiboot2 tag-list capacity trace](AROS-exec-kernel-coverage.md#pc-multiboot2-tag-list-capacity).
 
+<a id="ek11004"></a>
+### EK11004 — Exec skips a reset callback when its support task cannot be created [conditional shutdown callback omission]
+
+In the non-supervisor reset path, `Exec_DoResetCallbacks()` calls `NewCreateTask()` for each registered handler, but the callback dispatch and wait are both inside `if (handlerTask)` with no failure branch (`rom/exec/doresetcallbacks.c:120-140,180`). When support-task allocation or task insertion fails, the loop simply advances to the next saved callback. `NewCreateTaskA()` can return NULL when `NewAllocEntry()` fails or `NewAddTask()` fails (`rom/exec/newcreatetaska.c:190-191,257-263`); `AddResetCallback()` nevertheless reports success for registered handlers (`rom/exec/addresetcallback.c:53-63`).
+
+The selected NVMe controller registers an embedded reset callback after controller initialization (`rom/devs/nvme/nvme_controllerclass.c:459-466`). Its handler clears `NVME_CC_ENABLE` and writes the new controller configuration to the device (`:136-139`). The PC i386 and x86-64 boot manifests select `nvme.device` (`arch/i386-pc/boot/mmakefile.src:73`; `arch/x86_64-pc/boot/mmakefile.src:66`). Thus a task-context shutdown/reboot during task-allocation failure silently skips this selected callback and leaves the NVMe controller enabled through the subsequent reset handoff.
+
+**Trigger and consequence:** a task-context `ShutdownA()`/`ColdReboot()` reaches the non-supervisor path while `NewCreateTask()` cannot allocate or add the support task for a registered NVMe handler. Exec continues reset processing without running that handler; the NVMe controller's shutdown action is omitted. **Affected configuration:** i386-PC and x86-64-PC builds with the selected NVMe device and a detected controller. **Confidence:** high that task-creation failure skips the handler and that the selected handler disables the controller; occurrence depends on low-memory/task-insertion failure during shutdown. The reset path should make callback-task creation failure explicit and ensure required handlers are accounted for before continuing. No allocation failure, reset, controller, or build was exercised; source-only. See the [reset callback task-creation failure trace](AROS-exec-kernel-coverage.md#reset-callback-task-creation-failure).
+
 <a id="ek822"></a>
 ### EK822 — PC AP bootstrap leaks ETask affinity state during secondary-core setup [conditional allocation-failure leak; high source confidence]
 
