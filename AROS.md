@@ -18345,7 +18345,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11675](AROS-other-drivers.md#od11675)** — Nouveau NV50 payload Part 1 advances slot counters before programming and does not roll them back on failure; later MST allocations can use stale slot positions. Conditional on a topology change or DPCD payload-write failure; source-only.
 
-**[OD11676](AROS-other-drivers.md#od11676)** — Nouveau marks MST enabled before setup succeeds; after a failed attempt, a later detect retry returns success without reinitializing the topology. Conditional on a failed first enable followed by retry; source-only.
 **[OD11677](AROS-other-drivers.md#od11677)** — MST topology dump indentation writes beyond its ten-byte stack buffer for branch LCT values of 10 or more. Conditional on a caller requesting a dump of a sufficiently deep topology; source-only.
 **[OD11678](AROS-other-drivers.md#od11678)** — Nouveau pushbuf retry exhaustion skips cleanup for the slow-path-reserved buffer: it can leave the BO reserved, its GEM reference retained, and its list node linked to a stack list head. Requires repeated reservation deadlocks through the 100,000-retry cap; optional Nouveau target, source-only.
 **[OD10037](AROS-other-drivers.md#od10037)** — Nouveau increments TTM `pin_count` even when rejecting an incompatible repeat pin. An NV50 plane prepare failure can leave an extra pin on a GART BO; conditional on a GART-pinned framebuffer requiring VRAM/contiguous placement. Optional Nouveau display path, source-only.

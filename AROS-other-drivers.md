@@ -44549,15 +44549,6 @@ The selected Nouveau NV50 caller reaches this helper in `nv50_msto_prepare()` fo
 
 **Trigger and consequence:** an enabled NV50 MST stream reaches commit, then the port is no longer present in the live topology or the DFP payload-table DPCD write fails. The commit path disables that stream's hardware VCPI but leaves its timeslots in the manager's running counters. Later additions in this manager can start at a stale slot and fail or program an incorrect allocation. **Scope:** Nouveau NV50 DisplayPort MST atomic commits. **Confidence:** high for counter mutation without rollback and the selected caller's continued cleanup; the trigger requires a topology race or DPCD write failure. Roll back `payload_count`, `next_start_slot`, `vc_start_slot` and allocation status when Part 1 fails. No commit, DPCD write, or build was run; source-only.
 
-<a id="od11676"></a>
-## OD11676 — MST manager marks enable complete before initialization succeeds
-
-`drm_dp_mst_topology_mgr_set_mst()` returns immediately when the requested state equals `mgr->mst_state`, then sets `mgr->mst_state = true` before reading DPCD capabilities, allocating/storing the primary branch, or writing `DP_MSTM_CTRL` (`workbench/hidds/nouveau/drm/display/drm_dp_mst_topology.c:3651-3685`). Any error in those steps returns with the manager state still true. A DPCD-read or root-branch-allocation failure leaves `mst_primary` null; a control-register-write failure leaves a primary branch installed but never queues topology probing.
-
-The selected Nouveau caller returns the failure without setting `mstm->is_mst` (`workbench/hidds/nouveau/drm/nouveau/dispnv50/disp.c:1520-1545`). On a later detect retry it first writes `DP_MSTM_CTRL = 0`, then calls `drm_dp_mst_topology_mgr_set_mst(..., true)` again. Because the manager's state was not rolled back, the second call takes the equality fast path and returns success without retrying initialization; Nouveau then sets `is_mst = true` (`:1532-1545`).
-
-**Trigger and consequence:** the initial MST enable attempt encounters a transient capability-read error, root-branch allocation failure, or MSTM-control write error, and a later hotplug/detect pass retries. The retry falsely succeeds while the primary topology is missing or was never activated/probed; MST output remains unavailable until the manager is explicitly disabled and re-enabled through a path that actually clears its state. **Scope:** Nouveau NV50 MST detection using this selected helper. **Confidence:** high for state retention and the retry early-return; retry frequency and user-visible recovery depend on subsequent detection events. Set the state only after successful setup, or unwind all partially created state on failure. No DPCD operation, allocation failure, hotplug event, or build was exercised; source-only.
-
 <a id="od11677"></a>
 ## OD11677 — MST topology dump indentation exceeds its stack buffer on deep branches [conditional]
 
