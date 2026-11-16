@@ -16858,7 +16858,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 **[GD10211](AROS-graphics-desktop.md#gd10211) — Mesa3DGL drops stencil when depth is disabled**
 **[GD10214](AROS-graphics-desktop.md#gd10214) — Vulkan dispatch can switch GPUs between calls using the same handles**
 **[GD10215](AROS-graphics-desktop.md#gd10215) — Vulkan loader latches incomplete initialization as complete**
-**[GD10216](AROS-graphics-desktop.md#gd10216) — Vulkan loader drops caller instance-create settings and allocation callbacks**
+**[GD10216](AROS-graphics-desktop.md#gd10216) — Vulkan loader drops instance-create settings and allocation callbacks for instance/device lifecycles**
 **[GD10218](AROS-graphics-desktop.md#gd10218) — Vulkan object-type conversion asserts on the unknown sentinel**
 
 **OD9870 — SM502 truecolor `SetColors()` updates its software colormap before returning `FALSE` for ranges beyond index zero.** In-tree callers ignore the status; external or future callers can observe a false failure. See [OD9870](AROS-other-drivers.md#od9870) and the [coverage trace](AROS-other-drivers-coverage.md#sm502-truecolor-setcolors-returncaller-pass-od9870-added-2026-10-26). Source-only.
