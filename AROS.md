@@ -102,6 +102,7 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 | [EK293](AROS-exec-kernel.md#ek293) | Hosted ARM processor detection treats an unsupported Linux architecture token as ARMv6. |
 | [EK311](AROS-exec-kernel.md#ek311) | `UnLockTaskList()` can free a different same-owner iterator handle. |
 | [EK312](AROS-exec-kernel.md#ek312) | ExecSMP task-list iterator bookkeeping can lose handles or free entries still held by an iterator. |
+| [EK342](AROS-exec-kernel.md#ek342) | PC Multiboot2 memory-map conversion can hang on zero stride or write past the tag on an undersized stride. |
 | [EK343](AROS-exec-kernel.md#ek343) | The PC bootstrap ELF loader reads beyond boot-module extents. |
 | [EK347](AROS-exec-kernel.md#ek347) | PC archive iteration dereferences a NULL cursor after rejecting a member header. |
 | [EK348](AROS-exec-kernel.md#ek348) | The PC bootstrap can overrun its fixed BSS-section tracker. |
