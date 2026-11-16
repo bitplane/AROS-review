@@ -1332,6 +1332,17 @@ If the requested DMA range crosses from the starting page into a physically disc
 
 **Trigger and consequence:** a DMA request spans a virtual page boundary whose next physical page is not adjacent to the first, and the caller uses the returned physical address and unchanged `*length` as one contiguous transfer. The transfer can read or write the wrong physical bytes after the first-page extent. **Affected configuration:** CHRP/PPC builds selecting `arch/ppc-chrp/exec/cachepredma.c`, including Efika's PTE-based translation path. **Confidence:** high for the contract mismatch; conditional on a cross-page noncontiguous buffer and a caller relying on the returned length. No DMA operation or hardware was used. Source-only; see the [CHRP DMA translation trace](AROS-exec-kernel-coverage.md#L7247).
 
+<a id="ek342"></a>
+### EK342 — PC Multiboot2 memory-map entry stride can hang or write past its tag [conditional malformed-input boot failure; high source confidence]
+
+`mmap_convert()` initializes the remaining payload length from the memory-map tag size, then loops while at least one local `mb2_mmap` (24 bytes on both selected PC ABIs) remains. Each iteration writes a legacy size word through the output cursor, advances that cursor by `sizeof(struct mb_mmap)` (24 bytes), but advances the input cursor and decreases the remaining length by the unvalidated `tag->entry_size` (`arch/all-pc/bootstrap/multiboot2.c:80-98`; `compiler/include/aros/multiboot2.h:180-208`; `compiler/include/aros/multiboot.h:132-145`).
+
+With `entry_size == 0` and a tag containing at least 24 payload bytes, the loop never reduces its condition or advances the input pointer, so it continues writing size words indefinitely beyond the tag. With a nonzero `entry_size < 24`, enough declared payload causes the 24-byte output cursor to outpace the input length decrement: the loop writes legacy size words beyond the end of the tag and returns an output length larger than the available map data. Bootstrap passes that pointer and length onward as the legacy memory map (`arch/all-pc/bootstrap/bootstrap.c:617-620,650-655`); the kernel later walks it as contiguous legacy entries (`arch/all-pc/kernel/kernel_mmap.c:129-185`).
+
+**Trigger and consequence:** the selected PC Multiboot2 path receives a malformed memory-map tag with a zero stride, or an undersized nonzero stride with enough payload. A zero stride stalls bootstrap while repeatedly writing beyond the tag; an undersized stride can overwrite following boot metadata and then make memory initialization consume fabricated map records. **Affected configuration:** i386-PC and x86-64-PC boots using the Multiboot2 parser. No checked-in producer of malformed memory-map tags was found. **Confidence:** high for the loop arithmetic and caller handoff; occurrence depends on invalid external boot metadata. Reject entry sizes smaller than the base record before conversion, and retain a bounded conversion path for valid extended records. No malformed map, boot, or build was run; source-only.
+
+**Coverage evidence:** [zero-stride and map-handoff recheck](AROS-exec-kernel-coverage.md#L8210).
+
 <a id="ek343"></a>
 ### EK343 — The PC bootstrap ELF loader reads beyond boot-module extents.
 
