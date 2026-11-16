@@ -6,6 +6,12 @@
 **[EK11006](AROS-exec-kernel.md#ek11006) — i386 task switching leaves x87 state unsaved when CPUID reports FXSR without SSE/SSE2.** Conditional on that feature combination and x87-using tasks; stale or cross-task floating-point results can follow a context switch. Hardware reachability remains unverified. See the [FXSR-only context trace](AROS-exec-kernel-coverage.md#i386-fxsr-only-x87-context-gap-ek11006). Source-only; no CPU or build was used.
 **[EK11007](AROS-exec-kernel.md#ek11007) — The configured legacy PReP target reaches `kernel-prep-ppc`, which depends on an undefined `kernel-ppc` target, blocking the normal PReP image build.** Source dependency analysis only; no build was run.
 **[EK11008](AROS-exec-kernel.md#ek11008) — PReP `Kernel_init()` adds the negative-vector size to `AllocMem()` before checking for NULL, so an allocation failure becomes a non-NULL low address that is dereferenced.** Conditional on the PReP resource initializer being reached; no boot or allocation failure was run.
+**[EK11009](AROS-exec-kernel.md#ek11009) — PReP relocation treats an image byte count as a word count and copies four times the image span when firmware loads at a different address.** Conditional memory overwrite; source-only.  
+**[EK11010](AROS-exec-kernel.md#ek11010) — PReP startup likewise treats the BSS byte span as a 4-byte store count, clearing four times the BSS size.** Conditional adjacent-memory overwrite; source-only.  
+**[EK11011](AROS-exec-kernel.md#ek11011) — PReP `cstart()` constructs boot metadata and then loops forever; its kernel-entry call is commented out.** Conditional startup hang; source-only.  
+**[EK11012](AROS-exec-kernel.md#ek11012) — PReP `of_set_symbol_lookup()` stores the record's old value instead of its `value_to_sym` argument.** No in-tree caller found; source-only.  
+**[EK11013](AROS-exec-kernel.md#ek11013) — PReP Open Firmware header duplicates the `of_child()` prototype where `of_parent()` should be declared.** No in-tree caller found; source-only.  
+**[EK11014](AROS-exec-kernel.md#ek11014) — PReP image packer uses host-width `unsigned long` for fixed 32-bit image and MBR fields, corrupting metadata on LP64 hosts.** No image was built; source-only.
 
 **[EK602](AROS-exec-kernel.md#ek602) — POSIXC can leak an open script handle if shebang argument construction fails during allocation. Requires a script and allocation failure; repeated failures in a long-lived process can retain DOS handles. Source-only.**
 
