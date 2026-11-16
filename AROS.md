@@ -2,6 +2,8 @@
 
 ## Exec/Kernel findings reconciled into the index (2026-11-02)
 
+**[EK11005](AROS-exec-kernel.md#ek11005) — On PC, a reset callback below priority -100 can hang the shutdown chain after the timer callback replaces the normal timer IRQ handler. The later callback’s 10-second timeout request is never serviced. Requires an external or future callback with priority below -100 that does not return; no in-tree trigger was found. Source-only.**
+
 **[EK602](AROS-exec-kernel.md#ek602) — POSIXC can leak an open script handle if shebang argument construction fails during allocation. Requires a script and allocation failure; repeated failures in a long-lived process can retain DOS handles. Source-only.**
 
 **[EK10963](AROS-exec-kernel.md#ek10963) — PC x86-64 ExecSMP `Wait()` holds the current task lock while taking `TaskRunningSpinLock`; priority donation then calls `SetTaskPri()` on that same task, which spins trying to reacquire its already-held lock. Requires a higher-priority waiter and lower-priority task-context list-lock owner. The waiter remains marked `TS_WAIT` on `TaskRunning`. No contention was run; source-only.**
