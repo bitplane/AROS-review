@@ -18364,3 +18364,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11685](AROS-other-drivers.md#od11685)** — Filesave recording startup leaks the child process's inherited current-directory lock when the selected drawer cannot be locked; conditional on the drawer becoming unavailable during worker startup. Source-only.
 
 **[GD15206](AROS-graphics-desktop.md#gd15206) — Diskfont can leak its replacement glyph map when a FreeType font has no drawable byte-range glyphs but does have U+25A1; conditional on that font cmap. Source-only.**
+
+**[GD15207](AROS-graphics-desktop.md#gd15207) — An accepted FreeType diskfont size factor can exceed the 16-bit DPI fields used for glyph rendering while space width uses the untruncated value; conditional on a large factor or requested DPI. Source-only.**
