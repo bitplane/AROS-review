@@ -4,6 +4,8 @@
 
 **[EK11005](AROS-exec-kernel.md#ek11005) — On PC, a reset callback below priority -100 can hang the shutdown chain after the timer callback replaces the normal timer IRQ handler. The later callback’s 10-second timeout request is never serviced. Requires an external or future callback with priority below -100 that does not return; no in-tree trigger was found. Source-only.**
 **[EK11006](AROS-exec-kernel.md#ek11006) — i386 task switching leaves x87 state unsaved when CPUID reports FXSR without SSE/SSE2.** Conditional on that feature combination and x87-using tasks; stale or cross-task floating-point results can follow a context switch. Hardware reachability remains unverified. See the [FXSR-only context trace](AROS-exec-kernel-coverage.md#i386-fxsr-only-x87-context-gap-ek11006). Source-only; no CPU or build was used.
+**[EK11007](AROS-exec-kernel.md#ek11007) — The configured legacy PReP target reaches `kernel-prep-ppc`, which depends on an undefined `kernel-ppc` target, blocking the normal PReP image build.** Source dependency analysis only; no build was run.
+**[EK11008](AROS-exec-kernel.md#ek11008) — PReP `Kernel_init()` adds the negative-vector size to `AllocMem()` before checking for NULL, so an allocation failure becomes a non-NULL low address that is dereferenced.** Conditional on the PReP resource initializer being reached; no boot or allocation failure was run.
 
 **[EK602](AROS-exec-kernel.md#ek602) — POSIXC can leak an open script handle if shebang argument construction fails during allocation. Requires a script and allocation failure; repeated failures in a long-lived process can retain DOS handles. Source-only.**
 
