@@ -44675,6 +44675,19 @@ The worker is created with `CreateNewProc()` without an `NP_CurrentDir` tag (`fi
 
 **Trigger and consequence:** notifier BO allocation succeeds, but its first GART placement/pin fails (for example, TTM validation cannot allocate or establish the requested backing). ABI16 channel creation reports failure, while cleanup emits a one-time kernel warning for unpinning a zero-pin BO. **Affected configuration:** optional Nouveau legacy ABI16 channel initialization on any supported Nouveau target that reaches this notifier setup; default-image inclusion is not claimed because the Nouveau parent Workbench edge is disabled in this snapshot. **Confidence:** high for the zero-pin cleanup path and warning; no pin/validation failure was induced. Track whether the notifier pin succeeded and unpin only after successful acquisition. No allocation failure, channel ioctl, GPU operation, or build was exercised; source-only.
 
+<a id="od11687"></a>
+## OD11687 — VMware SVGA reports hibernation restore success after atomic display replay fails [conditional]
+
+The VMware SVGA hibernation freeze path saves the active atomic display state with `vmw_kms_suspend()` before freezing device resources (`workbench/hidds/vmwaresvga/drm/vmwgfx/vmwgfx_drv.c:1513-1520`). `vmw_kms_suspend()` obtains that snapshot through `drm_atomic_helper_suspend()`, which duplicates the active state and disables all active outputs before returning it (`vmwgfx_kms.c:1677-1691`; `drm_atomic_helper.c:3772-3820`).
+
+The registered VMware PM callbacks use `vmw_pm_restore()` for both `.thaw` and `.restore` (`vmwgfx_drv.c:1549-1578`). After device setup succeeds, this callback invokes `vmw_kms_resume()` when the snapshot exists but discards its return value and returns zero (`:1560-1571`). `vmw_kms_resume()` does return the result of `drm_atomic_helper_resume()`, but clears `suspend_state` regardless (`workbench/hidds/vmwaresvga/drm/vmwgfx/vmwgfx_kms.c:1704-1715`). The helper resets mode configuration, attempts to commit the saved state, releases the snapshot even when the commit fails, and returns that error (`workbench/hidds/vmwaresvga/drm/drm_atomic_helper.c:3885-3900`).
+
+**Trigger and consequence:** hibernation freeze successfully saves and disables an active display, device restoration succeeds, but replaying the saved atomic state fails. The VMware PM callback still reports successful restore, and the saved state has been consumed, so the previous display configuration is not automatically retried; the display can remain disabled after resume. This is separate from OD11666, which records the same helper-error handling defect in Nouveau's independent resume wrapper and caller chain.
+
+**Affected configuration:** the explicitly buildable `vmwaresvga.hidd` target, whose selected DRM source list includes `vmwgfx_drv.c` and `vmwgfx_kms.c` (`workbench/hidds/vmwaresvga/mmakefile.src:138-151`; `sources.drm.mak:89,97`). The parent Workbench dependency is disabled in this snapshot, so default-image inclusion is not claimed (`mmakefile.src:49-53`). The trigger is limited to the hibernation thaw/restore callback after successful device setup and a failed atomic replay.
+
+**Confidence:** high that the replay error is discarded, the callback returns success, and the saved state is consumed; conditional on the restore commit failing. Propagate the `vmw_kms_resume()` result from the PM callback and retain or otherwise recover the desired state after a failed replay. No hibernation, resume, display commit, GPU operation, or build was run; source-only.
+
 <a id="od11688"></a>
 ## OD11688 — Envy24 leaves its reset callback linked after freeing the card [conditional]
 
