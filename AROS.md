@@ -17693,7 +17693,7 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[OD2905](AROS-other-drivers.md#od2905) — OHCI control and bulk transfers dereference failed transfer-descriptor allocations and do not unwind partial chains.** Conditional on descriptor-pool exhaustion after pipe/signal setup in the explicitly built OHCI HIDD. Source-only.
 
-**[EK10945](AROS-exec-kernel.md#ek10945) — VMM library startup leaks the manager result message on both InitReady and InitFailed; an OpenLibs() error also strands the original startup request on the exiting manager. Optional library path; distinct from EK428 and EK9488. Source-only.**
+**[EK10945](AROS-exec-kernel.md#ek10945) — VMM library startup leaks its result message on InitReady and InitFailed; an OpenLibs() error strands the original request, and the MUI path can leave a published commodities port pointing at its exited starter task. Optional VMM startup paths; distinct from EK428 and EK9488. Source-only.**
 
 **[EK10946](AROS-exec-kernel.md#ek10946) — `vmm.library` leaks its startup message and loaded handler if `CreateNewProc()` fails:** cleanup removes the starter port and closes DOS but does not free the message or unload the segment; `NP_FreeSeglist` only applies to a created process. Conditional on process creation failure after both allocations. Source-only.
 
