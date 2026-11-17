@@ -314,6 +314,17 @@ There is a separate endianness failure on little-endian hosts other than 32-bit 
 
 Sources: `arch/ppc-all/prep/preplink.c:39-47,75-107`; `arch/ppc-all/prep/mmakefile.src:16-21`; `config/host.cfg.in:19`; `configure.in:226`.
 
+<a id="ek11021"></a>
+### EK11021 — PReP image packer ignores I/O failures and returns success [conditional image corruption]
+
+`preplink` does not check the results of its header and MBR `write()` calls, the `lseek()` that positions the payload at offset `0x400`, or any payload `write()` (`arch/ppc-all/prep/preplink.c:104-110`). The payload loop treats any `read()` result less than or equal to zero as end of input; in particular, a negative read error silently stops the copy. A short positive `write()` also drops the unwritten suffix of that chunk because the next iteration reads new input. After these paths, `main()` unconditionally returns zero (`:112`).
+
+The selected make rule invokes `./preplink $@ $(AROSARCHDIR)/aros-prep.img` and treats its exit status as the recipe result (`arch/ppc-all/prep/mmakefile.src:16-21`); the host utility is compiled with `HOST_CC` (`:40-41`). Thus an input read error, output write error/short write (for example, a full filesystem), or failed seek can leave a truncated or mispositioned image while the packaging command reports success. This is independent of EK11014's field-width and byte-order defects. The configured image target has a separate dependency blocker (EK11007), so no successful integrated image build is claimed.
+
+**Trigger and consequence:** an I/O error or short write occurs while packaging the PReP image. The output can omit header or payload bytes or place the payload incorrectly, and make receives a success status. **Affected configuration:** explicit PReP image packaging through `preplink`. **Confidence:** high for the unchecked results and unconditional success return; actual storage/input failure was not induced. Check all reads, writes and seeks, complete partial writes, report errors, and return nonzero while removing or invalidating a partial output. No image or build was produced; source-only.
+
+Sources: `arch/ppc-all/prep/preplink.c:104-112`; `arch/ppc-all/prep/mmakefile.src:16-21,40-41`.
+
 <a id="ek822"></a>
 ### EK822 — PC AP bootstrap leaks ETask affinity state during secondary-core setup [conditional allocation-failure leak; high source confidence]
 
