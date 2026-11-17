@@ -37351,6 +37351,13 @@ The selected nested hub-scan path provides a possible concurrent caller: `nHubTa
 **Trigger and consequence:** the optional serialmouse module probes a device that sends unrecognized bytes without a Begin-ID marker, or sends a truncated PnP frame. Uninitialized bytes can be mistaken for a protocol selector or product ID, causing incorrect protocol selection/registration. **Scope:** explicitly selected serialmouse module with a usable serial-unit HIDD; the legacy package recipes list it as an optional package input, but default boot inclusion is not established. **Confidence:** high for the uninitialized read paths and absent minimum-length check; protocol misclassification depends on stack contents and response. Initialize the buffer and reject short frames before parsing fixed fields. No serial probe, device, or build was run; source-only.
 
 
+<a id="od11695"></a>
+## OD11695 — Serial mouse PnP parser ignores a detected checksum mismatch [optional-module conditional]
+
+`mouse_pnpparse()` computes the checksum when optional PnP ID fields are present and compares its two-digit result with the checksum bytes (`rom/hidds/serialmouse/drv_serial.c:451-460`). The mismatch branch is empty, and the function returns `TRUE` regardless (`:457-461`). `mouse_DetectPNP()` treats that return as successful parsing and passes the extracted ID to `mouse_pnpproto()`; a recognized product or compatibility ID is then returned as a supported protocol (`:539-550,483-515`).
+
+**Trigger and consequence:** the optional serialmouse module receives a PnP ID with optional fields whose checksum does not match the computed value, while its extracted product or compatibility ID matches a table entry. The corrupted/inconsistent ID is still accepted and can select a protocol for the device. **Scope:** explicitly selected serialmouse module with a usable serial-unit HIDD; the legacy i386-PC and x86-64-PC package recipes list the module, but this does not establish default-image inclusion. **Confidence:** high that the checksum mismatch is ignored; incorrect protocol selection depends on the response contents matching a supported ID despite the invalid checksum. Reject the ID or otherwise propagate checksum failure before protocol selection. No serial response, device, or build was used; source-only.
+
 <a id="od2438"></a>
 ## OD2438 — EMAC uses uninitialized PHY values after MDIO read failures [MDIO-error conditional]
 
