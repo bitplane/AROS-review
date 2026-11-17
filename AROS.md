@@ -1,5 +1,7 @@
 **OD11555 — `setlastlog`'s public vector omits the console argument:** the generated three-argument interface passes `host` in A1, but the implementation expects `con` in A1 and `host` in A2. Calls can fail, store the host as the console line, or read an unrelated A2 pointer. No maintained in-tree caller was found; applies to clients of a built `usergroup.library`. See [OD11555](AROS-other-drivers.md#od11555) and the [generated vector trace](AROS-other-drivers-coverage.md#usergroup-setlastlog-vector-arity-od11555). Source-only; no build or call was run.
 
+**[GD4042](AROS-graphics-desktop.md#gd4042) — MUI Group ignores Family's rejection of a NULL child, increments its child count, and then dereferences the NULL pointer. Selected failure callers include Scrollbar, List and AboutWindow's unchecked RegisterGroup insertion; the AboutWindow route is used by QuickPart. Conditional on nested object construction failure. Source-only.**
+
 ## Exec/Kernel findings reconciled into the index (2026-11-02)
 
 **[EK11005](AROS-exec-kernel.md#ek11005) — On PC, a reset callback below priority -100 can hang the shutdown chain after the timer callback replaces the normal timer IRQ handler. The later callback’s 10-second timeout request is never serviced. Requires an external or future callback with priority below -100 that does not return; no in-tree trigger was found. Source-only.**
