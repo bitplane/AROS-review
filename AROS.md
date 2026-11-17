@@ -18377,6 +18377,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11684](AROS-other-drivers.md#od11684)** — A queued asynchronous BWFM association can complete and report CONNECT after another client has taken the interface offline. Conditional on concurrent SANA-II association/offline requests; Raspberry Pi BWFM device, source-only.
 **[OD11685](AROS-other-drivers.md#od11685)** — Filesave recording startup leaks the child process's inherited current-directory lock when the selected drawer cannot be locked; conditional on the drawer becoming unavailable during worker startup. Source-only.
 **[OD11686](AROS-other-drivers.md#od11686)** — If Nouveau ABI16 notifier BO GART pinning fails, channel cleanup still unpins the unpinned BO and TTM emits a one-time warning. Conditional on first-pin failure; optional Nouveau channel setup, source-only.
+**[OD11687](AROS-other-drivers.md#od11687)** — VMware SVGA hibernation restore discards an atomic display replay error, consumes the saved state, and reports success; conditional on a failed replay in the optional VMware HIDD path. Source-only.
 
 **[GD15206](AROS-graphics-desktop.md#gd15206) — Diskfont can leak its replacement glyph map when a FreeType font has no drawable byte-range glyphs but does have U+25A1; conditional on that font cmap. Source-only.**
 
