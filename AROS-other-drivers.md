@@ -42235,6 +42235,13 @@ When `gpSendQueuedEvents()` completes a request on the last buffered event, it r
 
 **Trigger and consequence:** an external gameport client has a queued `GPD_READEVENT` request, receives the reply on another CPU, and closes/reclaims its unit before the callback's post-reply flag access. The callback then dereferences freed unit state. **Affected configuration:** ExecSMP systems and public GamePort clients that close immediately after completion; the selected input.device retains its persistent request and is not evidence of this close sequence. **Confidence:** high for the code ordering and permitted reply ownership transfer; the cross-CPU overlap is conditional and was not run. Move the per-unit flag update before `ReplyMsg()` or retain/pin the unit until after the callback's final access. Source-only.
 
+<a id="od2305"></a>
+## OD2305 — GamePort leaks its per-open unit when setup fails
+
+`GM_UNIQUENAME(open)` allocates and publishes a zeroed `GPUnit` in `ioreq->io_Unit` before opening OOP or initializing the mouse HIDD (`rom/devs/gameport/gameport.c:195-204`). Every later setup failure returns FALSE without freeing that unit: `oop.library` open failure (`:206-210`), either HIDD attribute-base failure (`:214-225,228-242`), `mouse.hidd` open failure, or `OOP_NewObject()` failure (`:247-273`). The Close hook frees `io_Unit` only for a successful open (`:284-293`). Exec `OpenDevice()` initializes `io_Unit` before calling the Open vector, then on nonzero `io_Error` clears `io_Device` and returns without invoking the device Close vector (`rom/exec/opendevice.c:88-133`).
+
+**Trigger and consequence:** `OpenDevice("gameport.device", ...)` reaches a post-allocation OOP/HIDD setup failure. The call fails, but the allocated `GPUnit` is not reclaimed; repeated direct retries after such failures accumulate leaked units. The selected `input.device` caller treats Open failure as a fatal alert and does not retry (`rom/devs/input/processevents.c:226-227`), so repeated accumulation is not established for that maintained path. **Affected configuration:** builds that include `gameport.device` and encounter one of the listed setup failures. **Confidence:** high for the unmatched allocation and Exec's failed-open behavior; repeated accumulation depends on a caller retrying. Free `io_Unit` on every failure after allocation, or route those returns through a shared unwind path. No OOP/HIDD failure or retry was induced; source-only. See the [failed-open ownership trace](AROS-other-drivers-coverage.md#gameport-open-failure-unit-leak-od2305).
+
 <a id="od11561"></a>
 ## OD11561 — AHI_SetEffect leaks the subdriver fallback sentinel for unknown effect codes [invalid-selector conditional]
 
