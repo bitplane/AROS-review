@@ -13,6 +13,7 @@
 **[EK11013](AROS-exec-kernel.md#ek11013) — PReP Open Firmware header duplicates the `of_child()` prototype where `of_parent()` should be declared.** No in-tree caller found; source-only.  
 **[EK11014](AROS-exec-kernel.md#ek11014) — PReP image packer uses host-width `unsigned long` for fixed 32-bit image and MBR fields, corrupting metadata on LP64 hosts.** No image was built; source-only.
 **[EK11015](AROS-exec-kernel.md#ek11015) — PReP `PhysToBus()` adds the same offset as `BusToPhys()`, so the documented reverse pair does not round-trip.** No in-tree caller was found; hardware-aperture consequence remains conditional. Source-only.
+**[EK11016](AROS-exec-kernel.md#ek11016) — Linux-hosted AArch64 selects `<cpu_aarch64.h>` through the Unix kernel header, but the checkout only supplies the Darwin variant, so the configured kernel cannot compile.** No build was run; source-only.
 
 **[EK602](AROS-exec-kernel.md#ek602) — POSIXC can leak an open script handle if shebang argument construction fails during allocation. Requires a script and allocation failure; repeated failures in a long-lived process can retain DOS handles. Source-only.**
 
