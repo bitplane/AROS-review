@@ -18477,3 +18477,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD6079](AROS-graphics-desktop.md#gd6079)** — SysMon resubmits the completed timer I/O request without first removing its reply, so later timer requests can fail or remain queued. Source-only.
 **[GD6080](AROS-graphics-desktop.md#gd6080)** — SysMon's 30-byte task-summary buffer is too small for the Czech translation with two-digit counts. Source-only.
 **[GD9779](AROS-graphics-desktop.md#gd9779)** — Graph.mcc dereferences an unchecked InfoText line-node allocation; the selected SysExplorer Power path supplies non-NULL InfoText when the class is available. Conditional on allocation failure and Graph.mcc availability; source-only.
+
+**[OD11694](AROS-other-drivers.md#od11694) — Nouveau NV50 MST teardown can destroy manager state while the global UP-request worker is still queued.** The ordinary suspend flush is skipped after MST removal clears `is_mst`; requires a pending/running UP request and teardown interleaving. Source-only; no race was reproduced.
