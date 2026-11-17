@@ -11884,7 +11884,7 @@ ARMeb task-context and argument-caller pass (EK8918/EK10178 retained; 2026-10-30
 **EK9353 — QuickPart selected by the active `AROS` Workbench tools aggregate reverses SCSI Inquiry characters in pairs on little-endian targets:** its ATA helper applies big-endian word conversion to the raw Inquiry byte string. See [EK9353](AROS-exec-kernel.md#ek9353).
 
 
-**EK9354 — QuickPart selected by the active `AROS` Workbench tools aggregate drops the free extent after an interior partition:** it shrinks the free node's end before checking whether a post-partition range remains, so later placement cannot use that omitted range in the editor session. No on-disk data loss is claimed. See [EK9354](AROS-exec-kernel.md#ek9354).
+**EK9354 — QuickPart omits the free extent after an interior partition while scanning a table:** it shrinks the free node's end before checking for the trailing range, so the editor model and proportional layout omit that free capacity. The Create button is disabled; no new-partition placement or on-disk data loss is claimed. See [EK9354](AROS-exec-kernel.md#ek9354).
 
 
 **EK9356 — QuickPart leaks its separately allocated partition-container bookkeeping nodes:** consuming free-space nodes unlinks without freeing them, and container disposal never drains the remaining list. See [EK9356](AROS-exec-kernel.md#ek9356).
