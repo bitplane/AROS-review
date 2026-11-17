@@ -16004,6 +16004,8 @@ Vulkan-Hpp function wrapper interval `23101-23700` (GD10223/GD10264 rechecked; n
 
 **[OD11322](AROS-other-drivers.md#od11322) — VMM PageHandler can acknowledge one keyboard reset more than once, decrementing the shared handler count early.**
 
+**[OD926](AROS-other-drivers.md#od926) — keyboard.device can lose concurrent reset-handler completions on ExecSMP, leaving its reboot counter positive after all handlers finish.**
+
 **[GD14795](AROS-graphics-desktop.md#gd14795-diskfont-cache-entry-count-can-wrap-its-allocation-on-32-bit-builds) — A corrupt diskfont cache can wrap a `TTextAttr` allocation and overrun it during initialization on 32-bit builds.**
 
 **[GD14796](AROS-graphics-desktop.md#gd14796-diskfont-iterator-allocation-failure-leaves-the-font-semaphore-held) — Diskfont iterator allocation failure leaves the font semaphore held, blocking later font operations.**
