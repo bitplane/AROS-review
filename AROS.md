@@ -16832,8 +16832,6 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[OD9851](AROS-other-drivers.md#od9851) — PCI ATA registers its IRQ before `HIDD_ATABus_Start()` installs the callback; a qualifying interrupt in that startup interval calls through the initially NULL function pointer. Selected i386-PC, x86-64-PC and Sam440 module targets; source timing is conditional. Source-only.**
 
-**[OD11690](AROS-other-drivers.md#od11690) — USB process startup/expunge and USBHub disposal/OnOff do not check per-event `CreateMsgPort()` failure before `WaitPort()`, so port or signal-bit exhaustion passes NULL to Exec and faults. Conditional on the selected USB stack and allocation failure. Source-only.**
-
 ## Graphics/Desktop findings added to the master index (2026-11-06)
 
 **[GD15095](AROS-graphics-desktop.md#gd15095) — VMM Preferences and legacy conversion ignore config write/replace failures; RAM Handler can delete the old file on a short write, and the converter can install incomplete data or report success after failure.**
