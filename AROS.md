@@ -13020,6 +13020,8 @@ Moira instruction-handler declaration crosswalk (2026-10-31): reconciled the sel
 
 **[OD2303](AROS-other-drivers.md#od2303) — keyboard.device opener-list updates use only processor-local `Forbid()`.** On Raspberry Pi ExecSMP, concurrent closes of separate valid opens, or an open overlapping a close, can race intrusive-list mutation and traversal. Source-only; no overlap was reproduced.
 
+**[OD2305](AROS-other-drivers.md#od2305) — gameport.device leaks its allocated per-open unit when a later OOP/HIDD setup step fails.** Exec does not call the device Close vector after failed Open; repeated accumulation requires a direct caller retry because selected input.device does not retry. Source-only.
+
 
 Text.datatype public-header and AmigaGuide caller review (2026-10-31): completed the 40-line `textclass.h` API/field crosswalk. A provisional AmigaGuide `TDTA_WordWrap` candidate was withdrawn after tracing that attribute through the private node subclass and confirming the public datatype does not forward it and no checked-in caller sets it. Graphics/Desktop advances to 1,173/1,245 paths and 444,484/580,965 C/header lines. Summed area-ledger coverage is 4,591/5,001 entries (91.8%) and 1,661,503/2,209,873 lines (75.2%), leaving 410 entries and 548,370 lines without full-body credit; area entries may duplicate paths. See the [coverage ledger](AROS-graphics-desktop-coverage.md#textclass-public-header-api-and-amigaguide-wordwrap-candidate-withdrawn). Source-only.
 
