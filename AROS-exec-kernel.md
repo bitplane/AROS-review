@@ -11453,6 +11453,7 @@ For this target, `arch/aarch64-all/kernel/mmakefile.src` adds only `backtracefro
 
 Sources: `configure.in:1413-1425,1515-1530`; `arch/all-unix/kernel/mmakefile.src:4-9,47-55`; `arch/all-unix/kernel/kernel_cpu.h:18-20`; `arch/aarch64-all/kernel/mmakefile.src:20-22`; `arch/all-linux/kernel/mmakefile.src:4-6`; `arch/all-darwin/kernel/mmakefile.src:4-6`; `rom/kernel/kernel_base.h:38-40`; `rom/kernel/createcontext.c:10-12`; `arch/all-unix/kernel/cpu_aarch64.c:1-20`.
 
+<a id="ek11017"></a>
 ### EK11017 — Exec AVL API example uses invalid member accesses and comparator name [documentation defect]
 
 The `AVL_AddNode()` documentation example in `rom/exec/avl.c` is not usable as written. `ExampleNodeComp()` casts `a1` to `e1` but initializes `e2` by casting `e2` itself rather than `a2`, then accesses `key` through `a1` and `a2`, whose declared type is `struct AVLNode` and which has no `key` member (`rom/exec/avl.c:170-175`; the public `AVLNode` definition is `compiler/include/exec/avl.h:16-21`). `ExampleKeyComp()` likewise accesses the nonexistent `a1->key` instead of its `ExampleNode` cast (`avl.c:178-183`). `CountWords()` calls `ExampleNodecomp` with a lowercase `c`, while the declared callback is `ExampleNodeComp`, and increments `check->count` even though `check` is a `struct AVLNode *`; it already declares the correctly cast `work` pointer but does not use it (`avl.c:189-200`). These are in the API's own usage example, not executable AVL implementation code.
