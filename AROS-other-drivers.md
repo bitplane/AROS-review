@@ -44675,8 +44675,8 @@ The worker is created with `CreateNewProc()` without an `NP_CurrentDir` tag (`fi
 
 **Trigger and consequence:** notifier BO allocation succeeds, but its first GART placement/pin fails (for example, TTM validation cannot allocate or establish the requested backing). ABI16 channel creation reports failure, while cleanup emits a one-time kernel warning for unpinning a zero-pin BO. **Affected configuration:** optional Nouveau legacy ABI16 channel initialization on any supported Nouveau target that reaches this notifier setup; default-image inclusion is not claimed because the Nouveau parent Workbench edge is disabled in this snapshot. **Confidence:** high for the zero-pin cleanup path and warning; no pin/validation failure was induced. Track whether the notifier pin succeeded and unpin only after successful acquisition. No allocation failure, channel ioctl, GPU operation, or build was exercised; source-only.
 
-<a id="od11687"></a>
-## OD11687 — VMware SVGA reports hibernation restore success after atomic display replay fails [conditional]
+<a id="od11689"></a>
+## OD11689 — VMware SVGA reports hibernation restore success after atomic display replay fails [conditional]
 
 The VMware SVGA hibernation freeze path saves the active atomic display state with `vmw_kms_suspend()` before freezing device resources (`workbench/hidds/vmwaresvga/drm/vmwgfx/vmwgfx_drv.c:1513-1520`). `vmw_kms_suspend()` obtains that snapshot through `drm_atomic_helper_suspend()`, which duplicates the active state and disables all active outputs before returning it (`vmwgfx_kms.c:1677-1691`; `drm_atomic_helper.c:3772-3820`).
 
