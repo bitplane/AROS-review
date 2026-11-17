@@ -576,6 +576,8 @@ This ledger is being reconstructed. On 2026-10-22 this path was found to contain
 
 **[GD15230](AROS-graphics-desktop.md#gd15230) — LinuxFB accepts planar and interleaved-planar fbdev modes but exposes their framebuffer memory through its single-buffer `ChunkyBM` class, so drawing can corrupt the displayed image. Conditional on the optional LinuxFB HIDD and such a host mode. No device or build was exercised; source-only.**
 
+**[GD15231](AROS-graphics-desktop.md#gd15231) — LinuxFB reports sub-byte packed modes as one byte per pixel and uses its chunky bitmap class; framebuffer construction can fail on the packed pitch, and accepted layouts are then written incorrectly. Conditional on an optional LinuxFB build and a host mode below 8 bpp. No device or build was exercised; source-only.**
+
 ## Disk/Storage finding recheck (2026-11-07)
 
 **[DISK-100](AROS-disk.md#disk-100) — PCI ATA and Gayle probes read the freed bus-probe record after `AddBus()` disposes a bus whose setup failed.** PCI ATA has selected i386-PC, x86-64-PC and Sam440 module paths; Gayle's same route remains conditional on DISK-099 dispatch. See the [AddBus caller and failure-ownership trace](AROS-other-drivers-coverage.md#storage-controller-addbus-recheck). Source-only; no bus setup was run.
