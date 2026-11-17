@@ -23965,3 +23965,17 @@ The Save response obtains the result of `MUIM_TextEditor_ExportText` and passes 
 
 **Trigger and consequence:** choose Save for a named, modified file while export-buffer allocation fails, and the output file opens successfully. `strlen(NULL)` faults before the utility can report or recover from the export failure. **Affected configuration:** the standalone `TextEditor-Test` target in the legacy TextEditor Makefile's AROS builds; not the main MCC target. **Confidence:** high for NULL propagation and the unchecked call; no export or allocation failure was induced. Check the export result before writing and report the failed save. Source-only.
 
+
+<a id="gd15227"></a>
+### GD15227 — TextEditor test utility passes an allocation failure to `Read()`
+
+The test utility allocates its fixed input buffer with `AllocVec()` but does not check the result before passing it as the destination to DOS `Read()` (`workbench/classes/zune/texteditor/mcc/TextEditor-Test.c:498-505`). `Read()` requires a valid destination and asserts that pointer before forwarding it to the file handler (`rom/dos/read.c:54-66`). If the allocation fails, the test utility calls `Read()` with NULL; the DOS routine does not return early after the assertion.
+
+**Trigger and consequence:** memory pressure makes `AllocVec(50*1024, 0)` return NULL while the selected input file opens. The utility passes NULL to `Read()`, causing the DOS pointer assertion and potentially a NULL-buffer access in the file handler instead of reporting an allocation failure. **Affected configuration:** the standalone `TextEditor-Test` target in the legacy TextEditor Makefile's AROS builds; not the main MCC target. **Confidence:** high for the unchecked allocation and invalid `Read()` argument; no allocation failure or file read was induced. Check the buffer allocation before calling `Read()` and close the input handle on failure. Source-only.
+
+<a id="gd15228"></a>
+### GD15228 — TextEditor test utility ignores short and failed save writes
+
+After the Save response, the test utility opens the original filename with `MODE_NEWFILE`, which creates or truncates it, then ignores the result of `Write()` and closes the file (`workbench/classes/zune/texteditor/mcc/TextEditor-Test.c:637-645`). DOS documents that `Write()` may return fewer bytes than requested or -1 on error (`rom/dos/write.c:35-42`).
+
+**Trigger and consequence:** the selected TextEditor test utility saves a named document and the target filesystem accepts only a prefix or reports a write error (for example, out of space). The utility gives no indication that the save was incomplete, and the original file has already been truncated, leaving a partial or empty replacement. **Affected configuration:** the standalone `TextEditor-Test` target in the legacy TextEditor Makefile's AROS builds; not the main MCC target. **Confidence:** high for the destructive open mode and ignored documented write result; no file was written. Check the full byte count, preserve the old file until replacement succeeds, and report a failed save. Source-only.
