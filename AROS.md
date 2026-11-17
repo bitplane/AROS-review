@@ -13020,6 +13020,8 @@ Moira instruction-handler declaration crosswalk (2026-10-31): reconciled the sel
 
 **[OD2303](AROS-other-drivers.md#od2303) — keyboard.device opener-list updates use only processor-local `Forbid()`.** On Raspberry Pi ExecSMP, concurrent closes of separate valid opens, or an open overlapping a close, can race intrusive-list mutation and traversal. Source-only; no overlap was reproduced.
 
+**[OD2304](AROS-other-drivers.md#od2304) — keyboard.device leaks its allocated per-open unit when input-HIDD or keyboard-HIDD setup fails after allocation.** Each failed Open loses one unit; repeat accumulation requires another independent or external open attempt because no automatic retry was found among the seven checked-in callers. See the [caller census](AROS-other-drivers-coverage.md#keyboard-device-open-failure-caller-census-od2304). Source-only.
+
 **[OD2305](AROS-other-drivers.md#od2305) — gameport.device leaks its allocated per-open unit when a later OOP/HIDD setup step fails.** Exec does not call the device Close vector after failed Open; repeated accumulation requires a direct caller retry because selected input.device does not retry. Source-only.
 
 **[OD1192](AROS-other-drivers.md#od1192) — GamePort can release shared `IID_Hidd_Input` references without owning them.** This occurs on repeated opens, or after `IID_Hidd_Mouse` acquisition fails and a direct caller retries with the stale cached input base. The bucket can disappear while keyboard/mouse HIDD classes still cache it; selected input.device opens once and does not retry. Source-only.
