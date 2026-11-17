@@ -4122,9 +4122,15 @@ For each AppWindow message, the Application input loop passes the `AppMessage *`
 
 ## GD5629
 
-**Indexed summary:** AmigaGuide does not propagate worker startup failure and can hang during disposal.
+**Summary:** AmigaGuide accepts a failed worker startup, leaving the object without a usable command port; later layout/trigger dispatch dereferences a NULL port, and disposal can wait forever for an exited worker.
 
-**Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L2282`](AROS-graphics-desktop-coverage.md#L2282), [`AROS-graphics-desktop-coverage.md:L2290`](AROS-graphics-desktop-coverage.md#L2290). Recheck the cited note and its scope before treating this candidate as confirmed.
+**Source and trigger:** In `asyncmethodfunc()`, the worker stores its task in `data->ag_Process`, then assigns `CreateMsgPort()` to `data->ag_ProcPort`. If that allocation fails, it still signals the parent before the `if (port != NULL)` event-loop check, skips the loop, and exits through cleanup (`workbench/classes/datatypes/amigaguide/process.c:217-244,352-390`). `CreateAGProcess()` waits for that signal and returns the created task pointer (`:452-486`). `OM_NEW` treats startup as successful whenever that return equals `data->ag_Process`; because the child assigned the same task pointer before signaling, command-port failure leaves `rv` nonzero (`workbench/classes/datatypes/amigaguide/amigaguideclass.c:327-351`). Later `SendAGLayout()` and `SendAGTrigger()` allocate a message and unconditionally pass `data->ag_ProcPort` to `PutMsg()` (`process.c:404-435`). On this selected Exec implementation, `PutMsg()` forwards the pointer to `InternalPutMsg()`, which dereferences `port->mp_MsgList` (`rom/exec/putmsg.c:45-72`). The failed worker also leaves `data->ag_Process` non-NULL after exit; `DeleteAGProcess()` signals that task and waits for a reply signal which the exited worker cannot send (`process.c:386-390,490-500`), so disposal can block indefinitely.
+
+There is a separate task-creation failure variant: if `CreateNewProcTags()` returns NULL, `CreateAGProcess()` returns NULL while `data->ag_Process` is still NULL, making the same equality check pass and accepting an object with no worker. This variant is also covered by the missing startup-failure propagation; no separate ID is assigned.
+
+**Consequence and scope:** AmigaGuide object construction can report success without a running worker. With command-port allocation failure, later layout or trigger dispatch reaches Exec `PutMsg()` with NULL and dereferences it; disposing the object can instead hang while waiting on the exited worker. With task creation failure, the object is likewise accepted without a worker. These are local datatype startup/error-path defects; the source review did not establish a maintained in-tree way to force either allocation failure. **Confidence:** high for the unchecked results, equality, and selected call chain; no failure was induced.
+
+**Review evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md) records the 2026-10-23 startup/disposal trace and the 2026-11-17 command-port-to-`PutMsg()` follow-up. No task, allocation failure, message, or build was run; source-only.
 
 ## GD5630
 
