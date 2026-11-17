@@ -23936,3 +23936,32 @@ The TextEditor MCC debug flags assign both `DBF_IMPORT` and `DBF_EXPORT` to bit 
 **Trigger and consequence:** build the TextEditor MCC with `DEBUG` and configure `texteditor.mcc.debug` to include or exclude only `import` or `export`. Import and Export diagnostics are enabled or suppressed together, preventing a developer from isolating either direction. **Affected configuration:** optional TextEditor MCC DEBUG builds; ordinary builds do not include these diagnostics. **Confidence:** high for the shared bit and token mapping; no debug build or environment setting was run. Assign distinct bits and map the `export` token to `DBF_EXPORT`. Source-only.
 
 Sources: `workbench/classes/zune/texteditor/mcc/Debug.h:73-74`; `Debug.c:125-126,323,369,396,412,425-427`; `ImportHook.c:217,280-502`; `ExportHook.c:197-317`.
+
+<a id="gd15223"></a>
+### GD15223 — TextEditor test utility skips past the end of header input
+
+The optional `SKIPHEADER` input path reads at most 51,198 bytes into a 51,200-byte allocation, writes a NUL at `text[size]`, and then scans for a blank line (`workbench/classes/zune/texteditor/mcc/TextEditor-Test.c:496-513`). The outer loop checks for a newline at the current pointer, but its inner `while (*buffer++ != '\n')` has no end check. If the loaded prefix contains no newline after the starting position, this loop advances past the allocation and reads unrelated memory until a newline happens to occur.
+
+**Trigger and consequence:** run the optional TextEditor test utility with `SKIPHEADER` and a file whose first 51,198 bytes contain no newline (including a shorter newline-free file). The header scan reads beyond the allocated buffer and may fault or continue through unrelated memory. **Affected configuration:** the standalone `TextEditor-Test` target in the legacy TextEditor Makefile's AROS builds; it is not part of the main MCC source manifest. **Confidence:** high for the missing bound and fixed-size buffer; no file was opened. Bound both scans by the successful read length and handle the no-separator case. Source-only.
+
+<a id="gd15224"></a>
+### GD15224 — A failed TextEditor test input read writes before its buffer
+
+The test utility does not check the result of `Read()` before using it as an array index: `size = Read(...)` is followed by `text[size] = '\0'` (`workbench/classes/zune/texteditor/mcc/TextEditor-Test.c:498-506`). DOS documents that `Read()` returns -1 on error (`rom/dos/read.c:35-42`). On that path, the terminator assignment writes to `text[-1]`.
+
+**Trigger and consequence:** select an input file that opens successfully but whose filesystem read returns an error. The test program writes one byte immediately before its allocated input buffer, corrupting adjacent memory or faulting before closing the file. **Affected configuration:** the standalone `TextEditor-Test` target in the legacy TextEditor Makefile's AROS builds; not the main MCC target. **Confidence:** high for the documented -1 result and unchecked index; no I/O error was induced. Reject negative read results before indexing and close the file on that error path. Source-only.
+
+<a id="gd15225"></a>
+### GD15225 — TextEditor test utility dereferences a failed custom-class result
+
+`MUI_CreateCustomClass()` may return NULL when the requested superclass cannot be found or its allocations/class creation fail (`workbench/libs/muimaster/mui_createcustomclass.c:52-78`). The test utility stores that result in `mcc` without checking it, then dereferences `mcc->mcc_Class` while constructing its editor object (`workbench/classes/zune/texteditor/mcc/TextEditor-Test.c:234,364`).
+
+**Trigger and consequence:** `MUI_CreateCustomClass(NULL, "Area.mui", ...)` fails during test utility startup. Object-tree construction dereferences the NULL result before the later `if (app)` check, terminating the utility instead of reporting the class-creation failure. **Affected configuration:** the standalone `TextEditor-Test` target in the legacy TextEditor Makefile's AROS builds; not the main MCC target. **Confidence:** high for the NULL return and unchecked dereference; no class-creation failure was induced. Check `mcc` before using its class and unwind the acquired startup resources on failure. Source-only.
+
+<a id="gd15226"></a>
+### GD15226 — TextEditor test utility calls `strlen()` on failed export output
+
+The Save response obtains the result of `MUIM_TextEditor_ExportText` and passes it directly to `strlen()` when the named output file opens (`workbench/classes/zune/texteditor/mcc/TextEditor-Test.c:637-646`). The selected `mExportText()` returns NULL when an export hook returns NULL (`mcc/ExportText.c:66-74`); the selected plain export hook can return NULL when its temporary buffer allocation fails (`mcc/ExportHook.c:50-74,397-414`). The test utility does not check that result before calling `strlen`.
+
+**Trigger and consequence:** choose Save for a named, modified file while export-buffer allocation fails, and the output file opens successfully. `strlen(NULL)` faults before the utility can report or recover from the export failure. **Affected configuration:** the standalone `TextEditor-Test` target in the legacy TextEditor Makefile's AROS builds; not the main MCC target. **Confidence:** high for NULL propagation and the unchecked call; no export or allocation failure was induced. Check the export result before writing and report the failed save. Source-only.
+
