@@ -17613,6 +17613,8 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **OD9552 — AHI can allocate a tiny mix buffer then copy the maximum frame count.** At MixFreq 16,777,217 and PlayerFreq/MinPlayerFreq/MaxPlayerFreq 257, 32-bit RecalcBuff arithmetic yields zero frames while AHI still computes 65,281 maximum frames; selected playback backends copy beyond the 80-byte padded mix buffer. Conditional on this unusual rate combination; source-only. See [OD9552](AROS-other-drivers.md#od9552).
 
+**OD9555 — Bluetooth may report disconnect success without queuing the HCI operation.** When all 16 command slots are occupied, disconnect/cancel submission fails, but the control handler ignores that result and replies success. A connected link can remain active; a connecting device can still connect before its timeout. Conditional on command-queue saturation; source-only. See [OD9555](AROS-other-drivers.md#od9555).
+
 **OD9551 — HDA `SetupStream` can free DMA buffers while a stream remains running.** Reconfiguring a running stream frees its current BDL and sample buffers before stopping DMA; allocation failure leaves the old hardware stream active. Conditional on an external HIDD client reconfiguring a running stream; maintained HDAudio/NVHDMI callers configure new streams once. Source-only. See [OD9551](AROS-other-drivers.md#od9551).
 
 **OD11582 — HDA stream buffer alignment size can wrap before allocation.** A direct client can request four `0xffffff81` byte buffers; each aligned allocation requests one byte, but the BDL/cache/DMA lengths remain huge. Conditional on that external HIDD call and successful small allocations; maintained AHI callers do not use such sizes. Source-only. See [OD11582](AROS-other-drivers.md#od11582).
