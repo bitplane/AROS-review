@@ -18480,6 +18480,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11694](AROS-other-drivers.md#od11694) — Nouveau NV50 MST teardown can destroy manager state while the global UP-request worker is still queued.** The ordinary suspend flush is skipped after MST removal clears `is_mst`; requires a pending/running UP request and teardown interleaving. Source-only; no race was reproduced.
 
-**[OD11695](AROS-other-drivers.md#od11695) — Serial mouse PnP parsing compares the optional-field checksum but ignores mismatch and can still select a protocol from the ID.** Requires an invalid-checksum response whose extracted ID matches a supported entry; optional serialmouse module only. Source-only.
+**[OD11695](AROS-other-drivers.md#od11695) — Serial mouse PnP parsing compares the optional-field checksum but ignores mismatch and can still select a protocol from the ID.** The selected `test_mouse_serial()` path accepts supported IDs such as PNP0F01; requires an invalid-checksum response with a recognized ID and the optional serialmouse module. Source-only.
 
 **[OD3897](AROS-other-drivers.md#od3897) — Bluetooth discovery scan state can diverge from controller state when fixed command-queue submissions or HCI commands fail.** Start/stop paths ignore admission/completion errors; BTCtrl can report “Discovery stopped” despite a rejected stop. Conditional on queue saturation or controller error; source-only.
