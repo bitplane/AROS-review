@@ -18428,6 +18428,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[GD15237](AROS-graphics-desktop.md#gd15237)** — Nouveau can commit scanout of a framebuffer while an earlier GPU copy to its BO is still in flight because implicit reservation fences are not collected; optional NV50 HIDD path, source-only.
 **[GD15238](AROS-graphics-desktop.md#gd15238)** — Nouveau NV04/NV50/pre-Blackwell NVC0 accelerated self-copies do not select an overlap-aware traversal; possible pixel corruption depends on the 2D engines’ overlap semantics. Conditional candidate; source-only.
+**[GD15239](AROS-graphics-desktop.md#gd15239)** — SMP-SmallPT omits `FreeArgs()` after successful argument parsing, retaining the DOS argument buffers after each run. Optional executable; source-only.
 **[EK11017](AROS-exec-kernel.md#ek11017)** — The Exec AVL API's usage example has invalid `AVLNode` member accesses and a comparator-name mismatch, so copied code does not compile. Documentation defect; source-only.
 **[GD1792](AROS-graphics-desktop.md#gd1792)** — Concurrent Editor Preferences launches can both pass the public-port lookup and publish duplicate `JANOPREFS_PORT` names, so later single-instance requests may reach only one of the two running utilities. Source-only.
 **[OD11691](AROS-other-drivers.md#od11691)** — Unbinding a suspended PTP device can deadlock: Poseidon holds the device lock while the release callback waits for the PTP worker, whose close-session transfer tries to resume the device using that same lock. Optional PTP class; source-only.
