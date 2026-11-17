@@ -23927,3 +23927,12 @@ Sources: `workbench/classes/zune/texteditor/include/mccinit.c:1203-1215`; byte-i
 **Trigger and consequence:** with one existing open, request expunge, then attempt another open while `LIBF_DELEXP` is set; the optional `ClassOpen()` callback fails, then the existing client closes. The failed open clears the pending expunge, and the last close does not delete the library, retaining its base and initialized resources. **Affected configuration:** custom MCC/MCP builds that define `CLASSOPEN`; no checked-in definition was found. **Confidence:** high for flag/count transitions in the template; no in-tree callback trigger or runtime sequence was established. Preserve the delayed-expunge state when the callback fails, and perform the pending expunge when the final open closes. No library lifecycle was exercised; source-only.
 
 Sources: `workbench/classes/zune/texteditor/include/mccinit.c:1080-1090,1134-1162,1218-1230`; byte-identical NList copy and reviewed BetterString variant.
+
+<a id="gd15222"></a>
+### GD15222 — TextEditor DEBUG output cannot distinguish Import from Export
+
+The TextEditor MCC debug flags assign both `DBF_IMPORT` and `DBF_EXPORT` to bit 10 (`workbench/classes/zune/texteditor/mcc/Debug.h:73-74`). The selected import and export hooks pass those flags to their diagnostic calls (`ImportHook.c:217,280-502`; `ExportHook.c:197-317`). `SetupDebug()` also maps both the `import` and `export` environment tokens to `DBF_IMPORT` (`Debug.c:125-126`), so enabling or disabling either token changes the same bit. The debug filtering path tests the diagnostic flags against this mask (`Debug.c:323,369,396,412,425-427`).
+
+**Trigger and consequence:** build the TextEditor MCC with `DEBUG` and configure `texteditor.mcc.debug` to include or exclude only `import` or `export`. Import and Export diagnostics are enabled or suppressed together, preventing a developer from isolating either direction. **Affected configuration:** optional TextEditor MCC DEBUG builds; ordinary builds do not include these diagnostics. **Confidence:** high for the shared bit and token mapping; no debug build or environment setting was run. Assign distinct bits and map the `export` token to `DBF_EXPORT`. Source-only.
+
+Sources: `workbench/classes/zune/texteditor/mcc/Debug.h:73-74`; `Debug.c:125-126,323,369,396,412,425-427`; `ImportHook.c:217,280-502`; `ExportHook.c:197-317`.
