@@ -11,7 +11,7 @@
 **[EK11011](AROS-exec-kernel.md#ek11011) — PReP `cstart()` constructs boot metadata and then loops forever; its kernel-entry call is commented out.** Conditional startup hang; source-only.  
 **[EK11012](AROS-exec-kernel.md#ek11012) — PReP `of_set_symbol_lookup()` stores the record's old value instead of its `value_to_sym` argument.** No in-tree caller found; source-only.  
 **[EK11013](AROS-exec-kernel.md#ek11013) — PReP Open Firmware header duplicates the `of_child()` prototype where `of_parent()` should be declared.** No in-tree caller found; source-only.  
-**[EK11014](AROS-exec-kernel.md#ek11014) — PReP image packer uses host-width `unsigned long` for fixed 32-bit image and MBR fields, corrupting metadata on LP64 hosts.** No image was built; source-only.
+**[EK11014](AROS-exec-kernel.md#ek11014) — PReP image packer uses host-width `unsigned long` and an i386-only byte-order branch for fixed-width image/MBR fields.** LP64 hosts can widen fields; little-endian non-i386 hosts can byte-swap them incorrectly. No image was built; source-only.
 **[EK11015](AROS-exec-kernel.md#ek11015) — PReP `PhysToBus()` adds the same offset as `BusToPhys()`, so the documented reverse pair does not round-trip.** No in-tree caller was found; hardware-aperture consequence remains conditional. Source-only.
 **[EK11016](AROS-exec-kernel.md#ek11016) — Linux-hosted AArch64 selects `<cpu_aarch64.h>` through the Unix kernel header, but the checkout only supplies the Darwin variant, so the configured kernel cannot compile.** No build was run; source-only.
 
