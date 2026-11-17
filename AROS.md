@@ -18405,3 +18405,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15224](AROS-graphics-desktop.md#gd15224)** — A DOS read error returns -1, which the TextEditor test utility uses as an index and writes before its input buffer. Standalone optional AROS test target; source-only.
 **[GD15225](AROS-graphics-desktop.md#gd15225)** — TextEditor test utility dereferences the NULL custom-class result if class creation fails. Standalone optional AROS test target; source-only.
 **[GD15226](AROS-graphics-desktop.md#gd15226)** — TextEditor test utility passes failed export output to `strlen()`, faulting during Save on export allocation failure. Standalone optional AROS test target; source-only.
+**[GD15227](AROS-graphics-desktop.md#gd15227)** — TextEditor test utility does not check its input-buffer allocation before passing the result to DOS `Read()`. Standalone optional AROS test target; source-only.
+**[GD15228](AROS-graphics-desktop.md#gd15228)** — TextEditor test utility ignores short/failed Save writes after truncating the original file, leaving incomplete content without an error. Standalone optional AROS test target; source-only.
