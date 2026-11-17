@@ -18451,3 +18451,16 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD9763](AROS-graphics-desktop.md#gd9763)** — SysExplorer leaks the allocated Power window title on construction failure and each disposed Power property window. Source-only.
 **[GD9764](AROS-graphics-desktop.md#gd9764)** — SysExplorer Telemetry property groups leak formatted per-entry strings after MUI copies them. Repeated property-window openings accumulate memory; source-only.
 **[GD9765](AROS-graphics-desktop.md#gd9765)** — SysExplorer Power property groups leak formatted per-entry strings after MUI copies them. Repeated property-window openings accumulate memory; source-only.
+
+## SysMon and Graph findings restored to the active index (2026-11-17)
+
+**[GD6071](AROS-graphics-desktop.md#gd6071)** — SysMon continues after unchecked task-summary or CPU-frequency array allocations; a failed array faults with a nonzero processor count. The failed Text/HVSpace child path is covered by GD4042. Source-only.
+**[GD6072](AROS-graphics-desktop.md#gd6072)** — SysMon leaks the ProcessorGauge per-CPU pointer array when Gauge objects are disposed or replaced. Source-only.
+**[GD6073](AROS-graphics-desktop.md#gd6073)** — SysMon ProcessorGauge writes through its per-CPU pointer array when that allocation fails. Source-only.
+**[GD6074](AROS-graphics-desktop.md#gd6074)** — SysMon ProcessorGraph writes through unchecked graph/hook arrays in selected graph-display modes. Conditional on allocation failure; source-only.
+**[GD6075](AROS-graphics-desktop.md#gd6075)** — SysMon does not release its Hidd_Gfx attribute-base reference on video-module teardown. Source-only.
+**[GD6076](AROS-graphics-desktop.md#gd6076)** — SysMon dereferences the Workbench screen after the automatic screen-open path fails. Conditional on that failure; source-only.
+**[GD6078](AROS-graphics-desktop.md#gd6078)** — SysMon leaks its prebuilt UI tree and initialized resources when MUI Application construction fails. Conditional on application construction failure; source-only.
+**[GD6079](AROS-graphics-desktop.md#gd6079)** — SysMon resubmits the completed timer I/O request without first removing its reply, so later timer requests can fail or remain queued. Source-only.
+**[GD6080](AROS-graphics-desktop.md#gd6080)** — SysMon's 30-byte task-summary buffer is too small for the Czech translation with two-digit counts. Source-only.
+**[GD9779](AROS-graphics-desktop.md#gd9779)** — Graph.mcc dereferences an unchecked InfoText line-node allocation; the selected SysExplorer Power path supplies non-NULL InfoText when the class is available. Conditional on allocation failure and Graph.mcc availability; source-only.
