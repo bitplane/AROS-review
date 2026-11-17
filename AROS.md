@@ -280,6 +280,8 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 
 ## Graphics/Desktop findings reconciled into the index (2026-11-02)
 
+**[GD5629](AROS-graphics-desktop.md#gd5629) — AmigaGuide accepts failed worker startup: a command-port allocation failure leaves no usable queue, so later layout/trigger dispatch passes NULL to Exec `PutMsg()`, and disposal can wait forever for the exited worker. Task-creation failure is also masked by the NULL-equals-NULL startup check. Conditional on worker/task allocation failure; source-only.**
+
 **[GD2876](AROS-graphics-desktop.md#gd2876) — `text.datatype` ignores font-initialization failure and dereferences a null font during object construction. Applies to builds that include the explicit datatype target; allocation or font-availability failure is required. GD9523 was a duplicate and is withdrawn. Source-only.**
 
 **[GD5762](AROS-graphics-desktop.md#gd5762) — Failed graphics.library initialization frees its base without removing the embedded `fontsem` from Exec's public semaphore list. A later `FindSemaphore()` traversal follows the dangling node into freed storage. Conditional on a failure after semaphore publication; GD9624 is a duplicate and withdrawn. Source-only; no init failure or later list operation was induced.**
