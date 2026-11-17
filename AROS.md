@@ -1,6 +1,6 @@
 **OD11555 — `setlastlog`'s public vector omits the console argument:** the generated three-argument interface passes `host` in A1, but the implementation expects `con` in A1 and `host` in A2. Calls can fail, store the host as the console line, or read an unrelated A2 pointer. No maintained in-tree caller was found; applies to clients of a built `usergroup.library`. See [OD11555](AROS-other-drivers.md#od11555) and the [generated vector trace](AROS-other-drivers-coverage.md#usergroup-setlastlog-vector-arity-od11555). Source-only; no build or call was run.
 
-**[GD4042](AROS-graphics-desktop.md#gd4042) — MUI Group ignores Family's rejection of a NULL child, increments its child count, and then dereferences the NULL pointer. Selected callers include Scrollbar, List, AboutWindow, and app-backed MUI_RequestA HSpace insertion. Conditional on child or Rectangle construction failure. Source-only.**
+**[GD4042](AROS-graphics-desktop.md#gd4042) — MUI Group ignores Family's rejection of a NULL child, increments its child count, and then dereferences the NULL pointer. Selected callers include Scrollbar, List, AboutWindow, SysMon, and app-backed MUI_RequestA HSpace insertion. Conditional on child or Rectangle construction failure. Source-only.**
 
 ## Exec/Kernel findings reconciled into the index (2026-11-02)
 
