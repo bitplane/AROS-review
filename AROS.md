@@ -17650,6 +17650,8 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[OD11583](AROS-other-drivers.md#od11583) — FDisk opens writable disk images as read-only.** FDisk uses `MODE_OLDFILE`; FAT maps this to a shared input lock and rejects writes that require an exclusive lock. Conditional on `FDSK:` resolving to a FAT-backed image path. Source-only.
 
+**[OD2531](AROS-other-drivers.md#od2531) — A rejected exclusive SiS900 Open stops the NIC beneath existing shared clients and inflates the open count.** Conditional on a direct SANA-II client requesting `SANA2OPF_MINE` while the unit is shared; the checked AROSTCP caller opens shared. Standard i386-PC and x86-64-PC workbench targets select SiS900. Source-only.
+
 **[OD3089](AROS-other-drivers.md#od3089) — SiS900 expunge signals its worker with a signal number instead of a mask and frees shared state without joining it.** The worker does not recognize the shutdown signal; expunge can leave it running against freed unit memory and an unmapped PCI BAR. Applies to selected i386-PC/x86-64-PC SiS900 targets; source-only.
 
 **[D01](AROS-dos.md#d01) — DOS `Close()` reports success and discards pending bytes when its final buffered write fails but the handler accepts `ACTION_END`. Confirmed for RAMFS, FAT, SFS and optional SMBFS; exact failure condition depends on the handler. Source-only.**
