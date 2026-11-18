@@ -15067,6 +15067,18 @@ Coverage-link repair: GD10288's coverage link now resolves to the explicit `setr
 
 **[OD2433](AROS-other-drivers.md#od2433) — E1000 leaks its per-unit hardware-statistics allocation on construction failures and expunge.** Several post-allocation returns and common unit teardown omit the free. Selected x86 PC targets; source-only.
 
+**[OD3021](AROS-other-drivers.md#od3021) — E1000 publishes its worker after family hardware initialization errors are discarded.** Conditional on PHY/setup failure in supported 82540/82541/82542/82543 devices. Source-only.
+
+**[OD3022](AROS-other-drivers.md#od3022) — E1000 82542 Rev. 2 can return early in receive reset after multicast-array allocation fails.** Conditional on adding the first range under memory pressure. Source-only.
+
+**[OD3024](AROS-other-drivers.md#od3024) — E1000 ignores selected NVM MAC-read errors and can publish a zero station address.** Conditional on NVM read failure in supported 82540/82542 families. Source-only.
+
+**[OD3025](AROS-other-drivers.md#od3025) — E1000 82541 PHY initialization uses unchecked MDIO results, including an uninitialized saved register value.** Conditional on an enabled PHY script and MDIO error. Source-only.
+
+**[OD3026](AROS-other-drivers.md#od3026) — E1000 management host-interface writer underflows a short unaligned payload length.** Direct helper caller required; no maintained caller was found. Source-only.
+
+**[OD3028](AROS-other-drivers.md#od3028) — E1000 cooked RX delivery underflows the packet length for accepted short frames.** Conditional on a 5–17 byte EOP frame without frame-error flags and a cooked reader. Source-only.
+
 **[OD3014](AROS-other-drivers.md#od3014) — E1000 TX and event queue consumers omit the message-port spinlock used by producers.** Conditional on cross-CPU producer/consumer overlap in x86-64-PC ExecSMP. Source-only.
 
 **[OD3016](AROS-other-drivers.md#od3016) — E1000 advances TX state after packet preparation failure.** Allocation failure can be replied as success; hook failure still consumes and publishes the ring slot. Hardware stall behavior remains conditional. Source-only.
