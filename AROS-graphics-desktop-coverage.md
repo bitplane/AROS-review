@@ -22520,3 +22520,6 @@ Commodities `SetCxObjPri()` native return-value pass (GD15250 added; no source-b
 
 
 Commodities `InsertCxObj()` NULL-predecessor contract pass (GD15251 added; no source-body/path/LOC credit; 2026-11-18): compared the public function contract (`workbench/libs/commodities/insertcxobj.c:35-45`) with the selected wrapper (`:78-81`) and Exec `Insert()` (`rom/exec/insert.c:31-39,96-108`). The wrapper takes `&pred->co_Node` unconditionally, so the documented NULL predecessor faults before Exec can insert at the head. Added GD15251, scoped to native Commodities library builds; no in-tree caller was found. No body/path/LOC totals change. No client or build was run; source-only.
+
+
+Commodities object allocation-failure pass (GD15252 added; no source-body/path/LOC credit; 2026-11-18): traced `CreateCxObj()` and `CxBroker()` into `AllocCxStructure()` (`workbench/libs/commodities/createcxobj.c:53-58,87-93`; `cxbroker.c:115-118`; `eventfuncs.c:70-87`). The CX_OBJECT allocator dereferences `tempObj` immediately after `AllocVec()` without a NULL check, defeating the documented NULL-return and broker system-error handling. Added GD15252, scoped to native Commodities builds. No body/path/LOC totals change. No allocator failure or build was exercised; source-only.
