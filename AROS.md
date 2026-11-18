@@ -18623,3 +18623,9 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 
 **[OD11734](AROS-other-drivers.md#od11734-controller-axis-range-subtraction-overflow)** — signed controller axis endpoints can span more than `LONG_MAX`, but import and normalization subtract them in `LONG`, invoking undefined behavior. Conditional on a driver exposing such endpoints; source-only.
+
+
+**[OD11735](AROS-other-drivers.md#od11735-controller-reading-seqlock-has-unserialized-writers)** — concurrent controller pushes on ExecSMP can interleave the reading-cache seqlock writers, expose an even sequence during a write, and produce torn readings. Conditional on concurrent same-device producers; source-only.
+
+
+**[OD11736](AROS-other-drivers.md#od11736-controller-reading-reader-tests-uninitialized-sequence)** — on an odd sequence, `ctrl_CopyReading()` continues to its `do…while` condition and reads uninitialized `s2` before retrying. Conditional on concurrent read/write on ExecSMP; source-only.
