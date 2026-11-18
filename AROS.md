@@ -18278,6 +18278,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11522](AROS-other-drivers.md#od11522) — BTCtrl can report discovery finished when WAIT setup fails; source-only.**
 **[OD11523](AROS-other-drivers.md#od11523) — BTCtrl silently succeeds when remote-name request allocation fails; source-only.**
 **[OD2319](AROS-other-drivers.md#od2319) — RTL8139 failed-startup cleanup can signal a reclaimed worker task; source-only.**
+**[OD2435](AROS-other-drivers.md#od2435) — E1000's interrupt-safe millisecond delay helper is empty, so selected PHY setup and recovery calls skip required settling intervals.** Hardware effect depends on PHY timing; selected x86 PC E1000 paths. Source-only.
+
 **[OD2436](AROS-other-drivers.md#od2436) — e1000 shutdown passes a signal number where Exec needs a mask; source-only.**
 **[OD11524](AROS-other-drivers.md#od11524) — Nouveau `NvI2C=1` selects a transfer callback compiled as unavailable; source-only.**
 **[OD11525](AROS-other-drivers.md#od11525) — Nouveau ICCSense one-init leaks its parsed BIOS rail table; source-only.**
