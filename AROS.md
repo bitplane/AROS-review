@@ -15067,6 +15067,14 @@ Coverage-link repair: GD10288's coverage link now resolves to the explicit `setr
 
 **[OD2433](AROS-other-drivers.md#od2433) — E1000 leaks its per-unit hardware-statistics allocation on construction failures and expunge.** Several post-allocation returns and common unit teardown omit the free. Selected x86 PC targets; source-only.
 
+**[OD3014](AROS-other-drivers.md#od3014) — E1000 TX and event queue consumers omit the message-port spinlock used by producers.** Conditional on cross-CPU producer/consumer overlap in x86-64-PC ExecSMP. Source-only.
+
+**[OD3016](AROS-other-drivers.md#od3016) — E1000 advances TX state after packet preparation failure.** Allocation failure can be replied as success; hook failure still consumes and publishes the ring slot. Hardware stall behavior remains conditional. Source-only.
+
+**[OD3018](AROS-other-drivers.md#od3018) — E1000 publishes RX descriptors after packet-buffer allocation fails.** Conditional on allocation failure during initial receive-ring refill; device impact depends on descriptor consumption. Source-only.
+
+**[OD3019](AROS-other-drivers.md#od3019) — E1000 RX and multicast configuration traverse lists without SMP-safe protection.** Conditional on overlap with list removal/free in x86-64-PC ExecSMP. Source-only.
+
 **[OD3015](AROS-other-drivers.md#od3015) — E1000 never decrements its per-unit opener count, so a closed exclusive unit remains busy.** Conditional on an exclusive SANA-II Open or opener-allocation failure; the checked AROSTCP caller opens shared. Source-only.
 
 **[OD3023](AROS-other-drivers.md#od3023) — E1000 leaves device and VERTB interrupt callbacks registered across Close and unit teardown.** Repeated shared Opens register the same VERTB node again; later deletion can leave callbacks pointing at freed unit state. Selected x86 PC network targets; source-only.
