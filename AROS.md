@@ -18485,3 +18485,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD3897](AROS-other-drivers.md#od3897) — Bluetooth discovery scan state can diverge from controller state when fixed command-queue submissions or HCI commands fail.** Start/stop paths ignore admission/completion errors; BTCtrl can report “Discovery stopped” despite a rejected stop. Conditional on queue saturation or controller error; source-only.
 
 **[OD11696](AROS-other-drivers.md#od11696) — WirelessManager's Amiga GUI dereferences a missing SSID information element in SANA-II scan results.** Conditional on a returned network record having neither information-element data nor an SSID tag; scan completion can terminate the supplicant task. Source-only.
+
+**[OD4273](AROS-other-drivers.md#od4273) — WirelessManager's supplicant task mutates the MUI scan List while the GUI task can render or select it.** Conditional on scan completion overlapping GUI list use; the MUI Application method queue is not used for these updates. Separate from GD14938's active-row clear write. Source-only.
