@@ -314,6 +314,15 @@ There is a separate endianness failure on little-endian hosts other than 32-bit 
 
 Sources: `arch/ppc-all/prep/preplink.c:39-47,75-107`; `arch/ppc-all/prep/mmakefile.src:16-21`; `config/host.cfg.in:19`; `configure.in:226`.
 
+<a id="ek11022"></a>
+### EK11022 — DoPkt raises a Process-only assertion for supported Task callers in ADEBUG builds [debug contract mismatch]
+
+`DoPkt()` is documented as callable from an Exec Task, and `dopacket()` has an explicit non-Process path that creates a private reply port and deletes it after the reply (`rom/dos/dopkt.c:35-41,101-116,143-147`). Before that branch, however, it calls `ASSERT_VALID_PROCESS(me)` (`:64-72`). With `ADEBUG` enabled, that macro requires `tc_Node.ln_Type == NT_PROCESS` and invokes `Alert(AG_BadParm)` when the caller is a valid `NT_TASK` (`compiler/arossupport/include/debug.h:152-171,196-199`). The alert is not marked `AT_DeadEnd`, so it can return after alert handling; the issue is a false bad-parameter alert and interruption of an API use the same function explicitly supports. `ADEBUG` defaults to zero, so ordinary builds do not take this assertion path (`debug.h:28-30`).
+
+**Trigger and scope:** an `ADEBUG=1` build and a valid non-Process Exec Task calls `DoPkt()`. No maintained direct caller running as an `NT_TASK` was established in this pass, although `dopkt.c` cites DOS/Init's initial-Shell startup as a Task use (`:105-108`); the documented public API permits external callers. **Affected configuration:** debug-enabled builds only. **Confidence:** high for the contract/assertion mismatch; medium for the in-tree exposure and user-visible interruption because no selected Task caller or runtime alert was confirmed. Use `ASSERT_VALID_TASK()` for this API path, or otherwise assert only that the caller is either a Task or Process. Source-only; no Task call or alert was run.
+
+Sources: `rom/dos/dopkt.c:35-41,64-72,101-116,143-147`; `compiler/arossupport/include/debug.h:28-30,152-171,190-199`; `compiler/include/exec/alerts.h:12-24`.
+
 <a id="ek11021"></a>
 ### EK11021 — PReP image packer ignores I/O failures and returns success [conditional image corruption]
 
