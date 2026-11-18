@@ -18611,3 +18611,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15258](AROS-graphics-desktop.md#gd15258-nlist-wrapped-selection-signed-shift-overflow)** — NList's wrapped-selection scan left-shifts a signed 32-bit value for each visual row; at 31 or more rows it invokes undefined behavior while saving selection state. Conditional on an unusually long wrapped entry and a mutation; visible mask corruption is unverified. Source-only.
 
 **[GD15259](AROS-graphics-desktop.md#gd15259-datatype-import-worker-acknowledgement-race)** — HEIC and JPEG XL import workers poll a stack completion flag through unsynchronized cross-task accesses; the parent accesses the volatile object via a non-volatile pointer. Conditional on the support-process targets; a worker may fail to observe the acknowledgement and remain spinning. Source-only.
+
+**[OD11730](AROS-other-drivers.md#od11730-ata-scsi-identify-transfer-actual-count)** — ATA and SCSI copy 512 bytes in the undocumented 514-byte `TD_GETGEOMETRY` compatibility path but leave `io_Actual` unchanged. Conditional on an external caller using that form and checking the transferred byte count; source-only.
