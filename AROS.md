@@ -18568,6 +18568,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[GD15256](AROS-graphics-desktop.md#gd15256)** — `MUI_RequestA()` consumes other windows’ app-wide return IDs; the Wanderer Info About requester can swallow its own window-close request, and matching IDs can become wrong button results. Conditional on another app return ID during a request; source-only.
 
+**[GD15257](AROS-graphics-desktop.md#gd15257)** — `MUI_RequestA()` ignores failure to allocate the application return-ID node after a requester button is pressed, leaving the synchronous request waiting. Conditional on allocation failure; source-only.
+
 **[OD11707](AROS-other-drivers.md#od11707)** — ATA PCI skips the declared IDE1 legacy channel rows in its x86 compatibility-mode scan. Conditional on hardware exposing those additional legacy channels; source-only.
 
 **[OD11708](AROS-other-drivers.md#od11708)** — PTP upload staging reads 500 bytes from shorter object buffers. Conditional on a short read-modify-write through the optional PTP class; extra bytes are not shown to reach USB; source-only.
