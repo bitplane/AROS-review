@@ -18593,3 +18593,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11722](AROS-other-drivers.md#od11722)** — E1000 ignores timer.device Open failure and continues hardware setup with skipped delays. Conditional on timer Open failure; source-only.
 
 **[OD11723](AROS-other-drivers.md#od11723)** — six USB device classes can grant concurrent exclusive unit Opens on ExecSMP; closing one can disable requests for a remaining serial handle. Conditional on concurrent opens; source-only.
+
+**[OD11724](AROS-other-drivers.md#od11724)** — seven USB Ethernet classes clear shared OpenFlags when one opener remains, allowing a later exclusive Open to coexist with it. Conditional on shared Opens followed by an exclusive Open; source-only.

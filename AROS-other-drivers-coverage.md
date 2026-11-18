@@ -40117,3 +40117,8 @@ Rechecked both selected device Open/Close vectors, Exec `OpenDevice()` list-lock
 ## USB exclusive-open sibling census (OD11723 expanded; 2026-11-18)
 
 Searched USB class `dev.c` sources for the explicit `unit_OpenCnt` busy check, success increment and paired Close. Confirmed the same unlocked exclusive-open check in CDC ACM, CP210x, PL2303, Printer, Bluetooth and STIr4200. Rechecked Close behavior: CDC ACM, CP210x and PL2303 set `ncp_DenyRequests` true unconditionally; the other three clear it, so their common consequence is exclusive-open bypass/count inconsistency rather than the same close-time I/O suppression. Expanded OD11723 and linked all six full-body file rows. Existing body/path/LOC credit is unchanged. No device, Open/Close interleaving or build was run; source-only.
+
+
+## USB Ethernet OpenFlags close-count pass (OD11724; 2026-11-18)
+
+Reconciled successful-open accounting and Close flag cleanup in the seven selected vectors: ASIX, CDC Ethernet, DM9601/Davicom, EthWrap, MosChip, Pegasus and RNDIS (`rom/usb/classes/{asixeth,cdceth,davicometh,ethwrap,moschipeth,pegasuseth,rndis}/dev.c`). Each unit is allocated with `MEMF_CLEAR`; successful Opens increment `unit_OpenCnt`, while Close clears `ncp_OpenFlags` at remaining count one. Traced the subsequent `SANA2OPF_MINE` test and all `SANA2OPF_PROM` consumers, establishing OD11724 as a deterministic shared-to-exclusive bypass (and a conditional lost-promiscuous-mode effect). All seven `dev.c` bodies were already credited; no path or LOC totals change. Module recipes include each vector and the common disk-based USB class aggregate references these modules. No device, Open/Close sequence, receive-mode update, or build was exercised; source-only.
