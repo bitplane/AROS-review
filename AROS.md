@@ -18525,3 +18525,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15253](AROS-graphics-desktop.md#gd15253)** — Commodities frees the source payload when an input-event copy fails. Conditional on a pixel/tablet event payload allocation failure; source-only.
 
 **[GD15254](AROS-graphics-desktop.md#gd15254)** — Commodities reverses multi-event translation chains. FKey's multi-character insertion is an in-tree caller; source-only.
+
+**[OD11707](AROS-other-drivers.md#od11707)** — ATA PCI skips the declared IDE1 legacy channel rows in its x86 compatibility-mode scan. Conditional on hardware exposing those additional legacy channels; source-only.
