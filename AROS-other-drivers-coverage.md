@@ -40102,3 +40102,8 @@ Traced the unchecked per-unit `OpenDevice("timer.device")` in `CreateUnit()` to 
 ### E1000 request-port partial-allocation finding detail restored (OD3033; 2026-11-18)
 
 Rechecked the `REQUEST_QUEUE_COUNT` loop, enum order and `DeleteUnit()` port cleanup (`e1000.h:113-118`; `unit.c:1006-1023,1089-1095`). Confirmed the first-index NULL dereference and the sticky-failure path that can allocate later ports without storing them. Restored the missing OD3033 detail section; the master-index summary already existed. No body/path/LOC credit changes. No allocation failure or PCI enumeration was exercised; source-only.
+
+
+### OD3131 detailed report reconciliation (2026-11-18)
+
+The selected-driver census and master-index summary already covered OD3131, but the detailed finding section was missing. Rechecked all seven selected handler epilogues: each replies before reading `ios2_Req.io_Unit` to release the unit semaphore. Restored the detailed trigger, consequence, affected configuration and source locations. FEC remains outside the selected aggregate census; Via-Rhine is not added to this finding. No body/path/LOC credit changes. No reply-consumer reuse or scheduler interleaving was exercised; source-only.
