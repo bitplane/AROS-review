@@ -18629,3 +18629,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 
 **[OD11736](AROS-other-drivers.md#od11736-controller-reading-reader-tests-uninitialized-sequence)** — on an odd sequence, `ctrl_CopyReading()` continues to its `do…while` condition and reads uninitialized `s2` before retrying. Conditional on concurrent read/write on ExecSMP; source-only.
+
+
+**[OD11737](AROS-other-drivers.md#od11737-controller-mapping-ignores-specific-version-mismatch)** — mapping lookup treats every controller GUID version mismatch as a wildcard even when the mapping specifies a version, potentially applying the wrong control layout. Conditional on API/User mappings and versioned devices; source-only.
