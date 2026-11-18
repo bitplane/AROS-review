@@ -21860,6 +21860,15 @@ A thirtieth route is Locale Preferences’ Clear Languages action. The Preferred
 
 **Coverage evidence:** [MUI List clear ordering and public-screen picker caller](AROS-graphics-desktop-coverage.md#mui-list-clear-active-entry-lifetime-gd14938).
 
+<a id="gd15243-mui-window-minmax-dimensions-omit-percentage-scaling"></a>
+### GD15243 — MUI Window MinMax dimensions omit percentage scaling [conditional]
+
+`MUIV_Window_Height_MinMax(p)` encodes the requested percentage as `-p` (`workbench/libs/muimaster/classes/window.h:320`). In `WindowSelectDimensions()`, the height branch computes `MinHeight - ReqHeight * (MaxHeight - MinHeight)` without dividing the percentage by 100 (`window.c:2811-2818`). The adjacent width branch applies the same percentage as `MinWidth - (ReqWidth * (MaxWidth - MinWidth)) / 100` (`:2788-2794`). Consequently, for any positive intermediate height percentage and a non-fixed height range, the calculated value exceeds `MaxHeight` and the following clamp selects `MaxHeight` (`:2843-2846`) instead of the requested fraction. For example, `MUIV_Window_Height_MinMax(40)` yields the maximum height for normal positive ranges.
+
+`CalcAltDimensions()` repeats the missing `/100` in both alternate-width and alternate-height MinMax calculations (`window.c:1164-1169,1189-1194`), then clamps each result to its corresponding maximum (`:1214-1219`). The percentage ranges are encoded from 0 through 100 in `window.h:305-316,320-333`; the Zune test utility's width, height, alternate-width, and alternate-height controls turn user-entered percentages into these MinMax tags (`developer/debug/test/Zune/test.c:448-480,512-545`). Maintained Bluetooth Preferences callers request `MUIV_Window_Height_MinMax(40)` for both its discovered-device and per-device windows (`rom/bluetooth/prefs/ScanWinClass.c:151-154`; `DevWinClass.c:196-200`). That Preferences executable has an explicit local target, while its parent aggregate edge is commented (`rom/bluetooth/mmakefile.src:12,20`), so this is not claimed to be present in every image.
+
+**Trigger and consequence:** opening a Window with a positive, non-100 `MUIV_Window_Height_MinMax(p)` and distinct min/max heights selects the maximum height. DisplayWindow's alternate zoom dimensions likewise select maximum width/height for intermediate AltWidth/AltHeight MinMax percentages. This defeats the requested proportional sizing and can make dialogs larger than their configured request. **Affected configuration:** the default muimaster Window class and clients using the documented MinMax percentage tags; the Bluetooth Preferences caller is optional. **Confidence:** high for the arithmetic and resulting clamp; no GUI operation or build was run. Divide each percentage product by 100, as the primary width path already does. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#mui-window-minmax-percentage-scaling-gd15243).
+
 <a id="gd14939-quickpart-zero-largest-drive-divides-by-zero"></a>
 ## GD14939 — QuickPart divides by zero when every enumerated disk has zero measured capacity
 
