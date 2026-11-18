@@ -18490,6 +18490,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD4273](AROS-other-drivers.md#od4273) — WirelessManager's supplicant task mutates the MUI scan List while the GUI task can render or select it.** Conditional on scan completion overlapping GUI list use; the MUI Application method queue is not used for these updates. Separate from GD14938's active-row clear write. Source-only.
 
+**[OD4191](AROS-other-drivers.md#od4191) — VMware SVGA surface size and image offsets wrap at 32 bits.** Unchecked aggregation across mip and face sizes controls backing allocation/checks and later DMA offsets. Conditional on the host accepting surface descriptors whose aggregate size exceeds 32 bits; source-only.
 **[OD4192](AROS-other-drivers.md#od4192) — VMware SVGA can release guest memory while an OTable remains enabled.** If FIFO reservation fails for the zero-base teardown command, OTable metadata is discarded and the shared backing BO is released anyway. The one-page context table directly uses that BO as its host-visible root. Conditional on command reservation failure in the optional VMware SVGA target; source-only.
 
 **[OD11699](AROS-other-drivers.md#od11699) — VMware SVGA can free a MOB's backing after its host destroy command fails.** If FIFO reservation fails, `vmw_mob_unbind()` skips `DESTROY_GB_MOB` but TTM proceeds to unmap or release the backing as if unbind succeeded. Conditional on MOB unbind during command-reservation failure; source-only.
