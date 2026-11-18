@@ -18589,3 +18589,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11719](AROS-other-drivers.md#od11719)** — E1000 S2_TRACKTYPE can copy from NULL after global tracker allocation fails. Conditional on split allocation success; source-only.
 **[OD11720](AROS-other-drivers.md#od11720)** — repeated shared E1000 Open replaces live TX/RX resources and reconfigures the interface. Conditional on shared opens; source-only.
 **[OD11721](AROS-other-drivers.md#od11721)** — E1000 teardown frees its embedded timer request without closing timer.device. Conditional on successful timer Open before teardown; source-only.
+
+**[OD11722](AROS-other-drivers.md#od11722)** — E1000 ignores timer.device Open failure and continues hardware setup with skipped delays. Conditional on timer Open failure; source-only.

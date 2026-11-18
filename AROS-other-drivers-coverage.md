@@ -40092,3 +40092,8 @@ Restored four findings previously recorded in the E1000 source-trace history but
 ### E1000 tracker serialization and TX callback reachability recheck (2026-11-18)
 
 Checked whether concurrent shared clients can race the tracker mutations in OD11718/OD11719: direct `BeginIO()` acquires `e1ku_unit_lock` before `handle_request()`, and the unit task takes the same semaphore before dispatching queued requests; `handle_request()` releases it after completion (`e1000_init.c:449-475`; `unit.c:601-606`; `handler.c:186-190`). No independent tracker concurrency finding is established for these selected SANA-II command paths. Also checked the `e1000func_TX_Int()` post-ReplyMsg tracker-stat access (`unit.c:280-297`): the only visible `Cause(&unit->e1ku_tx_end_int)` call is commented (`:330`), and the configured `e1ku_tx_int` node has no active enqueue/callsite in the selected tree, so this helper path is not promoted as an active finding. This is a targeted dispatch/reachability check, with no new path or LOC credit. No request, interrupt, scheduling interleaving, or build was run; source-only.
+
+
+## E1000 timer Open failure path (OD11722)
+
+Traced the unchecked per-unit `OpenDevice("timer.device")` in `CreateUnit()` to the selected delay helpers and Exec `DoIO()` null-device check. When the timer Open fails, required setup delays return immediately and their error is ignored. Added OD11722, scoped to that failure and to delay-dependent hardware initialization. Existing body/path/LOC credit is unchanged. No timer failure, device, hardware initialization, or build was exercised; source-only.
