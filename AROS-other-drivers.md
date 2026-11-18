@@ -42711,6 +42711,20 @@ The selected E1000 Open vector increments `e1ku_open_count` and links the newly 
 
 **Trigger and consequence:** TX resource setup succeeds and subsequent RX resource setup fails during Open, such as on an RX descriptor allocation failure. The request fails, while TX ring memory, opener state and the tentative open count remain retained; later cleanup does not reclaim the TX resources. **Affected configuration:** selected E1000 targets in the x86 PC network aggregate (`workbench/devs/networks/mmakefile.src:3-15`; `e1000/mmakefile.src`). **Confidence:** high for the stage order, helper return, failed-Open dispatch and absent teardown free; conditional on RX setup failure after TX setup succeeds. Unwind successful TX resources and remove the opener/restore the count on every post-publication Open failure. The late `request_irq()` error arm is not claimed as a trigger because the selected `request_irq()` unconditionally returns zero (`e1000.c:626-636`). No allocation failure, Open, device, or build was exercised; source-only.
 
+<a id="od2432"></a>
+## OD2432 — E1000 leaves gaps in published unit numbers after construction failure [conditional]
+
+`CreateUnit()` reserves the next unit number before allocating the per-unit hardware state, statistics record and name (`workbench/devs/networks/e1000/unit.c:729-758`). Only one later failure path, the unsupported-device setup branch, resets `e1kb_UnitCount` (`:851-859`). Other failed construction paths, including private-state/statistics/name allocation and later setup failures, return or fall through cleanup without undoing the reservation. The enumerator continues to later matching devices, so a subsequent successful unit can be published as `e1000.1` while `e1000.0` was never added to the unit list. Open searches the list for the exact requested number and therefore cannot open the absent unit zero (`e1000_init.c:270-291`).
+
+**Trigger and consequence:** a matching PCI adapter's unit construction fails after incrementing `e1kb_UnitCount`, and a later matching adapter succeeds. The surviving unit receives a skipped number; conventional `UNIT0` clients can fail to open it. **Affected configuration:** selected x86 PC E1000 targets with multiple supported PCI devices and a construction failure on an earlier one. **Confidence:** high for the reserve-before-failure order, incomplete rollback and exact-number lookup; conditional on that device/failure ordering. Increment the counter only when publishing a unit or restore it on every failed construction path. No allocation failure, PCI enumeration or device was run; source-only.
+
+<a id="od2433"></a>
+## OD2433 — E1000 omits per-unit hardware statistics from rollback and teardown [conditional]
+
+`CreateUnit()` allocates `e1ku_hw_stats` after the unit and private hardware state (`workbench/devs/networks/e1000/unit.c:735-745`). If the unit-name allocation fails, this block is explicitly freed, but later unsupported-NIC cleanup, TX/RX ring-object allocation failures and invalid-NVM-checksum return paths omit it (`:750-755,851-859,868-882,945-947`). Other post-allocation returns reach `DeleteUnit()`, which frees the private state and unit but does not free `e1ku_hw_stats` (`:1079-1112`). Successful units also retain the allocation when expunged. The selected counter-update caller uses this storage (`workbench/devs/networks/e1000/e1000.c:1315-1317`).
+
+**Trigger and consequence:** any failed construction after the statistics allocation, or expunge of a successfully created unit. The per-unit block is leaked; repeated failed probes or unit lifecycles consume memory. **Affected configuration:** selected x86 PC E1000 targets; the failure paths require the relevant setup/allocation error. **Confidence:** high for the allocation and missing frees in each cited path. Centralize the block in `DeleteUnit()` and route all post-allocation failures through that cleanup. No allocation failure, PCI enumeration or expunge was induced; source-only.
+
 <a id="od3015"></a>
 ## OD3015 — E1000 never releases its per-unit Open count [conditional]
 
