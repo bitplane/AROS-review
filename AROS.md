@@ -18615,3 +18615,11 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11730](AROS-other-drivers.md#od11730-ata-scsi-identify-transfer-actual-count)** — ATA and SCSI copy 512 bytes in the undocumented 514-byte `TD_GETGEOMETRY` compatibility path but leave `io_Actual` unchanged. Conditional on an external caller using that form and checking the transferred byte count; source-only.
 
 **[OD11731](AROS-other-drivers.md#od11731-controller-subsystem-device-registration-races-on-execsmp)** — controller device registration and enumeration use processor-local `Disable()` protection for shared IDs and list state; concurrent operations on ExecSMP can assign duplicate IDs or race list updates. Conditional on explicitly building and using controller HIDD on ExecSMP; source-only.
+
+
+**[OD11732](AROS-other-drivers.md#od11732-controller-unipolar-axis-scaling-overflow)** — unipolar axis normalization multiplies in signed 32-bit arithmetic and overflows for logical ranges above 65,536. Conditional on an explicitly built controller driver exposing a wide trigger range; source-only.
+
+**[OD11733](AROS-other-drivers.md#od11733-controller-sparse-touchpad-sensor-descriptors)** — sparse touchpad/sensor indices inflate the count without initializing the gap descriptor, so a query succeeds with a zeroed button descriptor. Conditional on a driver using sparse indices; source-only.
+
+
+**[OD11734](AROS-other-drivers.md#od11734-controller-axis-range-subtraction-overflow)** — signed controller axis endpoints can span more than `LONG_MAX`, but import and normalization subtract them in `LONG`, invoking undefined behavior. Conditional on a driver exposing such endpoints; source-only.
