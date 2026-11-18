@@ -18517,3 +18517,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11702](AROS-other-drivers.md#od11702) — VMware SVGA BUGs on a MOB larger than its two-level page-table capacity.** A 64-bit MOB above 1 GiB needs a third page-table level, but `vmw_mob_pt_setup()` executes `BUG_ON` above level two. The generic GEM/MOB path does not enforce the device's maximum size before setup. Conditional on sufficient device MOB limit and memory; source-only.
 
 **[GD15250](AROS-graphics-desktop.md#gd15250)** — `SetCxObjPri()` returns negative previous priorities as positive values. Conditional on a native Commodities client reading the old priority; source-only.
+
+**[GD15251](AROS-graphics-desktop.md#gd15251)** — `InsertCxObj()` dereferences a NULL predecessor despite documenting that it inserts first. Conditional on a native client using the documented NULL form; source-only.
