@@ -18644,3 +18644,10 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 
 **[OD11742](AROS-other-drivers.md#od11742-controller-device-id-wrap-reuses-live-id)** — the 16-bit controller ID allocator wraps to 1 without checking live IDs, contradicting the stated never-reuse contract. Conditional on over 65,535 lifetime registrations with an older device still live; source-only.
+
+
+**[OD11743](AROS-other-drivers.md#od11743-controller-sensor-read-drops-unreturned-samples)** — sensor reads clear the whole ring even when the caller's buffer received only a prefix, silently dropping the rest. Conditional on a buffer smaller than the queue; source-only.
+
+**[OD11744](AROS-other-drivers.md#od11744-controller-touch-coordinate-pack-shifts-signed-value)** — touch event packing left-shifts a signed 32-bit coordinate for the documented 0..65535 range, invoking undefined behavior for x >= 32768. Source-only.
+
+**[OD11745](AROS-other-drivers.md#od11745-controller-sensor-event-keeps-zero-input-timestamp)** — a zero sensor timestamp is replaced in the stored sample but not in its `SensorUpdate` event. Conditional on EClock availability and consumers correlating event/sample times; source-only.
