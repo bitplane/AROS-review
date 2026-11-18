@@ -17523,6 +17523,8 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[EK10942](AROS-exec-kernel.md#ek10942) — `InvertStringForwd()` accepts a missing `>` after parsing at the NUL, overwrites the terminator, and advances past it. Selected FKey Insert Text also leaves the stored parameter changed for a malformed expression; no event or build was run.**
 
 
+**[OD1912](AROS-other-drivers.md#od1912)** — NetInfo group serialization ignores `VFPrintf`/`FPrintf`/`FPutC` errors, then `CMD_UPDATE` can install the incomplete `.new` file as the group database. Conditional on an external direct-device writer and DOS write failure; source-only.
+
 **[OD1906](AROS-other-drivers.md#od1906) — NetInfo `CMD_UPDATE` retains `NIMF_CHANGED` after a successful save, so later no-op updates rewrite the database and rotate its `.old` copy. Conditional on external or future clients using the public mutation commands; no in-tree writer was found. Source-only.**
 
 **[GD15066](AROS-graphics-desktop.md#gd15066) — When the optional VMM swap bitmap is full, slot allocation returns slot zero as if it were free; a dirty resident frame without a prior slot can overwrite the saved contents of another page. Conditional on a full paging area and that eviction state; AROS startup defects separately limit practical reachability. Source-only.**
