@@ -18533,3 +18533,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11709](AROS-other-drivers.md#od11709)** — PTP delete failure during close retains the PTP file handle and exclusive object lock. Conditional on an existing-object update and device delete failure in the optional PTP class; can keep teardown pending; source-only.
 
 **[OD11710](AROS-other-drivers.md#od11710)** — PTP failed seeks still change the file position; later I/O on that handle can fail until a valid seek. Conditional on an invalid seek in the optional PTP filesystem; source-only.
+
+**[EK11023](AROS-exec-kernel.md#ek11023)** — RexxSupport `MAKEDIR`/`RENAME` can perform the filesystem operation but return query success without a status result if argstring allocation fails. Conditional on memory exhaustion in the optional module; source-only.
