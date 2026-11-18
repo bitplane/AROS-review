@@ -18607,3 +18607,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11726](AROS-other-drivers.md#od11726)** — LAN78xx failed Open can leave `SANA2OPF_MINE` set and keep the unit busy. Conditional on BufMan allocation failure during an exclusive Open; source-only.
 
 **[OD11728](AROS-other-drivers.md#od11728)** — hosted Unix `eth` and `tap` devices accept later Opens despite an earlier `SANA2OPF_MINE` exclusive request. Source-confirmed; no in-tree exclusive caller found.
+
+**[GD15258](AROS-graphics-desktop.md#gd15258-nlist-wrapped-selection-signed-shift-overflow)** — NList's wrapped-selection scan left-shifts a signed 32-bit value for each visual row; at 31 or more rows it invokes undefined behavior while saving selection state. Conditional on an unusually long wrapped entry and a mutation; visible mask corruption is unverified. Source-only.
