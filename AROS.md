@@ -18523,3 +18523,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15252](AROS-graphics-desktop.md#gd15252)** — Commodities object allocation failure dereferences NULL instead of returning the documented error. Conditional on `AllocVec()` failure; source-only.
 
 **[GD15253](AROS-graphics-desktop.md#gd15253)** — Commodities frees the source payload when an input-event copy fails. Conditional on a pixel/tablet event payload allocation failure; source-only.
+
+**[GD15254](AROS-graphics-desktop.md#gd15254)** — Commodities reverses multi-event translation chains. FKey's multi-character insertion is an in-tree caller; source-only.
