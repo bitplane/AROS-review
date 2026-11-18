@@ -18641,3 +18641,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11740](AROS-other-drivers.md#od11740-controller-mapping-update-visits-only-64-devices)** — mapping changes reapply only to the first 64 controllers, leaving later matching devices on old mappings. Conditional on more than 64 registered devices; source-only.
 
 **[OD11741](AROS-other-drivers.md#od11741-controller-event-coalescing-retains-stale-standard-metadata)** — coalesced axis events replace value/sequence/time but retain the previous mapping's standard-control metadata. Conditional on a mapping change before a coalescing signal queue is drained; source-only.
+
+
+**[OD11742](AROS-other-drivers.md#od11742-controller-device-id-wrap-reuses-live-id)** — the 16-bit controller ID allocator wraps to 1 without checking live IDs, contradicting the stated never-reuse contract. Conditional on over 65,535 lifetime registrations with an older device still live; source-only.
