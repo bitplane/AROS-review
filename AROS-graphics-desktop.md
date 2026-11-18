@@ -21890,6 +21890,13 @@ The public headers define `MUIV_Window_AltWidth_Scaled` and `MUIV_Window_AltHeig
 
 **Trigger and consequence:** a client sets either alternate dimension to its `*_Scaled` tag and opens a window with the zoom gadget enabled; Intuition receives the minimum inner width and/or height as the zoom dimensions instead of a scaled size. This can make the zoom action collapse one dimension to its minimum. **Affected configuration:** external or optional muimaster clients using the public alternate-size scaled tags; the in-tree Zune test utility exposes them, but no maintained product caller was found. **Confidence:** high that both tags are reduced to the corresponding minimum; medium that the undocumented precise scale ratio should match the primary Window ratio. Implement the intended scaled alternative calculation or clarify/remove the exposed option. Source-only; no zoom operation or build was run.
 
+<a id="gd15247-mui-requester-can-open-with-no-buttons-after-allocation-failure"></a>
+### GD15247 — MUI requester can open without buttons after button allocation fails [conditional]
+
+In app-backed `MUI_RequestA()`, failure to create a `SimpleButton()` breaks out of the gadget loop but does not stop requester setup (`workbench/libs/muimaster/mui_request.c:208-233`). If the first button creation fails, `num_gads` remains zero. The requester is still opened, even though it explicitly disables its close gadget (`:174-180,267-271`). When open succeeds, the caller enters the `result == -1` input loop; with no button present there is no requester button to send one of the expected return IDs, so the request call can remain blocked until unrelated application input happens to return an accepted ID (`:273-298`).
+
+**Trigger and consequence:** the requester window and copied gadget string are created successfully, but allocation/construction of the first SimpleButton fails. The requester appears with no buttons and the synchronous `MUI_RequestA()` call waits without a requester control that can complete it. **Affected configuration:** app-backed MUI_RequestA callers when memory pressure causes the first button construction to fail; the `app == NULL` EasyRequest path is separate. **Confidence:** high for continuing with zero buttons and entering the wait loop; whether unrelated application input releases the call depends on the client. Return failure or avoid opening the requester when no button was created. Source-only; no allocation failure or requester was induced.
+
 <a id="gd14939-quickpart-zero-largest-drive-divides-by-zero"></a>
 ## GD14939 — QuickPart divides by zero when every enumerated disk has zero measured capacity
 
