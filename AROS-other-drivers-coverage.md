@@ -40112,3 +40112,8 @@ The selected-driver census and master-index summary already covered OD3131, but 
 ## CDC ACM/CP210x exclusive-open concurrency pass (OD11723; 2026-11-18)
 
 Rechecked both selected device Open/Close vectors, Exec `OpenDevice()` list-lock lifetime and the ExecSMP meaning of `Forbid()`. In both drivers the same unit can be accepted by two concurrent Opens because the zero-open check and increment are outside a cross-CPU lock; each Close then sets `ncp_DenyRequests` unconditionally, which the active worker uses to suppress requests. Added OD11723 with the affected optional USB module targets and the ExecSMP condition explicit. Both device-vector bodies already have full-body credit; no path or LOC total changes. No request, concurrent Open/Close, USB device, or build was run; source-only.
+
+
+## USB exclusive-open sibling census (OD11723 expanded; 2026-11-18)
+
+Searched USB class `dev.c` sources for the explicit `unit_OpenCnt` busy check, success increment and paired Close. Confirmed the same unlocked exclusive-open check in CDC ACM, CP210x, PL2303, Printer, Bluetooth and STIr4200. Rechecked Close behavior: CDC ACM, CP210x and PL2303 set `ncp_DenyRequests` true unconditionally; the other three clear it, so their common consequence is exclusive-open bypass/count inconsistency rather than the same close-time I/O suppression. Expanded OD11723 and linked all six full-body file rows. Existing body/path/LOC credit is unchanged. No device, Open/Close interleaving or build was run; source-only.

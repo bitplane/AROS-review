@@ -18592,4 +18592,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11722](AROS-other-drivers.md#od11722)** — E1000 ignores timer.device Open failure and continues hardware setup with skipped delays. Conditional on timer Open failure; source-only.
 
-**[OD11723](AROS-other-drivers.md#od11723)** — CDC ACM and CP210x can grant concurrent exclusive serial-unit Opens on ExecSMP; closing one can disable I/O for the other. Conditional on concurrent opens; source-only.
+**[OD11723](AROS-other-drivers.md#od11723)** — six USB device classes can grant concurrent exclusive unit Opens on ExecSMP; closing one can disable requests for a remaining serial handle. Conditional on concurrent opens; source-only.
