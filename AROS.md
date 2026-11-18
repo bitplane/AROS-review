@@ -18534,4 +18534,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11710](AROS-other-drivers.md#od11710)** — PTP failed seeks still change the file position; later I/O on that handle can fail until a valid seek. Conditional on an invalid seek in the optional PTP filesystem; source-only.
 
+**[OD11711](AROS-other-drivers.md#od11711)** — IntelGMA does not check PCI BAR mapping results before MMIO use. Conditional on a PCIPC high-BAR mapping failure in the optional PC x86-64 IntelGMA monitor; source-only.
+
 **[EK11023](AROS-exec-kernel.md#ek11023)** — RexxSupport `MAKEDIR`/`RENAME` can perform the filesystem operation but return query success without a status result if argstring allocation fails. Conditional on memory exhaustion in the optional module; source-only.

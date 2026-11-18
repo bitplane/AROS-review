@@ -44941,6 +44941,14 @@ For a modified existing object, `ACTION_END` calls `nPTPDeleteObject()` before u
 **Trigger and consequence:** modify an existing object through the optional PTP filesystem, then close it when the device rejects deletion of the old object. The close reports failure, but the PTP handle remains linked and its exclusive object lock remains set; subsequent opens can report the object in use, and unbinding/session teardown can remain pending while the retained handle is present. **Affected configuration:** the explicitly buildable optional PTP USB class (`rom/usb/classes/ptp/mmakefile.src:4-12`); its parent aggregate edge is disabled in this snapshot (`rom/usb/classes/mmakefile.src:26`). **Confidence:** high for the skipped cleanup and DOS close behavior; persistent teardown impact depends on an exit/unbind request while the handle remains. Ensure the error path frees or otherwise safely retires the PTP handle and its lock. No file operation, USB device, unbind, or build was run; source-only.
 
 
+<a id="od11711"></a>
+## OD11711 — IntelGMA dereferences an unchecked failed PCI BAR mapping [conditional]
+
+IntelGMA requests mappings for its framebuffer window, MMIO BAR and GATT BAR, then stores all three return values without checking for `NULL` (`workbench/devs/monitors/IntelGMA/intelgma_init.c:305-313`). The selected PCIPC `MapPCI()` returns `NULL` when `KrnMapGlobal()` fails for a BAR range above the 128 GiB identity window (`arch/all-pc/hidds/pcipc/pcipc_driverclass.c:230-253`). If the MMIO map fails, initialization continues and dereferences `sd->Card.MMIO` in the subsequent GPIO/GMBUS writes (`intelgma_init.c:351-355`), rather than reporting initialization failure and unwinding. The Framebuffer and GATT mappings are also unchecked and are used to derive addresses and graphics-memory state later in initialization.
+
+**Trigger and consequence:** initialize IntelGMA on an x86-64 PC with a qualifying high BAR and a PCIPC global-map failure for its MMIO region. The returned null pointer is used for MMIO register access, so graphics-driver initialization can fault instead of failing cleanly; no particular hardware or firmware placement is established. **Affected configuration:** PC x86-64 builds selecting `devs-monitors-intelgma` with PCIPC and a BAR requiring an above-window mapping; the monitor target is optional/direct-buildable and is reached through the PC monitor target aliases (`workbench/devs/monitors/mmakefile.src:8-15`). **Confidence:** high that a null mapping result is unchecked and used; trigger depends on the BAR placement and mapping failure. Check each mapping result before use and unwind successful prior mappings and PCI state on failure. No BAR, map failure, device, or build was exercised; source-only.
+
+
 <a id="od11710"></a>
 ## OD11710 — PTP failed seek still changes the file position [optional USB PTP class]
 
