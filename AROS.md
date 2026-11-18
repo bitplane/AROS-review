@@ -18538,4 +18538,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11712](AROS-other-drivers.md#od11712)** — Efika PCI MapPCI ignores MMU mapping failure and returns the original BAR address. Conditional on PTE exhaustion with a selected Radeon card; source-only.
 
+**[OD11713](AROS-other-drivers.md#od11713)** — PC i8042 mouse probing leaks the timer.device open, IORequest and MsgPort when no auxiliary mouse is found. Source-only.
+
 **[EK11023](AROS-exec-kernel.md#ek11023)** — RexxSupport `MAKEDIR`/`RENAME` can perform the filesystem operation but return query success without a status result if argstring allocation fails. Conditional on memory exhaustion in the optional module; source-only.
