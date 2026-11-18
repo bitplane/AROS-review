@@ -18583,3 +18583,9 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[EK11023](AROS-exec-kernel.md#ek11023)** — RexxSupport `MAKEDIR`/`RENAME` can perform the filesystem operation but return query success without a status result if argstring allocation fails. Conditional on memory exhaustion in the optional module; source-only.
 **[EK11024](AROS-exec-kernel.md#ek11024)** — `Break` narrows `ReadArgs()` PORT/NAME string pointers to 32-bit `LONG` before formatting them with `%s`; a not-found diagnostic can use a truncated pointer on 64-bit targets. Source-only.
 **[OD11716](AROS-other-drivers.md#od11716)** — RTL8029 reads the freed `UnitData` name in its optional PDEBUG last-close diagnostic; explicit debug build required. Source-only.
+
+
+**[OD11718](AROS-other-drivers.md#od11718)** — E1000 S2_TRACKTYPE leaks global tracker accounting when a duplicate or allocation failure is reported. Selected E1000 SANA-II path; source-only.
+**[OD11719](AROS-other-drivers.md#od11719)** — E1000 S2_TRACKTYPE can copy from NULL after global tracker allocation fails. Conditional on split allocation success; source-only.
+**[OD11720](AROS-other-drivers.md#od11720)** — repeated shared E1000 Open replaces live TX/RX resources and reconfigures the interface. Conditional on shared opens; source-only.
+**[OD11721](AROS-other-drivers.md#od11721)** — E1000 teardown frees its embedded timer request without closing timer.device. Conditional on successful timer Open before teardown; source-only.
