@@ -40125,3 +40125,6 @@ Reconciled successful-open accounting and Close flag cleanup in the seven select
 
 
 OD11724 Bluetooth PAN sibling reconciliation (2026-11-18; no new ID or body/LOC credit): the same zero-initialized unit count, exclusive `SANA2OPF_MINE` check, successful-open increment and Close-at-one flag clear occur in `rom/bluetooth/classes/btpan/dev.c:80-97,139-140,174-178`; its unit allocation uses `MEMF_CLEAR` (`btpan.class.c:240`). The module is an explicitly buildable Bluetooth-class target (`rom/bluetooth/classes/mmakefile.src:11-14`; `btpan/mmakefile.src:6-11`). Expanded OD11724 to include BT PAN. Its vector body was already represented in the Bluetooth class review; no path or LOC totals change. No device or Open/Close sequence was exercised; source-only.
+
+
+OD11724 count-boundary consequence recheck (2026-11-18; no new body/path/LOC credit): reconciled both reachable close boundaries in all eight vectors. A two-open shared state followed by one Close leaves count one but clears flags, allowing an exclusive Open alongside the retained shared handle; a lone `SANA2OPF_MINE` Open followed by Close leaves count zero without clearing `SANA2OPF_MINE`, so the next Open is rejected as busy. Expanded the report/index to include the stale-exclusive last-close consequence. No unit Open/Close was run; source-only.
