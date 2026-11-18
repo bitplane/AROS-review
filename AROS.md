@@ -18521,3 +18521,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15251](AROS-graphics-desktop.md#gd15251)** — `InsertCxObj()` dereferences a NULL predecessor despite documenting that it inserts first. Conditional on a native client using the documented NULL form; source-only.
 
 **[GD15252](AROS-graphics-desktop.md#gd15252)** — Commodities object allocation failure dereferences NULL instead of returning the documented error. Conditional on `AllocVec()` failure; source-only.
+
+**[GD15253](AROS-graphics-desktop.md#gd15253)** — Commodities frees the source payload when an input-event copy fails. Conditional on a pixel/tablet event payload allocation failure; source-only.
