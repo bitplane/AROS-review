@@ -40133,3 +40133,8 @@ OD11724 count-boundary consequence recheck (2026-11-18; no new body/path/LOC cre
 ## USB Ethernet and Bluetooth PAN BufMan allocation-failure pass (OD11725; 2026-11-18)
 
 Compared Open/Close ownership in all eight SANA-II vectors: ASIX, CDC Ethernet, DM9601/Davicom, EthWrap, MosChip, Pegasus, RNDIS and Bluetooth PAN. Each copies the input `ios2_BufferManagement` tag-list pointer, conditionally assigns a newly allocated `BufMan` only on success, but later reports Open success even when allocation fails. The common Close path removes and frees any non-NULL field; read/write paths treat it as `BufMan`. Added OD11725 for caller tag-list misownership after allocation failure; separately confirmed the Open diagnostic's NULL dereference is DEBUG-only. These bodies were already reviewed; no path or LOC totals change. No allocation failure, request, Close, device or build was exercised; source-only.
+
+
+## LAN78xx failed-Open flag rollback pass (OD11726; 2026-11-18)
+
+Re-read `devOpen()`'s exclusive-unit check, flag publication, optional BufMan allocation failure return, later open-count increment and final-Close cleanup (`rom/usb/classes/lan78xx/dev.c:77-105,134-146,174-177`). Unlike the sibling successful-Open-on-allocation-failure path, LAN78xx returns failure, but the `ncp_OpenFlags |= flags` mutation remains and no Close follows to clear it. With `SANA2OPF_MINE`, the next Open is rejected while `unit_OpenCnt` remains zero. Added OD11726. This C body was already fully reviewed; no path or LOC totals change. No allocation failure, Open or build was induced; source-only.
