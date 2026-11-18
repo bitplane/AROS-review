@@ -18529,3 +18529,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11707](AROS-other-drivers.md#od11707)** — ATA PCI skips the declared IDE1 legacy channel rows in its x86 compatibility-mode scan. Conditional on hardware exposing those additional legacy channels; source-only.
 
 **[OD11708](AROS-other-drivers.md#od11708)** — PTP upload staging reads 500 bytes from shorter object buffers. Conditional on a short read-modify-write through the optional PTP class; extra bytes are not shown to reach USB; source-only.
+
+**[OD11709](AROS-other-drivers.md#od11709)** — PTP delete failure during close retains the PTP file handle and exclusive object lock. Conditional on an existing-object update and device delete failure in the optional PTP class; can keep teardown pending; source-only.
