@@ -21897,6 +21897,13 @@ In app-backed `MUI_RequestA()`, failure to create a `SimpleButton()` breaks out 
 
 **Trigger and consequence:** the requester window and copied gadget string are created successfully, but allocation/construction of the first SimpleButton fails. The requester appears with no buttons and the synchronous `MUI_RequestA()` call waits without a requester control that can complete it. **Affected configuration:** app-backed MUI_RequestA callers when memory pressure causes the first button construction to fail; the `app == NULL` EasyRequest path is separate. **Confidence:** high for continuing with zero buttons and entering the wait loop; whether unrelated application input releases the call depends on the client. Return failure or avoid opening the requester when no button was created. Source-only; no allocation failure or requester was induced.
 
+<a id="gd15255-mui-requester-button-list-exceeds-fixed-array"></a>
+### GD15255 — MUI requester writes past its button array for more than 32 gadgets [conditional]
+
+App-backed `MUI_RequestA()` keeps button objects in a fixed `req_but[32]` stack array (`workbench/libs/muimaster/mui_request.c:107`). Its gadget-string parser continues for every `|`-separated label and stores each successfully constructed `SimpleButton()` at `req_but[num_gads]` without checking the array capacity (`:220-233`). After a 33rd button is created, `num_gads` becomes 33 and the following group/notification loop also reads `req_but[32]` (`:252-265`). The source comment says a requester “shouldn't” have more than 32 buttons, but this implementation does not enforce that limit.
+
+**Trigger and consequence:** an app-backed caller supplies a gadget string that produces at least 33 buttons and all 33 `SimpleButton()` constructions succeed. The 33rd pointer is written beyond the stack array, and subsequent setup reads beyond it; this is undefined behavior that can corrupt nearby stack state or crash the requester caller. **Affected configuration:** app-backed MUI_RequestA callers exceeding the implementation's assumed 32-button limit; the `app == NULL` EasyRequest path returns before this array is used. No checked-in caller with more than 32 buttons was established. **Confidence:** high for the out-of-bounds index and ensuing out-of-bounds read; exact runtime effects depend on stack layout and were not exercised. Enforce the limit before construction or allocate storage sized to the parsed gadget count. Source-only; no requester or oversized gadget list was run.
+
 <a id="gd15248-mui-scaled-window-dimensions-divide-by-zero-on-zero-minimum"></a>
 ### GD15248 — MUI scaled Window dimensions divide by zero for a zero minimum [conditional]
 
