@@ -40097,3 +40097,8 @@ Checked whether concurrent shared clients can race the tracker mutations in OD11
 ## E1000 timer Open failure path (OD11722)
 
 Traced the unchecked per-unit `OpenDevice("timer.device")` in `CreateUnit()` to the selected delay helpers and Exec `DoIO()` null-device check. When the timer Open fails, required setup delays return immediately and their error is ignored. Added OD11722, scoped to that failure and to delay-dependent hardware initialization. Existing body/path/LOC credit is unchanged. No timer failure, device, hardware initialization, or build was exercised; source-only.
+
+
+### E1000 request-port partial-allocation finding detail restored (OD3033; 2026-11-18)
+
+Rechecked the `REQUEST_QUEUE_COUNT` loop, enum order and `DeleteUnit()` port cleanup (`e1000.h:113-118`; `unit.c:1006-1023,1089-1095`). Confirmed the first-index NULL dereference and the sticky-failure path that can allocate later ports without storing them. Restored the missing OD3033 detail section; the master-index summary already existed. No body/path/LOC credit changes. No allocation failure or PCI enumeration was exercised; source-only.
