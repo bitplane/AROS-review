@@ -18632,3 +18632,12 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 
 **[OD11737](AROS-other-drivers.md#od11737-controller-mapping-ignores-specific-version-mismatch)** — mapping lookup treats every controller GUID version mismatch as a wildcard even when the mapping specifies a version, potentially applying the wrong control layout. Conditional on API/User mappings and versioned devices; source-only.
+
+
+**[OD11738](AROS-other-drivers.md#od11738-controller-event-fanout-silently-stops-after-32-consumers)** — event fanout silently omits matching consumers beyond an internal 32-entry pointer array. Conditional on more than 32 matching consumers; source-only.
+
+**[OD11739](AROS-other-drivers.md#od11739-controller-initial-device-events-truncate-at-64)** — initial `DeviceAdded` notifications include only the first 64 already-registered controllers. Conditional on more than 64 devices; source-only.
+
+**[OD11740](AROS-other-drivers.md#od11740-controller-mapping-update-visits-only-64-devices)** — mapping changes reapply only to the first 64 controllers, leaving later matching devices on old mappings. Conditional on more than 64 registered devices; source-only.
+
+**[OD11741](AROS-other-drivers.md#od11741-controller-event-coalescing-retains-stale-standard-metadata)** — coalesced axis events replace value/sequence/time but retain the previous mapping's standard-control metadata. Conditional on a mapping change before a coalescing signal queue is drained; source-only.
