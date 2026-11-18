@@ -18496,4 +18496,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11700](AROS-other-drivers.md#od11700) — VMware SVGA leaks pinned BOs when populate or DMA mapping fails.** `vmw_bo_create_and_populate()` creates a pinned BO but returns populate/map errors without unpinning or dropping its reference; the caller receives no pointer to clean it up. Conditional on allocation or DMA mapping failure in OTable, MOB page-table, or cursor setup; source-only.
 
-**[OD11701](AROS-other-drivers.md#od11701) — VMware SVGA can treat a failed MOB bind as successful on retry.** A MOB page-table/FIFO failure still sets TTM's `bound` flag; the next placement attempt skips the bind command and can move the BO into MOB without defining it on the host. Conditional on a failed bind followed by retry; source-only.
+**[OD11701](AROS-other-drivers.md#od11701) — VMware SVGA can treat a failed GMR/MOB bind as successful on retry.** A device-bind failure still sets TTM's `bound` flag; the next placement attempt skips the bind command and can move the BO into GMR/MOB without defining it on the host. Conditional on a failed bind followed by retry; source-only.
