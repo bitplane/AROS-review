@@ -44876,7 +44876,6 @@ A selected `VMW_CLAIM_STREAM` ioctl creates a TTM simple resource in that object
 
 **Trigger and consequence:** a `hidd-vmwaresvga` DRM file claims a stream and stays open while the PCI device is removed; closing that file afterward releases the stream object through the freed TTM object device and can access freed memory. The late stream callback also cannot release its overlay claim cleanly. **Affected configuration:** selected `hidd-vmwaresvga`, conditional on device removal with an open DRM file holding a stream object. **Confidence:** high for the teardown ordering and delayed object-release dereference; no device removal or delayed close was performed. Defer TTM/object-device and overlay teardown until outstanding DRM files/resources are drained, or otherwise keep their backing state alive through postclose. Source-only; see the [open DRM file and stream teardown trace](AROS-other-drivers-coverage.md#vmwgfx-open-file-stream-teardown-od11704).
 
-<a id="od11702"></a>
 <a id="od11703"></a>
 ## OD11703 — VMware SVGA leaks a partially initialized memory manager when MOB setup fails [conditional]
 
@@ -44884,6 +44883,7 @@ The MOB setup block initializes two independent TTM managers but tracks their st
 
 **Trigger and consequence:** on the selected `hidd-vmwaresvga` configuration with MOB capability, either manager allocation fails while the other succeeds. Driver load continues with 3D disabled, but the successfully initialized manager and its allocation/registration are not released on later load-error unwind or unload. This leaks the manager (and, for the ID manager, its initialized IDA) and leaves its private type registered until the device state disappears. **Affected configuration:** `hidd-vmwaresvga` with `SVGA_CAP_GBOBJECTS` and allocation failure during MOB manager setup. **Confidence:** high for asymmetric initialization and skipped cleanup; allocation failure was not induced. Track each manager's initialization independently and unwind every successful initialization. No allocation failure, VM, device operation or build was induced; source-only; see the [MOB manager partial-init trace](AROS-other-drivers-coverage.md#vmwgfx-mob-manager-partial-init-od11703).
 
+<a id="od11702"></a>
 ## OD11702 — VMware SVGA BUGs on a MOB larger than its two-level page-table capacity [conditional]
 
 On a 64-bit build, each MOB page-table page holds `PAGE_SIZE / sizeof(unsigned long)` entries, or 512 guest-page addresses. `vmw_mob_calculate_pt_pages()` allocates enough storage for further levels, but `vmw_mob_pt_setup()` builds levels until one page remains and executes `BUG_ON(mob->pt_level > 2)` during a third level (`workbench/hidds/vmwaresvga/drm/vmwgfx/vmwgfx_mob.c:372-383,496-528`). Two levels can map 512 × 512 data pages, exactly 1 GiB at 4 KiB pages; a buffer larger than 1 GiB requires another level and reaches the BUG.
