@@ -44941,6 +44941,16 @@ For a modified existing object, `ACTION_END` calls `nPTPDeleteObject()` before u
 **Trigger and consequence:** modify an existing object through the optional PTP filesystem, then close it when the device rejects deletion of the old object. The close reports failure, but the PTP handle remains linked and its exclusive object lock remains set; subsequent opens can report the object in use, and unbinding/session teardown can remain pending while the retained handle is present. **Affected configuration:** the explicitly buildable optional PTP USB class (`rom/usb/classes/ptp/mmakefile.src:4-12`); its parent aggregate edge is disabled in this snapshot (`rom/usb/classes/mmakefile.src:26`). **Confidence:** high for the skipped cleanup and DOS close behavior; persistent teardown impact depends on an exit/unbind request while the handle remains. Ensure the error path frees or otherwise safely retires the PTP handle and its lock. No file operation, USB device, unbind, or build was run; source-only.
 
 
+<a id="od11712"></a>
+## OD11712 — Efika PCI MapPCI reports success after the MMU mapping fails [conditional]
+
+`PCIEfika__Hidd_PCIDriver__MapPCI()` calls `KrnMapGlobal()` for the requested BAR range but ignores its return value and always returns the original PCI address (`arch/ppc-chrp/efika/pci/driverclass.c:159-165`). The selected Efika kernel propagates `mmu_map_area()` status from `KrnMapGlobal()`; `mmu_map_page()` returns failure when both primary and secondary PTE hash groups have no free entry (`arch/ppc-chrp/efika/kernel/mmu.c:109-165,167-180,403-423`). `mmu_map_area()` returns at the first failed page without undoing earlier mappings in the range. Therefore an allocation/exhaustion failure can leave a partially mapped BAR while the PCI HIDD API still reports a non-NULL address.
+
+The Efika boot package includes both `pci-efika` and Radeon (`arch/ppc-chrp/efika/boot/mmakefile.src:61-78`). Radeon maps framebuffer and MMIO BARs through `HIDD_PCIDriver_MapPCI()` and immediately keeps/uses those results (`workbench/hidds/radeon/ati_init.c:130-153`). It does not receive a failure indication from this backend, so a failed or partial mapping can lead to later framebuffer/MMIO access through addresses not mapped as requested.
+
+**Trigger and consequence:** initialize a supported Radeon card on Efika when mapping its BAR exhausts the PPC PTE hash groups. The backend returns a non-NULL original address despite failure; the Radeon HIDD can access an unmapped or partially mapped BAR, causing initialization or later display access to fail. **Affected configuration:** Efika's selected `pci-efika` and Radeon modules with a PCI Radeon device and PTE mapping exhaustion. **Confidence:** high for failure propagation being discarded and the selected caller consuming the pointer; exhaustion is conditional and no Efika hardware was available. Return NULL when mapping fails and provide rollback for any mapped prefix. No mapping failure, card, or build was exercised; source-only.
+
+
 <a id="od11711"></a>
 ## OD11711 — IntelGMA dereferences an unchecked failed PCI BAR mapping [conditional]
 
