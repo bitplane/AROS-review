@@ -18515,3 +18515,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11706](AROS-other-drivers.md#od11706) — Say writes wrapped WAV lengths after the RIFF size limit.** Its streamed WAV output has unchecked 32-bit sample and RIFF size fields; conditional on synthesizing more than 4 GiB of 8-bit audio. Source-only.
 **[OD11702](AROS-other-drivers.md#od11702) — VMware SVGA BUGs on a MOB larger than its two-level page-table capacity.** A 64-bit MOB above 1 GiB needs a third page-table level, but `vmw_mob_pt_setup()` executes `BUG_ON` above level two. The generic GEM/MOB path does not enforce the device's maximum size before setup. Conditional on sufficient device MOB limit and memory; source-only.
+
+**[GD15250](AROS-graphics-desktop.md#gd15250)** — `SetCxObjPri()` returns negative previous priorities as positive values. Conditional on a native Commodities client reading the old priority; source-only.
