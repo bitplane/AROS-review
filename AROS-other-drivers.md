@@ -42704,6 +42704,13 @@ The SiS900 worker allocates `sis900u_signal_0` with `AllocSignal(-1)`, which ret
 **Cross-subsystem reference (2026-11-11):** the VC4 display client treats a failed `DMAWaitChannel()` result as idle, while the DMA resource discards `dma_channel_quiesce()` failure. The exact timeout-plus-reset-failure consequence for reusable CB and BO pin ownership is documented once as [GD15088](AROS-graphics-desktop.md#gd15088); this is not counted as a separate Other Drivers finding. The DMA resource body was already fully credited above; no path or LOC total changes. No transfer or reset failure was induced; source-only.
 
 
+<a id="od3020"></a>
+## OD3020 — E1000 retains TX resources and its opener when RX setup fails [conditional]
+
+The selected E1000 Open vector increments `e1ku_open_count` and links the newly allocated opener before setting up per-open rings (`workbench/devs/networks/e1000/e1000_init.c:303-345`). It then sets up TX resources first and RX resources second (`:382-387`). If TX setup succeeds but RX setup fails, the RX helper unwinds its own partial allocations, but Open does not call `e1000func_free_all_tx_resources()` or unlink the opener. It returns `IOERR_OPENFAIL` (`:411-413`). Exec's `OpenDevice()` then clears `io_Device` without invoking the driver's Close vector for a failed Open (`rom/exec/opendevice.c:109-120`), so the opener remains linked and the count is not rolled back. The TX descriptor ring and buffer metadata are not reclaimed by `DeleteUnit()`, which frees the unit, PCI mapping and private hardware state but does not free TX/RX ring resources (`workbench/devs/networks/e1000/unit.c:1079-1112`).
+
+**Trigger and consequence:** TX resource setup succeeds and subsequent RX resource setup fails during Open, such as on an RX descriptor allocation failure. The request fails, while TX ring memory, opener state and the tentative open count remain retained; later cleanup does not reclaim the TX resources. **Affected configuration:** selected E1000 targets in the x86 PC network aggregate (`workbench/devs/networks/mmakefile.src:3-15`; `e1000/mmakefile.src`). **Confidence:** high for the stage order, helper return, failed-Open dispatch and absent teardown free; conditional on RX setup failure after TX setup succeeds. Unwind successful TX resources and remove the opener/restore the count on every post-publication Open failure. The late `request_irq()` error arm is not claimed as a trigger because the selected `request_irq()` unconditionally returns zero (`e1000.c:626-636`). No allocation failure, Open, device, or build was exercised; source-only.
+
 <a id="od3051"></a>
 ## OD3051 — PCNet32 dereferences failed private-state allocation [conditional]
 
