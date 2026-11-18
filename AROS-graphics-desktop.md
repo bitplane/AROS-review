@@ -21897,6 +21897,13 @@ In app-backed `MUI_RequestA()`, failure to create a `SimpleButton()` breaks out 
 
 **Trigger and consequence:** the requester window and copied gadget string are created successfully, but allocation/construction of the first SimpleButton fails. The requester appears with no buttons and the synchronous `MUI_RequestA()` call waits without a requester control that can complete it. **Affected configuration:** app-backed MUI_RequestA callers when memory pressure causes the first button construction to fail; the `app == NULL` EasyRequest path is separate. **Confidence:** high for continuing with zero buttons and entering the wait loop; whether unrelated application input releases the call depends on the client. Return failure or avoid opening the requester when no button was created. Source-only; no allocation failure or requester was induced.
 
+<a id="gd15248-mui-scaled-window-dimensions-divide-by-zero-on-zero-minimum"></a>
+### GD15248 — MUI scaled Window dimensions divide by zero for a zero minimum [conditional]
+
+The primary `MUIV_Window_Width_Scaled` and `MUIV_Window_Height_Scaled` cases divide by `wd_MinMax.MinHeight` or `wd_MinMax.MinWidth` without checking the denominator (`workbench/libs/muimaster/classes/window.c:2836-2841`). `WindowMinMax()` obtains minima from the root object's `MUIM_AskMinMax` and calls `__area_finish_minmax()`, which does not impose a positive lower bound (`:3675-3682`; `classes/area.c:888-946`). A vertical or horizontal Group with no visible children can report zero minimum width and height: its corresponding Group MinMax helper initializes minima to zero, adds only visible-child sizes, and passes the result through `END_MINMAX()` unchanged (`classes/group.c:1398-1407,1422-1506,1511-1574`).
+
+**Trigger and consequence:** open a Window with a root whose `MinHeight` is zero while requesting `MUIV_Window_Width_Scaled`, or whose `MinWidth` is zero while requesting `MUIV_Window_Height_Scaled`. `WindowSelectDimensions()` reaches an integer division by zero while calculating the aspect ratio. An empty Group root is a source-supported zero-minimum case. **Affected configuration:** muimaster Window clients using a primary scaled dimension with a zero root minimum. **Confidence:** high for the unguarded divisor and selected Group zero-minimum path; no window was opened and the target-specific fault behavior was not exercised. Reject scaled sizing when its denominator is zero or define a safe fallback. Source-only.
+
 <a id="gd14939-quickpart-zero-largest-drive-divides-by-zero"></a>
 ## GD14939 — QuickPart divides by zero when every enumerated disk has zero measured capacity
 
