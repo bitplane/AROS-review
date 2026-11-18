@@ -15063,6 +15063,10 @@ Coverage-link repair: GD10288's coverage link now resolves to the explicit `setr
 **[OD9749](AROS-other-drivers.md#od9749) — FEC request-port allocation failures fault unit creation or leave NULL queues.** The write queue is dereferenced after unchecked allocation; event/orphan queue failures later pass NULL to `PutMsg()`. Applies to the optional PowerPC FEC target; orphan requests require a direct/external client. Source-only.
 
 
+**[OD3015](AROS-other-drivers.md#od3015) — E1000 never decrements its per-unit opener count, so a closed exclusive unit remains busy.** Conditional on an exclusive SANA-II Open or opener-allocation failure; the checked AROSTCP caller opens shared. Source-only.
+
+**[OD3023](AROS-other-drivers.md#od3023) — E1000 leaves device and VERTB interrupt callbacks registered across Close and unit teardown.** Repeated shared Opens register the same VERTB node again; later deletion can leave callbacks pointing at freed unit state. Selected x86 PC network targets; source-only.
+
 **[OD3020](AROS-other-drivers.md#od3020) — E1000 retains its TX ring and opener state when RX setup fails during Open.** The selected Open path returns failure without rolling back previously allocated TX resources or the linked opener/count; Exec does not dispatch Close after failed Open. Conditional on RX setup failing after TX setup succeeds; selected x86 PC E1000 builds. Source-only.
 
 **[OD3033](AROS-other-drivers.md#od3033) — E1000 request-port allocation failure faults unit creation and can leak ports.** The failed first queue remains NULL for an unconditional write-queue flag assignment; later failed construction may lose subsequent allocations. Explicit i386/x86_64 E1000 builds. Source-only.
