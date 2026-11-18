@@ -18541,6 +18541,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11712](AROS-other-drivers.md#od11712)** — Efika PCI MapPCI ignores MMU mapping failure and returns the original BAR address. Conditional on PTE exhaustion with a selected Radeon card; source-only.
 
 **[OD11713](AROS-other-drivers.md#od11713)** — PC i8042 mouse probing leaks the timer.device open, IORequest and MsgPort when no auxiliary mouse is found. Source-only.
+**[OD11714](AROS-other-drivers.md#od11714)** — Speechcore returns success for a zero-length invalid translation request without producing a NUL-terminated result. Direct API caller required; source-only.
+**[OD11715](AROS-other-drivers.md#od11715)** — RTL8029’s optional PDEBUG log narrows an inline string pointer to 32-bit `LONG` before `%s`; conditional on a debug build on 64-bit with a high unit-name address. Source-only.
 
 **[EK11023](AROS-exec-kernel.md#ek11023)** — RexxSupport `MAKEDIR`/`RENAME` can perform the filesystem operation but return query success without a status result if argstring allocation fails. Conditional on memory exhaustion in the optional module; source-only.
 **[EK11024](AROS-exec-kernel.md#ek11024)** — `Break` narrows `ReadArgs()` PORT/NAME string pointers to 32-bit `LONG` before formatting them with `%s`; a not-found diagnostic can use a truncated pointer on 64-bit targets. Source-only.
