@@ -18566,7 +18566,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[GD15255](AROS-graphics-desktop.md#gd15255)** — `MUI_RequestA()` stores more than 32 gadget buttons past its fixed stack array. Conditional on an app-backed caller exceeding the assumed limit; source-only.
 
-**[GD15256](AROS-graphics-desktop.md#gd15256)** — `MUI_RequestA()` consumes matching return IDs queued by other windows in the same application, closing with a wrong button result and dropping the original action. Conditional on an overlapping app return ID during a request; source-only.
+**[GD15256](AROS-graphics-desktop.md#gd15256)** — `MUI_RequestA()` consumes other windows’ app-wide return IDs; the Wanderer Info About requester can swallow its own window-close request, and matching IDs can become wrong button results. Conditional on another app return ID during a request; source-only.
 
 **[OD11707](AROS-other-drivers.md#od11707)** — ATA PCI skips the declared IDE1 legacy channel rows in its x86 compatibility-mode scan. Conditional on hardware exposing those additional legacy channels; source-only.
 
