@@ -18658,3 +18658,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 
 **[GD15261](AROS-graphics-desktop.md#gd15261-vulkan-hpp-platform-handle-info-wrappers-default-to-the-fd-handle-type)** — Ten Vulkan-Hpp Win32/Fuchsia fence, memory, and semaphore import/export structures default `handleType` to `eOpaqueFd`; omitted fields can make the platform operation fail. Conditional on downstream Vulkan-Hpp callers; source-only.
+
+
+**[GD15262](AROS-graphics-desktop.md#gd15262-vulkan-hpp-array-setters-can-desynchronize-shared-element-counts)** — Vulkan-Hpp setters independently update shared counts for paired arrays in semaphore waits and descriptor-buffer offsets; mismatched lengths can make Vulkan read beyond the shorter array. Conditional on downstream enhanced-mode use; source-only.
