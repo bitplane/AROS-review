@@ -18599,3 +18599,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11725](AROS-other-drivers.md#od11725)** — USB Ethernet and Bluetooth PAN Open can succeed after BufMan allocation failure, leaving caller tag-list memory to be used and freed as the device’s BufMan. Conditional on allocation failure with a non-NULL tag list; source-only.
 
 **[OD11726](AROS-other-drivers.md#od11726)** — LAN78xx failed Open can leave `SANA2OPF_MINE` set and keep the unit busy. Conditional on BufMan allocation failure during an exclusive Open; source-only.
+
+**[OD11728](AROS-other-drivers.md#od11728)** — hosted Unix `eth` and `tap` devices accept later Opens despite an earlier `SANA2OPF_MINE` exclusive request. Source-confirmed; no in-tree exclusive caller found.
