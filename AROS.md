@@ -18594,4 +18594,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11723](AROS-other-drivers.md#od11723)** — six USB device classes can grant concurrent exclusive unit Opens on ExecSMP; closing one can disable requests for a remaining serial handle. Conditional on concurrent opens; source-only.
 
-**[OD11724](AROS-other-drivers.md#od11724)** — seven USB Ethernet classes clear shared OpenFlags when one opener remains, allowing a later exclusive Open to coexist with it. Conditional on shared Opens followed by an exclusive Open; source-only.
+**[OD11724](AROS-other-drivers.md#od11724)** — eight SANA-II device classes clear shared OpenFlags when one opener remains, allowing a later exclusive Open to coexist with it. Conditional on shared Opens followed by an exclusive Open; source-only.
