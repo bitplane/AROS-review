@@ -40128,3 +40128,8 @@ OD11724 Bluetooth PAN sibling reconciliation (2026-11-18; no new ID or body/LOC 
 
 
 OD11724 count-boundary consequence recheck (2026-11-18; no new body/path/LOC credit): reconciled both reachable close boundaries in all eight vectors. A two-open shared state followed by one Close leaves count one but clears flags, allowing an exclusive Open alongside the retained shared handle; a lone `SANA2OPF_MINE` Open followed by Close leaves count zero without clearing `SANA2OPF_MINE`, so the next Open is rejected as busy. Expanded the report/index to include the stale-exclusive last-close consequence. No unit Open/Close was run; source-only.
+
+
+## USB Ethernet and Bluetooth PAN BufMan allocation-failure pass (OD11725; 2026-11-18)
+
+Compared Open/Close ownership in all eight SANA-II vectors: ASIX, CDC Ethernet, DM9601/Davicom, EthWrap, MosChip, Pegasus, RNDIS and Bluetooth PAN. Each copies the input `ios2_BufferManagement` tag-list pointer, conditionally assigns a newly allocated `BufMan` only on success, but later reports Open success even when allocation fails. The common Close path removes and frees any non-NULL field; read/write paths treat it as `BufMan`. Added OD11725 for caller tag-list misownership after allocation failure; separately confirmed the Open diagnostic's NULL dereference is DEBUG-only. These bodies were already reviewed; no path or LOC totals change. No allocation failure, request, Close, device or build was exercised; source-only.
