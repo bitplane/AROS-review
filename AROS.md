@@ -18591,3 +18591,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11721](AROS-other-drivers.md#od11721)** — E1000 teardown frees its embedded timer request without closing timer.device. Conditional on successful timer Open before teardown; source-only.
 
 **[OD11722](AROS-other-drivers.md#od11722)** — E1000 ignores timer.device Open failure and continues hardware setup with skipped delays. Conditional on timer Open failure; source-only.
+
+**[OD11723](AROS-other-drivers.md#od11723)** — CDC ACM and CP210x can grant concurrent exclusive serial-unit Opens on ExecSMP; closing one can disable I/O for the other. Conditional on concurrent opens; source-only.

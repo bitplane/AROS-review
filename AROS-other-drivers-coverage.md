@@ -40107,3 +40107,8 @@ Rechecked the `REQUEST_QUEUE_COUNT` loop, enum order and `DeleteUnit()` port cle
 ### OD3131 detailed report reconciliation (2026-11-18)
 
 The selected-driver census and master-index summary already covered OD3131, but the detailed finding section was missing. Rechecked all seven selected handler epilogues: each replies before reading `ios2_Req.io_Unit` to release the unit semaphore. Restored the detailed trigger, consequence, affected configuration and source locations. FEC remains outside the selected aggregate census; Via-Rhine is not added to this finding. No body/path/LOC credit changes. No reply-consumer reuse or scheduler interleaving was exercised; source-only.
+
+
+## CDC ACM/CP210x exclusive-open concurrency pass (OD11723; 2026-11-18)
+
+Rechecked both selected device Open/Close vectors, Exec `OpenDevice()` list-lock lifetime and the ExecSMP meaning of `Forbid()`. In both drivers the same unit can be accepted by two concurrent Opens because the zero-open check and increment are outside a cross-CPU lock; each Close then sets `ncp_DenyRequests` unconditionally, which the active worker uses to suppress requests. Added OD11723 with the affected optional USB module targets and the ExecSMP condition explicit. Both device-vector bodies already have full-body credit; no path or LOC total changes. No request, concurrent Open/Close, USB device, or build was run; source-only.
