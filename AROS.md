@@ -18486,4 +18486,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11696](AROS-other-drivers.md#od11696) — WirelessManager's Amiga GUI dereferences a missing SSID information element in SANA-II scan results.** Conditional on a returned network record having neither information-element data nor an SSID tag; scan completion can terminate the supplicant task. Source-only.
 
+**[OD11697](AROS-other-drivers.md#od11697) — Nouveau can dereference a null NVIF client after copy-engine channel setup fails.** On Fermi-or-newer devices with a CE runlist, a semaphore BO/VMA setup failure leaves a partial channel pointer; TTM move-method initialization then probes it. Conditional on allocation or VMA failure in the optional Nouveau target; source-only.
+
 **[OD4273](AROS-other-drivers.md#od4273) — WirelessManager's supplicant task mutates the MUI scan List while the GUI task can render or select it.** Conditional on scan completion overlapping GUI list use; the MUI Application method queue is not used for these updates. Separate from GD14938's active-row clear write. Source-only.
