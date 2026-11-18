@@ -18543,3 +18543,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11713](AROS-other-drivers.md#od11713)** — PC i8042 mouse probing leaks the timer.device open, IORequest and MsgPort when no auxiliary mouse is found. Source-only.
 
 **[EK11023](AROS-exec-kernel.md#ek11023)** — RexxSupport `MAKEDIR`/`RENAME` can perform the filesystem operation but return query success without a status result if argstring allocation fails. Conditional on memory exhaustion in the optional module; source-only.
+**[EK11024](AROS-exec-kernel.md#ek11024)** — `Break` narrows `ReadArgs()` PORT/NAME string pointers to 32-bit `LONG` before formatting them with `%s`; a not-found diagnostic can use a truncated pointer on 64-bit targets. Source-only.
