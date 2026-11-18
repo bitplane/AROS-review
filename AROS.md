@@ -18657,4 +18657,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11746](AROS-other-drivers.md#od11746-controller-hat8-flag-is-ignored)** — hat decoding always emits eight-direction values even when the descriptor leaves `CF_Hat8` clear, so four-way right/left values can become diagonals. Conditional on four-way ordinal driver input; source-only.
 
 
-**[GD15261](AROS-graphics-desktop.md#gd15261-vulkan-hpp-platform-handle-info-wrappers-default-to-the-fd-handle-type)** — Five Vulkan-Hpp Win32/Fuchsia handle-export info wrappers default `handleType` to `eOpaqueFd`; omitted fields can make platform handle export fail. Conditional on downstream Vulkan-Hpp callers; source-only.
+**[GD15261](AROS-graphics-desktop.md#gd15261-vulkan-hpp-platform-handle-info-wrappers-default-to-the-fd-handle-type)** — Ten Vulkan-Hpp Win32/Fuchsia fence, memory, and semaphore import/export structures default `handleType` to `eOpaqueFd`; omitted fields can make the platform operation fail. Conditional on downstream Vulkan-Hpp callers; source-only.
