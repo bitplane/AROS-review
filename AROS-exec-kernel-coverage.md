@@ -555,7 +555,7 @@ The selected `rom/lddemon` and PC `rom/log/serial` module directories now have r
 
 Native m68k Amiga's boot link selects `kernel-alerthook-kobj`; its manifest names the alert hook body and resident-end marker. All three local files now have rows and complete reads. EK65 now includes the hook's separate alert-string table bound. The hook's null saved-task dereference was traced to an exception producer compiled only under `#if DEBUG`, while this selected exception source defines `DEBUG 0`; that path is not promoted as a default-build finding. Other saved-alert producers, boot-memory validity and Intuition display contracts remain open.
 
-Current progress: **1,548 unique ledger rows**. The statuses below distinguish reviewed files, full body and definition reads with caller contracts pending, excluded variants, and selected dependency files. All ten C files in the explicit VMM preferences-app manifest now have full body reads; this does not close its platform, generated catalog, MUI, manager or filesystem contracts. The whole Exec/kernel audit and architecture manifest reconciliation remain incomplete.
+Current progress: **1,549 unique ledger rows**. The statuses below distinguish reviewed files, full body and definition reads with caller contracts pending, excluded variants, and selected dependency files. All ten C files in the explicit VMM preferences-app manifest now have full body reads; this does not close its platform, generated catalog, MUI, manager or filesystem contracts. The whole Exec/kernel audit and architecture manifest reconciliation remain incomplete.
 
 | File | Status | Notes |
 |---|---|---|
