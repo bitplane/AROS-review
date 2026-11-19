@@ -11689,6 +11689,13 @@ The optional `dumpmem` utility reads the proceed/cancel confirmation with `gets(
 
 **Trigger and consequence:** provide malformed or partially numeric `ADDRESS` text. The tool attempts a dump from zero or from a truncated address instead of reporting invalid input; depending on the mapping, it may fault or display unrelated bytes. **Affected configuration:** explicitly invoked `test-exec-public` on any architecture. **Confidence:** high for the unchecked conversion end pointer and selected call into `HexDump`; no address was read. Require at least one converted digit, consume the entire argument, and reject conversion overflow before dereferencing. Source-only.
 
+<a id="ek11056"></a>
+## EK11056 — DumpMem reads past the requested size in the final ASCII column
+
+`HexDump()` rounds the requested byte count up to a 16-byte row and guards the hexadecimal output with `t < count` (`developer/debug/test/exec/dumpmem.c:33-51`). The ASCII-column loop then unconditionally reads `data[t-i]` for all 16 bytes of that row (`:54-66`). For any non-multiple-of-16 size, the final row therefore reads beyond the requested range. For example, `SIZE=1` reads `data[0]` for the hex column and then reads `data[0..15]` for the ASCII column. This is separate from the unchecked address and size parsing in EK11041/EK11042.
+
+**Trigger and consequence:** request a positive size not divisible by 16 whose final requested byte lies at the end of a readable region. The ASCII rendering reads up to 15 bytes past that region and can fault; if the following bytes are mapped, it also displays bytes outside the requested dump length. **Affected configuration:** explicitly invoked `dumpmem` test utility on any architecture; the tool is not in the default image (`developer/debug/test/exec/mmakefile.src:18-38,70-71`). **Confidence:** high for the unconditional extra reads and exact maximum overread; the fault depends on the adjacent mapping. No memory dump or runtime fault was induced. Bound the ASCII-column reads by `count` and print padding for indices beyond the requested range. Source-only.
+
 <a id="ek11043"></a>
 ## EK11043 — OpenLib test reports success after argument or library-open failure
 
