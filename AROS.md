@@ -17485,7 +17485,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15050](AROS-graphics-desktop.md#gd15050) — `cxtest` setup failures return without closing windows, libraries, or created objects. Conditional. Source-only.**
 **[GD15051](AROS-graphics-desktop.md#gd15051) — `cxtest` uses Intuition before checking its library open. Conditional. Source-only.**
 **[GD15052](AROS-graphics-desktop.md#gd15052) — DemoWin device/window setup failures bypass resource cleanup. Conditional. Source-only.**
-**[GD15053](AROS-graphics-desktop.md#gd15053) — DemoWin reads an uninitialized key byte when raw-key conversion yields no output. Conditional. Source-only.**
+**[GD15053](AROS-graphics-desktop.md#gd15053) — WITHDRAWN: duplicate of GD14989. Source-only.**
 **[GD15056](AROS-graphics-desktop.md#gd15056) — Decoration Screen and Window object disposal skips the superclass, leaking per-screen objects. Unconditional for those classes. Source-only.**
 
 **[GD15060](AROS-graphics-desktop.md#gd15060) — LeakWatch permanently consumes snapshot storage.** Conditional on repeated snapshots exhausting fixed pools; source-only.
