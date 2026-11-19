@@ -24662,3 +24662,11 @@ If `AllocMem(afsize, MEMF_ANY)` fails, `afh` is NULL, the retry loop ends, the p
 **Trigger and affected configuration:** the selected `developer/demos/fontreq` target encounters asl.library open failure or requester allocation failure. The program is listed in `developer/demos/mmakefile.src:14-29`. **Consequence:** callers cannot distinguish failed startup/requester construction from successful completion. **Suggested correction:** propagate setup failures to `main()` and return a nonzero status.
 
 **Source-only evidence:** `developer/demos/fontreq.c:42-76`; no library failure, allocation failure, requester operation or build was induced.
+
+## GD15300 — Multi-select demo toggles stored selection during rendering
+
+The custom listview hook treats `LV_DRAW` with `lvdm_State == LVR_SELECTED` as an input action and toggles the node's persistent `ln_Pri` selection flag (`developer/demos/gtmultiselect.c:115-125`). GadTools sets that state from the current selected row while constructing each draw message, then invokes the hook from `RenderEntries()` (`workbench/libs/gadtools/listviewclass.c:240-258`). It is therefore a rendering state, not a one-shot selection notification. Redrawing the selected row toggles its stored mark again; repeated expose/refresh or scrolling can make the mark change without another user selection action.
+
+**Trigger and affected configuration:** draw or redraw the current selected row in the explicitly selected `developer/demos/gtmultiselect` program. The demo installs the callback through `GTLV_CallBack` (`gtmultiselect.c:193-208`) and is listed in `developer/demos/mmakefile.src:14-29`. **Consequence:** the custom multi-select mark is unstable and can be cleared or re-added by repainting. **Suggested correction:** change persistent selection only in an input/selection event path; make the render hook read the stored state and draw it without mutation.
+
+**Source-only evidence:** `developer/demos/gtmultiselect.c:115-125,156-182`; `workbench/libs/gadtools/listviewclass.c:240-258`. No listview or GUI operation was run.
