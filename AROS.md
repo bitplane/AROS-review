@@ -17458,7 +17458,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15025](AROS-graphics-desktop.md#gd15025) — RTFont exits successfully if requester allocation or reqtools.library setup fails; user cancellation is normal. Low impact; explicit demo target. Source-only.**
 **[GD15026](AROS-graphics-desktop.md#gd15026) — RTLong exits successfully if reqtools.library cannot open. Low impact; explicit demo target with no checked-in caller. Source-only.**
 **[GD15027](AROS-graphics-desktop.md#gd15027) — RTScreen exits successfully if reqtools.library cannot open. Conditional on library-open failure. Source-only.**
-**[GD15028](AROS-graphics-desktop.md#gd15028) — RTString exits successfully if reqtools.library cannot open. Conditional on library-open failure. Source-only.**
+**[GD15028](AROS-graphics-desktop.md#gd15028) — RTString exits successfully if reqtools.library cannot open. Low impact; explicit demo target with no checked-in caller. Source-only.**
 **[GD15029](AROS-graphics-desktop.md#gd15029) — RTPalette exits successfully if reqtools.library cannot open. Conditional on library-open failure. Source-only.**
 **[GD15030](AROS-graphics-desktop.md#gd15030) — ScreenModeReq exits successfully when ASL library/request allocation fails. Conditional on setup failure. Source-only.**
 **[GD15031](AROS-graphics-desktop.md#gd15031) — ShadowBorder exits successfully if intuition.library cannot open. Conditional on library-open failure. Source-only.**
