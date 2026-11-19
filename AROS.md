@@ -17945,7 +17945,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[EK9032](AROS-exec-kernel.md#ek9032) — GenModule can read past a stack buffer when generating a proto header for a long include name.** Source-only.
 
-**[EK9042](AROS-exec-kernel.md#ek9042) — OpenSBI startup can build the primary heap outside the selected RAM bank.** Startup begins the primary MemHeader at `__kernel_end` but uses only the selected bank’s end; a gap, underflow, EFI-unusable span or stale FDT bound can therefore be advertised as RAM. Conditional on external firmware layout; source-only.
+**[EK9042](AROS-exec-kernel.md#ek9042) — OpenSBI startup can build the primary heap outside the selected RAM bank.** Startup derives the System Memory start from `__kernel_end` (after an optional Chip Memory carve-out) but uses only the selected bank’s end; a gap, underflow, EFI-unusable span or stale FDT bound can therefore be advertised as RAM. Conditional on external firmware layout; source-only.
 
 **[EK9058](AROS-exec-kernel.md#ek9058) — SetPlayerAttrsA searches and adopts public conductors outside the required list lock (conditional concurrency defect; high source confidence).** Source-only.
 
