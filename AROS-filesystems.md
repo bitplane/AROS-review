@@ -646,6 +646,17 @@ Counts are the number of findings primarily attributed to each area; a finding c
 - **Scope:** native CDVDFS when the explicitly buildable/installed `cdcontrol` utility is used. The aggregate Workbench-C edge is disabled in the manifest; no default-image impact is claimed.
 - **Confidence/limits:** High source confidence for the command mapping and missing handler case. No command or Unicode table was loaded.
 
+
+### FS-089 — AFS leaks partial handler allocations when timer setup fails
+
+`AFS_alloc()` allocates its `AFSBase` before opening libraries and creating the timer resources (`rom/filesys/afs/main.c:48-76`). Every failure after that allocation falls through to `return NULL` without freeing `handler`. If `CreateMsgPort()` succeeds but `CreateIORequest()` fails, or if `OpenDevice("timer.device", ...)` fails, the timer message port and its allocated signal are also left behind; the latter branch deletes the I/O request but not the port (`:63-75`). `RAMMain()` replies to the startup packet with failure and returns immediately when `AFS_alloc()` returns NULL, without calling `AFS_free()` (`:252-258`). The DOS `RunHandler()` caller then treats the failed startup response as failure and clears `dn_Task` (`rom/dos/runhandler.c:164-181`), so the child is not stranded; the leak is the retained startup memory and, on later failure branches, port/signal.
+
+**Trigger/consequence:** AFS starts but any required library open, timer message-port/request allocation, or timer-device open fails. Each failed start leaks the allocated handler structure; failures after successful `CreateMsgPort()` also leak the port memory and signal bit. Repeated failed mount/start attempts can accumulate these resources.
+
+**Affected configuration:** builds containing the AFS handler and DOS configurations that attempt to start it. AFS is listed in the m68k-Amiga boot handler set (`arch/m68k-amiga/boot/mmakefile.src:157,374`); target inclusion alone does not mean every boot attempts to mount AFS.
+
+**Confidence/limits:** High for the unchecked cleanup paths and the `RAMMain()` failure return. Resource exhaustion and timer/library failures were not induced. Route all post-allocation failures through cleanup that frees each resource acquired so far. Source-only.
+
 ## Coverage boundaries
 
 All filesystem implementation families found in the repository-wide inventory are represented above, including handlers with no substantiated candidate in this pass (AUX and speak). The reported conditions are deliberately narrower than a blanket claim that every configuration is affected. Malformed media, allocation failure, short I/O, invalid mount geometry, and raw DOS packets are stated where needed. This is a source review at one commit, not a runtime reproduction or guarantee that no other bugs remain.
