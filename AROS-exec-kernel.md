@@ -11711,3 +11711,10 @@ The selected `openlib` test returns zero whether `ReadArgs()` fails or `OpenLibr
 `developer/debug/test/exec/vblank.c:14-24,36-40` declares `counter` as an ordinary static `int`, increments it from the `INTB_VERTB` interrupt handler, then repeatedly reads it from the main task while checking Ctrl-C. The counter is neither volatile nor atomic, and there is no other synchronization around the accesses.
 
 **Trigger and consequence:** run the test in a build where optimization reuses the main-loop value instead of reloading the asynchronously updated counter; the displayed count can remain stale or fail to reflect VBlank activity. **Affected configuration:** explicitly invoked `test-exec-public` on any target where the compiler performs that optimization; developer test, not default image (`developer/debug/test/exec/mmakefile.src:39-40,70-71`). **Confidence:** medium; the unsynchronized interrupt/task access is explicit, but no optimized build or runtime was checked. Use an appropriate volatile/atomic access or a synchronized snapshot. Source-only.
+
+<a id="ek11053"></a>
+## EK11053 — `exceptiontest` does not fail when its exception check is skipped or wrong
+
+`developer/debug/test/exec/exceptiontest.c:35-59` performs the handler setup only if both `AllocSignal()` calls succeed. It prints the captured `s` value but never checks it against the expected signal mask, and `main()` returns zero on both allocation-failure branches and after an incorrect or absent callback result.
+
+**Trigger and consequence:** either signal allocation fails, or the exception callback is not invoked or captures an unexpected mask. The executable still exits successfully, so an automated caller cannot distinguish a skipped or failed exception check from a pass. **Affected configuration:** `test-exec-public` on any architecture; developer test, not default image (`developer/debug/test/exec/mmakefile.src:18-38,70-71`). **Confidence:** high for the untested result and unconditional success status; no signal or exception was run. Assert the expected mask and return failure when setup or verification fails. Source-only.
