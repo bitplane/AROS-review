@@ -18672,3 +18672,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 
 **[GD15266](AROS-graphics-desktop.md#gd15266-vulkan-hpp-surface-present-mode-query-defaults-to-optional-immediate-mode)** — surface-capability queries default their chained present-mode selector to optional `eImmediate`; a FIFO-only surface may reject or fail that query. Conditional on downstream Vulkan-Hpp use; source-only.
+
+**[GD15267](AROS-graphics-desktop.md#gd15267-vulkan-hpp-acceleration-structure-setters-can-populate-both-geometry-representations)** — enhanced geometry setters can leave both alternative geometry pointers populated and overwrite their shared count; acceleration-structure build wrappers forward the invalid structure. Conditional on downstream setter/API use; source-only.
