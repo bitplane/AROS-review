@@ -24684,3 +24684,19 @@ The shared `cleanup()` routine always calls `exit(0)` (`developer/demos/gtmultis
 **Trigger and affected configuration:** a library, public-screen resource, gadget or window cannot be created by the selected `developer/demos/gtmultiselect` target. **Consequence:** the program exits with success despite not reaching its interactive demo. **Suggested correction:** pass an appropriate status into cleanup or use a nonzero failure return for initialization errors.
 
 **Source-only evidence:** `developer/demos/gtmultiselect.c:42-60,62-88,199-255`; no failure or GUI operation was induced.
+
+## GD15303 — Notify demo waits even when StartNotify fails
+
+The demo ignores the BOOL returned by `StartNotify(nr)` and always waits for `SIGF_SINGLE` (`developer/demos/notify.c:49-53`). The API documents that return as a success/failure indicator (`rom/dos/startnotify.c:32-45`). If registration fails, no notification is established to set the signal, so the demo can wait indefinitely instead of reporting the failure.
+
+**Trigger and affected configuration:** the selected `developer/demos/notify` program calls StartNotify and the DOS/filesystem request fails. The source is selected by `developer/demos/mmakefile.src:14-29`. **Consequence:** the program remains blocked waiting for a signal from a request that was not registered. **Suggested correction:** check StartNotify's result and only wait after successful registration.
+
+**Source-only evidence:** `developer/demos/notify.c:39-53`; `rom/dos/startnotify.c:32-45`. No notification was registered or waited on.
+
+## GD15304 — Notify demo leaves its successful notification active on exit
+
+After StartNotify succeeds and the signal arrives, `main()` prints a message and returns without calling `EndNotify()` or freeing the `NotifyRequest` allocated with `AllocVec()` (`developer/demos/notify.c:24-25,49-57`). The DOS API provides `EndNotify()` specifically to remove a previously started request (`rom/dos/endnotify.c:20-43`); the selected RAM handler accepts `ACTION_REMOVE_NOTIFY` (`rom/filesys/ram/handler.c:375-383`). The request can therefore remain registered after the waiting task exits, retaining the allocation and the signal target.
+
+**Trigger and affected configuration:** StartNotify succeeds and a notification arrives, causing the demo to leave its wait loop and return. **Consequence:** the notification registration and allocated request are not released, leaving a handler-side request referring to a task that has exited. **Suggested correction:** call EndNotify and free the request before returning; also release the lock/current-directory resources through a common cleanup path.
+
+**Source-only evidence:** `developer/demos/notify.c:24-57`; `rom/dos/endnotify.c:20-43`; `rom/filesys/ram/handler.c:375-383`. No notification was sent or program run.
