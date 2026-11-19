@@ -18220,6 +18220,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11644](AROS-other-drivers.md#od11644) — On ExecSMP, Nouveau workqueue startup can free its descriptor after a worker signals but before the worker finishes reading it when signal allocation fails. Conditional on the selected Nouveau HIDD and concurrent scheduling; source-only.**
 **[OD11643](AROS-other-drivers.md#od11643-ahi-warpup-elfloader-logs-unsupported-relocation-through-unbounded-table-index) — AHI WarpUp ELF loader indexes past the fixed relocation-name table when reporting an unsupported relocation type ≥37. Conditional on an `ENABLE_WARPUP` object containing that type; source-only.**
 **[GD10227](AROS-graphics-desktop.md#gd10227-vulkan-hpp-batch-unique-wrappers-leak-handles-if-raii-vector-allocation-throws) — Vulkan-Hpp can lose native handles if allocation of a batch owner vector or a newly created instance/device dispatcher throws before RAII ownership is established. Conditional on allocation failure in exception-enabled downstream clients; source-only.**
+**[GD15171](AROS-graphics-desktop.md#gd15171) — Vulkan-Hpp RAII `getPipelinePropertiesEXT()` passes a `BaseOutStructure` where the API requires a larger `PipelinePropertiesIdentifierEXT`; a successful query can write past the local object. Optional extension helper; no in-tree caller found; source-only.**
+
 **[GD15170](AROS-graphics-desktop.md#gd15170) — ShowPageSize tests the `MMU68851` function address instead of calling it; on a 68020 without the coprocessor, it enters the unsupported MMU-state read instead of returning its no-MMU result. Conditional on the optional VMM install tool; source-only.**
 **[OD11641](AROS-other-drivers.md#od11641) — On ExecSMP without LDDemon's Open serialization, concurrent first opens can both miss parallel.device's unprotected unit list and publish duplicate records for the same hardware unit. Conditional on that optional device configuration; source-only.**
 **[OD11642](AROS-other-drivers.md#od11642) — On ExecSMP, PCIUSB UHCI submission, flush, abort, and completion paths can mutate shared transfer queues under only local interrupt exclusion. Conditional on the optional UHCI controller and overlapping work; source-only.**
@@ -18584,6 +18586,9 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11715](AROS-other-drivers.md#od11715)** — RTL8029’s optional PDEBUG log narrows an inline string pointer to 32-bit `LONG` before `%s`; conditional on a debug build on 64-bit with a high unit-name address. Source-only.
 
 **[EK11023](AROS-exec-kernel.md#ek11023)** — RexxSupport `MAKEDIR`/`RENAME` can perform the filesystem operation but return query success without a status result if argstring allocation fails. Conditional on memory exhaustion in the optional module; source-only.
+**[EK11025](AROS-exec-kernel.md#ek11025)** — OpenSBI FDT node-name scanning does not bound its search to the structure block; malformed firmware can make boot-time parsing read beyond the DTB. Conditional; source-only.
+**[EK11026](AROS-exec-kernel.md#ek11026)** — Shared FDT property lookup trusts string-table offsets without validating them against the strings block; malformed firmware can supply an invalid property name. Conditional; source-only.
+**[EK11027](AROS-exec-kernel.md#ek11027)** — Shared FDT compatible/reg-name list parsing can scan past an unterminated property value into later DTB data. Conditional on malformed firmware; source-only.
 **[EK11024](AROS-exec-kernel.md#ek11024)** — `Break` narrows `ReadArgs()` PORT/NAME string pointers to 32-bit `LONG` before formatting them with `%s`; a not-found diagnostic can use a truncated pointer on 64-bit targets. Source-only.
 **[OD11716](AROS-other-drivers.md#od11716)** — RTL8029 reads the freed `UnitData` name in its optional PDEBUG last-close diagnostic; explicit debug build required. Source-only.
 
@@ -18603,6 +18608,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11726](AROS-other-drivers.md#od11726)** — LAN78xx failed Open can leave `SANA2OPF_MINE` set and keep the unit busy. Conditional on BufMan allocation failure during an exclusive Open; source-only.
 
+**[OD2215](AROS-other-drivers.md#od2215)** — Hosted Ethernet/TAP reject an out-of-range unit but still access the corresponding unit-array entry during failed-Open cleanup. Conditional on an invalid unit number; source-only.
 **[OD11728](AROS-other-drivers.md#od11728)** — hosted Unix `eth` and `tap` devices accept later Opens despite an earlier `SANA2OPF_MINE` exclusive request. Source-confirmed; no in-tree exclusive caller found.
 
 **[GD15258](AROS-graphics-desktop.md#gd15258-nlist-wrapped-selection-signed-shift-overflow)** — NList's wrapped-selection scan left-shifts a signed 32-bit value for each visual row; at 31 or more rows it invokes undefined behavior while saving selection state. Conditional on an unusually long wrapped entry and a mutation; visible mask corruption is unverified. Source-only.
@@ -18610,6 +18616,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15259](AROS-graphics-desktop.md#gd15259-datatype-import-worker-acknowledgement-race)** — HEIC and JPEG XL import workers poll a stack completion flag through unsynchronized cross-task accesses; the parent accesses the volatile object via a non-volatile pointer. Conditional on the support-process targets; a worker may fail to observe the acknowledgement and remain spinning. Source-only.
 **[GD15260](AROS-graphics-desktop.md#gd15260-swapchain-wrapper-defaults-to-optional-present-mode)** — Vulkan-Hpp defaults swapchain creation to optional `eImmediate`; a FIFO-only surface can reject a client that omits the mode. No in-tree C++ caller was found; source-only.
 
+**[OD11729](AROS-other-drivers.md#od11729)** — Hosted Ethernet/TAP failed Open frees its opener but leaves the pointer in the request; retrying the same request can read freed memory as a TagItem list. Conditional on retry after setup failure; source-only.
 **[OD11730](AROS-other-drivers.md#od11730-ata-scsi-identify-transfer-actual-count)** — ATA and SCSI copy 512 bytes in the undocumented 514-byte `TD_GETGEOMETRY` compatibility path but leave `io_Actual` unchanged. Conditional on an external caller using that form and checking the transferred byte count; source-only.
 
 
