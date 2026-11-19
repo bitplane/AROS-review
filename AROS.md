@@ -18694,3 +18694,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11755](AROS-other-drivers.md#od11755)** — Nouveau device removal ignores VRAM/GTT eviction errors, then frees the managers while failed-to-evict BOs may still reference them; later final BO release can dereference a missing/stale manager. Conditional on eviction failure plus a surviving BO reference. Source-only; no device removal was run.
 
 **[OD11756](AROS-other-drivers.md#od11756)** — Nouveau ignores VRAM eviction failure during suspend and can enter a power state with BOs still resident; their contents may be lost if that state resets VRAM. Conditional on eviction failure and device VRAM retention behavior. Source-only; no suspend was run.
+
+**[OD11757](AROS-other-drivers.md#od11757)** — If Nouveau’s reservation-fence wait fails after binding a new GART placement, TTM frees that resource while the retained TTM object caches its `nouveau_mem` pointer. A later bind or unbind can use freed state. Conditional on a system-to-GART move and fence wait failure. Source-only; no move was run.
