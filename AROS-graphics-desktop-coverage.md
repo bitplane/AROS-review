@@ -855,7 +855,7 @@ Current table-only line-read refresh (2026-10-24): reparsed the three current co
 | `rom/intuition/changewindowbox.c` | 55 | Full body reviewed; caller path traced |
 | `rom/intuition/changewindowshape.c` | 56 | Full body reviewed; conditional API and callers traced |
 | `rom/intuition/cleardmrequest.c` | 10 | Full body reviewed; GD5780 |
-| `rom/intuition/clearmenustrip.c` | 14 | Full body reviewed |
+| `rom/intuition/clearmenustrip.c` | 14 | Full body reviewed; caller/lifetime recheck traced the `MenuLock` handshake against asynchronous `FireMenuMessage(MMCODE_START/EVENT)` and the menu-stop release in `inputhandler.c`. Clearing or replacing a menu waits until the active menu interaction releases the lock, protecting the handler's cached menu pointer. No independent menu-data lifetime defect established; GD5818/GD5819 remain separate allocation/decorator cases. |
 | `rom/intuition/clearpointer.c` | 15 | Full body reviewed |
 | `rom/intuition/closescreen.c` | 253 | Full body reviewed |
 | `rom/intuition/closewindow.c` | 283 | Full body reviewed |
