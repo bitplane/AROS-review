@@ -18784,4 +18784,3 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11761](AROS-other-drivers.md#od11761)** — VC4 Gallium's glue stamp omits the Mesa patch used in its ABI hash; an incremental one-sided ABI change can retain a stale matching compatibility check. Optional Raspberry Pi target; conditional. Source-only.
 
-**[OD11762](AROS-other-drivers.md#od11762)** — Raspberry Pi H:4 allocates a new event copy for the Bluetooth stack without a reply port or reclamation path, leaking one message per event. Conditional on the optional H:4 device and registered stack listener; source-only.
