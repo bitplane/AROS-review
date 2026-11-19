@@ -18745,6 +18745,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[EK11066](AROS-exec-kernel.md#ek11066)** — `IdAlert()` ignores `IDTAG_Localize=FALSE` when returning catalog-backed alert descriptions. Source-only.
 **[EK11067](AROS-exec-kernel.md#ek11067)** — `IdAlert()` masks off bit 15 before matching alert object IDs, so listed object names do not match. Source-only.
 
+**[EK11068](AROS-exec-kernel.md#ek11068)** — overlapping VMM cache-resize workers can install an older buffer size after a newer request on ExecSMP. Conditional on out-of-order worker completion; optional VMM startup remains separately qualified. Source-only.
+
 **[EK11043](AROS-exec-kernel.md#ek11043)** — The optional `openlib` test exits successfully after argument parsing or library-open failure. Source-only.
 
 **[EK11044](AROS-exec-kernel.md#ek11044)** — The optional `makelib` test unlinks its dummy library but never frees its `MakeLibrary()` allocation. Source-only.
