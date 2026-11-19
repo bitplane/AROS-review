@@ -45243,20 +45243,7 @@ Both ATA and SCSI `cmd_GetGeometry()` handlers have a nonstandard `io_Length == 
 
 **Trigger and consequence:** an external client uses the 514-byte compatibility form and then relies on `io_Actual` to learn how much identify data was copied. The request contains 512 bytes, but `io_Actual` remains whatever value it held before the call (often zero for a cleared request, or stale data when reused). **Affected configuration:** selected ATA or SCSI device builds with an external caller using `TD_GETGEOMETRY` and `io_Length == 514`; the standard documented form returns `DriveGeometry`, and no maintained in-tree 514-byte caller was found. **Confidence:** high for the copy and missing output update; medium-low for caller impact because the compatibility form has no checked-in caller or local documentation specifying its `io_Actual` contract. Set `io_Actual` to the copied byte count on this branch. No request, device, or build was used; source-only.
 
-<a id="od11731-controller-subsystem-device-registration-races-on-execsmp"></a>
-## OD11731 — controller registration state is not serialized across ExecSMP CPUs [conditional]
 
-The controller subsystem protects its device list, ID allocator, and device count with `Disable()`/`Enable()` only (`workbench/hidds/controller/controllersubsystem.c:79-94,258-276,346-359`). Exec documents that these calls disable interrupts only on the current processor in ExecSMP and that shared data across CPUs also needs a spinlock (`rom/exec/disable.c:28-59`). The generic `HW_AddDriver()` calls `HW_SetUpDriver()` before taking its `driver_lock` to link the generic driver node (`rom/hidds/hidd/hwclass.c:173-205`); `HW_RemoveDriver()` releases that lock before calling `HW_CleanUpDriver()` (`:270-300`). That parent lock therefore does not serialize controller setup/cleanup with each other or with controller-list readers.
-
-**Trigger and consequence:** two CPUs concurrently register controller objects through `HW_AddDriver()` on an ExecSMP build. Their plain `hw->next_id++` operations can assign duplicate device IDs; concurrent `ADDTAIL()` and `devcount++` can also corrupt the subsystem list or lose count updates while `FindDevice()`/`GetDeviceIDs()` traverse it on another CPU. Duplicate IDs make ID lookup ambiguous, and damaged links can break enumeration or later cleanup. **Affected configuration:** controller HIDD explicitly built and used with concurrent controller registration or enumeration on ExecSMP; its aggregate dependency is commented in this snapshot, while its module target is explicitly defined in `workbench/hidds/controller/mmakefile.src`. **Confidence:** high for the missing cross-CPU synchronization and the conditional shared-state race; no in-tree controller device driver in this snapshot establishes a concrete concurrent producer. Protect the subsystem device state with an SMP-safe lock used consistently by setup, cleanup, lookup, and enumeration. No registration, interleaving, or build was run; source-only.
-
-
-<a id="od11732-controller-unipolar-axis-scaling-overflow"></a>
-## OD11732 — unipolar axis scaling overflows for wide logical ranges [conditional]
-
-`ctrl_NormaliseAxis()` computes a unipolar axis value as `((raw - min) * HIDD_CONTROLLER_TRIGGER_MAX) / range` using signed `LONG` arithmetic (`workbench/hidds/controller/controller_controls.c:219-227`). For a descriptor whose range exceeds 65,536, the multiplication can exceed signed 32-bit `LONG`; for example, a 24-bit trigger at its maximum multiplies 16,777,215 by 32,767 before division. The importer accepts such `LONG` min/max values and only substitutes defaults when `max <= min` (`:17-40,114-118`).
-
-**Trigger and consequence:** a controller driver supplies a unipolar axis with a logical range above 65,536 and reports a value far enough above the minimum that the product exceeds `LONG_MAX`. Signed overflow makes normalization undefined and may publish a wrong trigger value instead of the expected 0..32767 range. **Affected configuration:** controller HIDD explicitly built with a device driver exposing such a unipolar range; no in-tree controller device driver currently demonstrates it. **Confidence:** high for the arithmetic overflow at the stated valid descriptor boundary; device reachability remains conditional. Scale through a wide intermediate as the bipolar path does. No controller report or build was run; source-only.
 
 <a id="od11733-controller-sparse-touchpad-sensor-descriptors"></a>
 ## OD11733 — sparse touchpad and sensor tables expose zeroed fake descriptors [conditional]
@@ -45274,20 +45261,6 @@ The public control descriptor stores `min` and `max` as signed `LONG` values wit
 **Trigger and consequence:** an external controller driver declares an axis with signed endpoints whose positive distance exceeds `LONG_MAX`, then reports it. Import-time default/rest-position calculations and later normalization use the overflowing range and may publish incorrect readings. **Affected configuration:** controller HIDD explicitly built with a driver exposing such a wide signed axis range; no in-tree controller device driver currently demonstrates it. **Confidence:** high for the source arithmetic and lack of a tighter descriptor limit; device reachability remains conditional. Compute ranges and centers using a sufficiently wide intermediate and validate representable ranges. No descriptor, report, or build was run; source-only.
 
 
-<a id="od11735-controller-reading-seqlock-has-unserialized-writers"></a>
-## OD11735 — controller reading seqlock does not serialize concurrent writers on ExecSMP [conditional]
-
-`ctrl_WriteBegin()` and `ctrl_WriteEnd()` bracket the reading-cache update with `Disable()` and sequence increments, but hold no SMP-safe writer lock (`workbench/hidds/controller/controller_reading.c:87-99,157-230`). Exec documents that `Disable()` affects only the current processor on ExecSMP and requires a spinlock for shared cross-CPU state (`rom/exec/disable.c:28-59`). The public controller class describes Push methods as callable from any context (`workbench/hidds/controller/controllerclass.c:40-61`), and both `PushValue()` and `PushReport()` reach this writer (`:641-655`). `ctrl_CopyReading()` relies on an odd/even sequence check to copy a coherent snapshot (`controller_reading.c:59-85`).
-
-**Trigger and consequence:** two producer contexts push values/reports for the same device concurrently on ExecSMP. Both CPUs can enter the update; interleaved sequence increments can make `seq` even while a write is in progress, allowing `GetReading()` to return a torn snapshot. Concurrent state updates can also overwrite each other's cached changes. **Affected configuration:** controller HIDD explicitly built and used on ExecSMP with concurrent same-device producers; no in-tree controller device driver in this snapshot demonstrates such a schedule. **Confidence:** high for missing cross-CPU writer exclusion and the seqlock parity failure; manifestation depends on overlapping producer calls. Serialize writers with an SMP-safe per-device lock or equivalent protocol while preserving the reader snapshot contract. No concurrent push, reading, or build was run; source-only.
-
-
-<a id="od11736-controller-reading-reader-tests-uninitialized-sequence"></a>
-## OD11736 — controller reading retry tests an uninitialized sequence value [conditional]
-
-`ctrl_CopyReading()` declares `s2` without initialization, then uses `continue` when the first sequence read is odd (`workbench/hidds/controller/controller_reading.c:64-81`). Because this is a `do { ... } while (s1 != s2)` loop, `continue` transfers to the loop condition; it evaluates `s1 != s2` before returning to the top, so `s2` is read before assignment. The normal copy and second sequence read at `:78-80` are skipped on that path.
-
-**Trigger and consequence:** a reader on one CPU observes an odd sequence while a writer on another CPU is updating the cache on ExecSMP. The loop evaluates an indeterminate `s2`; this is undefined behavior and can terminate the retry early with the caller's destination unchanged or stale instead of waiting for a stable snapshot. **Affected configuration:** controller HIDD used for concurrent read/write on ExecSMP; no in-tree controller device driver in this snapshot establishes a concrete concurrent caller. **Confidence:** high for the C control-flow defect; the odd-sequence trigger depends on cross-CPU overlap because the writer disables local interrupts. Restart the loop without evaluating the condition until a second sequence value has been read. No concurrent reading or build was run; source-only.
 
 
 <a id="od11737-controller-mapping-ignores-specific-version-mismatch"></a>
@@ -45298,26 +45271,8 @@ The public mapping contract says GUID version bytes 12–13 are wildcards only w
 **Trigger and consequence:** add a mapping whose version bytes are nonzero, then register or remap a device with the same other GUID bytes but a different version, with no higher-quality matching mapping. The mismatched mapping is selected and can assign the wrong raw controls to the standard gamepad layout. **Affected configuration:** explicitly built controller HIDD with API/User mappings and devices whose versions differ; no in-tree controller device or mapping database exercises this path in the snapshot. **Confidence:** high for the contract/implementation mismatch; impact depends on such mappings and devices. Reject a nonzero version mismatch rather than treating it as a wildcard. No mapping or device operation was run; source-only.
 
 
-<a id="od11738-controller-event-fanout-silently-stops-after-32-consumers"></a>
-## OD11738 — controller event fanout silently skips consumers after 32 [conditional]
 
-`ctrl_DeliverEvent()` stores matching device-bound and subsystem-wide consumer pointers in a fixed `list[CTRL_FANOUT_MAX]` array, where `CTRL_FANOUT_MAX` is 32 (`workbench/hidds/controller/controller_notify.c:148-175`; `controller_intern.h:31`). Once `n` reaches 32, later matching nodes are traversed but never added or notified; this path does not set the consumer overflow flag or return a truncation status. The public API exposes event masks and consumers but no 32-consumer limit (`workbench/hidds/controller/include/controller.h:366-407`).
 
-**Trigger and consequence:** more than 32 consumers match one device event across its local and subsystem lists. Consumers beyond the first 32 in list order silently miss that event and all subsequent events delivered while the lists remain above the cap. **Affected configuration:** controller HIDD explicitly built with at least 33 matching consumers; no in-tree controller consumers establish this count. **Confidence:** high for the fixed cap and silent omission; reachability depends on client count. Deliver to every matching consumer or expose and enforce a documented limit with an overflow indication. No consumers or events were created; source-only.
-
-<a id="od11739-controller-initial-device-events-truncate-at-64"></a>
-## OD11739 — initial controller discovery omits devices after the first 64 [conditional]
-
-When a subsystem-wide consumer requests `DeviceAdded`, `ctrl_ConsumerAttach()` snapshots existing device IDs in a local `ids[64]` array and only appends while `n < 64` (`workbench/hidds/controller/controller_notify.c:203-232`). It then sends the initial salvo for that snapshot. Device registration has no corresponding 64-device limit, and `GetDeviceIDs()` walks and returns the full list (`controllersubsystem.c:258-276,345-357`).
-
-**Trigger and consequence:** attach a subsystem-wide consumer after more than 64 controllers are registered. It receives `DeviceAdded` only for the first 64 devices; later existing devices are omitted with no overflow indication, contrary to the initial-salvo comment. **Affected configuration:** controller HIDD explicitly built with more than 64 registered devices and a consumer using `DeviceAdded`; no in-tree controller drivers establish this count. **Confidence:** high for the silent truncation; reachability depends on device count. Iterate all devices without a fixed snapshot cap or report a complete, retryable enumeration. No devices or consumer were created; source-only.
-
-<a id="od11740-controller-mapping-update-visits-only-64-devices"></a>
-## OD11740 — controller mapping changes leave devices after the first 64 unmapped [conditional]
-
-`ctrl_RemapDevices()` collects device IDs into `ids[64]` and stops recording once 64 have been saved, then reapplies the mapping only to those IDs (`workbench/hidds/controller/controllersubsystem.c:360-389`). `AddMapping()` and `RemoveMapping()` both call this helper after changing the database (`:392-415`). There is no subsystem device-count limit of 64; `GetDeviceIDs()` enumerates the full list (`:345-357`).
-
-**Trigger and consequence:** a mapping is added, replaced, or removed while more than 64 devices are registered, and a matching device occurs after the first 64 list entries. That device keeps the old standard mapping until some other remap path updates it, so the API operation leaves connected devices with inconsistent mappings. **Affected configuration:** controller HIDD explicitly built with over 64 registered devices and a mapping change affecting a later device; no in-tree controller drivers establish this population. **Confidence:** high for truncation and missed remap; reachability depends on device count/order. Iterate the full set safely or process the list in bounded batches until every matching device is visited. No mapping or device operation was run; source-only.
 
 <a id="od11741-controller-event-coalescing-retains-stale-standard-metadata"></a>
 ## OD11741 — coalesced controller motion keeps stale standard-control metadata [conditional]
@@ -45326,13 +45281,6 @@ For a matching queued motion event, `ctrl_RingPush()` replaces only `value`, `se
 
 **Trigger and consequence:** a signal consumer enables coalescing, an axis event is queued with one standard mapping, the device is remapped, and a later motion event for that same raw axis coalesces into the queued event. The consumer receives the new value and sequence paired with the old `std`/standard-valid flags, attributing motion to the wrong standard control. **Affected configuration:** controller HIDD with a coalescing signal consumer and a mapping change before the queue is drained; no in-tree controller consumer establishes this sequence. **Confidence:** high for stale metadata retention; manifestation depends on a queued event crossing a remap. Copy all event fields when coalescing. No consumer, mapping, or event was run; source-only.
 
-
-<a id="od11742-controller-device-id-wrap-reuses-live-id"></a>
-## OD11742 — controller device ID wrap can reuse an ID still held by a live device [conditional]
-
-The subsystem promises device IDs are never reused (`workbench/hidds/controller/controllersubsystem.c:38-43`), but both `ControllerDevice.id` and `ControllerHWData.next_id` are `UWORD` (`controller_intern.h:86-96,154-165`). `SetUpDriver()` increments `next_id`, skips zero after wrap, and never checks the live device list for a collision (`controllersubsystem.c:254-276`). Removed devices can leave the live count small while the allocation counter continues cycling.
-
-**Trigger and consequence:** keep one device registered while the subsystem registers and removes enough other devices for the 16-bit ID allocator to wrap, then register another device. The new object can receive the still-live device's ID; `FindDevice()` then returns only the first matching node and ID-based filters/lookups cannot distinguish both controllers. **Affected configuration:** controller HIDD explicitly built with a dynamically changing device population that exceeds 65,535 total registrations over its lifetime; no in-tree controller device driver demonstrates this churn. **Confidence:** high for wrap and lack of collision detection; trigger is long-lived and conditional. Detect exhausted IDs or search for a free ID before publishing a new device, and preserve the documented no-reuse property. No registration churn or build was run; source-only.
 
 
 <a id="od11743-controller-sensor-read-drops-unreturned-samples"></a>
