@@ -24527,3 +24527,14 @@ The shared `cleanup()` routine prints an error when passed a message, releases a
 **Trigger and affected configuration:** run the explicit `coolbutton` demo target when a required library, public screen/draw info, class, gadget or window cannot be acquired. **Consequence:** diagnostics are printed, but the process exit status is zero and scripts cannot detect the failure from status. **Suggested correction:** let cleanup release resources without exiting, then return a failure status for error paths and success only after normal close.
 
 **Source-only evidence:** `developer/demos/coolbutton.c:26-56,59-91,112-144,164-169,229-248`; the target is listed in `developer/demos/mmakefile.src:12-41,73`, while the parent aggregate edge is commented. No resource failure, GUI operation or build was induced.
+
+
+## GD15285 — intuitext silently exits successfully when display setup fails
+
+**Severity / confidence:** Low severity, high confidence; applies to the explicitly buildable developer demo.
+
+`main()` nests the required library open, public-screen lock, draw-info acquisition, and window-open operations in success-only `if` statements. None of the failure branches reports an error or sets a failure result, and the function returns zero regardless (`developer/demos/intuitext.c:84-189`). If any setup operation fails, the demo skips the text display and exits as though it succeeded.
+
+**Trigger and affected configuration:** run the `intuitext` demo when `intuition.library` cannot be opened, no public screen can be locked, screen draw info is unavailable, or the window cannot be opened. **Consequence:** the example produces no diagnostic and returns success despite not displaying the requested text. **Suggested correction:** report the failing setup stage and return a nonzero result after releasing any acquired resources.
+
+**Source-only evidence:** `developer/demos/intuitext.c:84-189`; the target is listed in `developer/demos/mmakefile.src:12-41,73`, while the parent aggregate edge is commented. No resource failure, GUI operation or build was induced.
