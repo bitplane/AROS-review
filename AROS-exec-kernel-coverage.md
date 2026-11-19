@@ -17837,3 +17837,6 @@ Commodities `AddIEvents()` InputEvent-list trace (EK9432 expanded; no new ID or 
 
 
 Commodities `NewBroker` finding reconciliation (EK9893; report deduplication, no body/path/LOC credit; 2026-11-19): an attempted EK9432 expansion repeated the already active EK9893 finding. Removed the duplicate from EK9432; EK9893 remains the sole report entry for the direct `NewBroker` layout mismatch. No scope or coverage credit changed.
+
+
+Commodities `ParseIX()` guest output byte-order pass (EK9432 expanded; no new ID or body/path/LOC credit; 2026-11-19): traced the generated description and `IX *` arguments into native `ParseIX()`. The IX record has matching 12-byte size/offsets but five 16-bit fields; native code initializes and writes these fields directly. On little-endian x86_64, guest m68k code reads byte-reversed code/qualifier/mask values from the unchanged output storage. Conditional on a guest call with guest-owned IX output; no maintained emulated caller was found. This is a scalar representation extension of EK9432, with no new root cause or coverage credit. No parser call or build was run; source-only.
