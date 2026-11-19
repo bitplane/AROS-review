@@ -18681,4 +18681,3 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15268](AROS-graphics-desktop.md#gd15268-vulkan-hpp-descriptor-write-setters-can-populate-multiple-data-arrays)** — enhanced descriptor-write setters can populate multiple alternative data arrays and overwrite their shared count. This is a validation-consistency candidate requiring a downstream caller to violate Vulkan valid usage; no in-tree caller was found. Source-only.
 
 
-**[GD15273](AROS-graphics-desktop.md#gd15273-vgagfx-failed-initialization-does-not-release-acquired-resources)** — VGAGfx's late initialization failures leave its allocated mode-list entry and OOP attribute-base references unreleased; conditional on failure to open graphics.library or register the driver. Source-only.
