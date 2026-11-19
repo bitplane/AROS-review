@@ -18746,3 +18746,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15318](AROS-graphics-desktop.md#gd15318) — Reaction Label reapplies its new soft style instead of restoring the caller's prior style, affecting later text drawn through the same RastPort. Conditional on a styled caller-owned RastPort. Source-only.**
 **[GD15319](AROS-graphics-desktop.md#gd15319) — Reaction Label leaves the screen font assigned to a previously fontless RastPort. Conditional on direct use and subsequent reuse of that port. Source-only.**
 **[GD15320](AROS-graphics-desktop.md#gd15320)** — EraseRect's no-LayersBase fallback preserves COMPLEMENT or AreaPtrn; GELS cleanup can invert or pattern-fill instead of clearing a no-SAVEBACK bob. Conditional on LayersBase being unavailable and caller RastPort state. Source-only.
+
+**[GD15321](AROS-graphics-desktop.md#gd15321--gtdemo-frees-its-gadget-list-twice-after-creation-failure)** — GTDemo's gadget-creation failure path frees its gadget list in both `makegadgets()` and `gt_end()`, causing a second traversal of freed storage. Conditional on gadget construction failure; source-only.
