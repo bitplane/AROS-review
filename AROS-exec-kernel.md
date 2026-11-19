@@ -11814,6 +11814,27 @@ The `CPUFAMILY_AMD_K9` case in `IdHardware(IDHW_CPU)` returns the string `"ADM_K
 
 **Trigger and consequence:** query this ID when the graphics library has no chunky-to-planar hook installed. The numeric API reports TRUE and the string API reports “Found”; when the hook is installed, the numeric result is FALSE. This inverts availability reporting. **Affected configuration:** clients of an explicitly built `identify.library` on AROS targets whose graphics library leaves `HWEmul[0]` null; the in-tree Identify test prints both API results. **Confidence:** high for the inverted condition and public result mapping; the hook's target initialization was not exercised. Return TRUE only when the feature is actually available. Source-only.
 
+<a id="ek11062"></a>
+## EK11062 — failed `IdFunction()` loads retain the stripped library name
+
+`loadFD()` allocates `libNameStripped` from the Identify library pool before constructing and opening the `.fd` path (`workbench/libs/identify/idfunction.c:267-289`). That allocation becomes owned by a `LibNode` only after the node is allocated and initialized (`:292-301`). Every early exit reaches `bailout`, which closes the file and frees `fileName` but never frees `libNameStripped` (`:339-342`).
+
+**Trigger and consequence:** call `IdFunction()` for a library whose `Developer:fd/<name>_lib.fd` file is absent, or hit a later allocation failure before ownership transfers to a `LibNode`. The call returns `IDERR_NOFD` or otherwise fails while retaining the stripped-name allocation in the library's pool. Repeated lookups of missing names accumulate pool allocations until `identify.library` is expunged. **Affected configuration:** explicitly built `identify.library` with the FD lookup API; the separately buildable Function tool accepts a library name from its command line. **Confidence:** high for the allocation and missing cleanup path; no allocation failure or FD lookup was run. Free `libNameStripped` on bailout unless it has been transferred to the cached node. Source-only.
+
+<a id="ek11063"></a>
+## EK11063 — `IdFunction()` cache lookup accepts any matching name prefix
+
+`searchLibrary()` truncates the requested name at its first dot, then compares only that many leading bytes against each cached basename (`workbench/libs/identify/idfunction.c:178-199`). It does not require the cached name to end at the same position. `loadFD()` caches the stripped basename after successfully reading its FD file (`:258-273,292-301,336-337`).
+
+**Trigger and consequence:** after an FD table for a longer name such as `exec.library` is cached, query a distinct strict-prefix name such as `ex`. The prefix comparison returns the `exec` table without trying `ex_lib.fd`, so the function name may be looked up in the wrong library. **Affected configuration:** callers of the explicitly built Identify library that query two library names where one is a strict prefix of the other; the separately buildable Function tool passes the requested name through unchanged. **Confidence:** high for the prefix match; no colliding FD tables were loaded. Require an exact basename match after stripping only the optional suffix. Source-only.
+
+<a id="ek11064"></a>
+## EK11064 — `IdFunction()` reports success when an offset has no entry
+
+`searchFunction()` returns an empty string when no cached function node matches the aligned offset (`workbench/libs/identify/idfunction.c:345-359`). `IdFunction()` copies that string into the caller's valid output buffer and then tests whether the buffer pointer is NULL (`:153-159`); the pointer was already checked at `:138-139`, so this test cannot detect the miss and `retVal` remains `IDERR_OKAY`. The public error enum defines `IDERR_OFFSET` as “Function offset not found” (`workbench/libs/identify/identify.h:376-380`). In addition, `loadFD()` ignores a FALSE result from `addFuncNode()` and still caches the table (`idfunction.c:303-337`), so an allocation failure while building the table can produce the same empty-success result for omitted entries.
+
+**Trigger and consequence:** request an aligned offset absent from a valid FD table, or an entry omitted after a node-allocation failure. `IdFunction()` returns success with an empty function-name string; callers such as the Function tool treat the status as success and print the blank result (`workbench/libs/identify/tools/Function.c:124-134`). **Affected configuration:** clients of the explicitly built Identify library and the separately buildable Function tool. **Confidence:** high for the unreachable NULL test and ignored node-creation result; no FD query or allocation failure was run. Check the lookup result and propagate `IDERR_OFFSET` or a suitable allocation error. Source-only.
+
 <a id="ek8850"></a>
 ### EK8850 — Concurrent first DynModule loads can overwrite the only tracked handle [optional API; concurrent callers conditional]
 
