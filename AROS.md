@@ -18870,3 +18870,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15349](AROS-graphics-desktop.md#gd15349)** — A failed hidden-volume preference copy clears the active filter, so the next refresh shows volumes that should be hidden. Conditional on allocation failure; source-only.
 
 **GD15346 follow-up:** the constructor also leaves a live IconDrawerList without its requested drawer when the initial `StrDup()` fails. See the [graphics/desktop report](AROS-graphics-desktop.md#gd15346).
+
+**[GD15350](AROS-graphics-desktop.md#gd15350)** — MUI closes AppWindow-enabled native windows without unregistering their Workbench registrations; repeated reopen cycles leak entries, and application disposal leaves stale message-port pointers. Dispatch to a stale record additionally requires native Window address reuse. Source-only.
