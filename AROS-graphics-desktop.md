@@ -20632,15 +20632,15 @@ The parent-screen validation loop initializes both `list` and `first` to `Intuit
 
 **Coverage:** [Editor GUI, startup, preferences, printing and search pass](AROS-graphics-desktop-coverage.md#editor-gui-startup-preferences-print-and-search-pass-gd14787).
 
-<a id="gd14793"></a>
-<a id="gd14793-editor-replace-all-can-loop-forever-when-deletion-fails-for-an-empty-replacement-explicit-optional-target"></a>
-## GD14793 — Editor Replace All can loop forever when deletion fails for an empty replacement [explicit optional target]
+<a id="gd15334"></a>
+<a id="gd15334-editor-search-replacement-can-delete-the-match-when-insertion-fails-explicit-optional-target"></a>
+## GD15334 — Editor search replacement can delete the match when insertion fails [explicit optional target]
 
-`ReplaceAllPat()` ignores the return from `rem_chars()` and, when the replacement string is empty, does not advance the cursor before searching again (`workbench/tools/Edit/Search.c:499-524`). `rem_chars()` records the removal before attempting a shrinking reallocation and returns false without changing the text if that allocation fails (`workbench/tools/Edit/Memory.c:247-260`). The next quiet `HilitePattern()` therefore finds the same occurrence again and leaves the cursor at the same offset (`Search.c:505-523,650-653`).
+Both `ReplacePattern()` and `ReplaceAllPat()` remove the matched text with `rem_chars()` and then ignore the Boolean result from `add_string()` (`workbench/tools/Edit/Search.c:447-455,507-516`). `add_string()` can fail when it cannot grow the line buffer or allocate a new line for a replacement containing a newline (`workbench/tools/Edit/Memory.c:104-128,142-165,182-190`). The removal has already succeeded, so the Editor keeps the deletion; Replace All also advances its search cursor and counts the occurrence despite the failed insertion.
 
-**Trigger and consequence:** run Replace All with an empty replacement on a loaded file while removal-buffer reallocation fails. The matching text remains in place, the search finds it again, and the replacement loop can continue indefinitely without making progress. **Affected configuration:** explicitly buildable `workbench-tools-editor`; the parent aggregate edge is commented (`workbench/tools/Edit/mmakefile.src:12-17`). **Confidence:** high for the no-progress loop and failure behavior; requires the stated allocation failure. Stop on mutation failure and report it, or ensure failed deletion advances/aborts rather than retrying the same match. No replacement or allocation failure was run; source-only.
+**Trigger and consequence:** use a non-empty replacement that needs additional line-buffer capacity, or contains a newline requiring a new line, and have the corresponding allocation fail after the match was removed. The original matched text is lost and the replacement is absent or partial, with no error reported. In Replace All, the operation continues and counts that failed replacement. **Affected configuration:** explicitly buildable `workbench-tools-editor`; the parent aggregate edge is commented (`workbench/tools/Edit/mmakefile.src:12-17`). **Confidence:** high for the unchecked return and ordering; requires allocation failure on the insertion path. Check `add_string()` and report or recover from failure, preserving the original match or making the partial edit explicit. No replacement, allocation failure, or build was run; source-only.
 
-**Coverage:** [Editor GUI, startup, preferences, printing and search pass](AROS-graphics-desktop-coverage.md#editor-gui-startup-preferences-print-and-search-pass-gd14787).
+**Coverage:** [Editor search replacement failure recheck](AROS-graphics-desktop-coverage.md#editor-search-replacement-failure-recheck-gd15334).
 
 
 <a id="gd14794"></a>

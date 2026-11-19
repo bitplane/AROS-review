@@ -16040,7 +16040,6 @@ Vulkan-Hpp function wrapper interval `23101-23700` (GD10223/GD10264 rechecked; n
 
 **[GD14792](AROS-graphics-desktop.md#gd14792-editor-search-window-dereferences-gadgets-after-unchecked-allocation-failures-explicit-optional-target) — Editor Search/Replace initialization dereferences unchecked gadget-allocation results and can crash under memory pressure.**
 
-**[GD14793](AROS-graphics-desktop.md#gd14793-editor-replace-all-can-loop-forever-when-deletion-fails-for-an-empty-replacement-explicit-optional-target) — Editor Replace All can repeatedly match the same text forever when deletion fails and the replacement is empty.**
 
 
 
@@ -18772,3 +18771,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15332](AROS-graphics-desktop.md#gd15332)** — Input Preferences can report a successful export after its keyboard-switch chunk fails to write, leaving KMSW settings missing or truncated. Conditional on second-chunk I/O failure; source-only.
 
 **[GD15333](AROS-graphics-desktop.md#gd15333)** — Input Preferences CLI ignores `USE`/`SAVE` handler and export failures, then exits with status zero. Conditional on failed input or output I/O; source-only.
+
+**[GD15334](AROS-graphics-desktop.md#gd15334)** — Editor search and Replace All delete matched text before an unchecked replacement insertion; allocation failure can lose the match or leave a partial replacement. Explicit optional target; source-only.
