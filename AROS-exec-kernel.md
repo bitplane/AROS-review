@@ -11662,3 +11662,10 @@ The selected `openlib` test returns zero whether `ReadArgs()` fails or `OpenLibr
 `developer/debug/test/exec/allocmem.c:165-186,188-216` records failures from its initial `AllocMem()`, `test_allocabs()`, and reverse-allocation checks in `result`, but unconditionally replaces that status with `test_allocpooled()`'s result at line 216. Inside `test_allocpooled()` (`:90-132`), failure to create any of the nine pools only prints “Allocation failed” and leaves its local result as `RETURN_OK`.
 
 **Trigger and consequence:** run the explicitly selected test with an earlier allocation or `CreatePool()` failure while the final pooled allocations otherwise pass. The executable returns success, so automated test runners can report an allocation regression as passing. **Affected configuration:** `test-exec-public` on any architecture; developer test, not default image (`developer/debug/test/exec/mmakefile.src:12-38,70-71`). **Confidence:** high for both unchecked status paths; no allocation or test was run. Preserve prior failures when combining results and mark `CreatePool()` failure as an error. Source-only.
+
+<a id="ek11046"></a>
+## EK11046 — `childstatus` test returns success when child creation fails
+
+`developer/debug/test/exec/childstatus.c:54-56` prints a fault when `CreateNewProc()` returns NULL, then falls through to `return 0` at line 58. The status assertions and child lifecycle checks only run in the successful-creation branch (`:28-53`).
+
+**Trigger and consequence:** child-process creation fails, for example under resource exhaustion. The test exits successfully without checking any ChildStatus states, so an automated run can mark an unexecuted test as passing. **Affected configuration:** `test-exec-public` on any architecture; developer test, not default image (`developer/debug/test/exec/mmakefile.src:12-38,70-71`). **Confidence:** high for the unchecked creation failure and unconditional success return; no process or test was run. Return a failure status when child creation fails. Source-only.
