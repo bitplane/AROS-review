@@ -11244,7 +11244,7 @@ Exec/Kernel PPC helper call-site census (2026-10-30): rechecked the linked Efika
 - [EK752](AROS-exec-kernel.md#ek752): 32-bit `AllocAbs()` endpoint wrap can pass a standard MemHeader bounds check and corrupt its free-chunk chain; the extreme caller request remains unestablished.
 - [EK769](AROS-exec-kernel.md#ek769): zero root DTB cell counts make the OpenSBI memory tuple loop make no progress before startup fallbacks.
 - [EK772](AROS-exec-kernel.md#ek772): overflowing FDT cell counts can pass a wrapped tuple-width check before `read_cells()` walks beyond a short property.
-- [EK871](AROS-exec-kernel.md#ek871): failed TLSF control-state initialization is ignored before AArch64 extra-range publication or managed `CreatePool()` allocation.
+- [EK871](AROS-exec-kernel.md#ek871): failed TLSF control-state initialization is ignored. A selected OpenSBI storage HIDD creates a managed pool whose initialization requires a separate global allocation; under low memory, the ignored failure leads to a NULL-state dereference instead of returning pool-creation failure. The AArch64 extra-range path is also recorded but its target is currently unbuildable (EK8902).
 - [EK277](AROS-exec-kernel.md#ek277): concurrent ExecSMP parent/child teardown can leave child cleanup using a freed former-parent ETask and the wrong child-list lock.
 - [EK325](AROS-exec-kernel.md#ek325): concurrent PC APIC MSI allocation can reserve the same vector run from an unsynchronized cursor; no selected overlapping schedule is established.
 - [EK810](AROS-exec-kernel.md#ek810): PC APIC MSI vector reservations are not reclaimed on PCIPC release or legacy MSI setup failure, so repeated cycles can exhaust the finite allocator range.
