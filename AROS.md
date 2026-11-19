@@ -18698,4 +18698,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11757](AROS-other-drivers.md#od11757)** — If Nouveau’s reservation-fence wait fails after binding a new GART placement, TTM frees that resource while the retained TTM object caches its `nouveau_mem` pointer. A later bind or unbind can use freed state. Conditional on a system-to-GART move and fence wait failure. Source-only; no move was run.
 
-**[OD11758](AROS-other-drivers.md#od11758)** — BTCtrl reports a local name change on a ready LE-only radio even though the Bluetooth handler rejects the unsupported request and the library discards the error. Conditional on an LE-only radio; source-only.
+**[OD11758](AROS-other-drivers.md#od11758)** — Bluetooth attribute setters hide rejected hardware changes: BTCtrl claims a local name changed, and Preferences retains requested scan settings after a ready LE-only radio rejects them. Conditional on LE-only hardware; source-only.
