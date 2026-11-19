@@ -18818,7 +18818,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11763](AROS-other-drivers.md#od11763)** — KMS registers its input callback and publishes keymap wrappers before initializing the shared callback base; a concurrent key event or keymap call can dereference NULL during library initialization. Conditional on overlap; source-only.
 
-**[OD11764](AROS-other-drivers.md#od11764)** — SB128 playback can miss refilling a DMA half-buffer when another completion arrives while its once-only soft interrupt is queued. Conditional on interrupt latency; selected only with `HAVE_ASMIO`. Source-only.
+**[OD11764](AROS-other-drivers.md#od11764)** — SB128 playback can miss refilling a DMA half-buffer if another completion arrives before Exec dequeues its once-only soft interrupt at outer IRQ exit. Callback runtime alone does not cause coalescing; the short pre-dequeue timing is hardware-conditional. Selected only with `HAVE_ASMIO`; source-only.
 
 **[EK11054](AROS-exec-kernel.md#ek11054) — DynModule can return a handle while a concurrent final close is tearing down that same module.** Optional `linklibs-dynmod` API; conditional on overlapping load/free calls for one port. Source-only.
 
