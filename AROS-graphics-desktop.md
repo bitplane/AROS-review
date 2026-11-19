@@ -24787,3 +24787,20 @@ The CLI path calls `cleanup_exit(MSG_ERR_READARGS)` when `ReadArgs()` fails, and
 **Trigger and affected configuration:** launch the selected Find utility from the CLI with arguments that make `ReadArgs()` fail, or encounter application/window startup failure. **Consequence:** scripts and callers cannot distinguish these failures from a successful Find run by exit status. **Suggested correction:** pass a status into cleanup and exit nonzero on each error path while preserving zero for normal user completion.
 
 **Source-only evidence:** `workbench/system/find/main.c:47-53,78-119`; the file is selected by `workbench/system/find/mmakefile.src:5-18`. No Find invocation or build was run.
+
+
+## GD15316 — ShadowBorder passes an uninitialized screen after lock failure
+
+`main()` declares `screen` without initialization, assigns it only inside `if ((screen = LockPubScreen(NULL)))`, and does not stop when that call fails (`developer/demos/shadowborder.c:78,90-104`). Both the AROS and non-AROS branches then pass `screen` as `WA_PubScreen` (`:110-124`). The selected `OpenWindow()` implementation stores that value as `nw.Screen`, then calls `GetPrivScreen(nw.Screen)->pubScrNode` while acquiring the public-screen visitor count (`rom/intuition/openwindow.c:373-375,604-616`). A failed public-screen lock can therefore feed an indeterminate pointer into the window-open path instead of returning cleanly.
+
+**Trigger and affected configuration:** explicitly build and run the `shadowborder` demo while `LockPubScreen(NULL)` fails, such as when the default public screen is in a state where it cannot be locked. **Consequence:** opening the demo window dereferences an invalid screen pointer and can fault instead of handling the lock failure. Abort when the lock fails or pass a deliberate NULL/default-screen tag value. **Confidence:** high for the uninitialized use and selected dereference; no lock failure or window open was induced.
+
+**Source-only evidence:** `developer/demos/shadowborder.c:78,90-124`; `rom/intuition/openwindow.c:373-375,604-616`; `rom/intuition/lockpubscreen.c:46-49`. The program is listed in `developer/demos/mmakefile.src:12-73`; its parent aggregate edge is commented. No build or GUI operation was run.
+
+## GD15317 — ShadowBorder exits successfully when startup fails
+
+`main()` only enters its startup and display path when `OpenLibrary("intuition.library", 37)` succeeds; if it fails, execution falls through to `return 0` (`developer/demos/shadowborder.c:87-88,163-165`). Likewise, if `OpenWindowTags()` returns NULL, the drawing/wait/close block is skipped, the library is closed, and the program still returns zero (`:110-126,161-165`). The selected demo therefore tells callers that it succeeded even though it displayed no window.
+
+**Trigger and affected configuration:** explicitly build and launch `shadowborder` when intuition.library cannot be opened or when its requested window cannot be created. **Consequence:** scripts and launchers receive a success status for failed startup. Return a failure status from those branches. **Confidence:** high for both control-flow paths; no library or window failure was induced.
+
+**Source-only evidence:** `developer/demos/shadowborder.c:87-88,110-126,161-165`; `developer/demos/mmakefile.src:12-73`. No program launch or build was run.
