@@ -11696,6 +11696,13 @@ The optional `dumpmem` utility reads the proceed/cancel confirmation with `gets(
 
 **Trigger and consequence:** request a positive size not divisible by 16 whose final requested byte lies at the end of a readable region. The ASCII rendering reads up to 15 bytes past that region and can fault; if the following bytes are mapped, it also displays bytes outside the requested dump length. **Affected configuration:** explicitly invoked `dumpmem` test utility on any architecture; the tool is not in the default image (`developer/debug/test/exec/mmakefile.src:18-38,70-71`). **Confidence:** high for the unconditional extra reads and exact maximum overread; the fault depends on the adjacent mapping. No memory dump or runtime fault was induced. Bound the ASCII-column reads by `count` and print padding for indices beyond the requested range. Source-only.
 
+<a id="ek11057"></a>
+## EK11057 — Floating-point divide-by-zero fixture may not raise a fault
+
+`crashtest_zerodivfloat` divides volatile `1.0` by volatile `0.0`, then prints “After crash” and returns success if execution continues (`developer/debug/test/exec/crashtest_zerodivfloat.c:11-30`). On IEEE targets with the divide-by-zero exception masked, the operation produces infinity and continues normally; the fixture therefore does not reliably exercise floating-point exception handling. The target is built as part of the explicit Exec public-test list, but no in-tree runner invokes it.
+
+**Trigger and consequence:** run the fixture on a target/configuration with the default masked floating-point divide-by-zero exception. It reaches the post-operation print and exits zero, so users expecting this named fixture to provoke an FP exception receive no indication that it did not. **Affected configuration:** IEEE floating-point targets with divide-by-zero trapping disabled. **Confidence:** high for IEEE masked behavior and the source control flow; the target's runtime exception mask was not exercised. Check the relevant floating-point exception state or explicitly enable the trap before treating the fixture as an exception test. Source-only.
+
 <a id="ek11043"></a>
 ## EK11043 — OpenLib test reports success after argument or library-open failure
 
