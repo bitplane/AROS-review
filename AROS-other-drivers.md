@@ -29923,7 +29923,7 @@ Nouveau MEMX error propagation across selected RAM backends (OD10268 source pass
 
 
 <a id="nouveau-load-timeout-cgid-lookup-od10254"></a>
-### OD10254 — Nouveau LOAD-timeout CGID lookup
+### Nouveau LOAD-timeout CGID lookup source-pass note
 
 Read the shared Turing timeout decoder, its CGID lookup/bounds logic, recovery scheduling, and native TU102/GA100 handler and constructor routes. Confirmed LOAD passes the encoded bits 16–29 without shifting, so nonzero IDs exceed the table bound and recovery is skipped. GSP-delegated TU102/GA100 paths select R535 FIFO and are excluded. No hardware or timeout was exercised.
 
