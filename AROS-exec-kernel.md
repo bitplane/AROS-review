@@ -7057,7 +7057,6 @@ The optional Bifteck command initializes `result` to `RETURN_OK`, then ignores t
 
 **Trigger and consequence:** invoke the Bifteck target with an output stream that fails during a character write or close, or press Ctrl-C while the log is being copied. The command can leave a truncated log but report successful completion and clear the caller's DOS error. **Affected configuration:** explicit `debug-tools-bifteck` target when selected in a Workbench build; this is an optional diagnostic command. **Confidence:** high for the ignored write/close results, overwritten break error, and unconditional success return on these paths; no output failure or interruption was induced. Set failure status when `FPutC()`/`Close()` fails and preserve the break result. No command or build was run; source-only; see the [Bifteck caller review](AROS-exec-kernel-coverage.md#remaining-named-findsemaphore-caller-census-closure).
 
-<a id="ek10243"></a>
 <a id="ek576"></a>
 ### EK576 — PosixC pthread workers run without a C runtime base if hook-registry allocation fails
 
