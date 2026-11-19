@@ -18781,3 +18781,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15334](AROS-graphics-desktop.md#gd15334)** — Editor search and Replace All delete matched text before an unchecked replacement insertion; allocation failure can drop replacement text and advance past later matches. Explicit optional target; source-only.
 **[GD15335](AROS-graphics-desktop.md#gd15335)** — On 32-bit builds, BHFormat's inclusive `ULONG` cylinder loops wrap when `de_HighCyl` is `ULONG_MAX`, so formatting may cycle through and rewrite cylinders; the computed end extent wraps too. Conditional device geometry; source-only.
 **[GD15336](AROS-graphics-desktop.md#gd15336)** — BHFormat can repeatedly submit a zero-length transfer without progress when `de_MaxTransfer` is zero and the device accepts empty requests. Conditional on device behavior; source-only.
+
+**[OD11761](AROS-other-drivers.md#od11761)** — VC4 Gallium's glue stamp omits the Mesa patch used in its ABI hash; an incremental one-sided ABI change can retain a stale matching compatibility check. Optional Raspberry Pi target; conditional. Source-only.
