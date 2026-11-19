@@ -24832,3 +24832,12 @@ When `GfxBase->gb_LayersBase` is NULL, `EraseRect()` saves `FgPen`, selects `BgP
 **Trigger and affected configuration:** explicitly build the `gtdemo` program and encounter an allocation or gadget-construction failure during `makegadgets()`. The program is in `developer/demos/mmakefile.src:12-41`; the parent demos aggregate edge is disabled (`config/mmakefile.src:16-18`). **Consequence:** the error-cleanup path can use and free the same gadget/context nodes twice. Set `glist` to NULL after the first free or centralize the cleanup. **Confidence:** high for the duplicate cleanup and freed context; no allocation failure or GUI run was induced.
 
 **Source-only evidence:** `developer/demos/gtdemo.c:388-392,528-541`; `workbench/libs/gadtools/freegadgets.c:42-51,75-119`. No build or runtime operation was performed.
+
+
+## GD15322 — IconScale clamps valid dimensions above the signed WORD range
+
+The CLI parses each requested dimension with `strtol()` into a signed `WORD` before applying the 20-pixel minimum (`developer/demos/iconscale.c:19,27-31`). The scale-box API encodes each dimension in 16 bits (`compiler/include/workbench/icon.h:174-177`), and `LayoutIconA()` unpacks the fields and passes them to `scaleToBounds()` as `UWORD` (`workbench/libs/icon/layouticon.c:198-201,488-501`). Therefore values from 32,768 through 65,535 are representable by the API, but on AROS toolchains that narrow to a 16-bit signed value by retaining the low bits they become negative in `maxw`/`maxh` and are clamped to 20 before packing. The command reports success after setting this unintended box (`iconscale.c:33-37`).
+
+**Trigger and affected configuration:** explicitly build and invoke `iconscale <width> <height>` with either dimension in 32,768..65,535 on a target compiler whose out-of-range signed conversion uses the usual low-16-bit representation. **Consequence:** the global icon scale-box dimension is set to 20 instead of the requested representable value. Parse into an unsigned 16-bit type or validate the range before conversion. **Confidence:** medium; the signed narrowing is implementation-defined by C, while the public encoding and later unsigned consumption are source-confirmed. No icon scaling or build was run.
+
+**Source-only evidence:** `developer/demos/iconscale.c:19,27-37`; `compiler/include/workbench/icon.h:174-177`; `workbench/libs/icon/layouticon.c:198-201,488-501`. The demo is explicitly listed in `developer/demos/mmakefile.src:12-41`; the parent aggregate edge is disabled.

@@ -18748,3 +18748,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15320](AROS-graphics-desktop.md#gd15320)** — EraseRect's no-LayersBase fallback preserves COMPLEMENT or AreaPtrn; GELS cleanup can invert or pattern-fill instead of clearing a no-SAVEBACK bob. Conditional on LayersBase being unavailable and caller RastPort state. Source-only.
 
 **[GD15321](AROS-graphics-desktop.md#gd15321--gtdemo-frees-its-gadget-list-twice-after-creation-failure)** — GTDemo's gadget-creation failure path frees its gadget list in both `makegadgets()` and `gt_end()`, causing a second traversal of freed storage. Conditional on gadget construction failure; source-only.
+
+**[GD15322](AROS-graphics-desktop.md#gd15322--iconscale-clamps-valid-dimensions-above-the-signed-word-range)** — IconScale parses unsigned 16-bit scale-box dimensions through signed `WORD` variables and can clamp valid values above 32,767 to 20. Conditional on target conversion behavior; source-only.
