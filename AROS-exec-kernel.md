@@ -11676,3 +11676,10 @@ The selected `openlib` test returns zero whether `ReadArgs()` fails or `OpenLibr
 `developer/debug/test/exec/childwait.c:27-35` reports failure from `CreateNewProc()` with `PrintFault()` but then reaches the unconditional `return 0` at line 37. The `ChildWait()` and `ChildFree()` calls are skipped in that branch.
 
 **Trigger and consequence:** creation of the test child fails, such as under resource exhaustion. The executable exits successfully despite not exercising its wait/free behavior, allowing automated test runs to report a false pass. **Affected configuration:** `test-exec-public` on any architecture; developer test, not default image (`developer/debug/test/exec/mmakefile.src:12-38,70-71`). **Confidence:** high for the false-success path; no process or test was run. Return failure when child creation fails. Source-only.
+
+<a id="ek11048"></a>
+## EK11048 — `pool` test returns success after pooled allocation failures
+
+`developer/debug/test/exec/pool.c:41-47,61-77` prints when a small `AllocPooled()` request fails, and prints the returned pointers for the whole-puddle, large, and repeated large allocations without checking them. None of these paths changes the final status; after deleting the pool and permitting scheduling, `main()` returns zero (`:79-84`). `FreePooled()` safely ignores NULL memory, so the visible consequence is missed test failure rather than a demonstrated cleanup fault (`rom/exec/freepooled.c:64-67`).
+
+**Trigger and consequence:** any pooled allocation fails, including under memory pressure. The test can report success without completing its requested allocation checks, masking pool regressions from automated callers. **Affected configuration:** `test-exec-public` on any architecture; developer test, not default image (`developer/debug/test/exec/mmakefile.src:39-40,70-71`). **Confidence:** high for unchecked NULL returns and unconditional success; no pool or test was run. Record allocation failures and return a nonzero result after cleanup. Source-only.
