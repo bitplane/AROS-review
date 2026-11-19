@@ -18675,4 +18675,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 
 
-**[OD11751](AROS-other-drivers.md#od11751-controller-consumer-queues-race-across-cpus) — Controller signal/message consumer queues use CPU-local `Disable()` only; concurrent ExecSMP producers can race queue state. Conditional on the explicit controller target, queued subsystem consumer, and concurrent producer contexts; source-only.
+**[OD11752](AROS-other-drivers.md#od11752-controller-consumer-queues-race-across-cpus) — Controller signal/message consumer queues use CPU-local `Disable()` only; concurrent ExecSMP producers can race queue state. Conditional on the explicit controller target, queued subsystem consumer, and concurrent producer contexts; source-only.
