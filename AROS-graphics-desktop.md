@@ -24992,3 +24992,12 @@ When the drop target is a file rather than a directory, `Wanderer__Func_CopyDrop
 **Trigger and affected configuration:** a file COPY or MOVE drop onto a file icon, followed by failure to allocate the target's parent-path buffer. **Consequence:** the copy/move worker reaches `strlen(NULL)` while constructing the destination, terminating the operation through an invalid read instead of reporting the path-allocation failure. Check `GetPathPart()` and unwind the drop payload before starting file operations. **Confidence:** high for the unchecked NULL flow and immediate string use; no allocation failure or drop was induced. Source-only.
 
 **Source-only evidence:** `workbench/system/Wanderer/wanderer.c:311-349`; `workbench/system/Wanderer/filesystems_utilities.c:462-502`; `workbench/system/Wanderer/filesystems.c:627-648,705-718`.
+
+<a id="gd15340"></a>
+## GD15340 — Wanderer can overwrite an existing file when its collision check cannot read metadata
+
+`checkIfAlreadyExists()` first establishes that the destination exists with `FileExists()`, then calls `GetFileInfoBlock()`. If that second operation fails, `destFib` is NULL and the function skips the overwrite-prompt branch, frees the NULL pointer, and returns the default `stop == FALSE` (`workbench/system/Wanderer/filesystems.c:383-405`). `GetFileInfoBlock()` can return NULL when DOS cannot allocate its FIB or cannot lock/examine the path (`workbench/system/Wanderer/filesystems_utilities.c:386-425`). The caller interprets FALSE as permission to proceed; `copySingleFile()` then calls `performDataCopy()`, which opens the destination with `MODE_NEWFILE` and writes the source bytes (`filesystems.c:451-465,184-197`).
+
+**Trigger and affected configuration:** copy a file onto an already existing destination while overwrite prompting is enabled, and have `GetFileInfoBlock()` fail after `FileExists()` succeeds (for example, a DOS FIB allocation failure or a transient metadata access failure). **Consequence:** Wanderer skips the overwrite decision and can truncate/replace the existing file despite not obtaining the metadata needed to ask; the existing contents may be lost. Treat inability to inspect an existing destination as a failure and stop before opening it for output. **Confidence:** high for the control flow and `MODE_NEWFILE` destination open; no allocation failure, metadata race, or copy was induced. Source-only.
+
+**Source-only evidence:** `workbench/system/Wanderer/filesystems.c:383-405,451-465,184-197`; `workbench/system/Wanderer/filesystems_utilities.c:386-425`.
