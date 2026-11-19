@@ -24654,3 +24654,11 @@ If `AllocMem(afsize, MEMF_ANY)` fails, `afh` is NULL, the retry loop ends, the p
 **Trigger and affected configuration:** the selected `developer/demos/listfonts` utility cannot allocate its AvailFonts buffer. **Consequence:** it prints no listing but reports success to its caller. **Suggested correction:** distinguish allocation failure from a valid empty result and return `RETURN_FAIL`.
 
 **Source-only evidence:** `developer/demos/listfonts.c:37-52,73-76`; no allocation failure was induced.
+
+## GD15299 — Font requester demo exits successfully when setup fails
+
+`main()` only prints a message when asl.library cannot be opened, then returns zero (`developer/demos/fontreq.c:67-76`). If the library opens but either `AllocAslRequest()` fails, `showrequester()` also only prints a message and does not report failure to `main()` (`:42-63`). In each case the demo exits with success although one or both requester examples were not shown.
+
+**Trigger and affected configuration:** the selected `developer/demos/fontreq` target encounters asl.library open failure or requester allocation failure. The program is listed in `developer/demos/mmakefile.src:14-29`. **Consequence:** callers cannot distinguish failed startup/requester construction from successful completion. **Suggested correction:** propagate setup failures to `main()` and return a nonzero status.
+
+**Source-only evidence:** `developer/demos/fontreq.c:42-76`; no library failure, allocation failure, requester operation or build was induced.
