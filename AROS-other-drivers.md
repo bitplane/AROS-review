@@ -45327,8 +45327,8 @@ The public descriptor defines `vHidd_Controller_CF_Hat8` as marking an 8-way hat
 
 
 
-<a id="od11750-controller-consumer-queues-race-across-cpus"></a>
-## OD11750 — Controller consumer queues are not serialized across ExecSMP CPUs [conditional]
+<a id="od11751-controller-consumer-queues-race-across-cpus"></a>
+## OD11751 — Controller consumer queues are not serialized across ExecSMP CPUs [conditional]
 
 Signal-mode delivery mutates a consumer's shared ring (`head`, `tail`, `count`, overflow counters and event slots) inside `Disable()` (`workbench/hidds/controller/controller_notify.c:24-55,76-83`). Port-mode delivery scans and marks the shared message pool in `ctrl_MsgAlloc()` under the same local interrupt disable (`:57-73,93-127`). Exec documents that `Disable()` on ExecSMP affects only the calling processor and that shared data also needs a spinlock (`rom/exec/disable.c:15-75`). Neither delivery path takes a shared lock. The controller API permits subsystem-wide consumers (`controllerclass.c:42-47`) and invokes callbacks in producer context; driver-side Push methods deliver through `ctrl_DeliverEvent()` (`controller_reading.c:130-138`; `controllerclass.c:690-728`). Thus independent controller drivers can concurrently deliver to the same subsystem consumer on separate CPUs.
 
