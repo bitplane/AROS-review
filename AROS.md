@@ -18835,3 +18835,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **GD5866 follow-up:** IconList also leaks the event record when target-path allocation fails after the record is created; those branches jump to the common exit without cleanup. See the [graphics/desktop report](AROS-graphics-desktop.md#gd5866) and coverage ledger.
 
 **GD5866 follow-up:** same-list icon repositioning also sets `iconMove` and bypasses both event publication and cleanup, leaking one event record per reposition. See the [graphics/desktop report](AROS-graphics-desktop.md#gd5866) and coverage ledger.
+
+**[GD15342](AROS-graphics-desktop.md#gd15342)** — IconList emits its end sentinel as an `IconMoved` notification value after the last selected entry; external listeners treating it as an entry pointer can dereference invalid memory. Conditional on an external notifier; source-only.
