@@ -18680,5 +18680,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[GD15268](AROS-graphics-desktop.md#gd15268-vulkan-hpp-descriptor-write-setters-can-populate-multiple-data-arrays)** — enhanced descriptor-write setters can populate multiple alternative data arrays and overwrite their shared count. This is a validation-consistency candidate requiring a downstream caller to violate Vulkan valid usage; no in-tree caller was found. Source-only.
 **[GD15274](AROS-graphics-desktop.md#gd15274-vgagfx-single-pixel-updates-past-the-display-width-overwrite-the-next-scanline)** — a valid single-pixel update beyond the 640-pixel VGAGfx mode bypasses area clipping and writes at the next scanline's start. Conditional on a wider displayable bitmap in native PC builds. Source-only.
+**[GD15275](AROS-graphics-desktop.md#gd15275-vgagfx-byte-aligned-refresh-can-read-before-a-panned-bitmap)** — a non-byte-aligned positive VGAGfx pan offset can make an area refresh read outside a smaller bitmap buffer. Conditional on a displayable bitmap narrower than the 640-pixel mode. Source-only.
 
 
