@@ -2332,7 +2332,7 @@ Intuition's selected `WindowLimits()` implementation changes `MinWidth` only whe
 
 **Disposition:** Unverified legacy placeholder. The current report and coverage ledger provide no source location, trigger, consequence, or finding-specific evidence from which to re-establish this candidate. It is not retained as an active bug finding pending provenance.
 
-## GD5184
+## GD5184 — FindPort clients can send through a port during owner teardown
 
 **Finding:** Several preferences clients retain a borrowed public-port pointer after `FindPort()` without protecting the port through `PutMsg()`. On ExecSMP, the owner can remove and free the port on another CPU in that interval; the sender then posts through a stale `MsgPort *`. If the port is removed but not yet freed, a late message can instead arrive after the manager has stopped servicing its queue. Either outcome can leave the sender waiting indefinitely; the freed-port case also passes stale storage to Exec IPC.
 
