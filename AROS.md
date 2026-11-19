@@ -18651,7 +18651,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11744](AROS-other-drivers.md#od11744-controller-touch-coordinate-pack-shifts-signed-value)** — touch event packing left-shifts a signed 32-bit coordinate for the documented 0..65535 range, invoking undefined behavior for x >= 32768. Source-only.
 
-**[OD11745](AROS-other-drivers.md#od11745-controller-sensor-event-keeps-zero-input-timestamp)** — a zero sensor timestamp is replaced in the stored sample but not in its `SensorUpdate` event. Conditional on EClock availability and consumers correlating event/sample times; source-only.
+**[OD11745](AROS-other-drivers.md#od11745-controller-sensor-event-keeps-zero-input-timestamp)** — a zero sample timestamp is replaced in storage but copied unchanged to its `SensorUpdate` event; whether event timestamps must match the sample clock is undocumented. Low-confidence API-contract candidate; source-only.
 
 
 **[OD11746](AROS-other-drivers.md#od11746-controller-hat8-flag-is-ignored)** — hat decoding always emits eight-direction values even when the descriptor leaves `CF_Hat8` clear, so four-way right/left values can become diagonals. Conditional on four-way ordinal driver input; source-only.
