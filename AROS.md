@@ -18727,6 +18727,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[EK11042](AROS-exec-kernel.md#ek11042)** — `dumpmem` does not validate the `strtoul()` end pointer and can dump from zero or a truncated address after malformed input. Optional test utility; source-only.
 
+**[EK11056](AROS-exec-kernel.md#ek11056)** — `dumpmem`'s final ASCII row reads up to 15 bytes past the requested size. Conditional on an unmapped adjacent region; optional test utility; source-only.
+
 **[EK11043](AROS-exec-kernel.md#ek11043)** — The optional `openlib` test exits successfully after argument parsing or library-open failure. Source-only.
 
 **[EK11044](AROS-exec-kernel.md#ek11044)** — The optional `makelib` test unlinks its dummy library but never frees its `MakeLibrary()` allocation. Source-only.
