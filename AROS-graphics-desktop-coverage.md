@@ -22723,3 +22723,6 @@ Vulkan-Hpp subpass, surface-capability/format, and platform-surface wrapper inte
 
 
 Vulkan-Hpp surface present-mode, scaling, and protected-capability wrapper interval (GD15266 added; source-order review `workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:153500-154100`): checked fullscreen-exclusive platform records, surface present-mode compatibility/query selectors, scaling/protected capability records and swapchain-calibrated timestamps. Found GD15266: the `SurfacePresentModeKHR` pNext selector defaults to optional immediate mode and the capabilities query forwards it unchanged. No further independent mismatch established. Interval-only review; no path/LOC credit or query/build. Source-only.
+
+
+Vulkan-Hpp swapchain time-domain wrapper interval (GD15262 extended; source-order review `workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:155700-156100`): checked paired `timeDomains` and `timeDomainIds` arrays. The enhanced constructor allows either optional array to be empty and checks equal lengths when both are supplied; enhanced setters independently overwrite the shared count. `vkGetSwapchainTimeDomainPropertiesEXT` forwards the resulting structure unchanged. This adds the fourth confirmed wrapper to GD15262. Interval-only review; no path/LOC credit, query, or build. Source-only.
