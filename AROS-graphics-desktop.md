@@ -24480,3 +24480,28 @@ Both playlist-reading paths call `FGets()` and then unconditionally replace `pic
 **Trigger and affected configuration:** use the 2View playlist option with a readable playlist whose final non-empty path is not followed by LF. **Consequence:** the final picture cannot be found under its intended filename and the viewer exits through the open-failure path. **Suggested correction:** remove a trailing LF only when it is present.
 
 **Source-only evidence:** `developer/demos/2View/2View.c:300-358,326-333`; `rom/dos/fgets.c:21-53`; the demo is an explicit target in `developer/demos/2View/mmakefile.src:6-16`. No playlist or file was opened and no build was run.
+
+
+## GD15281 — 2View’s ILBM byte reader treats end-of-chunk as image data
+
+**Severity / confidence:** High confidence malformed/truncated input handling defect; can advance beyond the fixed staging buffer.
+
+`GetByte()` refills its 1,024-byte static buffer with `ReadChunkBytes()` only when `Fill` is zero. It returns on negative errors, but does not handle a zero-byte read: it resets `ptr` to the buffer, decrements `Fill` to -1, and returns a byte anyway. Subsequent calls see a nonzero negative `Fill`, skip refilling, and keep advancing `ptr` (`developer/demos/2View/read.c:20-39`). `ReadChunkBytes()` truncates reads to the bytes remaining in the current chunk and returns the actual count; at the chunk boundary the IFF parser can return zero (`workbench/libs/iffparse/readchunkbytes.c:57-88`; `workbench/libs/iffparse/basicfuncs.c:353-388`).
+
+The raw and compressed row paths consume `GetByte()` results without checking for end-of-chunk or read errors, and `ReadRow()` returns TRUE unconditionally (`read.c:41-78`). Thus, if BODY data ends before the dimensions declared by BMHD have been filled, the decoder uses bytes beyond the chunk as pixels; sufficiently many missing bytes advance beyond the 1,024-byte staging buffer. `ReadILBM()` then reports success because its `ReadRow()` failure branch is unreachable for this condition (`:118-125`), so the caller does not report a bitmap-read failure (`developer/demos/2View/2View.c:561-571`).
+
+**Trigger and affected configuration:** open a truncated or otherwise short ILBM BODY in the explicitly built 2View demo. **Consequence:** the viewer consumes unrelated bytes as image data and can read beyond its static input buffer instead of rejecting the incomplete image. **Suggested correction:** treat zero and negative reads as errors, propagate failure from `ReadRow()`, and stop before using data beyond the current BODY chunk.
+
+**Source-only evidence:** `developer/demos/2View/read.c:20-78,118-125`; `workbench/libs/iffparse/readchunkbytes.c:57-88`; `workbench/libs/iffparse/basicfuncs.c:353-388`; `developer/demos/2View/2View.c:561-571`. No image was read and no build was run.
+
+## GD15282 — 2View’s ILBM RLE decoder writes run packets beyond the current row
+
+**Severity / confidence:** High confidence row-boundary overwrite for malformed compressed ILBM data.
+
+In the compressed branch, `ReadRow()` derives the expected row length in bytes, but accepts each PackBits-style run length without comparing it to the bytes remaining in that row. A positive control byte sets `n=c+1`; a negative repeat control sets `n=-c+1`; both loops write all `n` bytes while incrementing `x` (`developer/demos/2View/read.c:43-64`). A packet that exceeds the remaining row bytes therefore writes into subsequent row/plane storage or past the allocation. For example, with an eight-pixel, one-plane image, the allocation reserves eight bytes, but a single maximum-length packet attempts 128 output bytes.
+
+The caller supplies dimensions and plane count from the file's BMHD, allocates the plane storage, and invokes this decoder for compressed images (`developer/demos/2View/read.c:81-112`; `developer/demos/2View/2View.c:511-515,564-569`). No packet-overrun validation or decoder error is performed before the writes.
+
+**Trigger and affected configuration:** open a compressed ILBM with a run packet longer than the remaining bytes in its current plane row in the explicitly built 2View demo. **Consequence:** decoded bytes overwrite storage beyond the row and can exceed the allocated plane block. **Suggested correction:** reject packets whose decoded length exceeds the row remainder and propagate the decode error.
+
+**Source-only evidence:** `developer/demos/2View/read.c:43-64,81-125`; `developer/demos/2View/2View.c:511-515,564-569`. No image was read and no build was run.
