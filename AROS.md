@@ -18647,7 +18647,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11746](AROS-other-drivers.md#od11746-controller-hat8-flag-is-ignored)** — hat decoding always emits eight-direction values even when the descriptor leaves `CF_Hat8` clear, so four-way right/left values can become diagonals. Conditional on four-way ordinal driver input; source-only.
 **[OD11748](AROS-other-drivers.md#od11748-controller-assign-slot-can-use-device-after-removal) — controller removal can dispose a device after `AssignSlot()` or consumer construction resolves it but before the caller finishes using it.** Conditional on ExecSMP and overlapping external/alternate calls to the explicit controller target; source-only.
-**[OD11749](AROS-other-drivers.md#od11749-controller-bound-consumers-receive-device-removed-twice) — a device-bound controller consumer receives `DeviceRemoved` twice when its driver is removed.** Default event mask; explicit optional controller target; source-only.
+**[OD11749](AROS-other-drivers.md#od11749-controller-bound-consumers-receive-device-removed-twice) — controller removal invokes a bound callback twice and attempts two queued `DeviceRemoved` deliveries; queue clients receive both when capacity is available.** Default event mask; explicit optional controller target; source-only.
 
 
 
