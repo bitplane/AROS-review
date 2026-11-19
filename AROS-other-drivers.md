@@ -41333,11 +41333,9 @@ Bluetooth `hwconn.c` full-body closure (OD3808 retained; 2026-11-07; `rom/blueto
 
 <a id="od11522-btctrl-wait-discovery-allocation-failure-reports-completion"></a>
 <a id="od11522"></a>
-## OD11522 — BTCtrl can report discovery finished when WAIT setup fails
+## OD11522 — withdrawn duplicate of OD10333
 
-`WaitForDiscovery()` returns immediately if `CreateMsgPort()` fails or if `btAddEventHandler()` cannot allocate/register its hook (`rom/bluetooth/bluetooth/shellcommands/BTCtrl.c:122-142`). Its caller unconditionally prints “Discovery finished.” after the helper returns, and neither failure sets the command return code (`:230-243,362-371`). `btAddEventHandler()` explicitly returns NULL when its hook allocation fails (`rom/bluetooth/bluetooth/classes.c:663-685`). The successful `btStartDiscovery()` call has already begun asynchronous discovery before `WAIT` is handled.
-
-**Trigger and consequence:** invoke `BTCtrl SCAN WAIT` while message-port or event-hook allocation fails. The scan remains active, but the command claims it finished and exits with success, so scripts and users receive a false completion result. **Affected configuration:** selected Bluetooth library shell command. **Confidence:** high for both allocation-failure returns, caller message, and unchanged status; no allocation failure or scan was induced. Propagate a wait-setup result to `main`, report the failure, and avoid printing a completion message unless a discovery-stop event or stopped state was observed. Source-only.
+OD11522 described the same BTCtrl `SCAN WAIT` message-port/event-hook allocation failure and false completion status already covered by OD10333. OD10333 is the canonical entry and additionally documents the separate missed-discovery-completion event window. No distinct root cause remains under OD11522.
 
 <a id="od11523-btctrl-remote-name-allocation-failure-reports-success"></a>
 <a id="od11523"></a>
