@@ -17141,7 +17141,7 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[OD9853](AROS-other-drivers.md#od9853-controller-unchanged-reports-omit-frame-events) — Accepted controller reports with no changed controls omit the documented Frame event.** Conditional on an external or alternate producer and a consumer relying on the Frame contract. Explicit target only; source-only.
 **[OD9854](AROS-other-drivers.md#od9854-controller-writers-are-not-serialized-across-cpus) — Controller reading synchronization fails on ExecSMP:** overlapping writers can defeat the seqlock and overwrite newer controls; separately, a reader that sees an odd sequence compares against uninitialized `s2` and may accept an incomplete copy. Conditional on concurrent controller readers/writers or producers for one device on ExecSMP; explicit target only. Source-only.
 **[OD9855](AROS-other-drivers.md#od9855-controller-mapping-ignores-input-flags) — Controller mapping evaluation ignores declared input inversion and half-axis flags.** Conditional on an external or alternate mapping using those flags. Explicit target only; source-only.
-**[OD9856](AROS-other-drivers.md#od9856-controller-registration-is-not-smp-serialized) — Concurrent ExecSMP controller registration can race device IDs, list state, and automatic slot selection.** Conditional on concurrent driver registration. Explicit target only; source-only.
+**[OD9856](AROS-other-drivers.md#od9856-controller-registration-is-not-smp-serialized) — ExecSMP controller registration, cleanup, lookup, and enumeration lack shared SMP-safe protection for device IDs and list state; automatic slot selection can race too.** Conditional on concurrent controller operations. Explicit target only; source-only.
 **[OD9857](AROS-other-drivers.md#od9857-controller-device-ids-are-reused-after-wrap) — The 16-bit controller ID counter wraps and reuses IDs despite the documented never-reuse contract.** Conditional on sufficient device churn. Explicit target only; source-only.
 **[OD9858](AROS-other-drivers.md#od9858-controller-remapping-skips-devices-after-the-64th) — Mapping updates and Remapped events skip matching devices after the 64th registered device.** Conditional on a matching mapping change with more than 64 devices. Explicit target only; source-only.
 **[OD9860](AROS-other-drivers.md#od9860-controller-event-fanout-silently-stops-at-32-consumers) — Controller event fanout silently stops at 32 matching consumers although attachment has no corresponding limit.** Explicit target only; source-only.
@@ -18615,10 +18615,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11730](AROS-other-drivers.md#od11730-ata-scsi-identify-transfer-actual-count)** — ATA and SCSI copy 512 bytes in the undocumented 514-byte `TD_GETGEOMETRY` compatibility path but leave `io_Actual` unchanged. Conditional on an external caller using that form and checking the transferred byte count; source-only.
 
-**[OD11731](AROS-other-drivers.md#od11731-controller-subsystem-device-registration-races-on-execsmp)** — controller device registration and enumeration use processor-local `Disable()` protection for shared IDs and list state; concurrent operations on ExecSMP can assign duplicate IDs or race list updates. Conditional on explicitly building and using controller HIDD on ExecSMP; source-only.
 
 
-**[OD11732](AROS-other-drivers.md#od11732-controller-unipolar-axis-scaling-overflow)** — unipolar axis normalization multiplies in signed 32-bit arithmetic and overflows for logical ranges above 65,536. Conditional on an explicitly built controller driver exposing a wide trigger range; source-only.
 
 **[OD11733](AROS-other-drivers.md#od11733-controller-sparse-touchpad-sensor-descriptors)** — sparse touchpad/sensor indices inflate the count without initializing the gap descriptor, so a query succeeds with a zeroed button descriptor. Conditional on a driver using sparse indices; source-only.
 
@@ -18626,25 +18624,19 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11734](AROS-other-drivers.md#od11734-controller-axis-range-subtraction-overflow)** — signed controller axis endpoints can span more than `LONG_MAX`, but import and normalization subtract them in `LONG`, invoking undefined behavior. Conditional on a driver exposing such endpoints; source-only.
 
 
-**[OD11735](AROS-other-drivers.md#od11735-controller-reading-seqlock-has-unserialized-writers)** — concurrent controller pushes on ExecSMP can interleave the reading-cache seqlock writers, expose an even sequence during a write, and produce torn readings. Conditional on concurrent same-device producers; source-only.
 
 
-**[OD11736](AROS-other-drivers.md#od11736-controller-reading-reader-tests-uninitialized-sequence)** — on an odd sequence, `ctrl_CopyReading()` continues to its `do…while` condition and reads uninitialized `s2` before retrying. Conditional on concurrent read/write on ExecSMP; source-only.
 
 
 **[OD11737](AROS-other-drivers.md#od11737-controller-mapping-ignores-specific-version-mismatch)** — mapping lookup treats every controller GUID version mismatch as a wildcard even when the mapping specifies a version, potentially applying the wrong control layout. Conditional on API/User mappings and versioned devices; source-only.
 
 
-**[OD11738](AROS-other-drivers.md#od11738-controller-event-fanout-silently-stops-after-32-consumers)** — event fanout silently omits matching consumers beyond an internal 32-entry pointer array. Conditional on more than 32 matching consumers; source-only.
 
-**[OD11739](AROS-other-drivers.md#od11739-controller-initial-device-events-truncate-at-64)** — initial `DeviceAdded` notifications include only the first 64 already-registered controllers. Conditional on more than 64 devices; source-only.
 
-**[OD11740](AROS-other-drivers.md#od11740-controller-mapping-update-visits-only-64-devices)** — mapping changes reapply only to the first 64 controllers, leaving later matching devices on old mappings. Conditional on more than 64 registered devices; source-only.
 
 **[OD11741](AROS-other-drivers.md#od11741-controller-event-coalescing-retains-stale-standard-metadata)** — coalesced axis events replace value/sequence/time but retain the previous mapping's standard-control metadata. Conditional on a mapping change before a coalescing signal queue is drained; source-only.
 
 
-**[OD11742](AROS-other-drivers.md#od11742-controller-device-id-wrap-reuses-live-id)** — the 16-bit controller ID allocator wraps to 1 without checking live IDs, contradicting the stated never-reuse contract. Conditional on over 65,535 lifetime registrations with an older device still live; source-only.
 
 
 **[OD11743](AROS-other-drivers.md#od11743-controller-sensor-read-drops-unreturned-samples)** — `GetSensorData()` clears uncopied sensor samples when the caller buffer is smaller than the queue; whether that violates the intended per-call drain contract is undocumented. Low-confidence API-behavior candidate; source-only.
