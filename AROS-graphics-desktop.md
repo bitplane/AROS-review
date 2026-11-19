@@ -24579,3 +24579,14 @@ The shared `cleanup()` routine prints an error when passed a message, releases a
 **Trigger and affected configuration:** the explicit About program target cannot construct its application object. **Consequence:** the program exits successfully without displaying the About window, so a caller cannot distinguish the failed startup from normal completion. **Suggested correction:** return a nonzero status when object construction fails.
 
 **Source-only evidence:** `workbench/system/AboutAROS/main.c:29-40`; `workbench/system/AboutAROS/aboutaros.c:214-215,448`; target files are listed in `workbench/system/AboutAROS/mmakefile.src:5-6,32-34`. No object-construction failure or build was induced.
+
+
+## GD15290 — GradientSlider page-click arithmetic wraps before clamping
+
+**Severity / confidence:** High confidence wrong value for a large accepted `GRAD_SkipVal`.
+
+`GradientSlider__OM_SET()` copies `GRAD_SkipVal` directly into the unsigned `ULONG data->skipval` without constraining it to `GRAD_MaxVal` (`workbench/classes/gadgets/gradientslider/gradientsliderclass.c:116-121,123-125`). In `GM_GOACTIVE()`, a page click before the knob computes `old_curval - skipval` in unsigned arithmetic and only then tests the wrapped result by casting it to `LONG`; a click after the knob similarly computes `old_curval + skipval` before comparing with `maxval` (`:529-546`). With the accepted `GRAD_SkipVal=ULONG_MAX` and an ordinary value below the 65,535 maximum, either operation wraps to a small value before the clamp: a click after a value of 1 wraps to 0 instead of moving to the maximum, while a click before a value of 0 wraps to 1 instead of staying at zero.
+
+**Trigger and affected configuration:** create or update the optional GradientSlider gadget with a `GRAD_SkipVal` larger than its current range, then click the track before or after the knob. **Consequence:** page-click movement can wrap toward the opposite endpoint instead of saturating at zero or `GRAD_MaxVal`. **Suggested correction:** compare the step against the remaining range before adding/subtracting, then clamp without relying on signed conversion of an unsigned result.
+
+**Source-only evidence:** `workbench/classes/gadgets/gradientslider/gradientsliderclass.c:116-125,529-546`; the class is selected by `workbench/classes/gadgets/gradientslider/mmakefile.src:6-11`. No gadget, input event or build was run.
