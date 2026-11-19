@@ -18827,3 +18827,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15338](AROS-graphics-desktop.md#gd15338)** — Wanderer releases the screen layer-list lock after hit-testing an AppWindow drop target, then reads the layer/window and submits the drop; concurrent target closure can invalidate those pointers. Conditional on overlap; source-only.
 
 **[GD15339](AROS-graphics-desktop.md#gd15339)** — When a file is dropped onto a file icon, failure to allocate its parent path leaves a NULL destination passed to `CombinePath()`, which dereferences it with `strlen()`. Conditional on low memory; source-only.
+
+**[GD15340](AROS-graphics-desktop.md#gd15340)** — If Wanderer confirms an existing copy destination but cannot read its metadata, it skips the overwrite prompt and proceeds to open the destination with `MODE_NEWFILE`. Conditional on metadata/FIB failure; source-only.
