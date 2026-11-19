@@ -24755,3 +24755,11 @@ The GUI reads the Match name string into `setup.pattern` (`workbench/system/Snoo
 **Trigger and affected configuration:** set a nonempty Match name pattern and use Save, then restart Snoopy or use Open. **Consequence:** the selected filter is not persisted or loaded, despite the documented setting. **Suggested correction:** serialize and parse the pattern in the preferences file, preserving its spaces and checking its length.
 
 **Source-only evidence:** `workbench/system/Snoopy/gui.c:40-45,386-388`; `workbench/system/Snoopy/setup.c:176-177,234-237`; `workbench/system/Snoopy/README:24,34`. No preferences file or GUI action was run.
+
+## GD15312 — Snoopy reports preference save success after FPuts fails
+
+`setup_write_parameter()` discards the result of `FPuts()` and returns no status (`workbench/system/Snoopy/setup.c:98-103`). `setup_save()` checks only whether `Open(PREFFILE, MODE_NEWFILE)` succeeded, writes every setting through that helper, closes the file, and then unconditionally sets `retvalue = TRUE` (`:157-210`). DOS `FPuts()` returns EOF on a write error (`rom/dos/fputs.c:41-48`). Since MODE_NEWFILE has already created or truncated the preferences file, a later write error can leave only a prefix of the settings while Save is reported successful.
+
+**Trigger and affected configuration:** Snoopy opens `envarc:snoopy.prefs` successfully, then a preferences write fails, for example because the destination becomes full or unwritable. **Consequence:** the UI suppresses its save-error request and the previous preferences may be replaced by an incomplete file. **Suggested correction:** propagate each `FPuts()` error through `setup_write_parameter()` and `setup_save()`, and report failure if any write fails.
+
+**Source-only evidence:** `workbench/system/Snoopy/setup.c:98-103,157-210`; `rom/dos/fputs.c:41-48`; no write failure or preferences operation was run.
