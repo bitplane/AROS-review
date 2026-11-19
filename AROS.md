@@ -18697,3 +18697,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11756](AROS-other-drivers.md#od11756)** — Nouveau ignores VRAM eviction failure during suspend and can enter a power state with BOs still resident; their contents may be lost if that state resets VRAM. Conditional on eviction failure and device VRAM retention behavior. Source-only; no suspend was run.
 
 **[OD11757](AROS-other-drivers.md#od11757)** — If Nouveau’s reservation-fence wait fails after binding a new GART placement, TTM frees that resource while the retained TTM object caches its `nouveau_mem` pointer. A later bind or unbind can use freed state. Conditional on a system-to-GART move and fence wait failure. Source-only; no move was run.
+
+**[OD11758](AROS-other-drivers.md#od11758)** — BTCtrl reports a local name change on a ready LE-only radio even though the Bluetooth handler rejects the unsupported request and the library discards the error. Conditional on an LE-only radio; source-only.
