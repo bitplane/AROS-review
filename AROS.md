@@ -18679,5 +18679,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15267](AROS-graphics-desktop.md#gd15267-vulkan-hpp-setters-can-leave-mutually-exclusive-array-representations-active)** — enhanced acceleration-structure and micromap setters can leave mutually exclusive array pointers populated. This is a validation-consistency candidate requiring a downstream caller to violate Vulkan valid usage; no in-tree caller was found. Source-only.
 
 **[GD15268](AROS-graphics-desktop.md#gd15268-vulkan-hpp-descriptor-write-setters-can-populate-multiple-data-arrays)** — enhanced descriptor-write setters can populate multiple alternative data arrays and overwrite their shared count. This is a validation-consistency candidate requiring a downstream caller to violate Vulkan valid usage; no in-tree caller was found. Source-only.
+**[GD15274](AROS-graphics-desktop.md#gd15274-vgagfx-single-pixel-updates-past-the-display-width-overwrite-the-next-scanline)** — a valid single-pixel update beyond the 640-pixel VGAGfx mode bypasses area clipping and writes at the next scanline's start. Conditional on a wider displayable bitmap in native PC builds. Source-only.
 
 
