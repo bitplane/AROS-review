@@ -18685,3 +18685,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15270](AROS-graphics-desktop.md#gd15270-ftp-use-replaces-the-browser-list-with-ftp-entries)** — FTP editor Use clears and reloads the Browser list gadget with FTP entries, leaving the FTP gadget unrefreshed. Source-only.
 
 **[GD15271](AROS-graphics-desktop.md#gd15271-closing-the-ftp-editor-leaves-its-window-marked-open)** — FTP Use/Cancel clears the browser-window pointer instead of the FTP-window pointer; later main-window iconification may try to close the already-closed FTP editor again. Source-only.
+**[GD15272](AROS-graphics-desktop.md#gd15272-reaction-openurl-list-management-buttons-have-no-handlers)** — Add, Clone, Up, Down, and Delete controls are displayed for browser, mailer, and FTP lists but their gadget IDs have no event handlers, so those operations do nothing. Applies to the ReAction OpenURL preferences program; source-only.
