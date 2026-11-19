@@ -24983,3 +24983,12 @@ In `ICONWINDOW_ACTION_APPWINDOWDROP`, Wanderer locks the screen's `LayerInfo`, o
 **Trigger and affected configuration:** drop selected icons from a Wanderer window onto another window on the same screen while another task closes the hit-tested target after the layer lookup. **Consequence:** Wanderer may dereference a removed layer or freed window, or submit the drop using stale target state. Keep the layer-list protection through the layer-to-window lookup and use an Intuition-safe lifetime check for the window before sending. **Confidence:** high for the unlocked pointer use and Intuition's close-side synchronization; the overlapping close/drop was not run. No drop, close, or build was exercised; source-only.
 
 **Source-only evidence:** `workbench/system/Wanderer/wanderer.c:735-747,777`; `rom/hyperlayers/whichlayer.c:42-45`; `rom/intuition/closewindow.c:376,446,459-482`.
+
+<a id="gd15339"></a>
+## GD15339 — Wanderer copy or move can dereference a failed target-directory allocation
+
+When the drop target is a file rather than a directory, `Wanderer__Func_CopyDropEntries()` obtains the parent path with `GetPathPart(drop_TargetPath)` (`workbench/system/Wanderer/wanderer.c:311-315`). `GetPathPart()` returns NULL if its `AllocVec()` fails (`workbench/system/Wanderer/filesystems_utilities.c:462-480`), but the worker does not check the result before passing `targetDir` to `CopyContent()` or `MoveContent()` (`wanderer.c:337-349`). Both paths construct a destination with `CombinePath()`, which immediately calls `strlen(dir)` without a NULL check (`workbench/system/Wanderer/filesystems_utilities.c:489-502`; callers `filesystems.c:642-648,716-718`).
+
+**Trigger and affected configuration:** a file COPY or MOVE drop onto a file icon, followed by failure to allocate the target's parent-path buffer. **Consequence:** the copy/move worker reaches `strlen(NULL)` while constructing the destination, terminating the operation through an invalid read instead of reporting the path-allocation failure. Check `GetPathPart()` and unwind the drop payload before starting file operations. **Confidence:** high for the unchecked NULL flow and immediate string use; no allocation failure or drop was induced. Source-only.
+
+**Source-only evidence:** `workbench/system/Wanderer/wanderer.c:311-349`; `workbench/system/Wanderer/filesystems_utilities.c:462-502`; `workbench/system/Wanderer/filesystems.c:627-648,705-718`.
