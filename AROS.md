@@ -18825,3 +18825,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15337](AROS-graphics-desktop.md#gd15337)** — A custom input subsystem can declare an event size that wraps to 1–8 bytes, causing the pre-consumer replay buffer to deliver only a prefix. Optional input HIDD; no checked-in oversized caller. Source-only.
 
 **[GD15338](AROS-graphics-desktop.md#gd15338)** — Wanderer releases the screen layer-list lock after hit-testing an AppWindow drop target, then reads the layer/window and submits the drop; concurrent target closure can invalidate those pointers. Conditional on overlap; source-only.
+
+**[GD15339](AROS-graphics-desktop.md#gd15339)** — When a file is dropped onto a file icon, failure to allocate its parent path leaves a NULL destination passed to `CombinePath()`, which dereferences it with `strlen()`. Conditional on low memory; source-only.
