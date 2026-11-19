@@ -24852,23 +24852,9 @@ The CLI parses each requested dimension with `strtol()` into a signed `WORD` bef
 **Source-only evidence:** `developer/demos/filereq.c:141-174,176-193`. No requester operation or build was run.
 
 
-## GD15324 — RegionTest accepts region ID 10 for a ten-element array
 
-The region table has ten entries, indexed 0 through 9 (`developer/demos/regiontest.c:40`). The `xorregionregion()`, `andregionregion()`, and `orregionregion()` commands validate each input with `<= 10`, then index `regions[i1]` and `regions[i2]` (`:248-298`). Entering ID 10 therefore reads one element past the array; if the out-of-bounds value is non-NULL, it is passed to the selected Region operation as a pointer. Use a strict `< 10` upper bound consistently.
-
-**Trigger and affected configuration:** explicitly build and run the `regiontest` demo and enter region ID 10 for either operand in one of these three commands. The file is listed by `developer/demos/mmakefile.src:12-41`; the parent demos aggregate is disabled (`config/mmakefile.src:16-18`). **Consequence:** out-of-bounds global read and possible invalid Region pointer use. **Confidence:** high for the array bound violation; subsequent behavior depends on adjacent memory. No GUI or Region operation was run.
-
-**Source-only evidence:** `developer/demos/regiontest.c:40,248-298`.
-
-## GD15325 — RegionTest reads command words into a fixed buffer without a limit
-
-`doall()` declares `char buf[80]` and reads the next command with `scanf("%s", buf)` (`developer/demos/regiontest.c:301-310`). `%s` has no field width, so an input token longer than 79 bytes writes beyond the buffer before the command comparisons run. Bound the conversion or use a line reader that enforces the destination capacity.
-
-**Trigger and affected configuration:** explicitly build and run `regiontest`, then enter a command token longer than 79 bytes. **Consequence:** stack buffer overwrite and undefined behavior in the demo. **Confidence:** high for the unbounded conversion. No input or program run was performed.
-
-**Source-only evidence:** `developer/demos/regiontest.c:301-310`.
-
-## GD15326 — RegionTest uses numeric inputs after failed `scanf` conversions
+<a id="gd15324"></a>
+## GD15324 — RegionTest uses numeric inputs after failed `scanf` conversions [conditional]
 
 The region-ID and rectangle-coordinate helpers declare automatic `int` locals, call `scanf("%d", &value)`, and do not check the conversion result before validating, indexing, printing, or passing the values to Region operations (`developer/demos/regiontest.c:70-75,119-155,159-221,233-298`). On a nonnumeric token or end-of-input, `scanf` may fail without assigning the destination. The subsequent code then reads an uninitialized value; in particular, region ID helpers use that value to decide whether to index `regions[]`. Check each conversion and stop the current command on failure.
 
