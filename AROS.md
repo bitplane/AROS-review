@@ -18750,3 +18750,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15321](AROS-graphics-desktop.md#gd15321--gtdemo-frees-its-gadget-list-twice-after-creation-failure)** — GTDemo's gadget-creation failure path frees its gadget list in both `makegadgets()` and `gt_end()`, causing a second traversal of freed storage. Conditional on gadget construction failure; source-only.
 
 **[GD15322](AROS-graphics-desktop.md#gd15322--iconscale-clamps-valid-dimensions-above-the-signed-word-range)** — IconScale parses unsigned 16-bit scale-box dimensions through signed `WORD` variables and can clamp valid values above 32,767 to 20. Conditional on target conversion behavior; source-only.
+
+**[GD15323](AROS-graphics-desktop.md#gd15323--filereq-exits-successfully-when-setup-or-requester-allocation-fails)** — FileReq prints library/requester allocation errors but still returns zero. Conditional on setup failure; source-only.

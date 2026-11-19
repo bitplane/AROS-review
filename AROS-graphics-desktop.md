@@ -24841,3 +24841,12 @@ The CLI parses each requested dimension with `strtol()` into a signed `WORD` bef
 **Trigger and affected configuration:** explicitly build and invoke `iconscale <width> <height>` with either dimension in 32,768..65,535 on a target compiler whose out-of-range signed conversion uses the usual low-16-bit representation. **Consequence:** the global icon scale-box dimension is set to 20 instead of the requested representable value. Parse into an unsigned 16-bit type or validate the range before conversion. **Confidence:** medium; the signed narrowing is implementation-defined by C, while the public encoding and later unsigned consumption are source-confirmed. No icon scaling or build was run.
 
 **Source-only evidence:** `developer/demos/iconscale.c:19,27-37`; `compiler/include/workbench/icon.h:174-177`; `workbench/libs/icon/layouticon.c:198-201,488-501`. The demo is explicitly listed in `developer/demos/mmakefile.src:12-41`; the parent aggregate edge is disabled.
+
+
+## GD15323 — FileReq exits successfully when setup or requester allocation fails
+
+`main()` prints an error when opening `asl.library` fails, then returns zero (`developer/demos/filereq.c:178-193`). When the library opens, each `showrequester()` prints an allocation error if `AllocAslRequest()` returns NULL but provides no failure result to `main()`; the program continues and still returns zero (`:141-174,180-193`). A run where every requester allocation fails is therefore indistinguishable from a successful demo run by exit status.
+
+**Trigger and affected configuration:** explicitly build and run the FileReq demo when `asl.library` cannot be opened or one or more `AllocAslRequest()` calls fail. The target is listed in `developer/demos/mmakefile.src:12-41`; the parent demos aggregate is disabled (`config/mmakefile.src:16-18`). **Consequence:** scripts and launchers receive success despite failed setup or missing requester examples. Propagate a failure status from library acquisition and requester allocation while preserving the normal cancel behavior. **Confidence:** high for the status paths; no library or allocation failure was induced.
+
+**Source-only evidence:** `developer/demos/filereq.c:141-174,176-193`. No requester operation or build was run.
