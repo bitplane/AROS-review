@@ -18847,3 +18847,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15345](AROS-graphics-desktop.md#gd15345)** — IconDrawerList ignores non-EOF `ExNext()` errors; a refresh clears the existing list first, then silently displays only the entries scanned before failure. Conditional on filesystem enumeration error; source-only.
 
 **GD15345 follow-up:** FIB-allocation and initial `Examine()` failures also leave the refreshed drawer empty without an error; the existing list is cleared before these scan steps. See the [graphics/desktop report](AROS-graphics-desktop.md#gd15345).
+
+**[GD15346](AROS-graphics-desktop.md#gd15346)** — IconDrawerList frees its current drawer path before duplicating a replacement; allocation failure then clears the list and leaves the window blank without a failure result. Conditional on low memory during a location change; source-only.
