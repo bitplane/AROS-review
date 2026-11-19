@@ -24764,11 +24764,11 @@ The GUI reads the Match name string into `setup.pattern` (`workbench/system/Snoo
 
 ## GD15313 — Snoopy's localized OpenLibrary version text can exceed its buffer
 
-`New_OpenLibrary()` formats the requested `ULONG version` with the translated `MSG_VERSION` format into `TEXT verstr[20]` (`workbench/system/Snoopy/patches.c:883-887`). The Basque and Italian catalog strings are each 12 bytes before substitution (`catalogs/basque.ct:175-176`; `catalogs/italian.ct:180-181`). On 32-bit builds, a valid request value `0x80000000` is interpreted by `%ld` as `-2147483648`, producing 20 text bytes plus the terminator in the 20-byte buffer. The routine then passes the resulting local string to `main_output()`.
+`New_OpenLibrary()` formats the requested `ULONG version` with the translated `MSG_VERSION` format into `TEXT verstr[20]` (`workbench/system/Snoopy/patches.c:883-887`). The Basque and Italian catalog strings are each 12 bytes before substitution (`catalogs/basque.ct:175-176`; `catalogs/italian.ct:180-181`). The request is an unsigned `ULONG`, but AROS `__sprintf` routes `%ld` through `InternalRawDoFmt()`, whose `%ld` path fetches a signed 32-bit `LONG` (`compiler/alib/sprintf.c:46-58`; `rom/exec/rawdofmt.c:118-121,300-306`). Thus `0x80000000` formats as `-2147483648` on the AROS formatter paths, producing 20 text bytes plus the terminator in the 20-byte buffer. `OpenLibrary()` takes an `ULONG` version; its m68k implementation only truncates the value inside the original routine, while the patch logs its original argument. The resulting local string is passed to `main_output()`.
 
 **Trigger and affected configuration:** Snoopy's OpenLibrary monitor is enabled (it defaults to TRUE in `setup.c:145`), a monitored call requests version `0x80000000`, and the selected catalog is Basque or Italian. **Consequence:** formatting writes the terminator beyond `verstr` and the logged version text is corrupted. **Suggested correction:** size the buffer for the longest translated prefix/suffix and the full rendered version, or use a bounded formatter and detect truncation.
 
-**Confidence:** medium; the format and buffer are direct source evidence, but the trigger requires an unusually large minimum library version and a specific localization. No OpenLibrary call or build was run.
+**Confidence:** high for the formatting width and buffer overrun across AROS formatter paths; the trigger requires a large requested library version and a specific localization. No OpenLibrary call or build was run.
 
 ## GD15314 — Snoopy prints pointer-valued OpenDevice units as integers
 
