@@ -18757,6 +18757,10 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15323](AROS-graphics-desktop.md#gd15323--filereq-exits-successfully-when-setup-or-requester-allocation-fails)** — FileReq prints library/requester allocation errors but still returns zero. Conditional on setup failure; source-only.
 
 **[GD15324](AROS-graphics-desktop.md#gd15324)** — RegionTest does not check numeric `scanf` results before using the destinations; failed conversions leave the automatic values indeterminate. Conditional on nonnumeric input or EOF at a numeric prompt; source-only.
+**[GD15326](AROS-graphics-desktop.md#gd15326)** — Optional VMM library startup reads an unset message reply-port field as the manager port; first-time handler startup can fail or use an indeterminate destination. Source-only.
+**[GD15327](AROS-graphics-desktop.md#gd15327)** — Optional VMM library initialization leaks returned message buffers, including on successful existing-manager initialization. Source-only.
+**[GD15328](AROS-graphics-desktop.md#gd15328)** — The optional VMM library’s five selected allocation vectors are stubs: allocations fail, availability is always zero, and frees do nothing. Source-only.
+**[GD15329](AROS-graphics-desktop.md#gd15329)** — Optional VMM library initialization leaks its startup message when handler loading or manager-process creation fails. Source-only.
 
 **Hosted X11 bitmap-class audit (2026-11-19):** read the complete selected `x11gfx_bitmapclass.c` body (1,028 C code lines), including image transfer, XShm/Xlib, drawing and cleanup paths. No new finding was established; the checked-in caller census found no direct HIDD caller relying on `GC_DOCLIP` for `FillRect`, leaving only an external/direct-client contract question. The class body was already credited, so this re-read does not change the Graphics/Desktop checkpoint: **508,356/585,714 lines (86.8%)**; its aggregate file denominator remains unreconciled. See the [coverage ledger](AROS-graphics-desktop-coverage.md#hosted-x11-bitmap-fillrect-gc-clip-caller-census-2026-11-19). Source-only; no build or runtime operation was performed.
 
