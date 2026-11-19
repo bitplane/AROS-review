@@ -18693,7 +18693,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD1160](AROS-other-drivers.md#od1160)** — Efika `ReadBattClock()` ignores a missing RTAS `get-time-of-day` token result and converts uninitialized stack output. An invalid month can read outside `Date2Amiga()`'s month table, and `SetClock LOAD` can install the resulting time. Conditional on the Efika RTAS token being absent; source-only. See the [caller trace](AROS-other-drivers-coverage.md#efika-rtas-clock-result-od1160).
 
-**[OD11755](AROS-other-drivers.md#od11755)** — Nouveau device removal ignores VRAM/GTT eviction errors, then frees the managers while failed-to-evict BOs may still reference them; later final BO release can dereference a missing/stale manager. Conditional on eviction failure plus a surviving BO reference. Source-only; no device removal was run.
+**[OD11755](AROS-other-drivers.md#od11755)** — Nouveau device removal ignores VRAM/GTT eviction errors, clears and frees the managers, then a surviving failed-to-evict BO can dereference the NULL manager slot during final release. Conditional on eviction failure plus a surviving BO reference. Source-only; no device removal was run.
 
 **[OD11756](AROS-other-drivers.md#od11756)** — Nouveau ignores VRAM eviction failure during suspend and can enter a power state with BOs still resident; their contents may be lost if that state resets VRAM. Conditional on eviction failure and device VRAM retention behavior. Source-only; no suspend was run.
 
