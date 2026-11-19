@@ -22467,9 +22467,9 @@ The common cleanup routine closes reqtools.library if available and always calls
 <a id="gd15024"></a>
 ## GD15024 — RTFile reports success when requester setup or display fails [conditional]
 
-`action()` ignores both failure cases: a NULL `rtAllocRequestA()` simply skips the requester, and the BOOL result of `rtFileRequestA()` is discarded (`developer/demos/rtfile.c:31-45`). The common cleanup always exits zero, including when reqtools.library fails to open (`:18-28,50-55`).
+`action()` silently skips the demonstration when `rtAllocRequestA()` returns NULL, and the shared cleanup always exits zero when `reqtools.library` fails to open (`developer/demos/rtfile.c:18-28,31-45,50-55`). The `rtFileRequestA()` contract explicitly returns FALSE when the user cancels (`workbench/libs/reqtools/rtfilerequesta.c:120-133`), so discarding that result is not itself a defect.
 
-**Trigger and consequence:** request allocation fails, the file requester returns FALSE, or reqtools.library cannot open. The program provides no failure status and exits successfully despite not completing the requested demo operation. **Affected configuration:** the explicitly buildable `developer/demos/rtfile.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for ignored results and zero exit status. Report failure and return a nonzero status when requester setup/display fails. No requester or build was run; source-only.
+**Trigger and consequence:** requester allocation fails or reqtools.library cannot open. Allocation failure is silent; library-open failure prints a diagnostic. In both cases the demo exits with status zero, so a caller relying on status cannot distinguish setup failure from normal completion. User cancellation remains a normal successful outcome. **Affected configuration:** the explicitly buildable `developer/demos/rtfile.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the zero exit status and allocation handling; low impact because this is an interactive example with no checked-in caller. No requester or build was run; source-only.
 
 <a id="gd15025"></a>
 ## GD15025 — RTFont exits successfully if font requester setup fails [conditional]
