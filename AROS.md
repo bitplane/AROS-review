@@ -18669,3 +18669,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15264](AROS-graphics-desktop.md#gd15264-vulkan-hpp-shader-identifier-equality-ignores-bytes-included-by-its-hash)** — shader-identifier equality compares only the declared prefix, while its hash includes the full fixed array; trailing bytes can break unordered-container lookups. Source-only.
 
 **[GD15265](AROS-graphics-desktop.md#gd15265-vulkan-hpp-shader-identifier-comparisons-trust-an-unchecked-byte-count)** — equality and ordering trust an unchecked identifier size and can read beyond the fixed array if it exceeds the maximum. Conditional on an oversized size; source-only.
+
+
+**[GD15266](AROS-graphics-desktop.md#gd15266-vulkan-hpp-surface-present-mode-query-defaults-to-optional-immediate-mode)** — surface-capability queries default their chained present-mode selector to optional `eImmediate`; a FIFO-only surface may reject or fail that query. Conditional on downstream Vulkan-Hpp use; source-only.
