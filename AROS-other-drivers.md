@@ -45495,3 +45495,16 @@ The VC4 Gallium make rule passes `mesa-$(MESAGLVERSION)-aros.diff` to `galliumgl
 **Affected configuration:** Workbench configurations that build and load `kms.library`; the cross-CPU window applies to ExecSMP builds. No default-image occurrence or actual task interleaving is claimed.
 
 **Confidence/limits:** High for the source publication order and NULL dereferences; medium for the scheduling overlap. Publish a fully initialized callback context before registering the input handler or exposing either vector, and ensure saved predecessor state is ready before the wrappers can run. No key event, MapRawKey call, task interleaving, or build was run; source-only.
+
+<a id="od11764"></a>
+## OD11764 — SB128 can coalesce playback completions and skip a DMA half-buffer [timing conditional]
+
+On each DAC2 completion, `CardInterrupt()` toggles `card->flip`, overwrites `card->current_buffer` with the newly completed half, sets `playback_interrupt_enabled` false, and calls `Cause()` (`workbench/devs/AHI/Drivers/SB128/interrupt.c:51-67`). Unlike the record path at `:74-86`, the playback path never checks `playback_interrupt_enabled` before replacing the pointer and causing the callback. Exec documents that a software interrupt is scheduled only once while queued, and `Cause()` only inserts the node when its type is not `NT_SOFTINT` (`rom/exec/cause.c:34-47,83-99`). The later `PlaybackInterrupt()` reads the mutable `current_buffer` after calling the player/pre-timer hooks and writes just that one half (`interrupt.c:100-153`).
+
+If a second DAC2 completion arrives while the first playback soft interrupt is still queued, the second IRQ changes `current_buffer` and flips the half selection, but its `Cause()` does not queue another invocation. The one eventual callback therefore processes only the latest half; the earlier half is not refilled before the DMA ring cycles back to it. The stored `playback_interrupt_enabled` flag does not prevent this sequence: it is written here and in the callback, but never tested in the driver.
+
+**Trigger/consequence:** playback soft-interrupt dispatch is delayed until after another DMA-half completion. The callback count falls behind the hardware completion count, leaving one playback half stale when the device reuses it and causing repeated/incorrect audio for that interval. This is separate from OD2167, which covers Stop freeing buffers while a callback is queued or active.
+
+**Affected configuration:** SB128/ES137x builds selected by `HAVE_ASMIO` (`workbench/devs/AHI/Drivers/Makefile.in:42-57`) when a supported card is present and playback callback latency spans multiple DMA-half periods. This timing condition is not claimed to occur in ordinary runs.
+
+**Confidence/limits:** High for the mutable-pointer/once-only queue behavior; medium for how often real card/interrupt timing permits two completions before dispatch. No PCI sound card, callback delay, or interrupt sequence was exercised. Prevent another DMA completion from overwriting pending work, or retain and service each completed half independently. Source-only.
