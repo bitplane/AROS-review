@@ -24538,3 +24538,44 @@ The shared `cleanup()` routine prints an error when passed a message, releases a
 **Trigger and affected configuration:** run the `intuitext` demo when `intuition.library` cannot be opened, no public screen can be locked, screen draw info is unavailable, or the window cannot be opened. **Consequence:** the example produces no diagnostic and returns success despite not displaying the requested text. **Suggested correction:** report the failing setup stage and return a nonzero result after releasing any acquired resources.
 
 **Source-only evidence:** `developer/demos/intuitext.c:84-189`; the target is listed in `developer/demos/mmakefile.src:12-41,73`, while the parent aggregate edge is commented. No resource failure, GUI operation or build was induced.
+
+
+## GD15286 — AboutAROS formats into unchecked pool allocations
+
+**Severity / confidence:** High confidence crash on pool allocation failure during About window construction.
+
+`AboutAROS__OM_NEW()` allocates `str_buildtype`, and when the ABI is available allocates `str_abi`, with `AllocPooled()`, then passes each pointer directly to `sprintf()` without checking for NULL (`workbench/system/AboutAROS/aboutaros.c:232-239`). Builds that define `BUILDCPU` do the same for `str_buildcpu` (`:243-244`). The pool API can fail allocations independently of the initial successful `CreatePool()`.
+
+**Trigger and affected configuration:** create the AboutAROS application under memory pressure such that one of these `AllocPooled()` calls fails. **Consequence:** the subsequent `sprintf()` writes through a NULL destination and the About window cannot be constructed normally. **Suggested correction:** check each pool allocation and unwind construction cleanly on failure.
+
+**Source-only evidence:** `workbench/system/AboutAROS/aboutaros.c:208-244`; no allocation failure or GUI operation was induced.
+
+## GD15287 — AboutAROS leaks its pool when MUI object construction fails
+
+**Severity / confidence:** High confidence bounded pool leak on constructor failure.
+
+`AboutAROS__OM_NEW()` creates a pool before building the application/window object tree (`workbench/system/AboutAROS/aboutaros.c:214-215,254-418`). It stores the pool in instance data only inside `if (self != NULL)` (`:420-423`), and `AboutAROS__OM_DISPOSE()` deletes the pool only through that stored field (`:452-458`). If `DoSuperNewTags()` returns NULL, the constructor returns NULL at `:448` without deleting the already-created pool, so the later dispose method has no instance from which to reclaim it.
+
+**Trigger and affected configuration:** a MUI child or application object allocation fails after the pool has been created. **Consequence:** the constructor's pool remains allocated after failed About window creation. **Suggested correction:** delete the pool on every path where object construction returns NULL.
+
+**Source-only evidence:** `workbench/system/AboutAROS/aboutaros.c:214-215,254-423,448,452-458`; no construction failure was induced.
+
+## GD15288 — AboutAROS ignores author and sponsor list population failures
+
+**Severity / confidence:** High confidence incomplete lists when pool allocation fails.
+
+`NamesToList()` returns FALSE when it cannot allocate a section header or name string from the About window's pool (`workbench/system/AboutAROS/aboutaros.c:98-176`). After successful object construction, `AboutAROS__OM_NEW()` calls it for both the authors and sponsors lists but ignores both return values (`:426-427`) and continues setting up notifications and returning the application object. A partial list can therefore be presented as complete.
+
+**Trigger and affected configuration:** one of the `NamesToList()` pool allocations fails while constructing the About window. **Consequence:** one or more names or section labels are omitted without the constructor reporting failure. **Suggested correction:** propagate the failure and either abort construction or display an explicit incomplete-list state.
+
+**Source-only evidence:** `workbench/system/AboutAROS/aboutaros.c:98-176,420-448`; no pool failure or GUI operation was induced.
+
+## GD15289 — About exits successfully when its application object cannot be created
+
+**Severity / confidence:** Low severity, high confidence false-success status on construction failure.
+
+`main()` calls `AboutAROSObject` and only executes/disposes the application when the result is non-NULL; if construction fails, it falls through and returns zero (`workbench/system/AboutAROS/main.c:29-40`). The custom constructor has concrete failure returns, including initial pool allocation failure and MUI object creation failure (`aboutaros.c:214-215,448`).
+
+**Trigger and affected configuration:** the explicit About program target cannot construct its application object. **Consequence:** the program exits successfully without displaying the About window, so a caller cannot distinguish the failed startup from normal completion. **Suggested correction:** return a nonzero status when object construction fails.
+
+**Source-only evidence:** `workbench/system/AboutAROS/main.c:29-40`; `workbench/system/AboutAROS/aboutaros.c:214-215,448`; target files are listed in `workbench/system/AboutAROS/mmakefile.src:5-6,32-34`. No object-construction failure or build was induced.
