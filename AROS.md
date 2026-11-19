@@ -14194,6 +14194,8 @@ These existing coverage-ledger candidates now have detailed finding entries; thi
 
 **[OD1390](AROS-other-drivers.md#od1390) — LinuxInput can free a worker task's stack before its failed startup returns.** Conditional on event-buffer allocation failure and the creator resuming before the worker returns; the concurrency case applies to ExecSMP Linux targets. Source-only.
 
+**[OD3509](AROS-other-drivers.md#od3509) — LinuxInput treats a failed Linux/i386 event read as an enormous event batch and walks past its 64-event buffer.** Conditional on a host read error with the optional Linux/i386 HIDD selected; source-only.
+
 **[OD1821](AROS-other-drivers.md#od1821) — Trident config replacement can remove existing device/interface settings before a fallible copy, or leave partial/duplicate Poseidon forms, while the drag reports success. Conditional on a replacement-time failure; optional Trident Preferences target. Source-only.**
 
 **[OD1822](AROS-other-drivers.md#od1822) — Trident can publish a preference row with a NULL device/interface ID after a failed string copy; later drag matching may dereference NULL or treat interface data as device-level config. Conditional on partial allocation failure; optional target. Source-only.**
