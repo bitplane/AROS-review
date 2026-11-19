@@ -18731,3 +18731,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[GD10067](AROS-graphics-desktop.md#gd10067)** — AROS Mutual Exclude's disabled overlay stops one pixel before the gadget's right and bottom edges. Explicit optional gadget target; source-only.
 **[GD10068](AROS-graphics-desktop.md#gd10068)** — AROS Mutual Exclude leaves its stipple in the caller RastPort; Intuition's disabled-frame helper also clears a previously installed area pattern rather than restoring it. Conditional on later patterned drawing through the same RastPort; source-only.
+**[GD15308](AROS-graphics-desktop.md#gd15308-iconimage-leaks-diskobjects-loaded-from-file-paths)** — File-backed IconImage objects retain the DiskObject returned by GetDiskObjectNew because the class has no OM_DISPOSE cleanup. Optional class target; used by Aboutbox, Wanderer, DiskInfo and Info callers; source-only.
