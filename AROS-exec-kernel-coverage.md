@@ -15256,6 +15256,7 @@ stdc floating string conversion full-body and wrapper pass (EK10765; four select
 | `compiler/crt/stdc/strtoll.c` | 52 | Full 130-line body read; long-long wrapper sign/range checks and `endptr` handling checked against `strtoull()`. No independent defect established; EK10766 remains the shared unsigned-overflow contract question. |
 | `compiler/crt/stdc/strtoull.c` | 94 | Full 189-line body read; long-long base selection, sign handling, cutoff overflow, `endptr` and errno paths checked. EK10766 remains a standards-contract question for negative-magnitude overflow; no additional defect established. |
 | `compiler/crt/stdc/strtoumax.c` | 13 | Full 56-line wrapper read; shared-library selection and `strtoul()`/`strtoull()` delegation checked. The documented errno TODO is not a shared-build defect because the selected delegated body sets errno; no independent defect established. |
+| `compiler/crt/stdc/strtoimax.c` | 13 | Full 56-line wrapper read; shared-library selection and `strtol()`/`strtoll()` delegation checked. The documented errno TODO is not a shared-build defect because the selected delegated body sets errno; no independent defect established. |
 
 
 <a id="unsigned-string-overflow-recheck-ek10766"></a>
@@ -18023,3 +18024,6 @@ DynModule concurrent final-close/load caller trace (EK11054 added; no body/path/
 
 
 `strtoumax()` full-wrapper and error-contract pass (one newly credited selected path, 13 `cloc 2.06` C code lines; 2026-11-19): confirmed `strtoumax` is in the shared `STDC_CRT` source list (`compiler/crt/stdc/mmakefile.src:532-595`) and is not in the separate `STDC_STATIC` subset (`:839-900`). Read the full wrapper and both compile-time delegation branches. In the shared build, its selected `strtoull()`/`strtoul()` callee sets `EINVAL` for invalid bases and `ERANGE` for overflow, so this wrapper's stale BUG/TODO comment does not describe the selected shared implementation. The negative-magnitude overflow result remains the existing standards-qualified EK10766, inherited through delegation; no separate defect established. No conversion or build was run; source-only.
+
+
+`strtoimax()` full-wrapper and error-contract pass (one newly credited selected path, 13 `cloc 2.06` C code lines; 2026-11-19): confirmed `strtoimax` is selected in the shared `STDC_CRT` source list (`compiler/crt/stdc/mmakefile.src:532-595`) and read the full wrapper, including both long-long and native-long delegation branches. The shared `strtol()`/`strtoll()` implementations set errno on invalid base and signed range overflow, so the wrapper's BUG/TODO comment does not establish a shared-build error-reporting defect. No separate signed-parser issue was established beyond the existing unsigned-conversion standards question EK10766. No conversion or build was run; source-only.
