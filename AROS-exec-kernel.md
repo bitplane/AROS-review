@@ -2452,6 +2452,42 @@ The dangling node remains on `SysBase->ex_MemHandlers`. On a later allocation re
 
 **Trigger and consequence:** `CreatePool()` succeeds, `AddMemHandler()` publishes the embedded node, and `NewCreateTask()` fails before establishing `lrb_ServicePort`; a later allocation with expunging enabled invokes the low-memory handlers. Exec then traverses the freed resource-base record, which can cause an invalid callback or list access if the memory has been reused. Remove the handler on every init-failure path before releasing the base. **Affected configuration:** boot packages that include `log.resource`, including the x86-64 PC BSP (`arch/x86_64-pc/boot/mmakefile.src:32-40`); failure and later memory pressure are conditional. **Confidence:** high for the registration, rollback and missing unlink; manifestation depends on subsequent handler invocation and reuse of the freed record. No task-creation failure, low-memory callback, allocation retry or build was exercised. Source-only; see the [low-memory handler coverage row](AROS-exec-kernel-coverage.md#L1932).
 
+
+<a id="ek8763"></a>
+### EK8763 — `logInitialise()` dereferences an unchecked provider-handle allocation
+
+When the log broadcaster is running and `CreatePool()` succeeds, `logInitialise()` allocates a `LogResHandle` from that pool and immediately writes its fields without checking whether `AllocVecPooled()` returned NULL (`rom/log/log.c:143-153`). The pool allocation can succeed while the subsequent handle allocation fails; `AllocVecPooled()` returns NULL when the underlying pool allocator cannot satisfy the request (`rom/exec/allocvecpooled.c:59-82`).
+
+**Trigger and consequence:** a caller invokes `logInitialise()` while the service task is active and the provider-pool allocation succeeds but the handle allocation fails. The first field store through `lpHandle` faults instead of returning NULL, interrupting the caller and potentially the task performing provider initialization. **Affected configuration:** any build selecting `log.resource` and a client that registers a provider; memory exhaustion is conditional. **Confidence:** high for the missing check and NULL return contract; no allocation failure was induced. Check the handle allocation before initialization and return cleanly on failure. Source-only; see the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md#L3191).
+
+<a id="ek8817"></a>
+### EK8817 — `logFinalise()` leaves finalized providers and their pools registered
+
+`logFinalise()` walks the provider list and matches the supplied provider name, but the matching branch is an empty TODO (`rom/log/log.c:163-177`). It does not unlink the provider, release its copied name, remove its entries, or delete its pool. The selected serial logger registers a provider during initialization and calls `logFinalise()` when its worker exits (`rom/log/serial/seriallogger.c:181-193,149`).
+
+**Trigger and consequence:** serial logging registers its provider and the worker later exits; the finalizer finds the provider but performs no cleanup. The handle remains reachable from `lrb_Providers`, and its pool and allocations stay retained for the lifetime of `log.resource`; later reinitialization can add another provider record. **Affected configuration:** builds including the serial logger when serial debugging is enabled and its worker exits. **Confidence:** high for the empty cleanup branch and selected call sequence; no logger shutdown or reinitialization was run. Unlink and release the provider-owned resources in the finalizer. Source-only; see the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md#L2799).
+
+<a id="ek8767"></a>
+### EK8767 — Removing a log entry leaks its copied subcomponent name
+
+`logAddEntryA()` duplicates a non-NULL `sub` string into `lep_Node.ln_Name` (`rom/log/log_event.c:224-233`). When the broadcaster processes the removal event, it frees the component name, originator, and formatted entry, then returns the record to the producer pool, but never frees `lep_Node.ln_Name` (`rom/log/log.c:256-262`). The string is separately allocated by `logCopyStr()` (`rom/log/log_str.c:97-111`), so returning the record to the pool does not release it.
+
+**Trigger and consequence:** a producer adds and later removes entries with a non-NULL subcomponent string. Each removal leaves that copied string allocated until the allocation can no longer be reclaimed through the provider pool; repeated add/remove cycles accumulate leaked memory. **Affected configuration:** any `log.resource` client using subcomponent names; entries without `sub` are unaffected. **Confidence:** high for allocation and missing free; no repeated logging workload was run. Free `lep_Node.ln_Name` in the removal cleanup. Source-only; see the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md#L4893).
+
+<a id="ek863"></a>
+### EK863 — Listener broadcast allocation failures can fault the log broadcaster
+
+`logAddListener()` publishes a listener even when its per-listener `CreatePool()` fails (`rom/log/log_listener.c:38-53`). When a matching event is broadcast, `logEventBroadcast()` passes that NULL pool to `AllocVecPooled()` and immediately writes through the returned message without checking it (`:91-102`). `AllocVecPooled()` evaluates `IsManagedMem(poolHeader)` before its later NULL check; `IsManagedMem()` dereferences the header (`rom/exec/allocvecpooled.c:53-74`; `compiler/include/exec/memheaderext.h:57-59`). Even with a valid listener pool, a failed per-event allocation reaches the same unchecked writes.
+
+**Trigger and consequence:** a listener is registered despite private-pool allocation failure, or a later per-event message allocation fails, and an event matching its mask is broadcast. The broadcaster faults while constructing the message, interrupting log event delivery and potentially stopping further collection. **Affected configuration:** builds selecting `log.resource` with a matching listener; allocation failure is conditional. **Confidence:** high for both unchecked failure paths; no allocation failure or broadcast was induced. Reject listener registration when pool creation fails and check each message allocation before use. Source-only; see the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md#L3771).
+
+<a id="ek8765"></a>
+### EK8765 — A queued log notification can retain an entry pointer after Logger frees it
+
+`logEventBroadcast()` queues a message containing the raw entry pointer to every matching listener (`rom/log/log_listener.c:91-102`). Standalone Logger processes an add notification by buffering the entry and immediately calling `logRemEntry()`, which queues removal; the broadcaster then frees the entry and returns it to the producer pool (`workbench/c/Logger.c:548-555`; `rom/log/log.c:256-262`). The optional `test-log` listener also queues add notifications and calls `logGetEntryAttrs()` on their target when it later consumes them (`developer/debug/test/log/listener.c:73-89`).
+
+**Trigger and consequence:** `test-log` and standalone Logger are both active, the broadcaster queues the same add event to both, and Logger removes the entry before the test listener consumes its queued message. The test listener then queries a pointer to a freed/reusable pool record; it may read stale entry fields or fault if the storage has been reused. **Affected configuration:** only builds/runs selecting the separate `test-log` target alongside standalone Logger; this is not claimed for product defaults. **Confidence:** high for the unpinned pointer and the selected remove/query paths; occurrence depends on listener scheduling. No listener schedule or build was run. Keep entries alive until pending notifications are consumed, or make notifications own/refcount their targets. Source-only; see the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md#L4893).
+
 <a id="ek8816"></a>
 ### EK8816 — AArch64 post-DMA cache cleaning can overwrite device data in a shared edge line.
 

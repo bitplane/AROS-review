@@ -11288,6 +11288,16 @@ EK8780 disposition (2026-10-30): withdrew the OOP_GetMethod out-of-range-offset 
 
 **[EK8782](AROS-exec-kernel.md#ek8782) — Failed `log.resource` initialization can leave its embedded low-memory handler linked after the resource base is freed. A later low-memory allocation retry may traverse the freed record; conditional on task-startup failure and later allocation pressure. Source-only. See the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md).
 
+**[EK8763](AROS-exec-kernel.md#ek8763) — `logInitialise()` dereferences the provider handle after an unchecked pool allocation; conditional on allocation failure. Source-only. See the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md).
+
+**[EK8817](AROS-exec-kernel.md#ek8817) — `logFinalise()` leaves the provider linked and its pool retained when the selected serial logger exits. Source-only; serial-debug configuration. See the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md).
+
+**[EK8767](AROS-exec-kernel.md#ek8767) — Removing entries with a subcomponent leaks each separately allocated subcomponent name. Source-only. See the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md).
+
+**[EK863](AROS-exec-kernel.md#ek863) — Listener pool or broadcast-message allocation failure reaches unchecked NULL use and can fault the log broadcaster. Source-only; requires a matching listener and allocation failure. See the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md).
+
+**[EK8765](AROS-exec-kernel.md#ek8765) — The optional `test-log` listener can query a queued entry after standalone Logger removes and frees it. Source-only; requires both clients and the relevant scheduling order. See the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md).
+
 **[EK8816](AROS-exec-kernel.md#ek8816) — AArch64 post-DMA cache maintenance can overwrite device data in a shared edge line:** selected Raspberry Pi AArch64 NVMe and xHCI read paths clean whole cache lines after DMA. If adjacent bytes are modified during transfer, stale bytes can be written over the device result. The overlap is conditional; source-only. See the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md).
 
 **[EK8818](AROS-exec-kernel.md#ek8818) — Low-memory allocation retries can reuse a detached handler cursor:** a handler removing itself before `MEM_TRY_AGAIN`, or freeing the successor cached before callback invocation, can leave traversal with stale node state. No checked-in handler demonstrates the sequence; conditional public API candidate. See the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md). Source-only.
