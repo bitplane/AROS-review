@@ -18829,3 +18829,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15339](AROS-graphics-desktop.md#gd15339)** — When a file is dropped onto a file icon, failure to allocate its parent path leaves a NULL destination passed to `CombinePath()`, which dereferences it with `strlen()`. Conditional on low memory; source-only.
 
 **[GD15340](AROS-graphics-desktop.md#gd15340)** — If Wanderer confirms an existing copy destination but cannot read its metadata, it skips the overwrite prompt and proceeds to open the destination with `MODE_NEWFILE`. Conditional on metadata/FIB failure; source-only.
+
+**[GD15341](AROS-graphics-desktop.md#gd15341)** — IconList silently skips selected sources whose full-path allocation fails, then publishes the remaining subset as a drop. Conditional on partial allocation failure; source-only.
