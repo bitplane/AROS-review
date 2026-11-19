@@ -18649,7 +18649,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11743](AROS-other-drivers.md#od11743-controller-sensor-read-drops-unreturned-samples)** — `GetSensorData()` clears uncopied sensor samples when the caller buffer is smaller than the queue; whether that violates the intended per-call drain contract is undocumented. Low-confidence API-behavior candidate; source-only.
 
-**[OD11744](AROS-other-drivers.md#od11744-controller-touch-coordinate-pack-shifts-signed-value)** — touch event packing left-shifts a signed 32-bit coordinate for the documented 0..65535 range, invoking undefined behavior for x >= 32768. Source-only.
 
 **[OD11745](AROS-other-drivers.md#od11745-controller-sensor-event-keeps-zero-input-timestamp)** — a zero sample timestamp is replaced in storage but copied unchanged to its `SensorUpdate` event; whether event timestamps must match the sample clock is undocumented. Low-confidence API-contract candidate; source-only.
 
