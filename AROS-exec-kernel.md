@@ -11704,3 +11704,10 @@ The selected `openlib` test returns zero whether `ReadArgs()` fails or `OpenLibr
 `developer/debug/test/exec/stackswap.c:59-79` has `SilentSub()` return FALSE when the argument or stack bounds are invalid. `main()` ignores the `NewStackSwap()` return value (`:115-120`), and the post-call stack-bound check only prints an error (`:122-130`). The program then frees the alternate stack and returns zero (`:133-136`).
 
 **Trigger and consequence:** a stack/argument check fails or `NewStackSwap()` reports failure. The test prints diagnostics but exits successfully, allowing an automated caller to treat an invalid stack-swap result as passing. **Affected configuration:** `test-exec-public` on any architecture with this selected executable; developer test, not default image (`developer/debug/test/exec/mmakefile.src:39-40,70-71`). **Confidence:** high for the discarded callback result and unconditional success status; no stack swap or test was run. Propagate the callback and postcondition failures after restoring task state and freeing the alternate stack. Source-only.
+
+<a id="ek11052"></a>
+## EK11052 — `vblank` test reads its interrupt-updated counter without synchronization
+
+`developer/debug/test/exec/vblank.c:14-24,36-40` declares `counter` as an ordinary static `int`, increments it from the `INTB_VERTB` interrupt handler, then repeatedly reads it from the main task while checking Ctrl-C. The counter is neither volatile nor atomic, and there is no other synchronization around the accesses.
+
+**Trigger and consequence:** run the test in a build where optimization reuses the main-loop value instead of reloading the asynchronously updated counter; the displayed count can remain stale or fail to reflect VBlank activity. **Affected configuration:** explicitly invoked `test-exec-public` on any target where the compiler performs that optimization; developer test, not default image (`developer/debug/test/exec/mmakefile.src:39-40,70-71`). **Confidence:** medium; the unsynchronized interrupt/task access is explicit, but no optimized build or runtime was checked. Use an appropriate volatile/atomic access or a synchronized snapshot. Source-only.
