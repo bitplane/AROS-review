@@ -17292,7 +17292,7 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[OD11531](AROS-other-drivers.md#od11531-ahi-v2-close-reads-v4-private-tail) — with AHI debug level Low or higher, closing a short V2 `AHI_NO_UNIT` request reads V4-only private data beyond the accepted request length. Conditional on a legacy short-structure client; source-only.**
 
-**[OD11532](AROS-other-drivers.md#od11532-controller-dispose-frees-queued-port-messages) — Controller HIDD disposal frees port-message storage while previously delivered event messages may still be queued at the client port. Conditional on disposing a port-mode consumer before all messages are replied; source-only.**
+**[OD11532](AROS-other-drivers.md#od11532-controller-dispose-frees-queued-port-messages) — Controller HIDD disposal can free consumer state while port messages remain queued or an ExecSMP event delivery still holds a raw consumer pointer. Conditional on disposal overlapping queued or in-flight delivery; source-only.**
 
 **[OD11533](AROS-other-drivers.md#od11533-nouveau-pci-attrbase-leak-on-bus-object-failure) — Nouveau PCI bridge initialization leaks its device and driver attribute-base references when PCI bus-object creation fails. Conditional on optional target initialization under allocation failure; source-only.**
 **[OD11534](AROS-other-drivers.md#od11534-threaded-irq-accepts-null-primary-handler) — threaded IRQ registration accepts a NULL primary handler, then calls through it when an interrupt arrives. Conditional on external/future thread-only API use in the optional Nouveau or VMware target; source-only.**
