@@ -11835,6 +11835,13 @@ The `CPUFAMILY_AMD_K9` case in `IdHardware(IDHW_CPU)` returns the string `"ADM_K
 
 **Trigger and consequence:** request an aligned offset absent from a valid FD table, or an entry omitted after a node-allocation failure. `IdFunction()` returns success with an empty function-name string; callers such as the Function tool treat the status as success and print the blank result (`workbench/libs/identify/tools/Function.c:124-134`). **Affected configuration:** clients of the explicitly built Identify library and the separately buildable Function tool. **Confidence:** high for the unreachable NULL test and ignored node-creation result; no FD query or allocation failure was run. Check the lookup result and propagate `IDERR_OFFSET` or a suitable allocation error. Source-only.
 
+<a id="ek11065"></a>
+## EK11065 — `IdEstimateFormatSize()` can under-size translated substitutions
+
+For every `$...$` substitution, `IdEstimateFormatSize()` adds `STRBUFSIZE`, which is 30 (`workbench/libs/identify/idestimateformatsize.c:89-103`; `identify_intern.h:33`). That bounds the internal numeric-format buffers, but catalog-backed `IdHardware()` results are returned directly from `GetCatalogStr()` (`locale.c:60-67`); the Identify catalog permits hardware strings up to 49 characters (`catalogs/Identify.cd:473-477`), and examples such as the graphics-system label use these catalog strings (`idhardware.c:352-356`). `IdFormatString()` measures the full substitution with `strlen()` but can only copy the remaining caller buffer (`idformatstring.c:246-257`).
+
+**Trigger and consequence:** format a catalog-backed tag whose active translation exceeds 30 characters, then allocate the output buffer using the documented `IdEstimateFormatSize()` result. The estimate is smaller than the formatted result, so `IdFormatString()` truncates the substitution and any following literal text at the supplied buffer limit. **Affected configuration:** callers of the explicitly built Identify library using an active catalog with a hardware string longer than 30 characters and the size estimator to allocate the output buffer. **Confidence:** high for the fixed estimate and bounded formatter copy; no long translation or formatting call was run. Size substitutions from the maximum possible returned text or provide a length-aware sizing contract. Source-only.
+
 <a id="ek8850"></a>
 ### EK8850 — Concurrent first DynModule loads can overwrite the only tracked handle [optional API; concurrent callers conditional]
 
