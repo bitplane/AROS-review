@@ -18841,3 +18841,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15343](AROS-graphics-desktop.md#gd15343)** — Non-root IconWindow location updates copy an unchecked string into the fixed 1,024-byte directory-path field, overwriting adjacent instance data for longer inputs. Conditional on a caller supplying a long path; source-only.
 
 **[GD15344](AROS-graphics-desktop.md#gd15344)** — IconDrawerList ignores `AddPart()` overflow; the unchanged parent path can make sidecar detection hide orphan icons and ordinary entries point at the drawer itself. Conditional on combined paths exceeding 512 bytes; source-only.
+
+**[GD15344](AROS-graphics-desktop.md#gd15344)** — IconDrawerList ignores `AddPart()` overflow; the unchanged parent path can hide orphan `.info` icons and make ordinary child entries load the parent icon/path. Conditional on a combined path exceeding the 512-byte buffer; source-only.
