@@ -22479,11 +22479,11 @@ The common cleanup routine closes reqtools.library if available and always calls
 **Trigger and consequence:** requester allocation fails or reqtools.library cannot open. Allocation failure is silent; library-open failure prints a diagnostic. In both cases the demo exits with status zero, so a caller relying on status cannot distinguish setup failure from normal completion. User cancellation remains a normal successful outcome. **Affected configuration:** the explicitly buildable `developer/demos/rtfont.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the zero exit status and allocation handling; low impact because this is an interactive example with no checked-in caller. No requester operation or build was run; source-only.
 
 <a id="gd15026"></a>
-## GD15026 — RTLong exits successfully when reqtools.library cannot open [conditional]
+## GD15026 — RTLong exits successfully when reqtools.library cannot open [low impact]
 
 The demo's `cleanup(msg)` closes reqtools.library if open and always exits with status zero (`developer/demos/rtlong.c:18-25`). `openlibs()` calls it after a failed library open (`:27-32`), so the program prints an error but reports success.
 
-**Trigger and consequence:** reqtools.library cannot be opened. The long-requester demo exits successfully without showing its requester. **Affected configuration:** the explicitly buildable `developer/demos/rtlong.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the error branch and exit status. Return a failure code from cleanup. No library failure, requester operation or build was run; source-only.
+**Trigger and consequence:** reqtools.library cannot be opened. The demo prints a diagnostic, then exits with status zero without showing the requester. A caller relying on process status cannot distinguish this setup failure from normal completion. **Affected configuration:** the explicitly buildable `developer/demos/rtlong.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the error branch and zero status; low impact because this is an interactive example with no checked-in caller. No library failure, requester operation or build was run; source-only.
 
 <a id="gd15027"></a>
 ## GD15027 — RTScreen exits successfully when reqtools.library cannot open [conditional]
