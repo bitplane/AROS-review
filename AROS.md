@@ -18660,7 +18660,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15261](AROS-graphics-desktop.md#gd15261-vulkan-hpp-platform-handle-info-wrappers-default-to-the-fd-handle-type)** — Ten Vulkan-Hpp Win32/Fuchsia fence, memory, and semaphore import/export structures default `handleType` to `eOpaqueFd`; omitted fields can make the platform operation fail. Conditional on downstream Vulkan-Hpp callers; source-only.
 
 
-**[GD15262](AROS-graphics-desktop.md#gd15262-vulkan-hpp-array-setters-can-desynchronize-shared-element-counts)** — Vulkan-Hpp setters independently update shared counts for paired arrays in semaphore waits, queue submission, descriptor-buffer offsets, swapchain time-domain queries, AV1 decode tiles, and Win32 keyed-mutex acquire/release arrays; mismatched lengths can make Vulkan read beyond the shorter array. Conditional on downstream enhanced-mode use; source-only.
+**[GD15262](AROS-graphics-desktop.md#gd15262-vulkan-hpp-setters-can-desynchronize-related-array-counts-and-lengths)** — enhanced setters can desynchronize paired array counts or lengths in semaphore waits, submissions, tensor operations, indirect commands, presentation, render-pass subpasses, AV1 decode, Win32 keyed mutexes, and other Vulkan-Hpp structures. Vulkan may read mismatched arrays or reject the structure. Conditional on downstream enhanced-mode use; source-only.
 
 
 **[GD15263](AROS-graphics-desktop.md#gd15263-vulkan-hpp-shadercreateinfoext-comparisons-can-pass-a-null-name-to-strcmp)** — `ShaderCreateInfoEXT` equality/ordering can call `strcmp` with its default null `pName`; conditional on downstream wrapper comparisons. Source-only.
@@ -18673,6 +18673,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[GD15266](AROS-graphics-desktop.md#gd15266-vulkan-hpp-surface-present-mode-query-defaults-to-optional-immediate-mode)** — surface-capability queries default their chained present-mode selector to optional `eImmediate`; a FIFO-only surface may reject or fail that query. Conditional on downstream Vulkan-Hpp use; source-only.
 
-**[GD15267](AROS-graphics-desktop.md#gd15267-vulkan-hpp-acceleration-structure-setters-can-populate-both-geometry-representations)** — enhanced geometry setters can leave both alternative geometry pointers populated and overwrite their shared count; acceleration-structure build wrappers forward the invalid structure. Conditional on downstream setter/API use; source-only.
+**[GD15267](AROS-graphics-desktop.md#gd15267-vulkan-hpp-setters-can-leave-mutually-exclusive-array-representations-active)** — enhanced acceleration-structure and micromap setters can leave mutually exclusive array pointers populated; build wrappers forward the invalid structures. Conditional on downstream setter/API use; source-only.
 
 **[GD15268](AROS-graphics-desktop.md#gd15268-vulkan-hpp-descriptor-write-setters-can-populate-multiple-data-arrays)** — enhanced descriptor-write setters can populate multiple alternative data arrays and overwrite their shared count; `vkUpdateDescriptorSets` forwards the invalid structure. Conditional on downstream setter/API use; source-only.
