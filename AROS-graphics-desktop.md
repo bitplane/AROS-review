@@ -24457,3 +24457,26 @@ For ordinary non-HAM/non-EHB images, `setScreenColors()` computes `numColors = 1
 **Trigger and affected configuration:** build/run the explicit `2View` demo target (`developer/demos/2View/mmakefile.src:6-16`) with a non-HAM, non-EHB ILBM of depth six or greater, on a system where the requested screen opens. The target is a developer demo, not part of the parent demos aggregate. **Consequence:** writes beyond both fixed palette arrays corrupt adjacent global storage before the palette is loaded; subsequent demo behavior is unreliable. **Suggested correction:** size both arrays for the maximum accepted depth or reject unsupported depths before palette conversion.
 
 **Source-only evidence:** `developer/demos/2View/Misc.c:67-100,107-138`; `developer/demos/2View/2View.c:164-165,511-561`; `developer/demos/2View/read.c:18,86-88`; `developer/demos/2View/mmakefile.src:6-16`. No image was loaded, screen opened, or build run.
+
+
+## GD15279 — 2View color-cycle records overrun the 32-entry cycle table
+
+**Severity / confidence:** High confidence stack-buffer overwrite and missed-cycle boundary case; conditional on an oversized cycle range in the explicitly buildable demo.
+
+`ReadAndDisplay()` declares `UBYTE cycleTable[32]` (`developer/demos/2View/2View.c:398`). Before opening the screen, it passes that array to `interpretCRNG()` or `interpretDRNG()` based on the file's stored color-cycle property (`2View.c:497-503`). `interpretCRNG()` writes one byte per entry in the inclusive `low..high` range, without checking the table capacity (`developer/demos/2View/Misc.c:385-417`); `interpretDRNG()` similarly writes `nregs` entries (`:419-445`). Both counts come from byte-sized fields and can exceed 32. For a six-plane palette, a CRNG range of 33 colors is within the 64-register palette but writes one byte beyond the local array. An active DRNG with more than 32 registers has the same issue. The write happens before screen creation, so later screen-open failure does not prevent it.
+
+The CRNG count is itself stored in `UBYTE`; a full 256-entry range wraps to zero at `length=high-low+1` and is treated as having no colors to cycle.
+
+**Trigger and affected configuration:** run the explicitly built `2View` demo on a six-plane image with an active CRNG covering at least 33 valid palette registers, or a DRNG with more than 32 register entries. **Consequence:** cycle-record parsing writes beyond the stack array; a full 256-color CRNG range is silently disabled. **Suggested correction:** bound the accepted ranges to the array capacity or allocate the table according to the accepted palette and reject out-of-range indices.
+
+**Source-only evidence:** `developer/demos/2View/2View.c:398,497-503`; `developer/demos/2View/Misc.c:385-445`; `developer/demos/2View/2View.h:23-45`. No image or cycle record was loaded, and no build was run.
+
+## GD15280 — 2View truncates a playlist filename when the final line has no newline
+
+**Severity / confidence:** High confidence; a final playlist entry without a trailing LF is opened with its last character missing.
+
+Both playlist-reading paths call `FGets()` and then unconditionally replace `picFilename[strlen(picFilename)-1]` with NUL, assuming the final character is a linefeed (`developer/demos/2View/2View.c:300-314,346-358`). DOS `FGets()` explicitly returns buffered characters when EOF arrives after a partial line, without adding a newline (`rom/dos/fgets.c:21-53`). Therefore a conventional playlist whose final filename is not newline-terminated loses the filename's last character. `Open()` then receives the truncated path and the program reports that it cannot open the picture (`2View.c:326-333`).
+
+**Trigger and affected configuration:** use the 2View playlist option with a readable playlist whose final non-empty path is not followed by LF. **Consequence:** the final picture cannot be found under its intended filename and the viewer exits through the open-failure path. **Suggested correction:** remove a trailing LF only when it is present.
+
+**Source-only evidence:** `developer/demos/2View/2View.c:300-358,326-333`; `rom/dos/fgets.c:21-53`; the demo is an explicit target in `developer/demos/2View/mmakefile.src:6-16`. No playlist or file was opened and no build was run.
