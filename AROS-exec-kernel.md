@@ -11793,6 +11793,20 @@ The selected `openlib` test returns zero whether `ReadArgs()` fails or `OpenLibr
 
 **Trigger and consequence:** during a QuickPart drive scan, object creation succeeds for exactly one of the disk row or spacer group. The drive is omitted from the displayed list and the surviving unattached MUI object remains allocated; repeated failures can accumulate object and child allocations. **Affected configuration:** the QuickPart target when built and run; the complete Workbench target selects it (`workbench/tools/mmakefile.src:8-12`) and it can also be explicitly built (`workbench/tools/QuickPart/mmakefile.src:7-20`). **Confidence:** high for the unchecked pair and missing disposal; no allocation failure or GUI operation was induced. Dispose whichever object was created when its pair cannot be completed. Source-only.
 
+<a id="ek11059"></a>
+## EK11059 — `IdHardware()` ignores the request for English strings
+
+`IdHardware()` reads `IDTAG_Localize` into `localize`, but the only subsequent use is an empty `if (localize)` block (`workbench/libs/identify/idhardware.c:260-271`). The formatting and enumeration paths still call `_()` for catalog-backed strings, including chipset, graphics-system, audio-system, OS, RAM-CAS and size/version labels (`:345-348,356-365,477-489,518-607`). The selected `_()` helper returns the translated `GetCatalogStr()` value whenever LocaleBase and the Identify catalog are available (`workbench/libs/identify/locale.c:48-66`), and `Locale_Initialize()` opens that catalog (`:71-83`).
+
+**Trigger and consequence:** a client calls `IdHardware()` with `IDTAG_Localize=FALSE` while a non-English Identify catalog is loaded. The function still returns localized catalog text, contrary to the documented request for English strings. **Affected configuration:** clients of an explicitly built `identify.library` with an active translated catalog; the library is selected by `workbench/libs/identify/mmakefile.src:10-17,50-53`. A repository search found no checked-in `IdHardware()` caller that supplies `IDTAG_Localize`; this is a public-API behavior defect with external-caller reachability. **Confidence:** high for the ignored tag and catalog path; no catalog or library call was run. Select the built-in English string when the tag is FALSE. Source-only.
+
+<a id="ek11060"></a>
+## EK11060 — `IdHardware(IDHW_CPU)` mislabels AMD family 0x0f as `ADM_K9`
+
+The `CPUFAMILY_AMD_K9` case in `IdHardware(IDHW_CPU)` returns the string `"ADM_K9"` (`workbench/libs/identify/idhardware.c:302-309`). The selected PC processor-family helper maps CPUID family 0x0f to `CPUFAMILY_AMD_K9` (`arch/all-pc/processor/processor_util.c:111-122`), and the selected provider writes that value to `GCIT_Family` (`arch/all-pc/processor/getcpuinfo.c:95-102`; `arch/all-pc/processor/mmakefile.src:7-17`).
+
+**Trigger and consequence:** query `IdHardware(IDHW_CPU)` on an AMD PC processor whose decoded family is 0x0f. The returned CPU label is misspelled as `ADM_K9`, so callers receive an incorrect identifier string. **Affected configuration:** the explicitly built Identify library on PC targets using the selected `arch/all-pc/processor` provider; no default-image inclusion is claimed. **Confidence:** high for the family mapping and returned literal; no processor query was run. Correct the label to `AMD_K9`. Source-only.
+
 <a id="ek8850"></a>
 ### EK8850 — Concurrent first DynModule loads can overwrite the only tracked handle [optional API; concurrent callers conditional]
 
