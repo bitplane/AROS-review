@@ -14173,6 +14173,10 @@ These existing coverage-ledger candidates now have detailed finding entries; thi
 
 **[OD9835](AROS-other-drivers.md#od9835) — USB MassStorage ignores `CreateNewProc()` and `AddBootNode()` failures, leaving a volume unregistered without recovery.** Conditional on process creation or boot-node registration failure. Source-only.
 
+**[OD9836](AROS-other-drivers.md#od9836)** — USB MassStorage can publish a dead GUI-task pointer if the child exits during early startup before spawn returns. Conditional on an early GUI library-open failure and cross-CPU scheduling on ExecSMP. Source-only.
+
+**[OD9838](AROS-other-drivers.md#od9838)** — m68k LowLevel timer removal can overwrite a concurrently registered timer bit, leaving the new vector and Start/Stop hardware selection inconsistent. Requires a direct client and task preemption. Source-only.
+
 ## Other Drivers findings reconciled into the index (2026-11-02)
 
 **[OD1821](AROS-other-drivers.md#od1821) — Trident config replacement can remove existing device/interface settings before a fallible copy, or leave partial/duplicate Poseidon forms, while the drag reports success. Conditional on a replacement-time failure; optional Trident Preferences target. Source-only.**

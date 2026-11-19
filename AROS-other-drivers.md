@@ -43125,6 +43125,25 @@ When DOS is available, `USBMSS_AddVolume()` calls `CreateNewProc(tags)` but disc
 
 **Trigger and consequence:** process creation fails after node construction while DOS is available, or pre-DOS BootNode registration fails. In either case the volume is left without the corresponding automounter/boot-list registration, and unit setup proceeds without reporting or retrying that failure. **Affected configuration:** the selected USB MassStorage module on configurations using either startup branch, including Raspberry Pi ARM and AArch64 package builds; manifestation requires process/resource or registration failure. **Confidence:** high for the discarded return values and missing caller recovery; the failure itself is conditional. Check each result, unwind any unpublished node state, and propagate an actionable status to unit setup. No process failure, registration attempt, device or build was induced; source-only.
 
+
+<a id="od9836"></a>
+## OD9836 — USB MassStorage can retain a dead GUI task pointer after early child exit [ExecSMP; conditional]
+
+`nOpenBindingCfgWindow()` checks `ncm_GUITask`, calls `psdSpawnSubTask()`, and assigns its returned task pointer only after that call returns (`rom/usb/classes/massstorage/massstorage.class.c:1021-1035`). The caller wraps this sequence in `Forbid()`, but on ExecSMP that prevents scheduling only on the caller's CPU. The child may therefore start on another CPU before the parent assignment. `nGUITask()` has several early library-open failure exits that call `nGUITaskCleanup()`; cleanup sets `ncm_GUITask = NULL` and returns (`:5411-5455,6382-6410`). If one of those exits happens before `psdSpawnSubTask()` returns, the parent then overwrites NULL with the pointer to the already-finished task.
+
+Later GUI-open and interface-release paths use `ncm_GUITask` as the task's live-state marker: another open can decline to start a replacement, and release can signal the stale task pointer (`:708-712,1021-1035`). The class binding can consequently lose its GUI until another lifecycle path clears the stale value; release may also signal a task that has already exited.
+
+**Trigger and consequence:** on an ExecSMP system, a MassStorage GUI child exits during one of its initial library opens before `psdSpawnSubTask()` returns to the parent. The post-spawn assignment then publishes a dead task pointer after child cleanup cleared the field. **Affected configuration:** the USB MassStorage class when its GUI-open path is used on ExecSMP; occurrence requires early GUI startup failure and cross-CPU scheduling in the spawn window. **Confidence:** high for the parent/child publication ordering and cleanup writes; the required timing and startup failure are conditional. Publish startup state through a handshake that cannot be overwritten by a child exit, or serialize parent publication with child cleanup. No GUI, task interleaving, device or build was run; source-only.
+
+<a id="od9838"></a>
+## OD9838 — m68k LowLevel timer removal can overwrite a concurrent re-registration [conditional]
+
+The m68k `AddTimerInt()` path obtains `ll_Lock`, checks that the shared CIA interrupt object's `is_Code` is NULL, publishes the callback, and selects timer A or B with `FindFreeTimer()` (`arch/m68k-amiga/lowlevel/addtimerint.c:39-61`). `RemTimerInt()` does not take that semaphore. It calls `RemICRVector()`, then clears `is_Code`, then stores `llciat_iCRBit = -1` (`remtimerint.c:20-25`). `RemICRVector()` reenables interrupts before returning (`arch/m68k-amiga/cia/remicrvector.c:28-43`), leaving the LowLevel field updates exposed to task preemption.
+
+If removal is preempted after clearing `is_Code` but before storing `-1`, a new `AddTimerInt()` can pass its NULL check and publish a fresh vector and timer selection. When removal resumes, it overwrites the new timer selection with `-1`. `StartTimerInt()` selects timer A only for the exact A bit and otherwise selects timer B; `StopTimerInt()` uses the same A-versus-B fallback (`starttimerint.c:32-69`; `stoptimerint.c:24-33`). Thus the new vector can be registered on A while subsequent start/stop operations act on B, leaving the callback and hardware timer state inconsistent.
+
+**Trigger and consequence:** an external/direct client removes and re-adds the LowLevel timer interrupt across a task preemption in this short window, then starts or stops the new handle. The checkout contains no in-tree caller of these public APIs beyond the generic unimplemented stubs, so an in-tree trigger is not established. **Affected configuration:** the m68k-Amiga LowLevel CIA timer implementation; it requires a direct API client, available task preemption and successful timer re-registration. **Confidence:** high for the unsynchronized field ordering and the A/B fallback behavior; the interleaving and subsequent timer use are conditional. Protect removal and registration's shared callback/bit state with the same synchronization, including the vector operation. No timer task switch or hardware behavior was induced; source-only.
+
 <a id="od2904"></a>
 ## OD2904 — OHCI `CreatePipe()` dereferences failed internal allocations [optional HIDD]
 
