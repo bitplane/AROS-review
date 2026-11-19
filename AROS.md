@@ -18849,5 +18849,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **GD15345 follow-up:** FIB-allocation and initial `Examine()` failures also leave the refreshed drawer empty without an error; the existing list is cleared before these scan steps. See the [graphics/desktop report](AROS-graphics-desktop.md#gd15345).
 
 **[GD15346](AROS-graphics-desktop.md#gd15346)** — IconDrawerList frees its current drawer path before duplicating a replacement; allocation failure then clears the list and leaves the window blank without a failure result. Conditional on low memory during a location change; source-only.
+**[GD15347](AROS-graphics-desktop.md#gd15347)** — IconVolumeList silently skips a volume after per-entry pool allocation failure, then removes its existing icon while reporting a successful refresh. Conditional on allocation failure; source-only.
 
 **GD15346 follow-up:** the constructor also leaves a live IconDrawerList without its requested drawer when the initial `StrDup()` fails. See the [graphics/desktop report](AROS-graphics-desktop.md#gd15346).
