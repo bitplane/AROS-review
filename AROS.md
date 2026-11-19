@@ -18692,6 +18692,10 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[EK11030](AROS-exec-kernel.md#ek11030)** — With MungWall enabled on 64-bit builds, non-cleared allocations of 16 GiB or more can miss some or all of the debug poison fill because its word counter is 32-bit. This limits MungWall diagnostics for very large allocations; no application correctness defect is established. Source-only.
 
+**[EK11032](AROS-exec-kernel.md#ek11032)** — m68k `feholdexcept()` returns success after saving the software environment but leaves its active exception flags set. Source-only; no fenv call or build was run.
+
+**[EK11033](AROS-exec-kernel.md#ek11033)** — m68k `feraiseexcept()` returns success and may set `errno` without setting the software exception flags; `feupdateenv()` relies on this routine to re-raise them. Source-only; no fenv call or build was run.
+
 
 
 **[OD1160](AROS-other-drivers.md#od1160)** — Efika `ReadBattClock()` ignores a missing RTAS `get-time-of-day` token result and converts uninitialized stack output. An invalid month can read outside `Date2Amiga()`'s month table, and `SetClock LOAD` can install the resulting time. Conditional on the Efika RTAS token being absent; source-only. See the [caller trace](AROS-other-drivers-coverage.md#efika-rtas-clock-result-od1160).
