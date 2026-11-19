@@ -24901,3 +24901,13 @@ When no manager port exists, `VMM_InitLib()` allocates `VM_INIT_MSG` before load
 **Trigger and consequence:** explicitly open the optional VMM library when no VMM manager is running and cause `NewLoadSeg("L:VMM-Handler", ...)` to fail (or cause manager process creation to fail). Each failed library initialization leaks its allocated `sizeof(struct VMMsg)` buffer; repeated attempts can accumulate leaked public memory. **Affected configuration:** standalone `workbench-system-vmm-library`; aggregate inclusion remains disabled. **Confidence:** high for the allocation and missing free on both exits. Free the message on each pre-transfer failure path. No load, process-creation failure or build was induced; source-only.
 
 **Source-only evidence:** `workbench/system/VMM/vmm.lib/vmm_init.c:41-83`; legacy cleanup comparison `workbench/system/VMM/vmm.lib/vmm_lib.asm:218-240`.
+
+
+<a id="gd15330"></a>
+## GD15330 — Legacy VMM allocation clears through address zero after allocation failure [legacy target]
+
+The checked-in legacy `workbench/system/VMM/vmm.lib/makefile` builds `vmm.library` from `vmm_lib.asm`. In that implementation, `AllocVMem()` saves the result of `Allocate()` in `a0`, restores the requested size and attributes, then enters `ClearLoop` whenever `MEMF_CLEAR` is set without first checking whether `a0` is NULL (`vmm_lib.asm:299-323`). Exec's `Allocate()` returns NULL when the memory header cannot satisfy the request (`rom/exec/allocate.c:129-140`); the VMM library documentation also says zero is returned on allocation failure and callers must check it (`doc/english/vmm_lib.doc:20-46`). Thus the clear loop writes zero longwords starting at address zero, advancing through the requested size, before `AllocVMem()` can return NULL.
+
+**Trigger and consequence:** build/use the legacy assembly `vmm.library` target, request `AllocVMem(size, MEMF_CLEAR)`, and make the VMM memory header unable to satisfy `size`. The unchecked failure can fault or overwrite low memory while clearing, instead of returning NULL as documented. **Affected configuration:** only the legacy `makefile`/assembly implementation; the current MetaMake library target selects the C implementation files and is covered separately by GD15328. **Confidence:** high for the NULL return and unconditional clear loop; exact low-address behavior depends on the target memory map and address-zero mapping. Check the allocation result before entering the clear loop. No allocation or build was run; source-only.
+
+**Source-only evidence:** `workbench/system/VMM/vmm.lib/{makefile:1-37,vmm_lib.asm:299-327}`, `rom/exec/allocate.c:129-140`, `workbench/system/VMM/doc/english/vmm_lib.doc:20-46`.
