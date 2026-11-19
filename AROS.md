@@ -18821,3 +18821,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11764](AROS-other-drivers.md#od11764)** — SB128 playback can miss refilling a DMA half-buffer when another completion arrives while its once-only soft interrupt is queued. Conditional on interrupt latency; selected only with `HAVE_ASMIO`. Source-only.
 
 **[EK11054](AROS-exec-kernel.md#ek11054) — DynModule can return a handle while a concurrent final close is tearing down that same module.** Optional `linklibs-dynmod` API; conditional on overlapping load/free calls for one port. Source-only.
+
+**[GD15337](AROS-graphics-desktop.md#gd15337)** — A custom input subsystem can declare an event size that wraps to 1–8 bytes, causing the pre-consumer replay buffer to deliver only a prefix. Optional input HIDD; no checked-in oversized caller. Source-only.
