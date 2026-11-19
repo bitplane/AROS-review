@@ -18674,3 +18674,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15275](AROS-graphics-desktop.md#gd15275-vgagfx-byte-aligned-refresh-can-read-before-a-panned-bitmap)** — a non-byte-aligned positive VGAGfx pan offset can make an area refresh read outside a smaller bitmap buffer. Conditional on a displayable bitmap narrower than the 640-pixel mode. Source-only.
 
 
+
+**[OD11750](AROS-other-drivers.md#od11750-controller-consumer-queues-race-across-cpus) — Controller signal/message consumer queues use CPU-local `Disable()` only; concurrent ExecSMP producers can race queue state. Conditional on the explicit controller target, queued subsystem consumer, and concurrent producer contexts; source-only.
