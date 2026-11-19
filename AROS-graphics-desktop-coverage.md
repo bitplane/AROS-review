@@ -860,7 +860,7 @@ Current table-only line-read refresh (2026-10-24): reparsed the three current co
 | `rom/intuition/closescreen.c` | 253 | Full body reviewed |
 | `rom/intuition/closewindow.c` | 283 | Full body reviewed |
 | `rom/intuition/closeworkbench.c` | 99 | Full body reviewed; GD5783 |
-| `rom/intuition/currenttime.c` | 17 | Full body reviewed; timestamp callers sampled |
+| `rom/intuition/currenttime.c` | 17 | Full body reviewed; all eight direct `rom/intuition` callers traced across `activatewindow.c`, `inputhandler.c`, `inputhandler_actions.c`, and `inputhandler_support.c`. Each supplies distinct writable seconds/microseconds fields in an `IntuiMessage` or `InputEvent` timeval; no internal caller defect found. Other repository callers remain outside this scoped pass. |
 | `rom/intuition/displayalert.c` | 60 | Full body reviewed |
 | `rom/intuition/displaybeep.c` | 172 | Full body reviewed |
 | `rom/intuition/disposeobject.c` | 19 | Full body reviewed |
