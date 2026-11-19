@@ -15252,6 +15252,7 @@ stdc floating string conversion full-body and wrapper pass (EK10765; four select
 | `compiler/crt/stdc/strtof.c` | 5 | Full body read; delegates to `strtod()`, inheriting EK10765. |
 | `compiler/crt/stdc/strtold.c` | 8 | Full body read; delegates to `strtod()`, inheriting EK10765. |
 | `compiler/crt/stdc/strtoul.c` | 90 | Full 190-line body read; base selection, sign handling, cutoff overflow, `endptr` and errno paths checked. EK10766 remains a standards-contract question for negative-magnitude overflow; no additional defect established. |
+| `compiler/crt/stdc/strtol.c` | 53 | Full 115-line body read; whitespace, no-conversion end pointer, signed range checks and unsigned-to-signed boundary handling checked against `strtoul()`. No independent defect established; EK10766's unsigned overflow contract remains unresolved. |
 | `compiler/crt/stdc/strtoull.c` | 94 | Full 189-line body read; long-long base selection, sign handling, cutoff overflow, `endptr` and errno paths checked. EK10766 remains a standards-contract question for negative-magnitude overflow; no additional defect established. |
 
 
@@ -18011,3 +18012,6 @@ DynModule concurrent final-close/load caller trace (EK11054 added; no body/path/
 
 
 `strtoull()` full-body and caller-contract pass (one newly credited selected body, 94 `cloc 2.06` C code lines; 2026-11-19): confirmed selection in `STDC_COMMON` and the implementation's `AROS_HAVE_LONG_LONG` guard (`compiler/crt/stdc/mmakefile.src:627-695`; `compiler/crt/stdc/strtoull.c:7-10,188`). Read the complete body in source order; checked the long-long overflow cutoff, invalid base, optional prefix, sign conversion, errno, and end-pointer behavior against `strtoul()`. The native-width and `strtoull()` paths share the already recorded EK10766 negative-magnitude overflow contract question; no separate defect was established. The `strtoll()`/`strtoumax()` wrappers were cross-checked for their delegation and sign/range handling. No test, conversion, or build was run; source-only.
+
+
+`strtol()` full-body and signed-boundary pass (one newly credited selected body, 53 `cloc 2.06` C code lines; 2026-11-19): confirmed `strtol` is selected alongside `strtoul` in the shared C runtime (`compiler/crt/stdc/mmakefile.src:627-695`). Read the complete body in source order and traced its no-conversion path, original-input `endptr` restoration, sign check after whitespace, and signed-boundary saturation through `strtoul()`'s modulo-negated unsigned result. Checked positive LONG_MAX+1, negative LONG_MIN magnitude, and magnitudes beyond ULONG_MAX at the source arithmetic level; no independent mismatch established for the maintained two's-complement targets. The negative unsigned-magnitude overflow standards ambiguity remains EK10766 and is not promoted as a separate `strtol` finding. No conversion or build was run; source-only.
