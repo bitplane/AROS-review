@@ -24772,11 +24772,11 @@ The GUI reads the Match name string into `setup.pattern` (`workbench/system/Snoo
 
 ## GD15314 — Snoopy prints pointer-valued OpenDevice units as integers
 
-`New_OpenDevice()` accepts `unitNumber` as `IPTR`, and the source explicitly notes that it can be a pointer, but formats it with `%d` as `Unit %d` (`workbench/system/Snoopy/patches.c:838-865`). When a device uses a pointer-valued unit, the diagnostic presents the value as an integer unit number; on wider pointer builds the format argument also has the wrong width.
+`New_OpenDevice()` accepts `unitNumber` as `IPTR`, and the source explicitly notes that it can be a pointer, but formats it with plain `%d` as `Unit %d` (`workbench/system/Snoopy/patches.c:838-865`). In AROS `RawDoFmt`, the default integer size is `WORD` (`rawdofmt.c:189-193`); `%d` fetches that signed word (`:118-121,300-306`). The `IPTR` argument is therefore narrowed to 16 bits before logging on both narrow and wide pointer targets. A pointer-valued unit or numeric unit outside the signed 16-bit range is misreported.
 
-**Trigger and affected configuration:** enable Snoopy's OpenDevice monitor and open a device whose unit argument is a pointer rather than a numeric unit. **Consequence:** the log misidentifies the unit passed to the device, reducing the accuracy of the monitor output. **Suggested correction:** format the `IPTR` with a pointer-width-safe representation and distinguish pointer units from numeric unit indices.
+**Trigger and affected configuration:** enable Snoopy's OpenDevice monitor and call `OpenDevice()` with a unit value that does not fit in signed 16 bits; the source comment explicitly permits pointer-valued units, though no maintained pointer-valued caller was established in this pass. **Consequence:** the log shows a truncated unit value, reducing the accuracy of the monitor output. **Suggested correction:** format the `IPTR` with a pointer-width-safe representation and distinguish pointer units from numeric unit indices.
 
-**Confidence:** high for the formatting mismatch, conditional on a pointer-valued unit caller. No device was opened.
+**Confidence:** high for the `%d`-to-`WORD` truncation; practical reachability depends on a selected device call with a wider unit value. No device was opened.
 
 ## GD15315 — Find exits successfully after command-line or startup errors
 
