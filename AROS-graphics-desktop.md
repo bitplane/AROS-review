@@ -24739,3 +24739,19 @@ The initial clock read stores both seconds and microseconds in `oldtimeval` (`de
 **Trigger and affected configuration:** construct and dispose a PrefsEditor subclass that supplies `MUIA_PrefsEditor_IconTool`; this is the normal path for multiple checked-in Preferences applications. **Consequence:** one allocated string remains unreleased per assignment until process exit; repeated editor creation/destruction grows the leak. **Suggested correction:** free `ped_IconTool` in OM_DISPOSE, alongside `ped_Name` and `ped_Path`.
 
 **Source-only evidence:** `workbench/classes/zune/prefseditor/prefseditor.c:145-155,200-203`; `prefseditor.conf:15-30`; maintained caller examples above. No Preferences application or allocation behavior was run.
+
+## GD15310 — Snoopy Cancel leaves the application controls disabled when removal is declined
+
+After the first Cancel confirmation returns Yes, `cancel_function()` disables Save, Open, Use, Undo, Reset and Cancel, resets the patches, and asks a second confirmation before quitting (`workbench/system/Snoopy/gui.c:121-133`). If the user answers No to the second prompt, the hook returns without re-enabling those controls or requesting application quit. The window's close gadget is also disabled (`gui.c:157-160`). The app therefore remains open with no enabled control to leave or restore its patch state.
+
+**Trigger and affected configuration:** in the selected Snoopy GUI, accept the reset-patches prompt and decline the subsequent remove-Snoopy prompt. **Consequence:** the application stays open with its action buttons disabled and patches already reset. **Suggested correction:** on a declined removal prompt, either quit consistently with the reset state or restore the controls and provide a usable recovery path.
+
+**Source-only evidence:** `workbench/system/Snoopy/gui.c:111-134,157-160`; no GUI interaction or patch operation was run.
+
+## GD15311 — Snoopy's Match name pattern is omitted from preference load and save
+
+The GUI reads the Match name string into `setup.pattern` (`workbench/system/Snoopy/gui.c:386-388`), and the save hook calls `gui_get()` followed by `setup_save()` (`:40-45`). But `setup_save()` explicitly leaves pattern serialization as a TODO, and `setup_open()` likewise leaves pattern parsing as a TODO (`workbench/system/Snoopy/setup.c:176-177,234-237`). The Snoopy README describes this control as a pattern filter and lists “Load/Save match pattern” (`workbench/system/Snoopy/README:24,34`). The filter works during the current session, but its value is lost after Save/restart and is never restored from a preferences file.
+
+**Trigger and affected configuration:** set a nonempty Match name pattern and use Save, then restart Snoopy or use Open. **Consequence:** the selected filter is not persisted or loaded, despite the documented setting. **Suggested correction:** serialize and parse the pattern in the preferences file, preserving its spaces and checking its length.
+
+**Source-only evidence:** `workbench/system/Snoopy/gui.c:40-45,386-388`; `workbench/system/Snoopy/setup.c:176-177,234-237`; `workbench/system/Snoopy/README:24,34`. No preferences file or GUI action was run.
