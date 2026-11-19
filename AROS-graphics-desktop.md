@@ -8130,9 +8130,9 @@ This identifier repeated GD5858's unchecked `IconList_Drop_SourceEntry` allocati
 
 ## GD6249
 
-**Indexed summary:** Wanderer passes a failed argument-file lock to `ParentDir()`.
+**Wanderer calls `ParentDir()` with a failed selected-argument lock.** While building the Workbench argument tags for a selected executable, `Wanderer__HookFunc_ActionFunc()` calls `Lock()` for each other selected icon, immediately passes the result to `ParentDir()`, and only afterward calls `UnLock(argLock)` (`workbench/system/Wanderer/wanderer.c:577-581`). `Lock()` returns `BNULL` when it cannot lock the named object (`rom/dos/lock.c:63-75`). `ParentDir()` converts the supplied BPTR with `BADDR()` and dereferences `fl->fl_Task` without checking for `BNULL` (`rom/dos/parentdir.c:52-56`), so a failed argument lock reaches a null dereference before the subsequent null-safe unlock or Workbench argument filtering can run. The report's separate GD5897 covers failure to allocate the tag list; this finding is the per-argument `Lock()` failure path.
 
-**Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L2136`](AROS-graphics-desktop-coverage.md#L2136). Recheck the cited note and its scope before treating this candidate as confirmed.
+**Affected configuration and trigger:** Wanderer opens a selected executable with at least one other selected icon as an argument, and `Lock()` fails for one of those argument paths (for example, the object disappears or becomes inaccessible after it was listed). **Consequence:** null dereference in `ParentDir()` interrupts the open action before Workbench receives the arguments. **Confidence:** high for the unchecked return and null-unsafe callee; the filesystem race or access failure was not induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
 ## GD6250
 
