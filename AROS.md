@@ -18659,6 +18659,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11749](AROS-other-drivers.md#od11749-controller-bound-consumers-receive-device-removed-twice) — a device-bound controller consumer receives `DeviceRemoved` twice when its driver is removed.** Default event mask; explicit optional controller target; source-only.
 **[OD11750](AROS-other-drivers.md#od11750-controller-consumer-can-attach-to-disposed-device) — concurrent controller removal can dispose the target while a device-bound consumer is being created.** Conditional on ExecSMP and overlapping external/alternate calls to the explicit controller target; source-only.
 
+**[OD11751](AROS-other-drivers.md#od11751-controller-standard-mapping-ignores-axis-binding-flags) — controller standard mappings ignore input inversion and half-axis flags.** Conditional on external mappings using these flags in the explicit controller target; source-only.
+
 
 **[GD15261](AROS-graphics-desktop.md#gd15261-vulkan-hpp-platform-handle-info-wrappers-default-to-the-fd-handle-type)** — Ten Vulkan-Hpp Win32/Fuchsia fence, memory, and semaphore import/export structures default `handleType` to `eOpaqueFd`; omitted fields can make the platform operation fail. Conditional on downstream Vulkan-Hpp callers; source-only.
 
