@@ -44249,11 +44249,9 @@ Each class copies the generated Poseidon device-ID string into a 128-byte field 
 **Trigger and consequence:** two otherwise distinct USB device IDs exceed 127 characters and share the same first 127 bytes, for example because unique serial suffixes occur after the truncation point. The second binding can be treated as the existing unit and start another worker against its state, replacing the saved task pointer and mixing device/interface resources; later release can then leave a worker or resources unmatched. **Affected configuration:** any of the eight selected USB Ethernet class drivers with colliding long generated device IDs and overlapping bindings. **Confidence:** high for truncation, key comparison, and absent live-task guard; whether real descriptors produce such IDs and the resulting worker interleaving were not tested. Preserve the complete ID or use a collision-resistant key, and reject/reconcile a bind when the matched unit already has a live worker. Source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
 
 <a id="od3386"></a>
-## OD3386 — LAN78xx Open failure leaves the unit's exclusive-open flag set
+## OD3386 — Withdrawn as duplicate of OD11726
 
-LAN78xx sets `ncp_OpenFlags` from the requested Open flags before allocating the caller's `BufMan`. If that allocation fails, it returns `IOERR_OPENFAIL` without clearing the flag (`rom/usb/classes/lan78xx/dev.c:98-105,134-146`). The other seven USB Ethernet device layers have a different allocation-failure defect recorded separately as OD3397.
-
-**Trigger and consequence:** a LAN78xx Open requests exclusive ownership (`SANA2OPF_MINE`) and `BufMan` allocation fails. Open returns failure, but the unit retains MINE; a subsequent Open is rejected as busy even though the failed call never established an opener. **Affected configuration:** LAN78xx with a tag list and an allocation failure after the Open flag is set. **Confidence:** high from the order of assignments and failure return; no allocation failure or Open was induced. Roll back `ncp_OpenFlags` on every failed Open path. Source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
+OD3386 and OD11726 describe the same LAN78xx failed-Open rollback defect: `devOpen()` sets unit-wide flags before the fallible BufMan allocation, then returns failure without restoring those flags. OD11726 includes the exact exclusive-open trigger, the stale `SANA2OPF_MINE` busy consequence, and persistence of other requested flags. No separate OD3386 defect is asserted; see [OD11726](AROS-other-drivers.md#od11726). OD11725 remains distinct because its sibling vectors report Open success with an invalid BufMan pointer.
 
 <a id="od3387"></a>
 ## OD3387 — Withdrawn as duplicate of OD11724
