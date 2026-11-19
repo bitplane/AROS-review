@@ -17453,7 +17453,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15020](AROS-graphics-desktop.md#gd15020) — RoundShape reports success after setup failures. Conditional on a failed setup call. Source-only.**
 **[GD15021](AROS-graphics-desktop.md#gd15021) — RoundWindow hook accepts the old shape when allocation fails. Conditional on shape-region allocation failure. Source-only.**
 **[GD15022](AROS-graphics-desktop.md#gd15022) — RoundWindow reports success after setup failures. Conditional on a failed setup call. Source-only.**
-**[GD15023](AROS-graphics-desktop.md#gd15023) — ReqEZRequest demo exits successfully when reqtools.library cannot open. Conditional on library-open failure. Source-only.**
+**[GD15023](AROS-graphics-desktop.md#gd15023) — ReqEZRequest demo exits successfully when reqtools.library cannot open. Low impact; explicit demo target with no checked-in caller. Source-only.**
 **[GD15024](AROS-graphics-desktop.md#gd15024) — RTFile exits successfully if requester allocation or reqtools.library setup fails; user cancellation is normal. Low impact; explicit demo target. Source-only.**
 **[GD15025](AROS-graphics-desktop.md#gd15025) — RTFont exits successfully if requester allocation or reqtools.library setup fails; user cancellation is normal. Low impact; explicit demo target. Source-only.**
 **[GD15026](AROS-graphics-desktop.md#gd15026) — RTLong exits successfully if reqtools.library cannot open. Low impact; explicit demo target with no checked-in caller. Source-only.**
