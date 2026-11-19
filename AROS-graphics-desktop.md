@@ -24708,3 +24708,11 @@ The initial clock read stores both seconds and microseconds in `oldtimeval` (`de
 **Trigger and affected configuration:** timer setup and clock operations succeed, and the original system time has nonzero `tv_micro`. The explicit `developer/demos/simple_timer` demo is listed in `developer/demos/mmakefile.src:14-62`. **Consequence:** after the demonstration the system clock is not restored exactly; it is reset to the beginning of the saved second. **Suggested correction:** retain and restore the full saved `timeval`, including microseconds.
 
 **Source-only evidence:** `developer/demos/simple_timer.c:100-109,131-132,212-224`; no timer operation or clock change was run.
+
+## GD15306 — WinBackfill cleanup calls Intuition after its library failed to open
+
+`OpenLibs()` calls `Cleanup()` immediately when opening intuition.library fails (`developer/demos/winbackfill.c:76-81`). `Cleanup()` guards `CloseWindow()` and the later library closes, but calls `UnlockPubScreen(0, scr)` unconditionally (`:57-70`). At this point IntuitionBase and `scr` are both still NULL, so cleanup dispatches an Intuition vector without a valid library base instead of returning the intended `RETURN_WARN`.
+
+**Trigger and affected configuration:** intuition.library V39 cannot be opened by the selected `developer/demos/winbackfill` target. The demo is listed in `developer/demos/mmakefile.src:58-64`. **Consequence:** the error cleanup itself can fail before it exits with the requested warning status. **Suggested correction:** only call `UnlockPubScreen()` when both IntuitionBase and a successfully locked screen are available.
+
+**Source-only evidence:** `developer/demos/winbackfill.c:43-72,76-81`; no library failure or demo run was induced.
