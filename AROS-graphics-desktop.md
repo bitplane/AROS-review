@@ -24700,3 +24700,11 @@ After StartNotify succeeds and the signal arrives, `main()` prints a message and
 **Trigger and affected configuration:** StartNotify succeeds and a notification arrives, causing the demo to leave its wait loop and return. **Consequence:** the notification registration and allocated request are not released, leaving a handler-side request referring to a task that has exited. **Suggested correction:** call EndNotify and free the request before returning; also release the lock/current-directory resources through a common cleanup path.
 
 **Source-only evidence:** `developer/demos/notify.c:24-57`; `rom/dos/endnotify.c:20-43`; `rom/filesys/ram/handler.c:375-383`. No notification was sent or program run.
+
+## GD15305 — Simple timer demo drops the saved fractional second when restoring time
+
+The initial clock read stores both seconds and microseconds in `oldtimeval` (`developer/demos/simple_timer.c:100-103`). At the end, the demo restores the clock with only `oldtimeval.tv_secs` (`:131-132`); `set_new_time()` always sets `tr_time.tv_micro = 0` (`:212-224`). If the saved time had a nonzero fractional second, the stated reset loses that fraction and moves the clock backward by that amount.
+
+**Trigger and affected configuration:** timer setup and clock operations succeed, and the original system time has nonzero `tv_micro`. The explicit `developer/demos/simple_timer` demo is listed in `developer/demos/mmakefile.src:14-62`. **Consequence:** after the demonstration the system clock is not restored exactly; it is reset to the beginning of the saved second. **Suggested correction:** retain and restore the full saved `timeval`, including microseconds.
+
+**Source-only evidence:** `developer/demos/simple_timer.c:100-109,131-132,212-224`; no timer operation or clock change was run.
