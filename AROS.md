@@ -18839,3 +18839,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15342](AROS-graphics-desktop.md#gd15342)** — IconList emits its end sentinel as an `IconMoved` notification value after the last selected entry; external listeners treating it as an entry pointer can dereference invalid memory. Conditional on an external notifier; source-only.
 
 **[GD15343](AROS-graphics-desktop.md#gd15343)** — Non-root IconWindow location updates copy an unchecked string into the fixed 1,024-byte directory-path field, overwriting adjacent instance data for longer inputs. Conditional on a caller supplying a long path; source-only.
+
+**[GD15344](AROS-graphics-desktop.md#gd15344)** — IconDrawerList ignores `AddPart()` overflow; the unchanged parent path can make sidecar detection hide orphan icons and ordinary entries point at the drawer itself. Conditional on combined paths exceeding 512 bytes; source-only.
