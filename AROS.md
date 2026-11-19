@@ -18850,6 +18850,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11764](AROS-other-drivers.md#od11764)** — SB128 playback can miss refilling a DMA half-buffer if another completion arrives before Exec dequeues its once-only soft interrupt at outer IRQ exit. Callback runtime alone does not cause coalescing; the short pre-dequeue timing is hardware-conditional. Selected only with `HAVE_ASMIO`; source-only.
 
+**[OD11765](AROS-other-drivers.md#od11765)** — AHI device and Preferences readers can consume fields beyond the declared size of malformed AHIG/AHIU chunks. Conditional on a truncated `ahi.prefs`; source-only.
+
 **[EK8850](AROS-exec-kernel.md#ek8850)** — Concurrent first DynModule loads for one port can choose the same unreserved slot; later publication overwrites the earlier handle, losing a tracked open reference. Conditional on overlapping calls through optional `linklibs-dynmod`; source-only.
 
 **[EK11055](AROS-exec-kernel.md#ek11055)** — Optional native-RISC-V SMP scheduler uses integer bitwise operations on `iet_CpuAffinity` pointers, preventing that conditional SMP configuration from compiling. Current configured OpenSBI is not affected; source-only.
