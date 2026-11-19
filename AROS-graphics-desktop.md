@@ -8749,17 +8749,13 @@ When libheif reports an alpha channel, the adapter switches to `PBPAFMT_RGBA` an
 
 **Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L2309`](AROS-graphics-desktop-coverage.md#L2309). Recheck the cited note and its scope before treating this candidate as confirmed.
 
-## GD6312
+## GD6312 — WITHDRAWN: duplicate of GD10067
 
-**Indexed summary:** AROSMX disabled pattern misses its final row and column.
+This earlier indexed summary describes the same disabled-pattern edge omission now detailed as GD10067. GD10067 is canonical; no separate defect is counted here.
 
-**Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L2316`](AROS-graphics-desktop-coverage.md#L2316). Recheck the cited note and its scope before treating this candidate as confirmed.
+## GD6313 — WITHDRAWN: duplicate of GD10068
 
-## GD6313
-
-**Indexed summary:** AROSMX leaves its disabled fill pattern on the caller RastPort.
-
-**Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L2319`](AROS-graphics-desktop-coverage.md#L2319). Recheck the cited note and its scope before treating this candidate as confirmed.
+This earlier indexed summary describes the AROSMX caller-RastPort pattern leak now detailed as one path in GD10068. GD10068 is canonical; no separate defect is counted here.
 
 ## GD6314
 
@@ -13338,9 +13334,12 @@ During display-driver handover, `driver_ExpungeBootDisplay()` refuses removal on
 
 ## GD10068
 
-**Disabled-pattern helpers clear the caller RastPort's area pattern.** The AROS Mutual Exclude helper writes `AreaPtrn` and `AreaPtSz` through `SetAfPt()` and then sets them to NULL/zero without restoring their prior values (`workbench/classes/gadgets/arosmutualexclude/support.c:25-34`). Its disabled-gadget render path calls the helper (`mxclass.c:336-341`). The generic Intuition `RenderDisabledPattern()` has the same state behavior (`rom/intuition/gadgets.c:591-618`): most selected callers use a cloned GIR RastPort, but `frameiclass.c` is invoked through `DrawImageState()` on the caller's RastPort for disabled frame images (`rom/intuition/frameiclass.c:326-390`; `rom/intuition/drawimagestate.c:83-89,296-300`). Both wrappers restore APen/BPen/draw mode but not `AreaPtrn`/`AreaPtSz`.
+**Disabled-pattern rendering does not preserve the caller RastPort's area pattern.** The AROS Mutual Exclude helper directly assigns `AreaPtrn = disabledpattern` and `AreaPtSz = 1`, then returns without restoring or clearing either field (`workbench/classes/gadgets/arosmutualexclude/support.c:25-34`); its disabled-gadget render path invokes that helper on the supplied `gpr_RPort` (`mxclass.c:336-341`). A later `RectFill()` on the same RastPort therefore uses the disabled stipple, because graphics.library selects `BltPattern()` whenever `AreaPtrn` is non-NULL (`rom/graphics/rectfill.c:35-37`).
 
-**Trigger and consequence:** in the Mutual Exclude path, render a disabled gadget and then use the same RastPort for a patterned area fill; the fill inherits the helper's stipple instead of the caller's former pattern. In the Intuition path, configure a non-NULL pattern, draw a disabled frame image through `DrawImageState()`, then reuse the RastPort for patterned drawing; that later drawing becomes solid unless the caller reinstalls its pattern. **Affected configuration:** the explicitly selected AROS Mutual Exclude class (also used by the GadTools MX wrapper) and Intuition's selected frame image class; neither optionality nor default-image inclusion is inferred for the gadget wrapper. **Confidence:** high for the direct field mutation and lack of restoration. Impact is established for the Mutual Exclude render contract as previously recorded; the additional frame-image caller has a conditional follow-on-use trigger, and no checked-in caller establishing that reuse sequence was found. Save and restore the incoming pattern pointer and size, or otherwise preserve the caller's area-fill state. No RastPort operation or GUI render was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
+The generic Intuition `RenderDisabledPattern()` has a related but distinct issue: it installs a stack-local pattern with `SetAfPt()`, fills, then clears the field with `SetAfPt(NULL,0)` rather than restoring a caller's prior non-NULL pattern (`rom/intuition/gadgets.c:591-618`). Most selected callers use a cloned GIR RastPort, but `frameiclass.c` is invoked through `DrawImageState()` on the caller's RastPort for disabled frame images (`rom/intuition/frameiclass.c:326-390`; `rom/intuition/drawimagestate.c:83-89,296-300`). The wrappers restore APen/BPen/draw mode but not the incoming area-pattern state.
+
+**Trigger and consequence:** in the Mutual Exclude path, render a disabled gadget and then use the same RastPort for a patterned area fill; the fill inherits the helper's stipple instead of the caller's former pattern. In the Intuition path, configure a non-NULL pattern, draw a disabled frame image through `DrawImageState()`, then reuse the RastPort for patterned drawing; that later drawing becomes solid unless the caller reinstalls its pattern. **Affected configuration:** the explicitly selected AROS Mutual Exclude class (also used by the GadTools MX wrapper) and Intuition's selected frame image class; neither optionality nor default-image inclusion is inferred for the gadget wrapper. **Confidence:** high for direct field mutation and lack of restoration. The AROSMX reuse consequence is source-direct; the frame-image follow-on remains conditional, and no checked-in caller establishing that sequence was found. Save and restore the incoming pattern pointer and size, or otherwise preserve the caller's area-fill state. No RastPort operation or GUI render was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
+
 ## GD10070
 
 **64-bit Font datatype writes the `.otag` terminator past its converted tag array.** On 64-bit builds, `ReadOutlines()` counts non-terminating 32-bit tags and allocates exactly `tagcnt` native `TagItem` entries (`workbench/classes/datatypes/font/otag.c:146-152`). The conversion loop writes each tag before testing for `TAG_DONE`, so it writes the terminator at index `tagcnt` (`:157-164`), one entry beyond that allocation. **Trigger and consequence:** load an outline font with a valid `.otag` stream containing one or more tags followed by `TAG_DONE`; the 64-bit Font datatype performs an out-of-bounds heap write while constructing its tag list, potentially corrupting adjacent allocator data or failing the load. Allocate space for the terminator and bound the source scan by the file length. **Affected configuration:** 64-bit AROS builds of the optional `workbench-datatypes-font` module; the target is selected by its own manifest, while no default parent inclusion is claimed. **Confidence:** high; follows directly from the count, allocation size, and terminator write. No font was loaded and no runtime behavior was exercised; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
