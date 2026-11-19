@@ -25044,4 +25044,4 @@ For a non-root IconWindow, `IconWindow__OM_SET()` copies the supplied `MUIA_Icon
 
 **Affected configuration and trigger:** an explicitly built Wanderer/IconDrawerList target scans or refreshes a drawer whose filesystem returns a non-`ERROR_NO_MORE_ENTRIES` result from `ExNext()` after one or more entries. **Consequence:** files after the failure are omitted from the displayed drawer until a later successful refresh, and users receive no indication that the view is incomplete. Preserve/report the enumeration error and avoid replacing the prior list with a partial scan. **Confidence:** high for DOS's dual FALSE result, ignored `IoErr()`, and clear-before-parse refresh order; no filesystem error or refresh was induced. Source-only.
 
-**Source-only evidence:** `workbench/system/Wanderer/Classes/icondrawerlist.c:91-156,342-357`; `rom/dos/exnext.c:27-40,66-81`.
+**Source-only evidence:** `workbench/system/Wanderer/Classes/icondrawerlist.c:91-156,329-341`; `rom/dos/exnext.c:27-40,66-81`.
