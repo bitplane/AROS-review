@@ -18730,6 +18730,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[EK11056](AROS-exec-kernel.md#ek11056)** — `dumpmem`'s final ASCII row reads up to 15 bytes past the requested size. Conditional on an unmapped adjacent region; optional test utility; source-only.
 **[EK11057](AROS-exec-kernel.md#ek11057)** — `crashtest_zerodivfloat` may continue normally when IEEE floating-point divide-by-zero is masked, so it does not exercise the expected exception. Source-only.
+**[EK11058](AROS-exec-kernel.md#ek11058)** — QuickPart leaks the disk row or spacer group when creation of the other half of the pair fails. Conditional on partial MUI object creation; source-only.
 
 **[EK11043](AROS-exec-kernel.md#ek11043)** — The optional `openlib` test exits successfully after argument parsing or library-open failure. Source-only.
 
