@@ -24600,3 +24600,13 @@ After allocating `consoleWriteMsg`, the demo tests `consoleWritePort` again inst
 **Trigger and affected configuration:** either selected `developer/demos/cons` or `developer/demos/cons_charmap` target reaches a `CreateStdIO()` allocation failure after the associated port was created. Both demos are listed in `developer/demos/mmakefile.src:14-20`; the parent demo aggregate edge is active in that manifest. **Consequence:** the demo dereferences a NULL IO request rather than reporting startup failure. **Suggested correction:** test `consoleWriteMsg` and `consoleReadMsg` respectively and branch to their existing cleanup labels.
 
 **Source-only evidence:** `developer/demos/cons.c:228-254,420-427,450-459`; `compiler/alib/createstdio.c:44-45`; `compiler/alib/deletestdio.c:22-36`. No allocation failure or demo operation was induced.
+
+## GD15292 — Console device demo returns before its request example
+
+**Severity / confidence:** Low severity, high confidence unreachable code; whether the retained example is intended to remain active is uncertain.
+
+`main()` opens and exercises a `CON:` file, then returns unconditionally at line 61. The subsequent `Init()` branch at lines 64-78 is unreachable, so this program never runs its second console.device request demonstration, never enters `HandleEvents()`, and never calls the corresponding `Cleanup()` path. The file is explicitly described as a console.device demo and retains the complete request/event example, but the source does not explain the early return.
+
+**Trigger and affected configuration:** unconditional when the selected `developer/demos/consoledemo` target is run. The source is included in `developer/demos/mmakefile.src:14-20`. **Consequence:** only the CON-file example runs; the retained IORequest-based example is silently skipped. **Suggested correction:** remove the early return or make the examples selectable, unless the request example is intentionally disabled and should be removed or documented.
+
+**Source-only evidence:** `developer/demos/consoledemo.c:37-79`; no demo was run or built.
