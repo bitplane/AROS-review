@@ -24610,3 +24610,35 @@ After allocating `consoleWriteMsg`, the demo tests `consoleWritePort` again inst
 **Trigger and affected configuration:** unconditional when the selected `developer/demos/consoledemo` target is run. The source is included in `developer/demos/mmakefile.src:14-20`. **Consequence:** only the CON-file example runs; the retained IORequest-based example is silently skipped. **Suggested correction:** remove the early return or make the examples selectable, unless the request example is intentionally disabled and should be removed or documented.
 
 **Source-only evidence:** `developer/demos/consoledemo.c:37-79`; no demo was run or built.
+
+## GD15293 — font2c copies unbounded arguments into fixed buffers
+
+`main()` copies the parsed font name, output path and optional prefix into three 200-byte local arrays with `strcpy()` and appends the optional prefix separator with `strcat()` (`developer/demos/font2c.c:29-31,52-59`). The font-name normalization later appends `.font` to the same 200-byte array without checking remaining capacity (`:72-80`). `ReadArgs()` supplies argument strings without a 199-byte maximum, and no length validation precedes these writes.
+
+**Trigger and affected configuration:** invoke the explicitly selected `developer/demos/font2c` utility with a font name, output path or prefix too long for the corresponding local array, or a near-capacity font name requiring the suffix. **Consequence:** argument processing writes past a local buffer and may corrupt adjacent state or prevent correct conversion. **Suggested correction:** validate lengths before copying/appending or use dynamically sized strings.
+
+**Source-only evidence:** `developer/demos/font2c.c:29-31,42-59,72-80`; no command was run.
+
+## GD15294 — font2c emits CharSpace data from the CharKern pointer
+
+When `tf_CharSpace` is non-NULL, `font2c()` emits a `charspace` array but passes `tf->tf_CharKern` to `print_word_array()` (`developer/demos/font2c.c:249-254`). If CharSpace exists without CharKern, the exporter dereferences a NULL pointer; if both tables exist, it emits the kerning values as spacing values. It then wires the generated structure's `tf_CharSpace` field to that incorrect array (`:308-311`).
+
+**Trigger and affected configuration:** run the selected `font2c` utility on a font with a CharSpace table; the NULL-dereference branch applies when that font has no CharKern table. **Consequence:** the conversion can fail while reading a NULL pointer or produce incorrect spacing data. **Suggested correction:** pass `tf->tf_CharSpace` to the array printer.
+
+**Source-only evidence:** `developer/demos/font2c.c:249-254,308-311`; no font was converted.
+
+## GD15295 — font2c concatenates multiple style and flag names
+
+`print_tf_flags()` initializes `flag_found` to FALSE but never sets it after printing a flag (`developer/demos/font2c.c:180-199`). Thus every set bit is emitted with no ` | ` separator. Fonts with multiple style bits or multiple flag bits produce adjacent identifiers, so the generated initializer is not valid C (for example, `FSF_UNDERLINEDFSF_BOLD`).
+
+**Trigger and affected configuration:** convert a font whose `tf_Style` or `tf_Flags` contains more than one recognized bit. **Consequence:** generated C fails to compile or does not represent the source flags. **Suggested correction:** set `flag_found` after emitting the first name, so subsequent names receive the separator.
+
+**Source-only evidence:** `developer/demos/font2c.c:180-199,281-290`; no generated file was compiled.
+
+## GD15296 — font2c reports success when conversion setup fails
+
+The return status is initialized from argument parsing and is not changed when graphics.library or diskfont.library cannot open, the output file cannot be opened, the font cannot be opened, or a color font is rejected (`developer/demos/font2c.c:38,83-124`). Those branches print diagnostics, then `main()` returns the unchanged `error` value (`:145-146`). A failed conversion can therefore exit with `RETURN_OK`.
+
+**Trigger and affected configuration:** run the selected `developer/demos/font2c` utility with valid arguments but encounter one of the listed setup/conversion failures. **Consequence:** scripts or callers see a successful exit despite no usable output being generated. **Suggested correction:** set and return a failure status in each unsuccessful branch.
+
+**Source-only evidence:** `developer/demos/font2c.c:38-48,70-146`; no failure was induced.
