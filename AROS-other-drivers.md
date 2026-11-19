@@ -31802,8 +31802,6 @@ DHCP minires unselected `res_query.c` body pass (no new OD finding or selected-b
 
 IPMI cross-area finding reconciliation (2026-11-03; no new driver-body or LOC credit): the full Workbench IPMI source pass in Graphics/Desktop was compared with this ledger. Restored and indexed OD2150, OD2151, OD2804, OD1030 and OD1031 as the authoritative IPMI command findings; no duplicate GD IDs are retained. OD2150 now distinguishes first-chunk invalid-reservation state loss from repeated later-chunk retries, and its existing short Reserve-SDR payload condition. OD2151 covers Reserve-SEL and Clear-SEL payload lengths; OD2804 covers incomplete SDR metadata; OD1030 covers signed `LONG` overflow; OD1031 covers early fixed-point truncation. These are caller/source findings from the already credited `workbench/c/IPMI.c` body, not new body-reading credit. No BMC or command was used.
 
-<a id="od4300"></a>
-<a id="od4301"></a>
 <a id="camd-usb-midi-missing-detail-recovery-od4300-od4301-2026-11-03"></a>
 <a id="od10331"></a>
 USB-MIDI CAMD finding-detail recovery (OD4300/OD4301 restored; no new finding or body/LOC credit; 2026-11-03): current-state reconciliation found that the detailed report and master index linked to OD4300, but the detailed OD4300/OD4301 sections were absent despite the source traces below and later gated-caller rechecks. Restored both detailed sections and index entries from those existing source findings. OD4300 covers `Flags=0` rejected before CAMD driver initialization; OD4301 covers the embedded `OpenPort`/`ClosePort` register mismatch and unchecked close index if the gate is fixed or bypassed. OD4459 remains the distinct one-time scan ordering condition, and OD4124/OD4125/OD4137/OD4234/OD4257/OD4266/OD10194/OD10331 remain explicitly gated downstream behavior. No source, body, path, or LOC credit changed; no build, driver load, port operation, device, or callback was exercised. Source-only.
@@ -38940,6 +38938,29 @@ After binding a USB-MIDI device, the class creates `DEVS:Midi/<shortID>` if no f
 **Trigger and consequence:** image allocation fails or the write is short/failed after the path is created; later binding sees the stale file and skips regeneration. The empty/partial artifact persists. **Scope:** optional USB-MIDI class; practical CAMD load impact requires the OD4300 format gate to be corrected/bypassed (and OD4459 separately covers late creation after CAMD's startup scan). **Confidence:** high for stale-file creation/retry suppression and ignored write result; downstream use remains explicitly gated.
 
 Sources: file create/existing-file branches, allocation, unchecked `Write()` and close in `rom/usb/classes/camdmidi/camdusbmidi.class.c:167-223`; DOS write return semantics in `rom/dos/write.c:37-48`; embedded `Flags=0` initializer in `rom/usb/classes/camdmidi/camd/poseidonusb.c:35-47`; current CAMD format rejection in `workbench/libs/camd/drivers.c:235-248`; one-time directory scan in `workbench/libs/camd/init.c:39-55`. No file operation, class bind, CAMD load or build was run; source-only review.
+
+<a id="od4300"></a>
+## OD4300 — Generated USB-MIDI bridge is rejected by AROS CAMD [optional USB-MIDI class]
+
+The embedded `MidiDeviceData` for `poseidonusb` sets `Flags` to zero (`rom/usb/classes/camdmidi/camd/poseidonusb.c:35-47`). The public structure says AROS supports only the new driver format and requires bit 0 to be set (`compiler/include/midi/camddevices.h:57-61`). CAMD's selected AROS `LoadDriver()` path rejects a record with `(Flags & 1) == 0`, closes the loaded segment and returns before calling `Init()` or allocating its port records (`workbench/libs/camd/drivers.c:240-260`). The USB class writes this embedded image to `DEVS:Midi/<shortID>` when the file does not already exist (`rom/usb/classes/camdmidi/camdusbmidi.class.c:167-223`).
+
+**Trigger and consequence:** CAMD's startup scan encounters the generated `poseidonusb` image. The format gate rejects it, so the USB-MIDI bridge is not initialized and none of its CAMD ports are registered; clients cannot send or receive through this bridge. If the file is created after CAMD has already completed its one-time scan, OD4459 separately describes the missed registration even if the format flag is corrected.
+
+**Affected configuration:** optional `camdmidi.class` USB-MIDI support on AROS targets whose CAMD loader uses the checked AROS format gate. An existing alternate driver file or a corrected embedded flag changes the condition. **Confidence:** high for the zero flag and the early loader return; no CAMD load or USB device was run. Set the new-format flag and keep the embedded record consistent with the public CAMD ABI. Source-only.
+
+Sources: `rom/usb/classes/camdmidi/camd/poseidonusb.c:35-47`; `compiler/include/midi/camddevices.h:57-61`; `workbench/libs/camd/drivers.c:240-260`; `rom/usb/classes/camdmidi/camdusbmidi.class.c:167-223`; CAMD's one-time scan in `workbench/libs/camd/init.c:39-56`. No file operation, driver load, port operation, device or build was used.
+
+<a id="od4301"></a>
+## OD4301 — Embedded USB-MIDI callbacks use the wrong register assignments [gated by OD4300]
+
+The public `MidiDeviceData` contract assigns `OpenPort` arguments to A3, D0, A0, A1 and A2, and `ClosePort` arguments to A3 and D0 (`compiler/include/midi/camddevices.h:41-52`). CAMD calls these callbacks through the declared ABI (`workbench/libs/camd/drivers.c:38-71`). The embedded wrappers instead declare `OpenPort` arguments in D1, D1, D2, D3 and A6, and `ClosePort` in D1 and D2 (`rom/usb/classes/camdmidi/camd/poseidonusb.c:19-30,122-137`). Thus the wrapper reads values from registers that CAMD does not use for those parameters. `OpenPort` uses the resulting `portnum` to index `CAMDPortBases[16]` before calling the helper; `ClosePort` only logs an index above 15 and continues to index the same array (`:139-176`).
+
+**Trigger and consequence:** CAMD loads the embedded driver after the OD4300 format gate is corrected or bypassed, then opens or closes one of its ports. The callback receives undefined argument values under the public ABI; OpenPort can fail or select invalid adapter state, and ClosePort's missing return after its range check permits an invalid index to reach the array access.
+
+**Affected configuration:** optional USB-MIDI CAMD bridge, only if loaded despite OD4300. **Confidence:** high that the wrapper register declarations disagree with the public callback ABI and that ClosePort continues after its range check; the resulting argument values depend on the caller/target ABI and were not executed. Match the wrapper declarations to the public register assignments and return immediately for an out-of-range ClosePort index. Source-only.
+
+Sources: `compiler/include/midi/camddevices.h:41-52`; `workbench/libs/camd/drivers.c:38-71`; `rom/usb/classes/camdmidi/camd/poseidonusb.c:19-30,122-176`. No callback, port operation, device or build was used.
+
 
 <a id="od4314"></a>
 ## OD4314 — VideoCore GPU free-memory queries include the hardware cursor allocation [optional BCM283x VideoCore HIDD]
