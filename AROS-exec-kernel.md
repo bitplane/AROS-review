@@ -11842,6 +11842,20 @@ For every `$...$` substitution, `IdEstimateFormatSize()` adds `STRBUFSIZE`, whic
 
 **Trigger and consequence:** format a catalog-backed tag whose active translation exceeds 30 characters, then allocate the output buffer using the documented `IdEstimateFormatSize()` result. The estimate is smaller than the formatted result, so `IdFormatString()` truncates the substitution and any following literal text at the supplied buffer limit. **Affected configuration:** callers of the explicitly built Identify library using an active catalog with a hardware string longer than 30 characters and the size estimator to allocate the output buffer. **Confidence:** high for the fixed estimate and bounded formatter copy; no long translation or formatting call was run. Size substitutions from the maximum possible returned text or provide a length-aware sizing contract. Source-only.
 
+<a id="ek11066"></a>
+## EK11066 — `IdAlert()` ignores the request for English strings
+
+`IdAlert()` reads `IDTAG_Localize` into `localize`, but the only use is an empty conditional (`workbench/libs/identify/idalert.c:379-392`). The dead-end, recovery, general-cause, unknown and specific-alert strings still pass through `_()` (`:394-403,426-443,471-492`), which returns catalog strings when a catalog is active (`locale.c:60-67`).
+
+**Trigger and consequence:** call `IdAlert()` with `IDTAG_Localize=FALSE` while a non-English Identify catalog is active. The returned alert descriptions remain localized, contrary to the documented request for English strings. **Affected configuration:** clients of explicitly built `identify.library` with an active translated catalog; the checked-in Guru utility calls the API without this tag, so no in-tree false-tag caller was found. **Confidence:** high for the ignored tag and catalog path; no catalog or API call was run. Select the built-in English text when the tag is FALSE. Source-only.
+
+<a id="ek11067"></a>
+## EK11067 — `IdAlert()` masks off the object bit before matching object IDs
+
+The object-name table stores Amiga alert object IDs with bit 15 set, such as `AO_ExecLib == 0x00008001` (`workbench/libs/identify/idalert.c:239-270`; `compiler/include/exec/alerts.h:51-84`). When bit 15 is set, `IdAlert()` computes `searchFor = id & 0x7fff` before comparing against those table values (`idalert.c:452-463`), so a defined object value such as `AO_ExecLib` becomes `0x0001` and cannot match `0x8001`.
+
+**Trigger and consequence:** request the specific string for an alert code whose low 16 bits identify a listed object, such as `AO_ExecLib`. The object name is not appended; if no alert-text entry matches, the API returns the unknown-specific string instead. **Affected configuration:** clients of explicitly built `identify.library` that request `IDTAG_SpecStr` for an object alert; the separately buildable Guru utility requests this field. **Confidence:** high for the table values and mask mismatch; no alert query was run. Compare using the full object ID or consistently mask the table values. Source-only.
+
 <a id="ek8850"></a>
 ### EK8850 — Concurrent first DynModule loads can overwrite the only tracked handle [optional API; concurrent callers conditional]
 
