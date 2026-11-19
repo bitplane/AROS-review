@@ -24642,3 +24642,19 @@ The return status is initialized from argument parsing and is not changed when g
 **Trigger and affected configuration:** run the selected `developer/demos/font2c` utility with valid arguments but encounter one of the listed setup/conversion failures. **Consequence:** scripts or callers see a successful exit despite no usable output being generated. **Suggested correction:** set and return a failure status in each unsuccessful branch.
 
 **Source-only evidence:** `developer/demos/font2c.c:38-48,70-146`; no failure was induced.
+
+## GD15297 — listfonts formats each font name with zero precision
+
+The name conversion uses `%-30.s` (`developer/demos/listfonts.c:64-68`). In printf syntax, the period with no precision digits sets string precision to zero, so the `%s` conversion emits no characters. The row still prints type, size, style and flags, but every font name is blank.
+
+**Trigger and affected configuration:** run the selected `developer/demos/listfonts` utility and receive at least one font entry. **Consequence:** the demo omits the font names it is intended to list. **Suggested correction:** use `%-30s` or an explicit nonzero precision.
+
+**Source-only evidence:** `developer/demos/listfonts.c:62-68`; no demo was run.
+
+## GD15298 — listfonts exits successfully after allocation failure
+
+If `AllocMem(afsize, MEMF_ANY)` fails, `afh` is NULL, the retry loop ends, the printing block is skipped, and `main()` still returns `RETURN_OK` (`developer/demos/listfonts.c:37-52,73-76`). Unlike an empty font list, this path did not obtain a buffer or call `AvailFonts()`.
+
+**Trigger and affected configuration:** the selected `developer/demos/listfonts` utility cannot allocate its AvailFonts buffer. **Consequence:** it prints no listing but reports success to its caller. **Suggested correction:** distinguish allocation failure from a valid empty result and return `RETURN_FAIL`.
+
+**Source-only evidence:** `developer/demos/listfonts.c:37-52,73-76`; no allocation failure was induced.
