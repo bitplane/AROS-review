@@ -24779,3 +24779,11 @@ The GUI reads the Match name string into `setup.pattern` (`workbench/system/Snoo
 **Trigger and affected configuration:** enable Snoopy's OpenDevice monitor and open a device whose unit argument is a pointer rather than a numeric unit. **Consequence:** the log misidentifies the unit passed to the device, reducing the accuracy of the monitor output. **Suggested correction:** format the `IPTR` with a pointer-width-safe representation and distinguish pointer units from numeric unit indices.
 
 **Confidence:** high for the formatting mismatch, conditional on a pointer-valued unit caller. No device was opened.
+
+## GD15315 — Find exits successfully after command-line or startup errors
+
+The CLI path calls `cleanup_exit(MSG_ERR_READARGS)` when `ReadArgs()` fails, and application-construction failure calls `cleanup_exit(MSG_ERR_NO_APPLICATION)` (`workbench/system/find/main.c:47-53,78-79`). `cleanup_exit()` displays the supplied error, releases any available objects, and always calls `exit(0)` (`:102-119`). The failed-window-open path likewise displays an error and then reaches `cleanup_exit(NULL)` (`:87-97`). Thus the user sees an error, but command-line automation receives a successful process status for these failures.
+
+**Trigger and affected configuration:** launch the selected Find utility from the CLI with arguments that make `ReadArgs()` fail, or encounter application/window startup failure. **Consequence:** scripts and callers cannot distinguish these failures from a successful Find run by exit status. **Suggested correction:** pass a status into cleanup and exit nonzero on each error path while preserving zero for normal user completion.
+
+**Source-only evidence:** `workbench/system/find/main.c:47-53,78-119`; the file is selected by `workbench/system/find/mmakefile.src:5-18`. No Find invocation or build was run.
