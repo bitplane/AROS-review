@@ -24505,3 +24505,14 @@ The caller supplies dimensions and plane count from the file's BMHD, allocates t
 **Trigger and affected configuration:** open a compressed ILBM with a run packet longer than the remaining bytes in its current plane row in the explicitly built 2View demo. **Consequence:** decoded bytes overwrite storage beyond the row and can exceed the allocated plane block. **Suggested correction:** reject packets whose decoded length exceeds the row remainder and propagate the decode error.
 
 **Source-only evidence:** `developer/demos/2View/read.c:43-64,81-125`; `developer/demos/2View/2View.c:511-515,564-569`. No image was read and no build was run.
+
+
+## GD15283 — readicon passes a missing default tool to `%s`
+
+**Severity / confidence:** High confidence invalid formatted-output argument; conditional on an icon with no default tool.
+
+After `GetDiskObject()` succeeds, `main()` unconditionally prints `dobj->do_DefaultTool` using `%s` (`developer/demos/readicon.c:210-214`). The field is optional: icon parsing reads and sets it only when present (`workbench/libs/icon/diskobjio.c:732-743`), and selected Workbench consumers explicitly handle a NULL value (`workbench/libs/workbench/openworkbenchobjecta.c:714-720`; `workbench/system/Wanderer/Tools/Info/main.c:866-871`). Passing NULL for a `%s` conversion has undefined behavior; depending on the C library it can print an invalid value or fault before the rest of the icon report and GUI demonstration run.
+
+**Trigger and affected configuration:** run the explicitly buildable `readicon` demo on a valid DiskObject whose `do_DefaultTool` is NULL. **Consequence:** formatted output has undefined behavior and can terminate the utility before it displays the icon. **Suggested correction:** print a placeholder when the field is NULL.
+
+**Source-only evidence:** `developer/demos/readicon.c:147-214`; `workbench/libs/icon/diskobjio.c:732-743`; `workbench/libs/workbench/openworkbenchobjecta.c:714-720`; `workbench/system/Wanderer/Tools/Info/main.c:866-871`. No icon was read and no build was run.
