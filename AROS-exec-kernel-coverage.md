@@ -18035,3 +18035,6 @@ OpenSBI primary MemHeader bound reconciliation (EK9042 scope expanded; 2026-11-1
 
 
 EK9042 MemHeader-constructor consequence check (2026-11-19; no source-body/path/LOC credit): traced the primary extent into `krnCreateMemHeader()` (`rom/kernel/kernel_memory.c:25-69`). The constructor performs no extent validation before writing the initial `MemChunk`, computes `mc_Bytes = size - MEMHEADER_TOTAL`, and sets `mh_Upper = start + size`. Thus a wrapped `memhigh - memlow` is published as a very large free span, while a bank-base gap is included in the initial chunk. Updated EK9042's effect wording and the `AROS.md` master-index summaries for EK9042/EK10861. Firmware topology remains conditional; no allocator, boot or build was exercised.
+
+
+EK9042 primary-header start-boundary wording correction (2026-11-19; no body/path/LOC credit): traced the optional `CHIPMEM_SIZE` branch at `kernel_startup.c:861-902`. `memlow` starts at aligned `__kernel_end`, but when `memhigh - memlow > 2 * CHIPMEM_SIZE`, startup writes a Chip Memory header and advances `memlow` before assigning `bootlow`; the System Memory header starts at `bootlow`. Corrected EK9042 trigger/effect and the master-index summary to use the post-carve-out System Memory start, preserving the separate conditional Chip header as context. No memory header or boot was run; source-only.
