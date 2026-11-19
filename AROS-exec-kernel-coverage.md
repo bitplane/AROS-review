@@ -5782,7 +5782,7 @@ The optional `workbench-tools-quickpart` manifest in `workbench/tools/QuickPart/
 | Selected file | C code lines | Status |
 |---|---:|---|
 | `QP_Main.c` | 542 | Full 736-line body read in source order; startup/class setup, notifications, storage scan call, event loop, and exit paths checked. EK9364, EK9369–EK9370 rechecked; no new issue. |
-| `QP_FindDisks.c` | 213 | Reviewed; EK9368 |
+| `QP_FindDisks.c` | 213 | Reviewed; EK9368, EK11058 |
 | `QP_ccApp.c` | 417 | Reviewed; EK9364–EK9367 |
 | `QP_ccTxt.c` | 97 | Reviewed; no new finding |
 | `QP_ccDisk.c` | 506 | Reviewed; EK9347–EK9353 |
@@ -5817,6 +5817,8 @@ QuickPart partition-color mapping full-body/caller pass (no new finding; 2026-10
 
 QuickPart remaining selected C bodies and local support-file pass (no new finding; 2026-10-23): read all 134 physical lines / 97 `cloc 2.06` C lines of `QP_ccTxt.c`, then the complete `QP_Gui.c` (5 physical lines, zero C code lines), `QP_globals.c` (14 C lines), and `QP_locale.c` (58 physical lines / 40 C lines). Traced the text-class callers, global size-unit table consumers, catalog lookup and symbol-set init/exit. The text subclass delegates to its superclass; the unit table has a terminating NULL after the largest reachable UQUAD scale; locale lookups use generated catalog IDs and catalog fallback handling. No additional independent defect established. This closes whole-body reading for all 14 selected QuickPart C translation units: 3,632 / 3,632 `cloc 2.06` C lines (100%). The target remains excluded from the default aggregate. Generated catalog headers/data, local header coverage, external MUI/partition behavior, and any runtime or build validation are separate open scope; no GUI or device was run. Source-only.
 
+
+QuickPart disk-row partial-object cleanup pass (EK11058 added; 2026-11-19; no body/path/LOC credit): revisited the already fully credited `QP_FindDisks.c` construction and insertion path (`workbench/tools/QuickPart/QP_FindDisks.c:231-278`). The disk object and spacer group are independently created, but inserted only if both exist; on either one-sided failure, the loop frees the drive record without disposing the surviving unattached MUI object. Confirmed the selected MUI constructor can return NULL when object creation fails (`workbench/libs/muimaster/mui_newobject.c:47-67`). Added EK11058 for the leaked disk object or spacer tree under partial allocation failure. This adds no coverage credit because all 213 C lines of the body were already counted. No allocation failure or GUI operation was induced; source-only.
 
 ### QuickPart local header inventory
 
