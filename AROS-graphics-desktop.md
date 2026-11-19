@@ -6954,7 +6954,7 @@ GD6071. **SysMon continues after unchecked UI allocations or per-CPU child-objec
 
 **Trigger and consequence:** Use SysMon with the Gauge display mode and dispose its ProcessorGauge group, either on application shutdown or when switching display class. Each group instance leaks `sizeof(Object *) * processorcount` bytes from `AllocMem()`. Repeated mode changes accumulate these arrays until process teardown. **Confidence:** high for the unpaired allocation/free and traced disposal paths; no GUI operation was run, source-only.
 
-**Source recheck:** the full timer.c and main.c bodies, request lifecycle, and timer-device insertion path are traced in the [GD6079 coverage entry](AROS-graphics-desktop-coverage.md#L4419). The finding remains source-confirmed; no timer I/O was run.
+**Source recheck:** the full timer.c and main.c bodies, request lifecycle, and timer-device insertion path are traced in the [GD6079 timer lifecycle review](AROS-graphics-desktop-coverage.md#sysmon-timer-request-lifecycle-gd6079-review). The finding remains source-confirmed; no timer I/O was run.
 
 <a id="gd6073"></a>
 ## GD6073
@@ -6974,7 +6974,7 @@ GD6071. **SysMon continues after unchecked UI allocations or per-CPU child-objec
 
 **Trigger and consequence:** Create a ProcessorGraph group with a positive CPU count while allocation of `pg_GraphReadHooks` fails, or create a multi-CPU group (`singlemode == FALSE`, count greater than one) while allocation of `pg_Graphs` fails. The constructor loop writes through the NULL array and faults before the group is usable. ProcessorGraph is selected for SysMon's graph display mode (`workbench/system/SysMon/mmakefile.src:3`; mode-selection hooks in `processor.c:151-246`). **Confidence:** high for the unchecked array results and indexed writes; no allocation failure or object construction was induced, source-only.
 
-**Source recheck:** the full timer.c and main.c bodies, request lifecycle, and timer-device insertion path are traced in the [GD6079 coverage entry](AROS-graphics-desktop-coverage.md#L4419). The finding remains source-confirmed; no timer I/O was run.
+**Source recheck:** the full timer.c and main.c bodies, request lifecycle, and timer-device insertion path are traced in the [GD6079 timer lifecycle review](AROS-graphics-desktop-coverage.md#sysmon-timer-request-lifecycle-gd6079-review). The finding remains source-confirmed; no timer I/O was run.
 
 <a id="gd6075"></a>
 ## GD6075
@@ -7000,7 +7000,7 @@ GD6078. **SysMon leaks its prebuilt UI tree and initialized resources when MUI a
 
 **Trigger and consequence:** Let a periodic `TR_ADDREQUEST` complete, then let the main loop process the timer signal and submit the same request again. The completed request node is still linked on `timerport` when the timer device is asked to reuse it. `SendIO()` resets its node type without unlinking it (`rom/exec/sendio.c:39-55`), then `common_BeginIO()` marks it as in-flight and `addToWaitList()` inserts that same node into the timer's pending list (`rom/timer/lowlevel.c:77-84,144-171,43-65`). A single list node cannot remain linked in the reply queue while being linked into the pending list, so the ordinary second tick resubmission corrupts list links and can disrupt both timer queues. `DeInitTimer()` does call `AbortIO()` and `WaitIO()` during shutdown (`timer.c:51-58`), but that does not remove each completed reply before the next periodic resubmission. This applies to the Workbench:System-selected SysMon target (`SysMon/mmakefile.src:3`). **Confidence:** high for the two-list insertion from the selected source paths; no timer I/O was run, source-only.
 
-**Source recheck:** the full timer.c and main.c bodies, request lifecycle, and timer-device insertion path are traced in the [GD6079 coverage entry](AROS-graphics-desktop-coverage.md#L4419). The finding remains source-confirmed; no timer I/O was run.
+**Source recheck:** the full timer.c and main.c bodies, request lifecycle, and timer-device insertion path are traced in the [GD6079 timer lifecycle review](AROS-graphics-desktop-coverage.md#sysmon-timer-request-lifecycle-gd6079-review). The finding remains source-confirmed; no timer I/O was run.
 
 <a id="gd6080"></a>
 ## GD6080
@@ -7013,7 +7013,7 @@ GD6078. **SysMon leaks its prebuilt UI tree and initialized resources when MUI a
 
 **Confidence:** high for the fixed allocation, catalog bytes, unbounded formatting and threshold; no high-task-count UI refresh was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
-**Source recheck:** the full timer.c and main.c bodies, request lifecycle, and timer-device insertion path are traced in the [GD6079 coverage entry](AROS-graphics-desktop-coverage.md#L4419). The finding remains source-confirmed; no timer I/O was run.
+**Source recheck:** the full timer.c and main.c bodies, request lifecycle, and timer-device insertion path are traced in the [GD6079 timer lifecycle review](AROS-graphics-desktop-coverage.md#sysmon-timer-request-lifecycle-gd6079-review). The finding remains source-confirmed; no timer I/O was run.
 
 ## GD6081
 
