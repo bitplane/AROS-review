@@ -18851,5 +18851,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15346](AROS-graphics-desktop.md#gd15346)** — IconDrawerList frees its current drawer path before duplicating a replacement; allocation failure then clears the list and leaves the window blank without a failure result. Conditional on low memory during a location change; source-only.
 **[GD15347](AROS-graphics-desktop.md#gd15347)** — IconVolumeList silently skips a volume after per-entry pool allocation failure, then removes its existing icon while reporting a successful refresh. Conditional on allocation failure; source-only.
 **[GD15348](AROS-graphics-desktop.md#gd15348)** — A volume entry with a missing DiskObject discards and leaks a successfully reloaded icon when its label and flags are unchanged. Conditional on recovery after an earlier icon-load failure; source-only.
+**[GD15349](AROS-graphics-desktop.md#gd15349)** — A failed hidden-volume preference copy clears the active filter, so the next refresh shows volumes that should be hidden. Conditional on allocation failure; source-only.
 
 **GD15346 follow-up:** the constructor also leaves a live IconDrawerList without its requested drawer when the initial `StrDup()` fails. See the [graphics/desktop report](AROS-graphics-desktop.md#gd15346).
