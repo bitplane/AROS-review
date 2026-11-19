@@ -18717,7 +18717,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[EK11037](AROS-exec-kernel.md#ek11037)** — The optional Exec `timeport` benchmark crashes or hangs when port, buffer, worker, or interrupt setup fails. Source-only; no failure was induced.
 
-**[EK11038](AROS-exec-kernel.md#ek11038)** — The optional `avltest` utility prints keyed-search and tree-empty check failures but still exits successfully; one diagnostic also prints the wrong expected key. Source-only.
+**[EK11038](AROS-exec-kernel.md#ek11038)** — The optional `avltest` utility can return success after failed checks, omits the AVL height bound and randomized-insertion validation, and prints a wrong expected key in one diagnostic. Source-only.
 
 **[EK11039](AROS-exec-kernel.md#ek11039)** — The optional `copymem` stress test prints allocation or comparison failures but still exits successfully. Source-only.
 
