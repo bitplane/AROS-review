@@ -287,6 +287,8 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 
 ## Graphics/Desktop findings reconciled into the index (2026-11-02)
 
+**[GD9731](AROS-graphics-desktop.md#gd9731) — NList, NListtree, BetterString and TextEditor MCC initialization can wait forever when the clipboard helper exits after a failed IFFParse open/interface or worker-port allocation without replying to the startup message. The worker-creation failure semaphore leak is tracked separately as GD10440. Source-only; no failure was induced.**
+
 **[GD5629](AROS-graphics-desktop.md#gd5629) — AmigaGuide accepts failed worker startup: a command-port allocation failure leaves no usable queue, so later layout/trigger dispatch passes NULL to Exec `PutMsg()`, and disposal can wait forever for the exited worker. Task-creation failure is also masked by the NULL-equals-NULL startup check. Conditional on worker/task allocation failure; source-only.**
 
 **[GD2876](AROS-graphics-desktop.md#gd2876) — `text.datatype` ignores font-initialization failure and dereferences a null font during object construction. Applies to builds that include the explicit datatype target; allocation or font-availability failure is required. GD9523 was a duplicate and is withdrawn. Source-only.**
