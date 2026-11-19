@@ -18770,3 +18770,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15331](AROS-graphics-desktop.md#gd15331)** — Workbench-launched Format can leave the shared DOS device-list lock held when a volume task has no matching device entry; later device-list writers may wait indefinitely. Conditional stale/unmatched volume state; source-only.
 
 **[GD15332](AROS-graphics-desktop.md#gd15332)** — Input Preferences can report a successful export after its keyboard-switch chunk fails to write, leaving KMSW settings missing or truncated. Conditional on second-chunk I/O failure; source-only.
+
+**[GD15333](AROS-graphics-desktop.md#gd15333)** — Input Preferences CLI ignores `USE`/`SAVE` handler and export failures, then exits with status zero. Conditional on failed input or output I/O; source-only.

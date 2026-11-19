@@ -24935,3 +24935,13 @@ The selected `IPEditor__MUIM_PrefsEditor_ExportFH()` returns this boolean to the
 **Trigger and affected configuration:** export or test Input Preferences when the output stream fails while pushing or writing `KMSW` after the `INPT` chunk has completed, such as a short write near the end of the file. The explicit `workbench-prefs-input` target selects the implementation (`workbench/prefs/input/mmakefile.src:5-15`). **Consequence:** the saved/tested IFF may lack the keyboard-switch settings or contain a truncated KMSW chunk, while callers receive success and do not report or restore the failed export. **Confidence:** high for the unchecked chunk-write result and caller handling; the exact partial-file state depends on the IFF stream error. Set `retval = FALSE` when the KMSW push/write/close fails and propagate that result. No file export, short write, or build was exercised; source-only.
 
 **Source-only evidence:** `workbench/prefs/input/prefs.c:443-465,479,291-354`; `workbench/prefs/input/ipeditor.c:584-596`; `workbench/classes/zune/prefseditor/prefseditor.c:336-381`; `workbench/prefs/input/mmakefile.src:5-15`.
+
+
+<a id="gd15333"></a>
+## GD15333 — Input Preferences CLI masks failed load and export operations with success
+
+In command-line `USE`/`SAVE` mode, `main()` discards the result of `Prefs_HandleArgs()` and always returns zero (`workbench/prefs/input/main.c:30-41,90-92`). `Prefs_HandleArgs()` returns FALSE when an explicitly supplied `FROM` file cannot be read (`prefs.c:506-512`), but it also ignores `Prefs_ExportFH()` results for both ENV and ENVARC outputs (`:530-555`) and returns TRUE at the end (`:556`). Thus the command cannot report a failed import or a failed IFF export through its process status; failures from `Prefs_ExportFH()` after a successful output open are not even shown by this caller.
+
+**Trigger and affected configuration:** invoke the explicit `workbench-prefs-input` target with `USE` or `SAVE`, supplying an unreadable `FROM` file or encountering an IFF allocation/write failure after the output file opens. **Consequence:** the command exits with status zero despite not applying or persisting the requested preferences; write failures may also be silent. Propagate the `Prefs_HandleArgs()` result through `main()` and check/report each `Prefs_ExportFH()` result. **Confidence:** high for ignored results and unconditional zero exit; no I/O failure or command invocation was induced. This is separate from GD15332, where the export helper itself can incorrectly return TRUE after a late KMSW chunk failure. No build or command was run; source-only.
+
+**Source-only evidence:** `workbench/prefs/input/main.c:30-41,90-92`; `workbench/prefs/input/prefs.c:502-556`; `workbench/prefs/input/mmakefile.src:5-15`.
