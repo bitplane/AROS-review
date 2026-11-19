@@ -11669,3 +11669,10 @@ The selected `openlib` test returns zero whether `ReadArgs()` fails or `OpenLibr
 `developer/debug/test/exec/childstatus.c:54-56` prints a fault when `CreateNewProc()` returns NULL, then falls through to `return 0` at line 58. The status assertions and child lifecycle checks only run in the successful-creation branch (`:28-53`).
 
 **Trigger and consequence:** child-process creation fails, for example under resource exhaustion. The test exits successfully without checking any ChildStatus states, so an automated run can mark an unexecuted test as passing. **Affected configuration:** `test-exec-public` on any architecture; developer test, not default image (`developer/debug/test/exec/mmakefile.src:12-38,70-71`). **Confidence:** high for the unchecked creation failure and unconditional success return; no process or test was run. Return a failure status when child creation fails. Source-only.
+
+<a id="ek11047"></a>
+## EK11047 — `childwait` test returns success when child creation fails
+
+`developer/debug/test/exec/childwait.c:27-35` reports failure from `CreateNewProc()` with `PrintFault()` but then reaches the unconditional `return 0` at line 37. The `ChildWait()` and `ChildFree()` calls are skipped in that branch.
+
+**Trigger and consequence:** creation of the test child fails, such as under resource exhaustion. The executable exits successfully despite not exercising its wait/free behavior, allowing automated test runs to report a false pass. **Affected configuration:** `test-exec-public` on any architecture; developer test, not default image (`developer/debug/test/exec/mmakefile.src:12-38,70-71`). **Confidence:** high for the false-success path; no process or test was run. Return failure when child creation fails. Source-only.
