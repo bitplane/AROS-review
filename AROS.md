@@ -18698,6 +18698,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[EK11034](AROS-exec-kernel.md#ek11034)** — m68k keeps software floating-environment flags in one file-static object, so one task’s flag operations change what other tasks observe. Conditional on using fenv from multiple tasks; source-only.
 
+**[EK11035](AROS-exec-kernel.md#ek11035)** — Exec `messagetest` can free a worker task and stack that remain live if the worker cannot allocate its reply port or message. Applies to the explicitly invoked Exec test target; source-only.
+
 
 
 **[OD1160](AROS-other-drivers.md#od1160)** — Efika `ReadBattClock()` ignores a missing RTAS `get-time-of-day` token result and converts uninitialized stack output. An invalid month can read outside `Date2Amiga()`'s month table, and `SetClock LOAD` can install the resulting time. Conditional on the Efika RTAS token being absent; source-only. See the [caller trace](AROS-other-drivers-coverage.md#efika-rtas-clock-result-od1160).
