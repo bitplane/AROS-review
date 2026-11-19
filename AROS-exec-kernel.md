@@ -11786,6 +11786,13 @@ The selected `openlib` test returns zero whether `ReadArgs()` fails or `OpenLibr
 
 **Trigger and consequence:** either signal allocation fails, or the exception callback is not invoked or captures an unexpected mask. In each case the executable exits successfully, so a caller relying on its exit status cannot distinguish a skipped or failed exception check from a pass; an in-tree automated false pass is not established. **Affected configuration:** `test-exec-public` on any architecture; developer test, not default image (`developer/debug/test/exec/mmakefile.src:18-38,70-71`). **Confidence:** high for the source-level false-success status; automated impact depends on an external runner. No signal or exception was run. Assert the expected mask and return failure when setup or verification fails. Source-only.
 
+<a id="ek11058"></a>
+## EK11058 — QuickPart leaks the successfully created half of a disk-row object pair
+
+`QP_FindDisks()` creates a disk object and a separate spacer group before checking whether both creations succeeded (`workbench/tools/QuickPart/QP_FindDisks.c:231-247`). The `if (diskObj && qpt_VOID_spacer2)` branch adds them to the drives group only when both are non-NULL (`:258-275`). If one creation fails, the other object remains unattached and the loop proceeds to free only `newDrive` (`:276-278`); no MUI/BOOPSI disposal handles the surviving object. The selected MUI constructor returns NULL when `NewObjectA()` fails (`workbench/libs/muimaster/mui_newobject.c:47-67`), so partial object creation is an explicit path. A failed spacer creation leaks the disk object; a failed disk creation leaks the spacer group and its child. This is distinct from EK9370's process-wide startup resource cleanup.
+
+**Trigger and consequence:** during a QuickPart drive scan, object creation succeeds for exactly one of the disk row or spacer group. The drive is omitted from the displayed list and the surviving unattached MUI object remains allocated; repeated failures can accumulate object and child allocations. **Affected configuration:** the QuickPart target when built and run; the complete Workbench target selects it (`workbench/tools/mmakefile.src:8-12`) and it can also be explicitly built (`workbench/tools/QuickPart/mmakefile.src:7-20`). **Confidence:** high for the unchecked pair and missing disposal; no allocation failure or GUI operation was induced. Dispose whichever object was created when its pair cannot be completed. Source-only.
+
 <a id="ek8850"></a>
 ### EK8850 — Concurrent first DynModule loads can overwrite the only tracked handle [optional API; concurrent callers conditional]
 
