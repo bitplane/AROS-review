@@ -24716,3 +24716,11 @@ The initial clock read stores both seconds and microseconds in `oldtimeval` (`de
 **Trigger and affected configuration:** intuition.library V39 cannot be opened by the selected `developer/demos/winbackfill` target. The demo is listed in `developer/demos/mmakefile.src:58-64`. **Consequence:** the error cleanup itself can fail before it exits with the requested warning status. **Suggested correction:** only call `UnlockPubScreen()` when both IntuitionBase and a successfully locked screen are available.
 
 **Source-only evidence:** `developer/demos/winbackfill.c:43-72,76-81`; no library failure or demo run was induced.
+
+## GD15307 — Window demo reports success when setup fails
+
+`main()` nests the intuition, graphics and DOS library opens, but all failed-open paths fall through to `return 0` without reporting a failure (`developer/demos/window.c:32-89`). If `OpenWindowTags()` fails, `main()` skips the interaction and also returns success; `openwindow()` prints `Window opened` unconditionally even when that call returned NULL (`:104-119`).
+
+**Trigger and affected configuration:** a required library cannot open or the selected `developer/demos/window` target cannot create its window. The program is listed in `developer/demos/mmakefile.src:58-64`. **Consequence:** the demo exits successfully without running the window operations, and window-creation failure is accompanied by a success message. **Suggested correction:** report each setup failure and return a nonzero status; print the success message only for a non-NULL window.
+
+**Source-only evidence:** `developer/demos/window.c:32-89,104-119`; no library failure, window operation or build was induced.
