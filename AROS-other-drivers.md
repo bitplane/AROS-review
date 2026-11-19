@@ -28998,7 +28998,7 @@ OD11042 m68k CopyMemQuick vector/CPU-selection recheck (existing finding strengt
 Reread `AllocPotBits()`'s unsynchronized free-mask calculation and reservation write, then traced both repeated `ReadJoyPort()` loops to their independent command-task callers: the debug joystick executable is listed in `developer/debug/test/misc/mmakefile.src:22`; RocketTool is in the explicit shell-app build target (`rom/usb/shellapps/mmakefile.src:4-8`) but not its commented parent aggregate. Both allow the caller to select a port and request the same fixed mask for that port. Their overlap can supply a maintained caller pair, but duplicate ownership still requires a scheduler switch between the two allocator operations and overlapping hardware use before release. Kept OD9803 conditional; no task interleaving or hardware access was run, and no body/LOC credit was added.
 
 
-<a id="od10154"></a>
+<a id="od10154-history"></a>
 <a id="lowlevel-cross-port-caller-topology-od10154"></a>
 
 ### LowLevel cross-port caller topology recheck (OD10154; 2026-11-01)
@@ -45407,6 +45407,17 @@ OD11759 described the same 32-bit `ieoff + ielen` wrap and post-check 256-byte c
 
 
 <a id="od9803"></a>
+
+<a id="od10154"></a>
+## OD10154 — game-controller polling restores a stale CIA direction byte across ports [conditional]
+
+`llPollGameCtrl()` saves the complete `cia->ciaddra` byte, sets the requested port's bit 6 or 7, pulses that port while reading its controller, then writes the saved byte back (`arch/m68k-amiga/lowlevel/readjoyport.c:51-80`). The two port bits share this byte, and the routine has no lock or other task-level serialization around the save/set/use/restore sequence.
+
+If a poll on port 0 saves the original byte and sets bit 6, then a poll on port 1 saves that modified byte and sets bit 7, a scheduler switch back to the first task before the second finishes lets port 0 restore the original byte and clear port 1's direction bit during its transaction. When the second task later restores its saved value, bit 6 can remain set after the port 0 transaction has ended. The routine's own comments explain that leaving a controller pin configured as output can make the button appear held (`:58-62`). Thus overlapping polls can disrupt the other controller's shift/read operation and can leave a direction bit in the wrong state.
+
+**Trigger and consequence:** both calls must enter game-controller polling on opposite ports, and task switches must occur within the short direction transaction in the ordering described above. The checked-in debug joystick command accepts a selected port and repeatedly calls `ReadJoyPort()` (`developer/debug/test/misc/joystick.c:88-113`; listed in `developer/debug/test/misc/mmakefile.src:22`). Optional RocketTool independently accepts a port and polls it in its interactive loop (`rom/usb/shellapps/RocketTool.c:228-252`; the shell-app target lists it in `rom/usb/shellapps/mmakefile.src:4-8`, while its parent aggregate edge is commented). These provide caller paths that can be run in separate tasks on opposite ports; the lowlevel debug display polls sequentially in one task (`developer/debug/test/lowlevel/lowlevel.c:394-397`). **Affected configuration:** native m68k-Amiga LowLevel implementation, when both callers are built/run and both ports report game controllers. **Confidence:** high that whole-byte restoration can overwrite the other port's bit; conditional on the unobserved task-switch ordering and controller path. No task interleaving or hardware access was run; source-only.
+
+
 ## OD9803 — `AllocPotBits()` can grant overlapping potgo lines to concurrent owners [conditional]
 
 `AllocPotBits()` removes bits already marked allocated from the caller's request, then separately ORs the remaining bits into the shared allocation bitmap (`arch/m68k-amiga/potgo/allocpotbits.c:11-20`; shared state is `PotgoBase::allocated` in `potgo_intern.h:17-22`). No semaphore, interrupt exclusion, or atomic operation protects this read/modify/write. If two task callers request an overlapping mask that is initially free and a scheduler switch occurs after both have read the old bitmap but before either reservation write, both calls can return the same bits. Each caller can then believe it exclusively owns those hardware lines.
