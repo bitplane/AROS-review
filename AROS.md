@@ -18845,3 +18845,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15344](AROS-graphics-desktop.md#gd15344)** — IconDrawerList ignores `AddPart()` overflow; the unchanged parent path can hide orphan `.info` icons and make ordinary child entries load the parent icon/path. Conditional on a combined path exceeding the 512-byte buffer; source-only.
 
 **[GD15345](AROS-graphics-desktop.md#gd15345)** — IconDrawerList ignores non-EOF `ExNext()` errors; a refresh clears the existing list first, then silently displays only the entries scanned before failure. Conditional on filesystem enumeration error; source-only.
+
+**GD15345 follow-up:** FIB-allocation and initial `Examine()` failures also leave the refreshed drawer empty without an error; the existing list is cleared before these scan steps. See the [graphics/desktop report](AROS-graphics-desktop.md#gd15345).
