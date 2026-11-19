@@ -867,7 +867,7 @@ Current table-only line-read refresh (2026-10-24): reparsed the three current co
 | `rom/intuition/dogadgetmethoda.c` | 107 | Full body reviewed; GD5791 |
 | `rom/intuition/donotify.c` | 125 | Full body reviewed; GD5790 |
 | <a id="doubleclick-preference-overflow-and-caller-census-gd15075"></a>`rom/intuition/doubleclick.c` | 31 | Full body and maintained call-site search checked; GD15075 records the unchecked 32-bit configured-interval multiplication. Traced Intuition's four input-handler calls and the public `SetPrefs()`/IPrefs preference paths. Other consumer behavior and out-of-range external preference values remain open/conditional. |
-| `rom/intuition/drawborder.c` | 69 | Full body reviewed; rendering callers sampled |
+| `rom/intuition/drawborder.c` | 69 | Full body reviewed; full-tree `DrawBorder()` caller search reconciled. Intuition calls are the bool-gadget render macro, requester border redraw, ButtonClass/FRButtonClass render branches, and string-gadget refresh; they forward caller-owned `Border` records with container/requester/gadget offsets. The only additional repository callers are the two `developer/demos/shadowborder.c` examples. No defect established for valid Border records; malformed XY/count chains and external clients remain API-boundary questions. |
 | `rom/intuition/drawimage.c` | 16 | Full body reviewed; DrawImageState wrapper traced |
 | `rom/intuition/drawimagestate.c` | 186 | Full body reviewed; GD5787 |
 | `rom/intuition/easyrequestargs.c` | 23 | Full body reviewed |
