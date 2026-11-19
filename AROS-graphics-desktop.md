@@ -24590,3 +24590,13 @@ The shared `cleanup()` routine prints an error when passed a message, releases a
 **Trigger and affected configuration:** create or update the optional GradientSlider gadget with a `GRAD_SkipVal` larger than its current range, then click the track before or after the knob. **Consequence:** page-click movement can wrap toward the opposite endpoint instead of saturating at zero or `GRAD_MaxVal`. **Suggested correction:** compare the step against the remaining range before adding/subtracting, then clamp without relying on signed conversion of an unsigned result.
 
 **Source-only evidence:** `workbench/classes/gadgets/gradientslider/gradientsliderclass.c:116-125,529-546`; the class is selected by `workbench/classes/gadgets/gradientslider/mmakefile.src:6-11`. No gadget, input event or build was run.
+
+## GD15291 — Console demo fails to check `CreateStdIO()` allocation results
+
+**Severity / confidence:** Medium severity, high confidence NULL dereference on the allocation-failure path.
+
+After allocating `consoleWriteMsg`, the demo tests `consoleWritePort` again instead of testing the returned request (`developer/demos/cons.c:231-233`). It makes the same mistake for `consoleReadMsg` (`:238-240`). `CreateStdIO()` explicitly returns NULL when it cannot allocate the request (`compiler/alib/createstdio.c:44-45`; its documented result is a pointer or NULL). If either port was created successfully but its IO request allocation fails, the erroneous condition remains false and execution proceeds to `OpenConsole()`, which immediately dereferences `writerequest` before `OpenDevice()` and later dereferences `readrequest` (`cons.c:252,450-457`). The selected cleanup labels already use `DeleteStdIO()`, whose contract permits NULL, so checking the correct result and taking the corresponding cleanup path is supported.
+
+**Trigger and affected configuration:** the selected `developer/demos/cons` target reaches a `CreateStdIO()` allocation failure after the associated port was created. The demo is listed in `developer/demos/mmakefile.src:14-20`; the parent demo aggregate edge is active in that manifest. **Consequence:** the demo dereferences a NULL IO request rather than reporting startup failure. **Suggested correction:** test `consoleWriteMsg` and `consoleReadMsg` respectively and branch to their existing cleanup labels.
+
+**Source-only evidence:** `developer/demos/cons.c:228-254,420-427,450-459`; `compiler/alib/createstdio.c:44-45`; `compiler/alib/deletestdio.c:22-36`. No allocation failure or demo operation was induced.
