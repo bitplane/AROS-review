@@ -24516,3 +24516,14 @@ After `GetDiskObject()` succeeds, `main()` unconditionally prints `dobj->do_Defa
 **Trigger and affected configuration:** run the explicitly buildable `readicon` demo on a valid DiskObject whose `do_DefaultTool` is NULL. **Consequence:** formatted output has undefined behavior and can terminate the utility before it displays the icon. **Suggested correction:** print a placeholder when the field is NULL.
 
 **Source-only evidence:** `developer/demos/readicon.c:147-214`; `workbench/libs/icon/diskobjio.c:732-743`; `workbench/libs/workbench/openworkbenchobjecta.c:714-720`; `workbench/system/Wanderer/Tools/Info/main.c:866-871`. No icon was read and no build was run.
+
+
+## GD15284 — coolbutton exits successfully after setup failures
+
+**Severity / confidence:** Low severity, high confidence; applies to the explicitly buildable developer demo.
+
+The shared `cleanup()` routine prints an error when passed a message, releases any acquired window, gadgets, screen and libraries, then always calls `exit(0)` (`developer/demos/coolbutton.c:26-56`). Setup failures in `openlibs()`, `getvisual()`, `InitCoolButtonClass()`, `makegadget()` and `makewin()` all call this routine with an error message (`:59-91,112-144,164-169,229-248`). The executable therefore reports success to its caller after failing to initialize or show the demo.
+
+**Trigger and affected configuration:** run the explicit `coolbutton` demo target when a required library, public screen/draw info, class, gadget or window cannot be acquired. **Consequence:** diagnostics are printed, but the process exit status is zero and scripts cannot detect the failure from status. **Suggested correction:** let cleanup release resources without exiting, then return a failure status for error paths and success only after normal close.
+
+**Source-only evidence:** `developer/demos/coolbutton.c:26-56,59-91,112-144,164-169,229-248`; the target is listed in `developer/demos/mmakefile.src:12-41,73`, while the parent aggregate edge is commented. No resource failure, GUI operation or build was induced.
