@@ -18823,3 +18823,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[EK11054](AROS-exec-kernel.md#ek11054) — DynModule can return a handle while a concurrent final close is tearing down that same module.** Optional `linklibs-dynmod` API; conditional on overlapping load/free calls for one port. Source-only.
 
 **[GD15337](AROS-graphics-desktop.md#gd15337)** — A custom input subsystem can declare an event size that wraps to 1–8 bytes, causing the pre-consumer replay buffer to deliver only a prefix. Optional input HIDD; no checked-in oversized caller. Source-only.
+
+**[GD15338](AROS-graphics-desktop.md#gd15338)** — Wanderer releases the screen layer-list lock after hit-testing an AppWindow drop target, then reads the layer/window and submits the drop; concurrent target closure can invalidate those pointers. Conditional on overlap; source-only.
