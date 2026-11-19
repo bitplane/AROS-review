@@ -16575,7 +16575,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 **[GD14869](AROS-graphics-desktop.md#gd14869) — NVIDIA CopyBox shifts tall extents as signed integers.** Heights of 32,768 or more invoke undefined behavior in the packed GPU command fields. Explicit optional HIDD only; source-only.
 **[GD14868](AROS-graphics-desktop.md#gd14868) — Headless boot-driver replay retains a pointer to its caller's stack tags.** Disk-started HeadlessGfx queues its local HIDD attribute list for later replay, after the startup function returns; deferred construction then reads expired tag storage. Conditional on optional HeadlessGfx startup with no display registered; source-only.
 
-**[EK10861](AROS-exec-kernel.md#ek10861) — OpenSBI FDT parser classifies any `memory*` root node as RAM.** A false secondary bank can be mapped and allocated on non-UEFI startup; with UEFI it can affect the primary heap only under the EFI-region size condition also described in EK9042. Conditional on an external RISC-V DTB; source-only.
+**[EK10861](AROS-exec-kernel.md#ek10861) — OpenSBI FDT parser classifies any `memory*` root node as RAM.** A false secondary bank can be mapped and allocated on non-UEFI startup; with UEFI it can affect the primary heap when the retained FDT scalar bounds participate in EK9042’s primary-span mismatch. Conditional on an external RISC-V DTB; source-only.
 
 **[OD11411](AROS-other-drivers.md#od11411) — PCITool vendor lookup skips the final vendor and overruns an empty index.** A nonempty `pci.ids` file with no parsed vendors underflows the index bound; a final vendor is never compared by the binary search. Conditional on the explicitly buildable PCITool utility; source-only.
 
@@ -17945,7 +17945,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[EK9032](AROS-exec-kernel.md#ek9032) — GenModule can read past a stack buffer when generating a proto header for a long include name.** Source-only.
 
-**[EK9042](AROS-exec-kernel.md#ek9042) — OpenSBI UEFI startup can allocate the FDT primary span as RAM after replacing it with a smaller EFI usable-region list (conditional allocation from EFI-reserved or absent memory; high source confidence).** Source-only.
+**[EK9042](AROS-exec-kernel.md#ek9042) — OpenSBI startup can build the primary heap outside the selected RAM bank.** Startup begins the primary MemHeader at `__kernel_end` but uses only the selected bank’s end; a gap, underflow, EFI-unusable span or stale FDT bound can therefore be advertised as RAM. Conditional on external firmware layout; source-only.
 
 **[EK9058](AROS-exec-kernel.md#ek9058) — SetPlayerAttrsA searches and adopts public conductors outside the required list lock (conditional concurrency defect; high source confidence).** Source-only.
 
