@@ -18772,4 +18772,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[GD15333](AROS-graphics-desktop.md#gd15333)** — Input Preferences CLI ignores `USE`/`SAVE` handler and export failures, then exits with status zero. Conditional on failed input or output I/O; source-only.
 
-**[GD15334](AROS-graphics-desktop.md#gd15334)** — Editor search and Replace All delete matched text before an unchecked replacement insertion; allocation failure can lose the match or leave a partial replacement. Explicit optional target; source-only.
+**[GD15334](AROS-graphics-desktop.md#gd15334)** — Editor search and Replace All delete matched text before an unchecked replacement insertion; allocation failure can drop replacement text and advance past later matches. Explicit optional target; source-only.
