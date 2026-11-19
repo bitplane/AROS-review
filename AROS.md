@@ -18831,3 +18831,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15340](AROS-graphics-desktop.md#gd15340)** — If Wanderer confirms an existing copy destination but cannot read its metadata, it skips the overwrite prompt and proceeds to open the destination with `MODE_NEWFILE`. Conditional on metadata/FIB failure; source-only.
 
 **[GD15341](AROS-graphics-desktop.md#gd15341)** — IconList silently skips selected sources whose full-path allocation fails, then publishes the remaining subset as a drop. Conditional on partial allocation failure; source-only.
+
+**GD5866 follow-up:** IconList also leaks the event record when target-path allocation fails after the record is created; those branches jump to the common exit without cleanup. See the [graphics/desktop report](AROS-graphics-desktop.md#gd5866) and coverage ledger.
