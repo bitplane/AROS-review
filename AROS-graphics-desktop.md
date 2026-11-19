@@ -24763,3 +24763,19 @@ The GUI reads the Match name string into `setup.pattern` (`workbench/system/Snoo
 **Trigger and affected configuration:** Snoopy opens `envarc:snoopy.prefs` successfully, then a preferences write fails, for example because the destination becomes full or unwritable. **Consequence:** the UI suppresses its save-error request and the previous preferences may be replaced by an incomplete file. **Suggested correction:** propagate each `FPuts()` error through `setup_write_parameter()` and `setup_save()`, and report failure if any write fails.
 
 **Source-only evidence:** `workbench/system/Snoopy/setup.c:98-103,157-210`; `rom/dos/fputs.c:41-48`; no write failure or preferences operation was run.
+
+## GD15313 — Snoopy's localized OpenLibrary version text can exceed its buffer
+
+`New_OpenLibrary()` formats the requested `ULONG version` with the translated `MSG_VERSION` format into `TEXT verstr[20]` (`workbench/system/Snoopy/patches.c:883-887`). The Basque and Italian catalog strings are each 12 bytes before substitution (`catalogs/basque.ct:175-176`; `catalogs/italian.ct:180-181`). On 32-bit builds, a valid request value `0x80000000` is interpreted by `%ld` as `-2147483648`, producing 20 text bytes plus the terminator in the 20-byte buffer. The routine then passes the resulting local string to `main_output()`.
+
+**Trigger and affected configuration:** Snoopy's OpenLibrary monitor is enabled (it defaults to TRUE in `setup.c:145`), a monitored call requests version `0x80000000`, and the selected catalog is Basque or Italian. **Consequence:** formatting writes the terminator beyond `verstr` and the logged version text is corrupted. **Suggested correction:** size the buffer for the longest translated prefix/suffix and the full rendered version, or use a bounded formatter and detect truncation.
+
+**Confidence:** medium; the format and buffer are direct source evidence, but the trigger requires an unusually large minimum library version and a specific localization. No OpenLibrary call or build was run.
+
+## GD15314 — Snoopy prints pointer-valued OpenDevice units as integers
+
+`New_OpenDevice()` accepts `unitNumber` as `IPTR`, and the source explicitly notes that it can be a pointer, but formats it with `%d` as `Unit %d` (`workbench/system/Snoopy/patches.c:838-865`). When a device uses a pointer-valued unit, the diagnostic presents the value as an integer unit number; on wider pointer builds the format argument also has the wrong width.
+
+**Trigger and affected configuration:** enable Snoopy's OpenDevice monitor and open a device whose unit argument is a pointer rather than a numeric unit. **Consequence:** the log misidentifies the unit passed to the device, reducing the accuracy of the monitor output. **Suggested correction:** format the `IPTR` with a pointer-width-safe representation and distinguish pointer units from numeric unit indices.
+
+**Confidence:** high for the formatting mismatch, conditional on a pointer-valued unit caller. No device was opened.
