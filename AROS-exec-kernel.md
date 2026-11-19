@@ -11807,6 +11807,13 @@ The `CPUFAMILY_AMD_K9` case in `IdHardware(IDHW_CPU)` returns the string `"ADM_K
 
 **Trigger and consequence:** query `IdHardware(IDHW_CPU)` on an AMD PC processor whose decoded family is 0x0f. The returned CPU label is misspelled as `ADM_K9`, so callers receive an incorrect identifier string. **Affected configuration:** the explicitly built Identify library on PC targets using the selected `arch/all-pc/processor` provider; no default-image inclusion is claimed. **Confidence:** high for the family mapping and returned literal; no processor query was run. Correct the label to `AMD_K9`. Source-only.
 
+<a id="ek11061"></a>
+## EK11061 — `IDHW_CHUNKYPLANAR` reports availability opposite to its hook
+
+`IDHW_CHUNKYPLANAR` is documented as “Chunky To Planar Hardware (---,Found)” (`workbench/libs/identify/identify.h:104`). `GfxBase->ChunkyToPlanarPtr` aliases `HWEmul[0]` (`compiler/include/graphics/gfxbase.h:154-156`), but `IdHardwareNum()` returns `FALSE` when that pointer is non-NULL and `TRUE` when it is NULL (`workbench/libs/identify/idhardwarenum.c:382-383`). The string API passes that numeric result to `handle_avail()`, which reports “Found” for any nonzero value (`workbench/libs/identify/idhardware.c:445-446,655-665`). A repository-wide search found no other source assignment or use of this hook.
+
+**Trigger and consequence:** query this ID when the graphics library has no chunky-to-planar hook installed. The numeric API reports TRUE and the string API reports “Found”; when the hook is installed, the numeric result is FALSE. This inverts availability reporting. **Affected configuration:** clients of an explicitly built `identify.library` on AROS targets whose graphics library leaves `HWEmul[0]` null; the in-tree Identify test prints both API results. **Confidence:** high for the inverted condition and public result mapping; the hook's target initialization was not exercised. Return TRUE only when the feature is actually available. Source-only.
+
 <a id="ek8850"></a>
 ### EK8850 — Concurrent first DynModule loads can overwrite the only tracked handle [optional API; concurrent callers conditional]
 
