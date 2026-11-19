@@ -18876,3 +18876,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **GD15346 follow-up:** the constructor also leaves a live IconDrawerList without its requested drawer when the initial `StrDup()` fails. See the [graphics/desktop report](AROS-graphics-desktop.md#gd15346).
 
 **[GD15350](AROS-graphics-desktop.md#gd15350)** — MUI closes AppWindow-enabled native windows without unregistering their Workbench registrations; repeated reopen cycles leak entries, and application disposal leaves stale message-port pointers. Dispatch to a stale record additionally requires native Window address reuse. Source-only.
+**[GD15351](AROS-graphics-desktop.md#gd15351)** — A concurrent documented `ClearMenuStrip()` can acquire `MenuLock` after menu startup is queued but before the input handler takes it; menu-task window/menu dereferences can then overlap close or menu-data teardown. Conditional on task interleaving; source-only.
