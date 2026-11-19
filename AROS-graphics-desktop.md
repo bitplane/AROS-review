@@ -22500,11 +22500,11 @@ The shared cleanup routine always exits zero, including when `openlibs()` fails 
 **Trigger and consequence:** reqtools.library cannot be opened. The string-requester demo prints an error but exits with success without displaying the requester. A caller relying on process status cannot distinguish setup failure from normal completion. **Affected configuration:** the explicitly buildable `developer/demos/rtstring.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the failure path and zero status; low impact because this is an interactive example with no checked-in caller. No library failure, requester operation or build was run; source-only.
 
 <a id="gd15029"></a>
-## GD15029 — RTPalette exits successfully when reqtools.library cannot open [conditional]
+## GD15029 — RTPalette exits successfully when reqtools.library cannot open [low impact]
 
 `openlibs()` calls cleanup when reqtools.library fails to open, but cleanup always exits with status zero (`developer/demos/rtpalette.c:18-32`).
 
-**Trigger and consequence:** reqtools.library cannot be opened. The palette requester demo prints an error but exits successfully without showing its requester. **Affected configuration:** the explicitly buildable `developer/demos/rtpalette.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the failure branch and zero exit status. Return a failure code from cleanup. No library failure, requester operation or build was run; source-only.
+**Trigger and consequence:** reqtools.library cannot be opened. The palette requester demo prints an error but exits successfully without showing its requester. A caller relying on process status cannot distinguish setup failure from normal completion. **Affected configuration:** the explicitly buildable `developer/demos/rtpalette.c` target (`developer/demos/mmakefile.src:12-41,73`); parent aggregate edge disabled (`config/mmakefile.src:16-18`). **Confidence:** high for the failure path and zero status; low impact because this is an interactive example with no checked-in caller. No library failure, requester or build was run; source-only.
 
 <a id="gd15036"></a>
 ## GD15036 — WindowShape demo never disposes its input shape region [conditional]
