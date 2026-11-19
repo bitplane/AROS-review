@@ -17541,7 +17541,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **OD9448 — GamePort can access a request's unit after replying it.** On ExecSMP, a client on another CPU can consume the reply and close/free its unit before the callback's post-reply `gpu_flags` read. Conditional on that completion/close overlap; no request was run. See [OD9448](AROS-other-drivers.md#od9448).
 
 
-**[EK10938](AROS-exec-kernel.md#ek10938) — `CreatePool()` can pass a zero size into `AllocMemHeader()` after unchecked overhead arithmetic wraps. A matching plain header can return an unconsumed zero-size chunk that is rewritten as a bogus oversized header, corrupting the parent free list. MUI List exposes a configurable `ULONG` puddle-size tag on 32/64-bit builds, and NList on 32-bit non-AmigaOS4 builds; mixed managed/plain header selection is also required. Source-only.**
+**[EK10938](AROS-exec-kernel.md#ek10938) — `CreatePool()` can corrupt a still-free parent chunk after its puddle-size overhead wraps to zero. In a mixed managed/plain MemList, `AddTail()` links an overlapping fake header and overwrites the live chunk’s `mc_Next`/`mc_Bytes`; MUI List and NList expose configurable puddle-size tags. Conditional on boundary input, header order, and target address-wrap behavior. Source-only.**
 
 **[EK10940](AROS-exec-kernel.md#ek10940) — `GetTagsFromStack()` removes the pairs selected by `TAG_SKIP` but leaves the skip marker, so standard tag iteration skips later live entries and may advance past the temporary terminator. Conditional on callers using `TAG_SKIP` through stack-tag varargs wrappers on upward-stack ARM/AArch64/PowerPC/RISC-V/x86-64 configurations; no in-tree varargs caller found. Source-only.**
 
