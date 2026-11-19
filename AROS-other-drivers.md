@@ -44256,11 +44256,9 @@ LAN78xx sets `ncp_OpenFlags` from the requested Open flags before allocating the
 **Trigger and consequence:** a LAN78xx Open requests exclusive ownership (`SANA2OPF_MINE`) and `BufMan` allocation fails. Open returns failure, but the unit retains MINE; a subsequent Open is rejected as busy even though the failed call never established an opener. **Affected configuration:** LAN78xx with a tag list and an allocation failure after the Open flag is set. **Confidence:** high from the order of assignments and failure return; no allocation failure or Open was induced. Roll back `ncp_OpenFlags` on every failed Open path. Source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
 
 <a id="od3387"></a>
-## OD3387 — USB Ethernet last Close fails to clear the exclusive-open state [seven class drivers]
+## OD3387 — Withdrawn as duplicate of OD11724
 
-In ASIX, CDC Ethernet, Davicom, EthWrap, MosChip, Pegasus, and RNDIS, `devClose()` decrements `unit_OpenCnt` and clears `ncp_OpenFlags` only when the resulting count equals 1 (`asixeth/dev.c:175-178`; corresponding peer locations were compared). LAN78xx uses the correct zero-count condition (`lan78xx/dev.c:174-176`).
-
-**Trigger and consequence:** a sole opener acquired the unit with `SANA2OPF_MINE` and closes it. The count becomes zero, so the `== 1` branch is skipped; the stale MINE bit makes later Open calls return `IOERR_UNITBUSY` despite there being no openers. **Affected configuration:** the seven named class drivers when an exclusive opener is the last opener to close. **Confidence:** high from the decrement, comparison, and Open busy check; no Open/Close sequence was run. Clear the Open flags when the resulting count reaches zero. Source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
+OD3387's stale `SANA2OPF_MINE` flag after the last Close is the zero-count outcome of the same post-decrement `ncp_OpenFlags` check documented in OD11724. OD11724 also covers the shared-to-exclusive bypass from the count-one outcome and includes the same seven USB Ethernet vectors plus Bluetooth PAN. No separate OD3387 defect is asserted; see [OD11724](AROS-other-drivers.md#od11724).
 
 <a id="od3397"></a>
 ## OD3397 — USB Ethernet Open can retain a caller tag list as its buffer-manager pointer [seven class drivers]
