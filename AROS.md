@@ -18752,3 +18752,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15322](AROS-graphics-desktop.md#gd15322--iconscale-clamps-valid-dimensions-above-the-signed-word-range)** — IconScale parses unsigned 16-bit scale-box dimensions through signed `WORD` variables and can clamp valid values above 32,767 to 20. Conditional on target conversion behavior; source-only.
 
 **[GD15323](AROS-graphics-desktop.md#gd15323--filereq-exits-successfully-when-setup-or-requester-allocation-fails)** — FileReq prints library/requester allocation errors but still returns zero. Conditional on setup failure; source-only.
+
+**[GD15324](AROS-graphics-desktop.md#gd15324--regiontest-accepts-region-id-10-for-a-ten-element-array)** — RegionTest's three region-to-region commands permit index 10 into a 10-entry array. Source-only.
+**[GD15325](AROS-graphics-desktop.md#gd15325--regiontest-reads-command-words-into-a-fixed-buffer-without-a-limit)** — RegionTest reads unbounded command tokens into an 80-byte stack buffer. Source-only.
+**[GD15326](AROS-graphics-desktop.md#gd15326--regiontest-uses-numeric-inputs-after-failed-scanf-conversions)** — RegionTest uses unchecked numeric `scanf` destinations, which remain uninitialized after conversion failure. Source-only.
