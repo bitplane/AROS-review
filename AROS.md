@@ -17423,7 +17423,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD14989](AROS-graphics-desktop.md#gd14989) — DemoWin examines an uninitialized raw-key buffer when conversion returns zero. Conditional on a zero-length raw-key conversion. Source-only.**
 **[GD14990](AROS-graphics-desktop.md#gd14990) — DemoWin ignores console.device open failure and reads an uninitialized request field. Conditional on OpenDevice failure. Source-only.**
 **[GD14991](AROS-graphics-desktop.md#gd14991) — DemoWin skips acquired-resource cleanup on console-device/window setup failures. Conditional on a failed setup call. Source-only.**
-**[GD14992](AROS-graphics-desktop.md#gd14992) — DTO demo continues into Intuition calls without checking that intuition.library opened. Conditional on library-open failure. Source-only.**
+**[GD14992](AROS-graphics-desktop.md#gd14992-dto-demo-uses-apis-after-unchecked-required-library-opens)** — DTO demo continues into Intuition or Utility calls if the corresponding library failed to open. Conditional on the open failure and later call path; source-only.
 **[GD14993](AROS-graphics-desktop.md#gd14993) — EasyReq maps asynchronous requester errors to its third successful choice. Conditional on a requester handling error. Source-only.**
 **[GD14994](AROS-graphics-desktop.md#gd14994) — Font2C writes character-spacing data from the kerning table. Conditional on a font with character spacing. Source-only.**
 **[GD14995](AROS-graphics-desktop.md#gd14995) — Font2C copies unbounded command arguments into fixed-size buffers. Conditional on long/malformed input. Source-only.**
@@ -17486,8 +17486,6 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 **[GD15051](AROS-graphics-desktop.md#gd15051) — `cxtest` uses Intuition before checking its library open. Conditional. Source-only.**
 **[GD15052](AROS-graphics-desktop.md#gd15052) — DemoWin device/window setup failures bypass resource cleanup. Conditional. Source-only.**
 **[GD15053](AROS-graphics-desktop.md#gd15053) — DemoWin reads an uninitialized key byte when raw-key conversion yields no output. Conditional. Source-only.**
-**[GD15054](AROS-graphics-desktop.md#gd15054) — dto uses DataType attributes after a failed or partial query. Conditional. Source-only.**
-**[GD15055](AROS-graphics-desktop.md#gd15055) — dto continues after dependent library opens fail. Conditional. Source-only.**
 **[GD15056](AROS-graphics-desktop.md#gd15056) — Decoration Screen and Window object disposal skips the superclass, leaking per-screen objects. Unconditional for those classes. Source-only.**
 
 **[GD15060](AROS-graphics-desktop.md#gd15060) — LeakWatch permanently consumes snapshot storage.** Conditional on repeated snapshots exhausting fixed pools; source-only.
