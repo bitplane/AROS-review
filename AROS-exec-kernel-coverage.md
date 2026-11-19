@@ -15252,6 +15252,7 @@ stdc floating string conversion full-body and wrapper pass (EK10765; four select
 | `compiler/crt/stdc/strtof.c` | 5 | Full body read; delegates to `strtod()`, inheriting EK10765. |
 | `compiler/crt/stdc/strtold.c` | 8 | Full body read; delegates to `strtod()`, inheriting EK10765. |
 | `compiler/crt/stdc/strtoul.c` | 90 | Full 190-line body read; base selection, sign handling, cutoff overflow, `endptr` and errno paths checked. EK10766 remains a standards-contract question for negative-magnitude overflow; no additional defect established. |
+| `compiler/crt/stdc/strtoull.c` | 94 | Full 189-line body read; long-long base selection, sign handling, cutoff overflow, `endptr` and errno paths checked. EK10766 remains a standards-contract question for negative-magnitude overflow; no additional defect established. |
 
 
 <a id="unsigned-string-overflow-recheck-ek10766"></a>
@@ -18007,3 +18008,6 @@ DynModule concurrent final-close/load caller trace (EK11054 added; no body/path/
 
 
 `strtoul()` full-body and caller-contract pass (one newly credited selected body, 90 `cloc 2.06` C code lines; 2026-11-19): confirmed selection through `STDC_COMMON` in `compiler/crt/stdc/mmakefile.src:627-695` and the static runtime list (`:842-900`). Read the full `compiler/crt/stdc/strtoul.c` body in source order; checked invalid-base errors, whitespace/sign handling, conditional `0x` consumption, base autodetection, cutoff/cutlim overflow accumulation, no-digit `endptr` reset, unsigned negation, and errno behavior. Cross-checked the related `strtol()`, `strtoull()`, and `strtoumax()` forwarding logic and the selected CUnit coverage. No independent parser defect established. EK10766 remains unresolved at the standards-contract boundary for negative magnitudes that themselves overflow: the implementation negates its saturated unsigned maximum after setting ERANGE, while the existing C wording has competing interpretations recorded in the earlier targeted review. No test, conversion, or build was run; source-only.
+
+
+`strtoull()` full-body and caller-contract pass (one newly credited selected body, 94 `cloc 2.06` C code lines; 2026-11-19): confirmed selection in `STDC_COMMON` and the implementation's `AROS_HAVE_LONG_LONG` guard (`compiler/crt/stdc/mmakefile.src:627-695`; `compiler/crt/stdc/strtoull.c:7-10,188`). Read the complete body in source order; checked the long-long overflow cutoff, invalid base, optional prefix, sign conversion, errno, and end-pointer behavior against `strtoul()`. The native-width and `strtoull()` paths share the already recorded EK10766 negative-magnitude overflow contract question; no separate defect was established. The `strtoll()`/`strtoumax()` wrappers were cross-checked for their delegation and sign/range handling. No test, conversion, or build was run; source-only.
