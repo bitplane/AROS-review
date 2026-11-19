@@ -18002,7 +18002,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11609](AROS-other-drivers.md#od11609) — Prism2 trusts the entry length in Intersil host-scan records when calculating its result count. A zero length reaches a division by zero in scan completion; conditional on malformed firmware result data. Source-only.**
 
-**[GD15120](AROS-graphics-desktop.md#gd15120) — Built-in printer conversion divides by zero for black pixels on four-color printers.** The fallback YMCB/BGRW conversion divides by the largest RGB channel; black makes that denominator zero. Conditional on a four-color printer using built-in conversion; source-only, target exception behavior unverified.
+**[GD15120](AROS-graphics-desktop.md#gd15120) — Built-in printer conversion divides by zero for black pixels on four-color printers.** The fallback YMCB/BGRW conversion divides by the largest RGB channel; black makes that denominator zero. The optional in-tree Skeleton printer target selects this path; the printer module is not connected to the inspected aggregate build. Source-only; target exception behavior and practical Skeleton use unverified.
 
 **[GD15121](AROS-graphics-desktop.md#gd15121) — Printer unit startup can leave its worker blocked after reply-port allocation fails.** The process is already launched, but no startup message is sent; the parent then expunges its unit without removing the worker. Conditional; source-only.
 
