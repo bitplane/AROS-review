@@ -24670,3 +24670,19 @@ The custom listview hook treats `LV_DRAW` with `lvdm_State == LVR_SELECTED` as a
 **Trigger and affected configuration:** draw or redraw the current selected row in the explicitly selected `developer/demos/gtmultiselect` program. The demo installs the callback through `GTLV_CallBack` (`gtmultiselect.c:193-208`) and is listed in `developer/demos/mmakefile.src:14-29`. **Consequence:** the custom multi-select mark is unstable and can be cleared or re-added by repainting. **Suggested correction:** change persistent selection only in an input/selection event path; make the render hook read the stored state and draw it without mutation.
 
 **Source-only evidence:** `developer/demos/gtmultiselect.c:115-125,156-182`; `workbench/libs/gadtools/listviewclass.c:240-258`. No listview or GUI operation was run.
+
+## GD15301 — Multi-select demo does not handle failed node-name allocation
+
+`makegadgets()` assigns each `strdup()` result directly to the node's `ln_Name` and appends the node without checking for NULL (`developer/demos/gtmultiselect.c:214-223`). The selected custom draw hook later calls `strlen(node->ln_Name)` and passes the same pointer to `TextFit()` and `Text()` (`:138-154`). If any string allocation fails, rendering that row dereferences the missing name pointer.
+
+**Trigger and affected configuration:** one of the 40 item-name allocations fails while the selected `developer/demos/gtmultiselect` demo constructs its list. **Consequence:** the list may fault when GadTools renders the affected node. **Suggested correction:** check each allocation and abort list construction through cleanup before appending a nameless node.
+
+**Source-only evidence:** `developer/demos/gtmultiselect.c:138-154,214-223`; no allocation failure or render was induced.
+
+## GD15302 — Multi-select demo reports startup failures as success
+
+The shared `cleanup()` routine always calls `exit(0)` (`developer/demos/gtmultiselect.c:42-60`). `openlibs()`, `getvisual()`, `makegadgets()` and `makewin()` call it with failure messages when initialization fails (`:62-88,239-255`), so those failed starts are indistinguishable from a normal close to shell scripts.
+
+**Trigger and affected configuration:** a library, public-screen resource, gadget or window cannot be created by the selected `developer/demos/gtmultiselect` target. **Consequence:** the program exits with success despite not reaching its interactive demo. **Suggested correction:** pass an appropriate status into cleanup or use a nonzero failure return for initialization errors.
+
+**Source-only evidence:** `developer/demos/gtmultiselect.c:42-60,62-88,199-255`; no failure or GUI operation was induced.
