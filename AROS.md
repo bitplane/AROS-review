@@ -18708,6 +18708,12 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[EK11039](AROS-exec-kernel.md#ek11039)** — The optional `copymem` stress test prints allocation or comparison failures but still exits successfully. Source-only.
 
+**[EK11040](AROS-exec-kernel.md#ek11040)** — `dumpmem` uses unbounded `gets()` for its confirmation and ignores EOF, risking stack corruption or an indeterminate proceed decision. Optional test utility; source-only.
+
+**[EK11041](AROS-exec-kernel.md#ek11041)** — `dumpmem` reads the signed `/N` size as unsigned, so negative sizes can become enormous dump lengths. Optional test utility; source-only.
+
+**[EK11042](AROS-exec-kernel.md#ek11042)** — `dumpmem` does not validate the `strtoul()` end pointer and can dump from zero or a truncated address after malformed input. Optional test utility; source-only.
+
 
 
 **[OD1160](AROS-other-drivers.md#od1160)** — Efika `ReadBattClock()` ignores a missing RTAS `get-time-of-day` token result and converts uninitialized stack output. An invalid month can read outside `Date2Amiga()`'s month table, and `SetClock LOAD` can install the resulting time. Conditional on the Efika RTAS token being absent; source-only. See the [caller trace](AROS-other-drivers-coverage.md#efika-rtas-clock-result-od1160).
@@ -18780,7 +18786,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **Hosted X11 bitmap-class audit (2026-11-19):** read the complete selected `x11gfx_bitmapclass.c` body (1,028 C code lines), including image transfer, XShm/Xlib, drawing and cleanup paths. No new finding was established; the checked-in caller census found no direct HIDD caller relying on `GC_DOCLIP` for `FillRect`, leaving only an external/direct-client contract question. The class body was already credited, so this re-read does not change the Graphics/Desktop checkpoint: **508,356/585,714 lines (86.8%)**; its aggregate file denominator remains unreconciled. See the [coverage ledger](AROS-graphics-desktop-coverage.md#hosted-x11-bitmap-fillrect-gc-clip-caller-census-2026-11-19). Source-only; no build or runtime operation was performed.
 
-**Active review checkpoint (2026-11-19):** Graphics/Desktop represents **511,592/585,714 C/header code lines (87.3%)** using the historical line denominator; its aggregate file denominator remains unreconciled. Exec/Kernel represents **315,583/375,772 C/header code lines (84.0%)**; the ledger has 2,097/2,097 selected paths represented, which is a path-record count and does not mean every file body is complete. Other Drivers represents **2,204,824/2,236,773 C/header code lines (98.6%)** and **5,306/5,490 paths (96.6%)**. These are separate body/path bookkeeping measures; inventories overlap and cannot be combined into a reliable overall file percentage. None of the three review regions is complete. See the [coverage ledgers](AROS-graphics-desktop-coverage.md), [Exec/Kernel](AROS-exec-kernel-coverage.md), and [Other Drivers](AROS-other-drivers-coverage.md). Source-only.
+**Active review checkpoint (2026-11-19):** Graphics/Desktop represents **511,592/585,714 C/header code lines (87.3%)** using the historical line denominator; its aggregate file denominator remains unreconciled. Exec/Kernel represents **315,718/375,907 C/header code lines (84.0%)**; the ledger has 2,098/2,098 selected paths represented, which is a path-record count and does not mean every file body is complete. Other Drivers represents **2,204,824/2,236,773 C/header code lines (98.6%)** and **5,306/5,490 paths (96.6%)**. These are separate body/path bookkeeping measures; inventories overlap and cannot be combined into a reliable overall file percentage. None of the three review regions is complete. See the [coverage ledgers](AROS-graphics-desktop-coverage.md), [Exec/Kernel](AROS-exec-kernel-coverage.md), and [Other Drivers](AROS-other-drivers-coverage.md). Source-only.
 
 **[GD15331](AROS-graphics-desktop.md#gd15331)** — Workbench-launched Format can leave the shared DOS device-list lock held when a volume task has no matching device entry; later device-list writers may wait indefinitely. Conditional stale/unmatched volume state; source-only.
 

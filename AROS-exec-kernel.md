@@ -11620,3 +11620,24 @@ The selected `avltest` utility checks results from `AVL_FindNextNodeByKey()` but
 The selected `copymem` test prints an out-of-memory message when either buffer allocation fails and prints a comparison-failure message when `memcmp()` detects a bad copy, but neither branch records a failure or exits with an error (`developer/debug/test/exec/copymem.c:18-40`). After the Ctrl-C loop ends, `main()` always returns zero (`:13-16,45-46`). The cleanup calls do not create a separate null-free defect: the selected `FreeMem()` returns immediately for a NULL pointer (`rom/exec/freemem.c:57-62`).
 
 **Trigger and consequence:** memory pressure prevents either buffer allocation, or `CopyMem()` produces bytes that differ from the source. The test reports the condition but ultimately exits successfully, so a runner that checks process status can treat the failed stress run as passing. **Affected configuration:** explicitly invoked `test-exec-public` on any architecture; this developer test is not part of the default image (`developer/debug/test/exec/mmakefile.src:18-38,70-71`). **Confidence:** high for the diagnostic-only branches and unconditional success return; no allocation failure or copy operation was induced. Preserve a failure result and return nonzero after the loop when either condition occurs. Source-only.
+
+<a id="ek11040"></a>
+## EK11040 — DumpMem confirmation can overwrite its stack buffer
+
+The optional `dumpmem` utility reads the proceed/cancel confirmation with `gets()` into a 256-byte local array and ignores the return value (`developer/debug/test/exec/dumpmem.c:135-147`). `gets()` has no destination bound, so a response longer than the array can overwrite adjacent stack state. If input reaches EOF before any character is read, `szInput` remains indeterminate and is still inspected by the `strncmp()` checks.
+
+**Trigger and consequence:** enter more than 255 response characters, or run the interactive confirmation with EOF before input. The long response can corrupt the utility's stack and terminate or misdirect the utility; EOF makes the confirmation decision depend on an uninitialized byte rather than canceling safely. **Affected configuration:** explicitly invoked `test-exec-public` on any architecture; this debug tool is not part of the default image (`developer/debug/test/exec/mmakefile.src:18-38,70-71`). **Confidence:** high for the unbounded read and unchecked EOF path; no input or utility was run. Use a bounded read, check its result, and reject EOF. Source-only.
+
+<a id="ek11041"></a>
+## EK11041 — DumpMem treats negative `/N` sizes as huge unsigned lengths
+
+`ReadArgs()` documents `/N` outputs as `LONG` and parses the value with `StrToLong()` (`rom/dos/readargs.c:152-157,875-885`). `dumpmem` instead reads the returned storage through `ULONG *sizptr` (`developer/debug/test/exec/dumpmem.c:114-129`), then tests `dump_size <= 0`; after conversion to unsigned, a negative value passes that check. `HexDump()` rounds the length with `(count + 15) & -16` in `ULONG` arithmetic (`:28-35`). For example, `SIZE=-16` becomes `ULONG_MAX-15` and produces an almost-4-GiB iteration count instead of a rejected argument.
+
+**Trigger and consequence:** supply a negative numeric `SIZE` and confirm the dump (or use `QUIET`). The utility attempts to read and print an enormous range from the supplied address; this can run for a long time or fault when the range leaves readable memory. **Affected configuration:** explicitly invoked `test-exec-public` on any architecture. **Confidence:** high for the signed `/N` contract, unsigned interpretation, and arithmetic; no dump was attempted. Retain the `/N` result as `LONG`, reject nonpositive values, and check the round-up before iteration. Source-only.
+
+<a id="ek11042"></a>
+## EK11042 — DumpMem accepts an address string that `strtoul()` did not parse
+
+`dumpmem` calls `strtoul(address, &pEnd, 16)` but never checks `pEnd` or `errno` (`developer/debug/test/exec/dumpmem.c:118-125`). A string with no hexadecimal digits therefore yields address zero, and a string with a valid hexadecimal prefix followed by invalid text is silently accepted as the prefix value. If a positive size is supplied and the confirmation is accepted (or `QUIET` is set), `HexDump()` reads from that unintended address (`:152-160`).
+
+**Trigger and consequence:** provide malformed or partially numeric `ADDRESS` text. The tool attempts a dump from zero or from a truncated address instead of reporting invalid input; depending on the mapping, it may fault or display unrelated bytes. **Affected configuration:** explicitly invoked `test-exec-public` on any architecture. **Confidence:** high for the unchecked conversion end pointer and selected call into `HexDump`; no address was read. Require at least one converted digit, consume the entire argument, and reject conversion overflow before dereferencing. Source-only.
