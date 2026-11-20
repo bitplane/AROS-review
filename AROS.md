@@ -18895,3 +18895,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[GD15350](AROS-graphics-desktop.md#gd15350)** — MUI closes AppWindow-enabled native windows without unregistering their Workbench registrations; repeated reopen cycles leak entries, and application disposal leaves stale message-port pointers. Dispatch to a stale record additionally requires native Window address reuse. Source-only.
 **[GD15351](AROS-graphics-desktop.md#gd15351)** — On ExecSMP, a documented `ClearMenuStrip()` can acquire `MenuLock` after menu startup is queued but before the input handler takes it; menu-task window/menu dereferences can then overlap close or menu-data teardown. Source-only.
+**[EK11069](AROS-exec-kernel.md#ek11069)** — MinGW IRQ dispatch can dereference a cached successor after a callback removes and frees that later handler node. Conditional on callback-time removal; source-only.
