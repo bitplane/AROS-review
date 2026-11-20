@@ -18898,3 +18898,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[EK11069](AROS-exec-kernel.md#ek11069)** — MinGW IRQ dispatch can dereference a cached successor after a callback removes and frees that later handler node. Conditional on callback-time removal; source-only.
 
 **[EK11070](AROS-exec-kernel.md#ek11070)** — Console completion's Home key selects the last match and End selects the first in its multi-match chooser. Conditional on windowed completion with multiple matches; source-only.
+
+**[GD6282](AROS-graphics-desktop.md#gd6282)** — AmigaGuide's unconditional empty final line reads one byte before its string; if that byte appears to be newline, a proportional-font `TextLength()` path can continue reading with a `-1` signed `WORD` count. The extended read depends on 16-bit wraparound; source-only.
