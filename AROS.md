@@ -19031,3 +19031,4 @@ OpenSBI PLIC shared-context race check (2026-11-23): the static last-claim conte
 
 
 OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundant EK11093 entry after reconciling it with EK784, which already covers both FDT and ACPI paths. The rechecks are retained in the Exec/Kernel ledger and count as no new finding. See [EK784](AROS-exec-kernel.md#ek784).
+**[GD15399](AROS-graphics-desktop.md#gd15399)** — SysExplorer’s ATA and Storage support modules use their own uninitialized catalog copies, so selected translated labels fall back to English while the application’s main window uses the opened catalog. Source-only.
