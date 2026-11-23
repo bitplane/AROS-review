@@ -19000,3 +19000,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11782](AROS-other-drivers.md#od11782)** — Nouveau tiled-EDID handling can mark a connector tiled before tile-group allocation succeeds, then dereference the missing group while publishing the tile property. Conditional allocation failure; optional HIDD; source-only.
 
 **[OD11783](AROS-other-drivers.md#od11783)** — Nouveau can retain the previous tiled display’s “single monitor” flag when a reused connector parses a different tiled EDID. Conditional display replacement; optional HIDD; source-only.
+
+**[OD11784](AROS-other-drivers.md#od11784)** — If VMware VKMS atomic shutdown fails during unload, CRC timers can still queue work after the CRC worker is stopped. Conditional on allocation failure and active CRC capture; optional HIDD; source-only.
