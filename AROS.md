@@ -17935,7 +17935,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[EK10210](AROS-exec-kernel.md#ek10210) — Linux PPC32 task switches omit FPSCR save/restore.** The hosted PowerPC context macros copy the 32 floating-point registers but omit the distinct FPSCR, so tasks can inherit another task's rounding or exception state. Conditional on the Linux PPC32 target being buildable; configuration comments mark PPC support unfinished. See the [source and ABI trace](AROS-exec-kernel-coverage.md#linux-ppc32-hosted-signal-context-and-fpscr-caller-closure-ek10210-added-2026-10-29). Source-only; no build or runtime test was run.
 
-**[EK306](AROS-exec-kernel.md#ek306) — A different-task expunge can free a per-task library base while leaving its owner's slot pointing to it [high memory-integrity impact; high source confidence for generated per-task-base libraries with relative dependencies].** Source-only.
+**[EK306](AROS-exec-kernel.md#ek306) — A different-task expunge can free a per-task library base while leaving its owner’s task slot pointing to freed memory. The default Workbench target graph selects affected PNG, TIFF, zlib, LZMA, and ZSTD module targets; the cross-task expunge/reopen interleaving remains conditional. Source-only.**
 
 **[EK10178](AROS-exec-kernel.md#ek10178) — ARM task argument setup can misalign the entry stack.** Source-only.
 
