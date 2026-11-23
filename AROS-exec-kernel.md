@@ -7310,6 +7310,13 @@ Both selected helpers advance `s2` through the terminating NUL with `while (*s2+
 **Trigger and consequence:** a Moira client sets a watchpoint at `0xffffffff` and the emulated CPU performs a byte read or write there. The memory operation proceeds without `didReachWatchpoint()` being called. **Affected configuration:** optional `kernel-m68kemu-library`; the AROS bridge does not expose a maintained watchpoint setup path, so a checked-in AROS caller is not established and the report is limited to clients using the embedded Moira C++ debugger API. **Confidence:** high for the missed range match; conditional reachability for external Moira clients. Use wrap-safe range membership for the access size. No guest access, debugger client, or build was run; source-only; see the [Moira watchpoint boundary pass](AROS-exec-kernel-coverage.md#moira-watchpoint-boundary-pass).
 
 
+<a id="ek11080"></a>
+### EK11080 — Moira guard APIs index before the guard array for negative indices
+
+`Guards::guardNr(long nr)` accepts every value less than `count` and immediately returns `&guards[nr]`; `guardAddr(long nr)` has the same upper-bound-only check (`rom/m68kemu/Moira/Moira/MoiraDebugger.cpp:44-48,60-64`). Neither rejects a negative index. With the default empty collection, `-1 < count` is already true, so either lookup forms an out-of-bounds pointer; once guards exist, the same is true for any negative value. Public operations inherit this unchecked index: `isSet()` calls `guardNr()`, `remove()` reads `guards[nr].addr`, and `replace()` writes `guards[nr].addr` after only checking `nr >= count` (`MoiraDebugger.h:87,88-89`; `MoiraDebugger.cpp:86-88,100-104`). The checked-in AROS bridge does not call these guard-list methods, and no in-tree Moira client was found using a negative index.
+
+**Trigger and consequence:** a client of Moira's debugger API passes a negative guard index to a lookup or mutator. The method accesses memory before the allocated guard array; the exact result depends on the adjacent allocation and operation, ranging from an invalid result to a fault or unintended write. **Affected configuration:** the optional `kernel-m68kemu-library` on its selected host targets, only for a client that calls these C++ debugger methods with a negative index; no maintained AROS trigger is established. **Confidence:** high for the missing lower-bound check and out-of-range access; conditional for client reachability and visible consequence. Reject `nr < 0` before indexing. No debugger call or build was run; source-only; see the [Moira guard-index API pass](AROS-exec-kernel-coverage.md#moira-guard-index-api-pass).
+
 <a id="ek10268"></a>
 ### EK10268 — M68040 STOP raises a spurious privilege exception when its immediate clears S
 
