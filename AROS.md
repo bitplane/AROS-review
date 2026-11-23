@@ -18180,7 +18180,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **EK10970 (withdrawn)** — The m68k stdc `fenv` override is built before the generic stdc makefile filters overridden source basenames, so the generic file with the incomplete type header is not selected in the clean build. [Disposition and source trace](AROS-exec-kernel.md#ek10970). Source-only; no build run.
 
-**[EK10971](AROS-exec-kernel.md#ek10971) — PowerPC `float.h` advertises unsupported 80-bit long double while the stdc build omits its matching math bodies.** Selected wrappers such as `cosl()` can reference missing `__ieee754_*l` implementations; source-only build/link candidate, not reproduced.
+**[EK10971](AROS-exec-kernel.md#ek10971) — PowerPC `float.h` selects distinct-precision long-double wrappers while the stdc build omits their matching math providers.** `cosl()` concretely references omitted `__ieee754_cosl`; source selection is confirmed, while the final-link effect was not reproduced.
 
 **[EK10972](AROS-exec-kernel.md#ek10972) — `expl()` stores its long-double result in `double`, losing precision/range and falsely reporting overflow for some representable long-double results.** Applies to selected 80-bit and binary128 long-double targets; source-only.
 
