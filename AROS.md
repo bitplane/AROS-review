@@ -18991,6 +18991,6 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15387](AROS-graphics-desktop.md#gd15387)** — Nouveau ignores legacy TV property-allocation failure, then attaches a NULL property and can fault during on-chip NV17 TV output initialization. Optional HIDD; source-only.
 **[OD11780](AROS-other-drivers.md#od11780)** — Nouveau's legacy display-arbitration formula can divide by zero when the integer memory refill and pixel drain rates match; card-specific clock reachability remains conditional. Optional HIDD; source-only.
 
-**[GD15388](AROS-graphics-desktop.md#gd15388)** — NListtree removal reads one pointer past a child-table allocation when a list is exactly at its 64-entry capacity; observable effect is allocator-dependent. Source-only.
+**[GD15388](AROS-graphics-desktop.md#gd15388)** — NListtree removal or deselection reads one pointer past a table allocation at its 64-entry capacity; observable effect is allocator-dependent. Source-only.
 
 **[GD15389](AROS-graphics-desktop.md#gd15389)** — NListtree tree-list insertion and node selection ignore table-growth failure; capacity can outgrow the old buffer, making a later addition write out of bounds. Conditional allocation failure at a 64-entry boundary. Source-only.
