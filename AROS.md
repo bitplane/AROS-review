@@ -18993,7 +18993,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[GD15388](AROS-graphics-desktop.md#gd15388)** — NListtree removal or deselection reads one pointer past a table allocation at its 64-entry capacity; observable effect is allocator-dependent. Source-only.
 
-**[GD15389](AROS-graphics-desktop.md#gd15389)** — NListtree insertion, move, and node selection ignore table-growth failure; capacity can outgrow the old buffer, making a later addition write out of bounds. Conditional allocation failure at a 64-entry boundary. Source-only.
+**[GD15389](AROS-graphics-desktop.md#gd15389)** — NListtree insertion, move, copy, and node selection ignore table-growth failure; capacity can outgrow the old buffer, making a later addition write out of bounds. Conditional allocation failure at a 64-entry boundary. Source-only.
 
 **[OD11781](AROS-other-drivers.md#od11781)** — CDVDFS retains `ACTION_DIE` while busy but resets its local shutdown flag on the next handler loop, leaving `C:Mount SHUTDOWN` blocked; a later request can overwrite the only saved packet. Optional handler; source-only.
 
