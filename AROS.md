@@ -18975,5 +18975,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[GD15384](AROS-graphics-desktop.md#gd15384)** — Nouveau compares dithering depth to the mode field, so a 6-bpc request made while dithering is off can be discarded and the old depth reused when dithering is enabled. Optional HIDD; source-only.
 
-**[GD15385](AROS-graphics-desktop.md#gd15385)** — Nouveau tiled framebuffer size validation can wrap to zero for a maximum-size image submitted with a non-64-byte-aligned pitch that framebuffer creation does not reject; hardware scanout consequences for that malformed pitch remain uncertain. Optional HIDD; source-only.
+**[GD15385](AROS-graphics-desktop.md#gd15385)** — Nouveau accepts a non-64-byte-aligned tiled pitch whose size calculation wraps to zero; NV50+ plane encoding masks the pitch to 1,023 GOBs, shorter than the minimum row width in the example. Scanout and memory-access effects remain source-inferred. Optional HIDD; source-only.
 **[GD15386](AROS-graphics-desktop.md#gd15386)** — Nouveau's GK104 overlay advertises XRGB2101010 but maps it to a format value defined for the newer C37E class, not declared in the NV907E class table. Conditional optional-HIDD plane-format issue; medium confidence; source-only.
