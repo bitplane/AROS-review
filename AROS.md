@@ -19005,3 +19005,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD1433](AROS-other-drivers.md#od1433)** — Linux mouse button events can pass uninitialized X/Y fields through GamePort to input handlers and direct clients. Observable effect depends on consumers using button-event coordinates; optional hosted-Linux HIDD; source-only.
 **[GD15390](AROS-graphics-desktop.md#gd15390)** — BetterString's AROS show path marks the gadget shown after displayable backing-bitmap allocation fails; redraw then uses a NULL internal RastPort bitmap. Conditional allocation failure; source-only.
+**[EK11092](AROS-exec-kernel.md#ek11092)** — Concurrent lazy `GetDeviceProc()` calls can both start the same unstarted DOS handler and race startup on one `DeviceNode`; handler-specific fallout depends on its startup behavior. Conditional concurrent first access; source-only.
