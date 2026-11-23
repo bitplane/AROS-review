@@ -19004,3 +19004,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11784](AROS-other-drivers.md#od11784)** — If VMware VKMS atomic shutdown fails during unload, CRC timers can still queue work after the CRC worker is stopped. Conditional on allocation failure and active CRC capture; optional HIDD; source-only.
 
 **[OD1433](AROS-other-drivers.md#od1433)** — Linux mouse button events can pass uninitialized X/Y fields through GamePort to input handlers and direct clients. Observable effect depends on consumers using button-event coordinates; optional hosted-Linux HIDD; source-only.
+**[GD15390](AROS-graphics-desktop.md#gd15390)** — BetterString's AROS show path marks the gadget shown after displayable backing-bitmap allocation fails; redraw then uses a NULL internal RastPort bitmap. Conditional allocation failure; source-only.
