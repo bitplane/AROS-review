@@ -14210,6 +14210,9 @@ The RAII fence external-handle getters have the same uninitialized output flow: 
 
 The Android external-memory getter `Device::getMemoryAndroidHardwareBufferANDROID()` declares `AHardwareBuffer *buffer` without initialization, passes it to the command, then checks and packages the output (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:21395-21402`). This is a further qualified GD10223 candidate under `VK_USE_PLATFORM_ANDROID_KHR` and `VK_ANDROID_external_memory_android_hardware_buffer`; whether the command can return an error without writing the output pointer remains to be checked against its command contract. The no-exceptions/disabled-or-nonfatal result-assertion condition applies. No Android Vulkan call or build was run.
 
+
+Fuchsia-gated RAII external-handle getters declare uninitialized `zx_handle_t` outputs, call `resultCheck()`, then package the handle: `Device::getMemoryZirconHandleFUCHSIA()` and `Device::getSemaphoreZirconHandleFUCHSIA()` (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:25013-25018,25067-25072`). These are qualified GD10223 candidates behind `VK_USE_PLATFORM_FUCHSIA` and the respective external-memory/semaphore extensions if an error can leave the output unwritten. Command-specific failure-output and handle-ownership semantics remain to be verified; no Fuchsia operation or build was run.
+
 <a id="gd10224"></a>
 ## GD10224 — Vulkan-Hpp owning wrappers retain borrowed allocators and dispatchers
 
@@ -14485,6 +14488,8 @@ The latest KHR/EXT interval adds `CommandBuffer::setViewportWithCountEXT()` and 
 The subsequent RAII range adds `Device::transitionImageLayoutEXT()` to GD10233 (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:24020-24021`). Pipeline executable property/statistics/internal-representation counts and `mapMemory2KHR()`'s pointer output follow GD10223 (`:23878-23967,24071-24075`); these remain conditional result-error paths. No independent defect was established in the alias wrappers.
 
 The following RAII interval adds `CommandBuffer::waitEvents2KHR()` and `Queue::submit2KHR()` to GD10233 (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:24571-24573,24604-24605`). `waitEvents2KHR()` also repeats GD10279's exception/assertion-only parallel-array length validation (`:24562-24573`). No separate KHR alias defect was established.
+
+The descriptor-buffer/vertex-input interval also adds GD10233 sites for `CommandBuffer::bindDescriptorBuffersEXT()` (`:24673-24675`) and `CommandBuffer::setVertexInputEXT()` (`:24996-25000`). `setDescriptorBufferOffsetsEXT()` forwards the proxy count as well (`:24700-24702`); its buffer-index/offset length check is already tracked under GD10279.
 
 ## GD10234 — Vulkan-Hpp debug-utils helpers fail to compile for 32-bit non-dispatchable handles
 
