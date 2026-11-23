@@ -38225,13 +38225,13 @@ Sources: `workbench/hidds/nouveau/drm/nouveau/dispnv50/core507d.c:135-145`; `dis
 
 
 <a id="od10018"></a>
-## OD10018 — Nouveau GB202 ignores IMP query errors and rejected-mode results [optional Blackwell/GSP-RM]
+## OD10018 — Nouveau GB202 ignores IMP errors, rejection, and tile requirements [optional Blackwell/GSP-RM]
 
-The Blackwell display core startup calls `nv50_disp_imp()` to query the firmware-lit head configuration but ignores the returned status. The per-head modeset path likewise discards the query status and never checks `res.possible` before continuing to program the requested head/window configuration. If GSP-RM reports an IMP failure or explicitly rejects the mode, Nouveau proceeds as though the query succeeded; whether this causes a visible modeset failure or incorrect resource programming depends on the RM/hardware response.
+The Blackwell display core startup calls `nv50_disp_imp()` to query the firmware-lit head configuration but ignores the returned status. The per-head modeset path likewise discards the query status and never checks `res.possible` before continuing to program the requested head/window configuration. The selected R535 IMP implementation also returns `res.tiles[]`, including the required tile count per head (`nvkm/subdev/gsp/rm/r535/disp.c:354-363`), but `headca7d_mode()` never reads it. When the target head has no existing tile mask, the callback selects one free tile and programs its size regardless of RM's returned tile count (`headca7d.c:286-314`). Thus, even when a free tile exists, a mode requiring multiple tiles can be submitted with a one-tile assignment. If GSP-RM reports an IMP failure or explicitly rejects the mode, Nouveau also proceeds as though the query succeeded. Whether either result mismatch causes a visible modeset failure or incorrect resource programming depends on the RM/hardware response. The separate all-resources-occupied search wrap is OD10019.
 
-Scoped to the optional GB202/Blackwell path using GSP-RM. The source trace does not establish a particular hardware-visible outcome, so this remains a conditional result-handling defect. No RM request, GPU, display update, or build was run.
+Scoped to the optional GB202/Blackwell path using GSP-RM. The source trace establishes ignored status, `possible`, and tile-count outputs, but not a particular hardware-visible outcome. No RM request, GPU, display update, or build was run.
 
-Sources: `workbench/hidds/nouveau/drm/nouveau/dispnv50/coreca7d.c:133-181`; `headca7d.c:231-250`; `disp.c:114-127`; R535 RM handler and result schema are detailed in the [Nouveau IMP coverage ledger](AROS-other-drivers-coverage.md#nouveau-blackwell-imp-request-bounds-and-response-field-cross-check-od10018-od11282-rechecked-no-new-finding-or-bodypathloc-credit-2026-11-04). Source-only review.
+Sources: `workbench/hidds/nouveau/drm/nouveau/dispnv50/coreca7d.c:133-181`; `headca7d.c:231-250,286-314`; `disp.c:114-127`; R535 RM handler and result schema are detailed in the [Nouveau IMP coverage ledger](AROS-other-drivers-coverage.md#nouveau-blackwell-imp-request-bounds-and-response-field-cross-check-od10018-od11282-rechecked-no-new-finding-or-bodypathloc-credit-2026-11-04). Source-only review.
 
 
 <a id="od10019"></a>
