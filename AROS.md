@@ -18992,3 +18992,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11780](AROS-other-drivers.md#od11780)** — Nouveau's legacy display-arbitration formula can divide by zero when the integer memory refill and pixel drain rates match; card-specific clock reachability remains conditional. Optional HIDD; source-only.
 
 **[GD15388](AROS-graphics-desktop.md#gd15388)** — NListtree removal reads one pointer past a child-table allocation when a list is exactly at its 64-entry capacity; observable effect is allocator-dependent. Source-only.
+
+**[GD15389](AROS-graphics-desktop.md#gd15389)** — NListtree table growth records a larger capacity even if allocation fails; a later insertion can write beyond the old table. Conditional allocation failure at a 64-entry boundary. Source-only.
