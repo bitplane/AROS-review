@@ -18993,4 +18993,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[GD15388](AROS-graphics-desktop.md#gd15388)** — NListtree removal reads one pointer past a child-table allocation when a list is exactly at its 64-entry capacity; observable effect is allocator-dependent. Source-only.
 
-**[GD15389](AROS-graphics-desktop.md#gd15389)** — NListtree table growth records a larger capacity even if allocation fails; a later insertion can write beyond the old table. Conditional allocation failure at a 64-entry boundary. Source-only.
+**[GD15389](AROS-graphics-desktop.md#gd15389)** — NListtree tree-list insertion and node selection ignore table-growth failure; capacity can outgrow the old buffer, making a later addition write out of bounds. Conditional allocation failure at a 64-entry boundary. Source-only.
