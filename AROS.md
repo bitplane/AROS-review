@@ -18923,3 +18923,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD11772](AROS-other-drivers.md#od11772)** — The standalone Toccata AHI driver allocates a recording callback message at each record start but does not free it on stop or final audio-control cleanup. Optional legacy target; source-only.
 **[OD11773](AROS-other-drivers.md#od11773)** — The standalone Wavetools recording worker leaks its allocated AHI callback message when it exits; each later record start leaks another. Optional legacy target; source-only.
 **[OD11774](AROS-other-drivers.md#od11774)** — Wavetools leaks its allocated playback or recording process kicker if CreateNewProc fails after allocation. Optional legacy target; source-only.
+**[OD11775](AROS-other-drivers.md#od11775)** — The optional Wavetools manual build helper requests an untracked .s source while the checkout provides only the .a source. Its maintained standalone smakefile is unaffected; source-only.
