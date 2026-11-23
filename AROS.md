@@ -16769,7 +16769,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 - [GD15058 — ScaleLayer dereferences a missing bitmap for hidden simple-refresh layers](AROS-graphics-desktop.md#gd15058)
 
-- [GD15059 — Layer constructors return with the new layer semaphore still owned](AROS-graphics-desktop.md#gd15059)
+- [GD15059 — Layer constructors retain a window lock and can deadlock refresh against close](AROS-graphics-desktop.md#gd15059)
 
 - [GD14879 — Radeon PCI size queries overwrite a 32-bit stack local on 64-bit targets](AROS-graphics-desktop.md#gd14879)
 
