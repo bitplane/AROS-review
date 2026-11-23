@@ -11905,6 +11905,15 @@ In the console completion chooser, `RAWKEY_HOME` sets `scroll = -1` and `RAWKEY_
 
 **Affected configuration:** the selected `kernel-fs-con` module (`rom/filesys/console_handler/mmakefile.src:4,26-28`) when used for a windowed console with multiple matching entries. The handler reaches `Completion()` from Tab/Shift-Tab input (`rom/filesys/console_handler/support.c:805-810,1074-1081`). **Confidence:** high for the index arithmetic and list ordering; no requester interaction was run. Set Home directly to index zero and End directly to the last valid index, or reverse their signed deltas before applying the wrap rules. Source-only.
 
+<a id="ek11074"></a>
+### EK11074 — Console completion can accept after a queued cancel event
+
+The chooser's outer loop checks `done` and `doit` only before starting a queue drain (`rom/filesys/console_handler/completion.c:549-555`). Inside that drain, Escape, `IDCMP_CLOSEWINDOW`, and the Cancel gadget set `done`, while Return, the OK gadget, and a qualifying list double-click set `doit` (`:557-573,671-685`). The handler continues calling `GT_GetIMsg()` and processing messages until the user port is empty even after either flag is set (`:691-697`). Afterward, it commits the selected match whenever `doit` is true, without checking whether `done` was also set (`:699-724`). Thus if cancel and accept events are both queued before the drain finishes, the cancel does not reliably cancel completion; depending on their order, the pending acceptance can still be applied (or the acceptance can be followed by a cancel flag that is ignored by the commit branch). The selected Tab/Shift-Tab caller invokes this requester synchronously (`support.c:1074-1081`).
+
+**Trigger and consequence:** a windowed completion requester has multiple matches and its `UserPort` queue contains both a cancellation event (Escape, close, or Cancel) and an acceptance event (Return, OK, or list double-click) in the same drain. `Completion()` may still insert the selected filename into the console input after the user canceled, or may accept despite a later queued cancel. This is limited to requester behavior; it does not corrupt the match list or message ownership.
+
+**Affected configuration:** selected `kernel-fs-con` builds when a windowed console completion requester is used and multiple matching entries produce queued control events. **Confidence:** high for the flag and queue-drain behavior; occurrence depends on multiple events being queued before they are drained. Stop processing the queue when either terminal choice is set, and define cancellation precedence before committing. No requester, event sequence, or build was run; source-only.
+
 <a id="ek11071"></a>
 ### EK11071 — TLSF bucket masks left-shift a negative signed integer [conditional]
 
