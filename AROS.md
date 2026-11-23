@@ -19026,4 +19026,6 @@ GD5755 source-only recheck (2026-11-23): confirmed `objcache.c` reuses cached GC
 
 OpenSBI PLIC shared-context race check (2026-11-23): the static last-claim context is not concurrently mutated in the current source path because only the boot hart runs AROS; remaining harts are still parked and HSM startup is a TODO. Revisit this state when OpenSBI SMP bring-up is added. See the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md#opensbi-plic-shared-claim-context-concurrency-recheck). No current race added; source-only.
 
-**[EK11093](AROS-exec-kernel.md#ek11093)** — OpenSBI can omit the boot hart's PLIC context when firmware describes more than 16 supervisor contexts and the boot hart is beyond the stored-context cap; the boot IRQ path may remain masked/unserviced. Conditional FDT topology; source-only.
+**[EK11093](AROS-exec-kernel.md#ek11093)** — OpenSBI can omit the boot hart's PLIC context when FDT or ACPI describes more than 16 supervisor contexts and the boot hart is beyond the stored-context cap; the boot IRQ path may remain masked/unserviced. Conditional firmware topology; source-only.
+
+EK11093 ACPI path recheck (2026-11-23): expanded the PLIC context-cap finding to include the ACPI MADT fallback, which also stores only the first 16 enabled RINTC entries without selecting the boot hart's context. See [EK11093](AROS-exec-kernel.md#ek11093) and the [ACPI caller trace](AROS-exec-kernel-coverage.md#ek11093-acpi-plic-context-cap-caller-extension). Source-only; no ACPI table or IRQ was exercised.
