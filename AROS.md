@@ -19001,7 +19001,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11783](AROS-other-drivers.md#od11783)** — Nouveau can retain the previous tiled display’s “single monitor” flag when a reused connector parses a different tiled EDID. Conditional display replacement; optional HIDD; source-only.
 
-**[OD11784](AROS-other-drivers.md#od11784)** — If VMware VKMS atomic shutdown fails during unload, CRC timers can still queue work after the CRC worker is stopped. Conditional on allocation failure and active CRC capture; optional HIDD; source-only.
+**[OD11784](AROS-other-drivers.md#od11784)** — If VMware VKMS shutdown fails during unload, a CRC timer can queue after its worker stops and signal a reclaimed worker task through a stale pointer. Conditional timing and allocation failure; optional HIDD; source-only.
 
 **[OD1433](AROS-other-drivers.md#od1433)** — Linux mouse button events can pass uninitialized X/Y fields through GamePort to input handlers and direct clients. Observable effect depends on consumers using button-event coordinates; optional hosted-Linux HIDD; source-only.
 **[GD9996](AROS-graphics-desktop.md#gd9996)** — TextEditor and BetterString continue drawing with a NULL private bitmap after allocation failure; normal-font template text reaches an unchecked bitmap dereference and can fault. Conditional allocation failure and redraw path; source-only.
