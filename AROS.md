@@ -18911,3 +18911,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[EK11072](AROS-exec-kernel.md#ek11072)** — The m68k processor resource reports constant zero for `GCIT_ProcessorLoad`, so SysMon's selected processor gauge and graph show 0.0% regardless of activity. Source-only.
 **[OD11766](AROS-other-drivers.md#od11766)** — The standalone legacy Toccata AHI driver reads one element beyond its input-gain boundary table when a client sets the advertised maximum. Conditional on use of the optional Toccata subdriver; source-only.
+**[OD11767](AROS-other-drivers.md#od11767)** — On failed Aura startup after Timer A registration but Timer B conflict, cleanup frees the interrupt object without removing its enabled CIA vector. Conditional on the separately buildable legacy Aura subdriver; source-only.
