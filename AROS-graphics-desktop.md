@@ -14213,6 +14213,9 @@ The Android external-memory getter `Device::getMemoryAndroidHardwareBufferANDROI
 
 Fuchsia-gated RAII external-handle getters declare uninitialized `zx_handle_t` outputs, call `resultCheck()`, then package the handle: `Device::getMemoryZirconHandleFUCHSIA()` and `Device::getSemaphoreZirconHandleFUCHSIA()` (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:25013-25018,25067-25072`). These are qualified GD10223 candidates behind `VK_USE_PLATFORM_FUCHSIA` and the respective external-memory/semaphore extensions if an error can leave the output unwritten. Command-specific failure-output and handle-ownership semantics remain to be verified; no Fuchsia operation or build was run.
 
+
+The NV external-memory RDMA getter `Device::getMemoryRemoteAddressNV()` also has an uninitialized output record followed by `resultCheck()` and return (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:25194-25201`). This is a qualified GD10223 candidate for clients enabling `VK_NV_external_memory_rdma` if an error can leave the output untouched; command-specific failure semantics remain to be verified, and no operation/build was run.
+
 <a id="gd10224"></a>
 ## GD10224 — Vulkan-Hpp owning wrappers retain borrowed allocators and dispatchers
 
@@ -14490,6 +14493,8 @@ The subsequent RAII range adds `Device::transitionImageLayoutEXT()` to GD10233 (
 The following RAII interval adds `CommandBuffer::waitEvents2KHR()` and `Queue::submit2KHR()` to GD10233 (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:24571-24573,24604-24605`). `waitEvents2KHR()` also repeats GD10279's exception/assertion-only parallel-array length validation (`:24562-24573`). No separate KHR alias defect was established.
 
 The descriptor-buffer/vertex-input interval also adds GD10233 sites for `CommandBuffer::bindDescriptorBuffersEXT()` (`:24673-24675`) and `CommandBuffer::setVertexInputEXT()` (`:24996-25000`). `setDescriptorBufferOffsetsEXT()` forwards the proxy count as well (`:24700-24702`); its buffer-index/offset length check is already tracked under GD10279.
+
+The following Fuchsia/micromap interval adds GD10233 sites for `CommandBuffer::setColorWriteEnableEXT()` (`:25312-25313`) and `drawMultiEXT()`/`drawMultiIndexedEXT()` (`:25335-25336,25351-25352`). The draw helpers' `StridedArrayProxy` inherits the already narrowed `ArrayProxy` count implementation (`vulkan.hpp:525`), so these remain the same input-count root cause. The micromap batch helpers also repeat GD10233/GD14909 cases already listed.
 
 ## GD10234 — Vulkan-Hpp debug-utils helpers fail to compile for 32-bit non-dispatchable handles
 
