@@ -19025,3 +19025,5 @@ GD5755 source-only recheck (2026-11-23): confirmed `objcache.c` reuses cached GC
 **[GD15398](AROS-graphics-desktop.md#gd15398)** — Selected `Dir` and `Rename` commands can leak an AChain when `MatchFirst()` returns an initial `MatchNext()` error after publishing the chain; both skip `MatchEnd()` on that path. A pending Ctrl-C is one trigger; source-only.
 
 OpenSBI PLIC shared-context race check (2026-11-23): the static last-claim context is not concurrently mutated in the current source path because only the boot hart runs AROS; remaining harts are still parked and HSM startup is a TODO. Revisit this state when OpenSBI SMP bring-up is added. See the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md#opensbi-plic-shared-claim-context-concurrency-recheck). No current race added; source-only.
+
+**[EK11093](AROS-exec-kernel.md#ek11093)** — OpenSBI can omit the boot hart's PLIC context when firmware describes more than 16 supervisor contexts and the boot hart is beyond the stored-context cap; the boot IRQ path may remain masked/unserviced. Conditional FDT topology; source-only.
