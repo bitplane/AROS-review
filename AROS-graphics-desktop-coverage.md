@@ -15683,7 +15683,7 @@ Re-read `rom/graphics/setsoftstyle.c` and compared its mask/update logic with `A
 
 | File | `cloc 2.06` C code lines | Current status |
 |---|---:|---|
-| `rom/graphics/setsoftstyle.c` | 15 | Full-body credit predates this pass; selected vector rechecked. Wider caller lifetime review remains open. |
+| `rom/graphics/setsoftstyle.c` | 15 | Full-body credit predates this pass; selected vector and all 72 in-tree call expressions across 31 source files rechecked. No maintained NULL-font caller found; external clients/direct RastPort field mutation remain open. |
 
 ## AskSoftStyle paired-vector recheck (2026-11-02; no new GD or coverage increment)
 
