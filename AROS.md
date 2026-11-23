@@ -81,7 +81,7 @@
 
 **[EK613](AROS-exec-kernel.md#ek613) — OpenSBI RISC-V Zicbom helpers use a fixed 64-byte stride; on a CPU with smaller CMO blocks, alternating cache blocks are skipped. Actual DMA-coherency impact remains conditional on a non-coherent client, not established in the selected tree. See the [block-size and caller review](AROS-exec-kernel-coverage.md#L7960). Source-only.
 
-**[EK626](AROS-exec-kernel.md#ek626) — `CloseAsync()` discards a failed DOS `Close()` result and returns its prior successful wait/write result. RAM, FAT, PFS3, and CDVDFS provide conditional `ACTION_END` rejection paths; no maintained caller reaction is established. See the [handler-contract trace](AROS-exec-kernel-coverage.md#L2418). Source-only.
+**[EK626](AROS-exec-kernel.md#ek626) — `CloseAsync()` discards failed DOS `Close()` status; AHIRecord also ignores final flush/close failures and marks the recording complete. RAM, FAT, NTFS, PFS3, CDVDFS, SFS, and Speak provide conditional reject paths. See the [caller and handler-contract trace](AROS-exec-kernel-coverage.md#L2418). Source-only.
 
 **[EK733](AROS-exec-kernel.md#ek733) — GenModule forms out-of-object suffix pointers for short argument-taking function names in its inline and defines writers. The selected `kernel-exec` include-generation target reaches `Wait` and `SetSR`; manifestation is host/compiler dependent. Source-only; no generation or build was run.**
 
