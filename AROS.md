@@ -18163,7 +18163,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD1935](AROS-other-drivers.md#od1935) — `ug_ConsoleName()` can read beyond its short `"XXX"` fallback string when given a larger buffer. Conditional on an interactive handle with a fallback port owner; source-only.**
 
 
-**[EK10967](AROS-exec-kernel.md#ek10967) — OpenSBI FDT PLIC selection can miss the boot hart’s supervisor context when an earlier CPU node has no supervisor context.** PLIC initialization then returns before enabling external interrupts, while startup continues. Conditional on the CPU/context topology in firmware; no matching checked-in tree or boot was found. Source-only.
+**[EK10967](AROS-exec-kernel.md#ek10967) — OpenSBI FDT PLIC selection can miss the boot hart’s supervisor context when an earlier CPU node has no supervisor context.** PLIC initialization then returns before enabling external interrupts, while startup continues. Conditional on the CPU/context topology in firmware; an upstream FU740 DT illustrates the sparse-context layout, but no matching AROS-checked-in tree or boot was found. Source-only.
 
 **[GD15141](AROS-graphics-desktop.md#gd15141) — On TextEditor demo `CreateArgstring()` allocation failure, a reply path unconditionally calls `DeleteArgstring(NULL)`, which derives and reads an invalid RexxArg header. Conditional on the external REXX service replying; source-only.**
 **[GD15143](AROS-graphics-desktop.md#gd15143) — VGAGfx installs invalid cursor pixels when generic LUT8 conversion cannot provide output: either its temporary allocation fails or a wide shape exceeds the signed-WORD GetImage extent. Conditional; source-only.**
