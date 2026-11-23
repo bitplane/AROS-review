@@ -14516,7 +14516,7 @@ These existing coverage-ledger candidates now have detailed finding entries; thi
 
 **[OD10007](AROS-other-drivers.md#od10007) — CRTC initialization leaves a freed display unit linked after CRC-source allocation fails.** The finding traces VMware and Nouveau callers; affected target selection is detailed in the report.
 
-**[OD10008](AROS-other-drivers.md#od10008) — Nouveau leaks both display allocations when NV04 flip-event construction fails.** Applies to the optional Nouveau pre-NV50 display path.
+**[OD10008](AROS-other-drivers.md#od10008) — Nouveau display-create failures leak the display wrapper; NV04 event failure also leaks private state.** Applies to optional Nouveau display initialization.
 
 **[OD10009](AROS-other-drivers.md#od10009) — Nouveau exposes an NV04 CRTC with unusable cursor state after cursor-buffer setup fails.** Conditional on cursor-buffer allocation failure in the optional Nouveau target.
 
