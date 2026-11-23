@@ -7358,6 +7358,18 @@ For example, with a 100-byte file and a worker positioned at EOF, one task can s
 
 **Confidence:** High for the unlocked gaps, stale-length calculation, shared FCB, and successful write sequence; the excess extension depends on concurrent scheduling. Hold the FCB lock across the complete get-position/size, fill, and final-seek operation (the helper lock is recursive), or otherwise revalidate EOF and preserve operation ordering. No seek, write, schedule, or build was run; source-only; see the [POSIXC seek-operation serialization review](AROS-exec-kernel-coverage.md#posixc-fseeko-operation-serialization-ek11088).
 
+
+<a id="ek11089"></a>
+### EK11089 — POSIXC formatted output bypasses the shared DOS-handle lock
+
+The selected POSIXC `vfprintf()` passes the DOS filehandle directly to `__vcformat()` and supplies a callback that calls DOS `FPutC()` without taking the FCB semaphore (`compiler/crt/posixc/vfprintf.c:73-94`). The selected `__vcformat()` calls its output callback once for every emitted character (`compiler/crt/stdc/__vcformat.c:40-44,52-68`); DOS `FPutC()` reaches `FWriteChars()`, which reads and increments `fh_Pos` while writing into the shared filehandle buffer (`rom/dos/fputc.c:61-67`; `rom/dos/fwrite.c:130-178`). This bypasses the FCB lock explicitly intended to serialize whole POSIX/stdio operations on a shared DOS handle (`compiler/crt/posixc/__fdesc.h:23-38`). The ordinary POSIXC `fputc()`, `fputs()`, and `fwrite()` paths do take that lock (`fputc.c:54-66`; `fputs.c:50-65`; `fwrite.c:61-70`). `fprintf()` and `vprintf()` delegate to `vfprintf()`, while `printf()` uses it before its separate flush (`fprintf.c:44-54`; `vprintf.c:57-61`; `printf.c:265-279`).
+
+The shared-FCB case is reachable through POSIXC's descriptor-sharing paths: `dup2()` creates another descriptor wrapper that points to the existing FCB (`dup2.c:104-126`), and pthread workers route their descriptor lookups to the creator's table (`__fdesc.c:750-763`). With distinct `FILE` objects opened on duplicated descriptors, two tasks can format output concurrently through the same DOS handle. Since each callback reaches `FWriteChars()` without `io_lock`, concurrent updates to `fh_Pos` and the buffer can target the same byte or overwrite another task's buffered output. This is separate from EK9483's no-op public `flockfile()`/`funlockfile()` pair: even without that API, a single `vfprintf()` call does not protect its own callback sequence from another locked or unlocked handle user.
+
+**Trigger and consequence:** two tasks concurrently call `vfprintf()`/`fprintf()` or `vprintf()`/`printf()` on streams backed by duplicated POSIXC descriptors sharing one FCB. Buffered output can be overwritten or lost as the tasks update the same DOS handle state. **Affected configuration:** selected POSIXC with task contexts sharing a duplicated descriptor/FCB, including its pthread worker path; requires overlapping output. No maintained concurrent reproducer was established.
+
+**Confidence:** High that the selected callback bypasses `io_lock`, that `FWriteChars()` updates shared handle state, and that descriptor sharing is implemented; visible output corruption depends on concurrent scheduling and buffer mode. Hold the FCB lock across the complete `vfprintf()` callback sequence; the local helper contract states the lock is recursive. No output operation, schedule, or build was run; source-only; see the [POSIXC formatted-output lock review](AROS-exec-kernel-coverage.md#posixc-vfprintf-shared-handle-lock-review-ek11089).
+
 <a id="ek10268"></a>
 ### EK10268 — M68040 STOP raises a spurious privilege exception when its immediate clears S
 
