@@ -17128,7 +17128,7 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[OD2370](AROS-other-drivers.md#od2370) — VirtIO dereferences a failed storage-ID allocation.** After unit creation, a NULL result from `HIDD_Storage_AllocateID()` is used to read `ln_Name`; conditional on allocation failure during selected VirtIO bus startup. Source-only.
 
-**[OD2479](AROS-other-drivers.md#od2479) — VirtIO reports successful storage-bus setup when DOS-node creation or registration fails; a rejected created node is also leaked.** The selected unit/bus remains published without a DOS mount entry. Conditional on allocation or registration failure in selected i386 PC, x86-64 PC, and OpenSBI RISC-V VirtIO packages; source-only.
+**[OD2479](AROS-other-drivers.md#od2479) — VirtIO and NVMe report successful bus setup when DOS-node creation or registration fails; a rejected created node is also leaked.** The selected unit/bus remains published without a DOS mount entry. Conditional on allocation or registration failure; selected VirtIO PC/OpenSBI and NVMe PC/Raspberry Pi/OpenSBI packages; source-only.
 **[OD3012](AROS-other-drivers.md#od3012) — VirtIO failed bus startup leaves its worker or interrupt registration active.** Later startup failures do not stop the worker or remove an installed IRQ; a stale callback is conditional on subsequent controller teardown. Selected VirtIO builds; source-only.
 
 **[OD11474](AROS-other-drivers.md#od11474) — econsole `AROS.boot` repeats the signature on every read packet.** Chunked/repeated readers do not advance; the in-tree bootability check reads the whole file once and is unaffected. Optional `kernel-econsole`; source-only.
