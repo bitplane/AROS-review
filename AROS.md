@@ -18971,3 +18971,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15382](AROS-graphics-desktop.md#gd15382)** — C57D Nouveau cores reuse a C37D window-owner method at offset `0x1000`, absent from the checked-in C57D class definition; initial atomic commits may fail if unsupported. TU102/GA102/AD102 path; source-only, hardware behavior unverified.
 
 **[GD15383](AROS-graphics-desktop.md#gd15383)** — Nouveau LVDS enable can dereference a null EDID when it uses a VBIOS fixed mode after EDID retrieval fails. Optional HIDD; source-only.
+
+**[GD15384](AROS-graphics-desktop.md#gd15384)** — Nouveau compares dithering depth to the mode field, so a 6-bpc request made while dithering is off can be discarded and the old depth reused when dithering is enabled. Optional HIDD; source-only.
