@@ -25307,16 +25307,6 @@ For example, a progressive custom timing with `vdisplay=64`, `vsync_start=64`, `
 
 **Trigger and consequence:** commit such a one-line-blank custom mode on an NV50/G82 display head using the `head507d_mode` implementation. The driver programs an unrelated vertical-blank DMI duration; the resulting update-window behavior depends on hardware and was not established from source. **Affected configuration:** optional Nouveau HIDD with NV50/G82 (`core507d`/`core827d`) display heads using `head507d_mode`; no default-image inclusion is claimed. **Confidence:** high for arithmetic, basic-mode acceptance, helper selection, and field truncation; medium for the visible effect of the bad hardware duration. Clamp the blank-line count before subtracting and validate the programmed field range. No custom mode, GPU, display, or build was used; source-only.
 
-<a id="gd15381"></a>
-
-## GD15381 — Blackwell head modeset ignores RM's possible-mode and tile assignment result [optional HIDD]
-
-The GB202 display core selects `coreca7d_new()` (`workbench/hidds/nouveau/drm/nouveau/dispnv50/core.c:40-46`), which installs `headca7d` (`coreca7d.c:240-243`). Its mode callback asks `nv50_disp_imp()` to query RM with the requested raster, viewport, and currently armed tile mask, but ignores both the helper's return value and the populated `nvkm_disp_imp_result` (`headca7d.c:231-251`). The selected R535 IMP implementation explicitly fills `res->possible` and `res->tiles[]` from RM's response (`nvkm/subdev/gsp/rm/r535/disp.c:354-363`). The callback then uses the existing tile mask if nonzero; otherwise it chooses exactly one available tile and programs the tile size based on that mask's population count (`headca7d.c:286-314`). Thus it does not reject an IMP-impossible mode or honor RM's requirement for multiple tiles.
-
-The callback is reached while flushing the atomic modeset (`head.c:66-72`; `disp.c:2385`), after generic atomic checking (`disp.c:2660-2695`), and returns success after programming fields. No CA7D-specific pre-commit path consumes the IMP `possible` or tile-count result.
-
-**Trigger and consequence:** on a GB202/CA7D display with GSP-RM 580-class IMP support, submit a mode whose RM IMP response is impossible or requires more tiles than the head's existing assignment, especially a new head with no armed tile mask and a mode requiring multiple tiles. The driver proceeds with the modeset and, for an unassigned head, submits a one-tile assignment regardless of RM's returned requirement. The display update can be rejected or fail to scan the requested full-width mode; the precise hardware symptom depends on RM/hardware behavior and was not exercised. **Affected configuration:** optional Nouveau HIDD, GB202 (`coreca7d`) Blackwell display path using the selected R535 GSP-RM IMP implementation. **Confidence:** high that the returned status/tile count are ignored and that the fallback programs one tile; medium for the resulting hardware-visible failure. Propagate IMP errors, reject `possible == false`, and apply RM's required tile assignment before programming the head. No GPU, modeset, firmware query, or build was run; source-only.
-
 <a id="gd15382"></a>
 
 ## GD15382 — C57D core reuses a window-owner method absent from its class definition [optional HIDD]
