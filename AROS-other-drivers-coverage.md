@@ -40146,6 +40146,8 @@ Checked whether concurrent shared clients can race the tracker mutations in OD11
 
 Traced the unchecked per-unit `OpenDevice("timer.device")` in `CreateUnit()` to the selected delay helpers and Exec `DoIO()` null-device check. When the timer Open fails, required setup delays return immediately and their error is ignored. Added OD11722, scoped to that failure and to delay-dependent hardware initialization. Existing body/path/LOC credit is unchanged. No timer failure, device, hardware initialization, or build was exercised; source-only.
 
+E1000 delay-helper caller closure for OD11722 (2026-11-23; no new finding or body/path/LOC credit): searched all family C files for `msec_delay()` and `usec_delay()` and confirmed every macro expands through `e1000_msec_delay()`/`e1000_usec_delay()` to the same `DoIO()` call (`e1000_osdep.h:419-424`; `e1000.c:66-82`). Exec `DoIO()` returns `-1` before dispatch when `io_Device` is NULL (`rom/exec/doio.c:53-61`), while both helpers discard the return. Concrete startup paths include 82540/82545 reset before and after global reset (`e1000_82540.c:264-317`), 82541/82547 reset and NVM reload (`e1000_82541.c:292-365`), and multiple 82542/82543 PHY/NVM operations; each leaves subsequent register sequencing running when its requested wait was skipped. The caller audit strengthens the finding's call-site reachability but does not establish a particular hardware failure from omitted delays. Confidence remains high for skipped waits and conditional for initialization consequences. No OpenDevice failure, device, register access, or build was exercised; source-only.
+
 
 ### E1000 request-port partial-allocation finding detail restored (OD3033; 2026-11-18)
 
