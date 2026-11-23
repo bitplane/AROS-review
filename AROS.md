@@ -14197,7 +14197,7 @@ These existing coverage-ledger candidates now have detailed finding entries; thi
 
 **[OD9835](AROS-other-drivers.md#od9835) — USB MassStorage ignores `CreateNewProc()` and `AddBootNode()` failures, leaving a volume unregistered without recovery.** Conditional on process creation or boot-node registration failure. Source-only.
 
-**[OD11760](AROS-other-drivers.md#od11760)** — USB MassStorage can publish a dead GUI-task pointer if the child exits during early startup before spawn returns. Conditional on an early GUI library-open failure and cross-CPU scheduling on ExecSMP. Source-only.
+**[OD11760](AROS-other-drivers.md#od11760)** — USB MassStorage can publish a dead GUI-task pointer if the child exits during early startup before spawn returns; later release may signal it after Exec reclaims the process allocation. Conditional on early GUI library-open failure and cross-CPU scheduling on ExecSMP. Source-only.
 
 **[OD9838](AROS-other-drivers.md#od9838)** — m68k LowLevel timer removal can overwrite a concurrently registered timer bit, leaving the new vector and Start/Stop hardware selection inconsistent. Requires a direct client and task preemption. Source-only.
 
