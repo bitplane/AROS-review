@@ -89,7 +89,7 @@
 
 ## Previously omitted active Exec/Kernel entries restored (2026-11-11)
 
-Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were not mentioned in this index. The links below restore navigation to the existing report entries; they do not represent new findings or additional source-review credit. Explicitly withdrawn, duplicate, and unverified entries are excluded.
+Reverse reconciliation found 191 active Exec/Kernel finding sections that were not mentioned in this index. EK498 and EK499 were restored from their source-coverage records on 2026-11-23; the remaining links restore navigation to existing report entries. Explicitly withdrawn, duplicate, and unverified entries are excluded.
 
 | Finding | Detailed report title |
 |---|---|
@@ -140,6 +140,8 @@ Reverse reconciliation found 189 detailed Exec/Kernel finding sections that were
 | [EK400](AROS-exec-kernel.md#ek400) | task.resource's running-only filter also returns ready tasks. |
 | [EK485](AROS-exec-kernel.md#ek485) | PC processor-frequency queries pass a NULL `SuperState()` token to `UserState()` for privileged callers. |
 | [EK488](AROS-exec-kernel.md#ek488) | OpenSBI MSI fan-out does not bound the vector range before indexing IRQ handlers. |
+| [EK498](AROS-exec-kernel.md#ek498) | Public `LOGMA_Type` expands to an unbalanced C expression; no checked-in client uses it. |
+| [EK499](AROS-exec-kernel.md#ek499) | `logGetEntryAttrs()` leaves the exported `LOGMA_Level` output untouched; external API contract remains qualified. |
 | [EK516](AROS-exec-kernel.md#ek516) | Apple Silicon ELF loading can leave code hunks non-executable after an RWX mapping fallback. |
 | [EK547](AROS-exec-kernel.md#ek547) | Efika ARM debug input returns UART status bits as character data. |
 | [EK559](AROS-exec-kernel.md#ek559) | m68k Exec AVL traversal thunks pass guest nodes and comparators to native code without ABI conversion. |
@@ -18961,4 +18963,4 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15377](AROS-graphics-desktop.md#gd15377)** — Nouveau underscan can subtract the full width of a small custom mode, yielding a zero-sized output viewport. Optional HIDD; source-only.
 **[GD15378](AROS-graphics-desktop.md#gd15378)** — Nouveau DP atomic modesets can accept custom modes beyond link payload capacity; failed link training is ignored by the enable path. Optional HIDD; source-only.
 
-**Active coverage checkpoint refresh (2026-11-23; ledger reconciliation):** the latest three-area body measures are Graphics/Desktop **511,592/585,714 C/header code lines (87.3%)**, with its aggregate file denominator unreconciled; Exec/Kernel **317,951/376,157 C/header code lines (84.5%)** and **2,134/2,134 represented paths**, which is not a reconciled complete-file percentage; Other Drivers **5,311/5,490 paths (96.7%)** and **2,205,272/2,236,773 C/header code lines (98.6%)**. The recent full-body additions are the selected `rom/log/log_intern.h` header (Exec/Kernel) and `rom/hidds/mouse/mouse.h` header (Other Drivers); optional demo, debug-test, and benchmark bodies remain tracked separately and do not enter these active aggregates. Shared paths may appear in multiple areas; these figures measure body/path bookkeeping only, not caller, platform, configuration or runtime closure. None of the three regions is complete. See the [coverage ledgers](AROS-graphics-desktop-coverage.md), [Exec/Kernel](AROS-exec-kernel-coverage.md), and [Other Drivers](AROS-other-drivers-coverage.md). Source-only.
+**Active coverage checkpoint refresh (2026-11-23; ledger reconciliation):** the latest three-area body measures are Graphics/Desktop **511,592/585,714 C/header code lines (87.3%)**, with its aggregate file denominator unreconciled; Exec/Kernel **318,095/376,157 C/header code lines (84.6%)** and **2,134/2,134 represented paths**, which is not a reconciled complete-file percentage; Other Drivers **5,311/5,490 paths (96.7%)** and **2,205,272/2,236,773 C/header code lines (98.6%)**. The recent full-body additions are the selected `rom/log/log_intern.h` and `rom/log/log.h` headers (Exec/Kernel) and `rom/hidds/mouse/mouse.h` header (Other Drivers); optional demo, debug-test, and benchmark bodies remain tracked separately and do not enter these active aggregates. Shared paths may appear in multiple areas; these figures measure body/path bookkeeping only, not caller, platform, configuration or runtime closure. None of the three regions is complete. See the [coverage ledgers](AROS-graphics-desktop-coverage.md), [Exec/Kernel](AROS-exec-kernel-coverage.md), and [Other Drivers](AROS-other-drivers-coverage.md). Source-only.
