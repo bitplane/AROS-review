@@ -1654,6 +1654,20 @@ On the parent completion path, `__vfork_exit_controlled_stack()` saves the jump 
 
 **Trigger and consequence:** after the parent signal is allocated, either `CreateNewProc()` fails or the launched child fails POSIXC setup. `vfork()` returns `-1`, while the parent retains the allocated signal bit and `VFORK_PARENT`; the launcher-setup failure also leaves `vfork_data` allocated. Later POSIXC startup and descriptor paths test `VFORK_PARENT` to select special inheritance behavior (`compiler/crt/posixc/__posixc_nixmain.c:66-78,101-103`; `__fdesc.c:767-775`), so the stale flag can cause later process/file-descriptor setup to take the vfork branch. The selected `system_sh()` caller returns `-1` on the failure result (`system.c:111-134`). **Affected configuration:** POSIXC `vfork()` users, including the checked-in `system_sh()` path; child-creation and launcher library-open failures are conditional. **Confidence:** high for the omitted cleanup and persistent flag; downstream effect depends on later POSIXC startup/descriptor use and was not reproduced. Unwind the parent signal, control block and flag on each failure path. No process-creation or library-open failure was induced; source-only. See the [failure unwind trace](AROS-exec-kernel-coverage.md#L4604).
 
+<a id="ek498"></a>
+### EK498 — The public `LOGMA_Type` macro expands to an unbalanced expression.
+
+`resources/log.h` defines `LOGMA_Type` as `(LOGMA_TAGBASE | 10` without the closing parenthesis (`rom/log/log.h:51`). The `kernel-log` manifest copies this file into the public `resources` include directory (`rom/log/mmakefile.src:13-14`). Any client that expands `LOGMA_Type` in an ordinary C expression or tag list gets an unmatched opening parenthesis and cannot compile that use.
+
+**Trigger and consequence:** a C client includes the copied log resource header and uses `LOGMA_Type`; compilation fails at that use. No checked-in client expands the macro, so no in-tree build failure is claimed. **Affected configuration:** external or future clients using `LOGMA_Type` when the optional `log.resource` interface is selected, including the checked-in OpenSBI and x86-64 PC package paths. **Confidence:** high for the malformed replacement text and compile consequence; no build was run. Close the macro expression and compile a small client of the public header. Source-only.
+
+<a id="ek499"></a>
+### EK499 — `logGetEntryAttrs()` leaves the exported `LOGMA_Level` output untouched.
+
+The public resource header defines `LOGMA_Level` as a log-entry attribute (`rom/log/log.h:50`). `logGetEntryAttrs()` handles flags, date, event ID, origin, component, subcomponent, log tag and entry, but has no `FindTagItem(LOGMA_Level, ...)` branch (`rom/log/log_event.c:95-148`). An unsupported tag does not write its output and is not included in the returned count. The checked-in serial logger, standalone Logger and LogView do not request `LOGMA_Level`.
+
+**Trigger and consequence:** a client supplies a `LOGMA_Level` tag and expects the getter to fill its output; the output remains whatever the caller supplied, and the return count omits it. **Affected configuration:** external or future clients of the optional `log.resource` API. **Confidence:** medium: the public header exposes a Level attribute and the getter is the attribute-query API, but the available API text does not explicitly define the value or promise behavior for each declared tag. No checked-in client establishes the expected value. Implement and document the tag, or remove it from the public interface if it is not supported. No call or build was run; source-only.
+
 <a id="ek504"></a>
 ### EK504 — ELF I/O callbacks can treat short reads as successful when the error indicator they inspect remains clear.
 
