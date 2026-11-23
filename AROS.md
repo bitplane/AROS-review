@@ -18973,3 +18973,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15383](AROS-graphics-desktop.md#gd15383)** — Nouveau LVDS enable can dereference a null EDID when it uses a VBIOS fixed mode after EDID retrieval fails. Optional HIDD; source-only.
 
 **[GD15384](AROS-graphics-desktop.md#gd15384)** — Nouveau compares dithering depth to the mode field, so a 6-bpc request made while dithering is off can be discarded and the old depth reused when dithering is enabled. Optional HIDD; source-only.
+
+**[GD15385](AROS-graphics-desktop.md#gd15385)** — Nouveau tiled framebuffer size validation multiplies four 32-bit factors before widening, so a supported large image can wrap to zero and pass the GEM allocation bounds check. Optional HIDD; source-only.
