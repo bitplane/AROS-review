@@ -17162,6 +17162,8 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[OD2361](AROS-other-drivers.md#od2361) — NVMe timer expiry leaves an admin-command handler pointing to returned stack storage; late Identify/Get Features completion can also DMA into a freed response buffer.** Selected NVMe package routes; conditional on a command completing after timeout cleanup. Source-only.
 
+**[OD2594](AROS-other-drivers.md#od2594) — NVMe truncates Identify Controller `NN` to a 16-bit bus limit; when `NN > 65,535`, active higher NSIDs are not probed or exposed through `EnumUnits()`.** Conditional on a selected controller with an active namespace above the truncated bound; distinct from OD2368’s 12-bit `Open()` encoding limit. Source-only.
+
 **[OD2860](AROS-other-drivers.md#od2860) — NVMe namespace startup ignores missing Identify/Get Features completion signals; a timed-out zero-filled range response can expose the namespace’s full range instead of honoring HIDE.** Selected NVMe packages; conditional on admin timeout and an applicable hidden range. Source-only.
 
 **[OD2365](AROS-other-drivers.md#od2365) — NVMe constructor failure paths leak the PCI claim/record and OOP instance, can retain an admin IRQ whose queue was freed, or leave an enabled controller pointing at freed queue memory.** Hardware consequences depend on subsequent device/interrupt activity; the selected controller path reaches bus setup through the `HW_AddDriver()`/`AddBus()` method-slot alias after Identify succeeds. Source-only.
