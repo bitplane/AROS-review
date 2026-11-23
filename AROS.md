@@ -17160,6 +17160,8 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[GD14932](AROS-graphics-desktop.md#gd14932-copy-misreports-malformed-destination-pattern) — Copy overwrites malformed-pattern `ERROR_BAD_TEMPLATE` with `ERROR_NO_FREE_STORE`; it returns failure without performing the copy, but exposes the wrong cause to callers.** Selected `workbench-c-sh` command; source-only.
 
 
+**[OD2361](AROS-other-drivers.md#od2361) — NVMe timer expiry leaves an admin-command handler pointing to returned stack storage; late Identify/Get Features completion can also DMA into a freed response buffer.** Selected NVMe package routes; conditional on a command completing after timeout cleanup. Source-only.
+
 **[OD2365](AROS-other-drivers.md#od2365) — NVMe constructor failure paths leak the PCI claim/record and OOP instance, can retain an admin IRQ whose queue was freed, or leave an enabled controller pointing at freed queue memory.** Hardware consequences depend on subsequent device/interrupt activity; the selected controller path reaches bus setup through the `HW_AddDriver()`/`AddBus()` method-slot alias after Identify succeeds. Source-only.
 
 
