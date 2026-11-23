@@ -17160,6 +17160,8 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[GD14932](AROS-graphics-desktop.md#gd14932-copy-misreports-malformed-destination-pattern) — Copy overwrites malformed-pattern `ERROR_BAD_TEMPLATE` with `ERROR_NO_FREE_STORE`; it returns failure without performing the copy, but exposes the wrong cause to callers.** Selected `workbench-c-sh` command; source-only.
 
 
+**[OD2876](AROS-other-drivers.md#od2876) — NVMe registers its bus through generic `HW_AddDriver()` instead of storage-controller `AddBus()`, so the bus is never started or added to the storage-bus list and namespaces are not published through the selected path.** Triggered after controller identity succeeds; selected NVMe package routes. Source-only.
+
 **[OD2365](AROS-other-drivers.md#od2365) — NVMe constructor failure paths leak the PCI claim/record and OOP instance, can retain an admin IRQ whose queue was freed, or leave an enabled controller pointing at freed queue memory.** Hardware consequences depend on subsequent device/interrupt activity; selected ordinary namespace startup is independently blocked by OD2876. Source-only.
 
 
