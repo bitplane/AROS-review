@@ -8551,12 +8551,9 @@ The native ARM32 and AArch64 startup paths set `mh` to the first usable RAM addr
 
 
 <a id="ek10626"></a>
-### EK10626 — Sam440 CPU-feedback clock calculation falls through to the default formula [medium impact, high source confidence; conditional PPC440 clock mode]
+### EK10626 — Withdrawn: selector source was misidentified; see EK11077
 
-In `SetupClocking440()`, the `CPR0_PLLC0` feedback selector is extracted from bits 25:24. Selector value 1 is explicitly labeled `CPU` and assigns `m = fbdv * fwdva`, but the case has no `break`; it falls through and overwrites `m` with the default `perdv0 * opbdv0 * fwdvb` formula (`arch/ppc-sam440/kernel/kernel_startup.c:421-437`). The resulting `m` determines `vco` and all published CPU/PLB/OPB/EPB/PCI frequencies (`:439-444`). The OPB estimate is used to program the decrementer reload (`:446-454`) and later in periodic idle accounting and reboot delays (`arch/ppc-sam440/kernel/intr.c:305-312`; `syscall.c:131-141`).
-
-**Trigger and consequence:** a PPC440 boot where `CPR0_PLLC0[25:24]` reads 1. The CPU-feedback calculation is discarded, so the kernel publishes incorrect derived clocks and programs the decrementer/timing intervals from the default-mode result. The exact clock error and visible tick/delay change depend on the actual strap/register values. **Affected configuration:** explicitly selected Sam440 PPC kernel on a PPC440-class processor in the CPU-feedback mode; the active Sam440 aggregate boot edges select this kernel path when the corresponding platform target is built (`arch/ppc-sam440/boot/mmakefile.src:4-16,72`). **Confidence:** high that the source falls through and overwrites `m`; conditional impact because no checked-in board register dump establishes selector 1 at runtime. Add a `break` after the CPU-feedback formula. No board, register, timer, boot, or build was used; source-only. See the [Sam440 kernel startup clocking pass](AROS-exec-kernel-coverage.md#sam440-kernel-startup-clock-selector-review-ek10626-2026-11-03).
-
+This finding used `(CPR0_PLLC0 >> 24) & 3` as the PPC440EP feedback-source selector and treated the resulting value 1 as the CPU-feedback mode. The PPC440EP selector is in `SDR0_SDSTP0[SEL]`; `CPR0_PLLC0[SRC]` only selects PLL output A or B when PLL feedback is selected. The switch fallthrough therefore does not establish the claimed CPU-mode trigger. The verified wrong-register calculation, including the PPC460 path, is documented in EK11077. No independent bug from the alleged selector-1 fallthrough is established. See the [Sam440 kernel startup clock-selector reference recheck](AROS-exec-kernel-coverage.md#sam440-kernel-startup-clock-selector-review-ek10626-2026-11-03). Source-only.
 <a id="ek10627"></a>
 ### EK10627 — Raspberry Pi 4/5 `ReadEClock()` reports twice the fallback counter rate
 
