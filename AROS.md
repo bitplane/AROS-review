@@ -19010,3 +19010,5 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[EK11092](AROS-exec-kernel.md#ek11092)** — Concurrent lazy `GetDeviceProc()` calls, or a lookup overlapping `CliInit()` boot mounting, can start the same unstarted DOS handler twice on one `DeviceNode`; handler-specific fallout depends on startup behavior. Conditional concurrency; source-only.
 
 **[OD11785](AROS-other-drivers.md#od11785)** — `console.device` writes and input-side rendering can mutate shared unit/parser/RastPort state without a common exclusive lock; the maintained console handler starts an async read and synchronous write on the same unit. Interleaving can corrupt escape-sequence state or visible output. Source-only.
+
+**[OD11786](AROS-other-drivers.md#od11786)** — NetInfo can leave the configured database filename absent if `.new` fails to rename after the original was moved to `.old`; conditional on an external direct-device update and rename failure. Source-only.
