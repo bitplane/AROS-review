@@ -7370,6 +7370,18 @@ The shared-FCB case is reachable through POSIXC's descriptor-sharing paths: `dup
 
 **Confidence:** High that the selected callback bypasses `io_lock`, that `FWriteChars()` updates shared handle state, and that descriptor sharing is implemented; visible output corruption depends on concurrent scheduling and buffer mode. Hold the FCB lock across the complete `vfprintf()` callback sequence; the local helper contract states the lock is recursive. No output operation, schedule, or build was run; source-only; see the [POSIXC formatted-output lock review](AROS-exec-kernel-coverage.md#posixc-vfprintf-shared-handle-lock-review-ek11089).
 
+
+<a id="ek11090"></a>
+### EK11090 — POSIXC `ftruncate()` can overwrite a concurrent write with zeroes
+
+Both selected POSIXC `ftruncate()` variants obtain the current position and file size in separate FCB-locked helper calls, then release the lock before changing the size and filling any extension with zeroes (`compiler/crt/posixc/ftruncate.c:78-107`; identical ordering in `ftruncate64.c:78-107`). They calculate `left = length - size` from the earlier size snapshot, seek back to that saved size, and hold `io_lock` only while writing the zero-fill burst. The FCB helper contract says the recursive semaphore serializes a whole POSIX/stdio operation on a shared DOS handle (`compiler/crt/posixc/__fdesc.h:23-38`); `dup2()` creates descriptors sharing the same FCB (`dup2.c:104-126`), and pthread workers use their creator's descriptor table (`__fdesc.c:750-763`).
+
+A concrete RAMFS schedule is: a 100-byte file is positioned at offset 100; `ftruncate(fd, 200)` snapshots `size=100`; another task writes 50 bytes through a duplicate descriptor, extending the file to 150; then `ftruncate()` sets the size to 200 but uses the stale `size=100`, seeks there, and writes 100 zero bytes. RAMFS's `CmdSetFileSize()` calls `ChangeFileSize()` (`rom/filesys/ram/commands.c:813-836`); its extension path appends new blocks without replacing the existing file contents (`rom/filesys/ram/filesystem.c:654-700,1282-1319`). The subsequent stale zero-fill therefore overwrites the other task's completed bytes in offsets 100–149. This state is not equivalent to either serialized order: truncating first then writing preserves the data, and writing first then truncating to 200 only needs to zero-fill from offset 150.
+
+This is separate from EK9244, where RAMFS shrinking changes the current offset; from the existing `ftruncate()` zero-fill write/flush failure candidate; and from EK11088's seek gap-fill race. **Trigger and consequence:** two tasks use duplicated POSIXC descriptors sharing one FCB; one extends with `ftruncate()`/`ftruncate64()` while the other successfully writes after the first task's size snapshot and before its zero-fill. The resize reports success while replacing the concurrent write with zeroes. **Affected configuration:** POSIXC pthread workers using shared descriptors with RAMFS; the data-preserving resize behavior is confirmed in the selected RAMFS handler. Requires the stated overlap; no in-tree reproducer was established.
+
+**Confidence:** High for the stale size use, the lock gap, the shared FCB, and RAMFS's append/preserve behavior; the lost write depends on concurrent scheduling. Hold the FCB lock across the whole position/size/resize/fill/restore sequence (the helper semaphore is recursive), or re-read the size and fill only the still-new range without overwriting concurrent data. No file operation, schedule, or build was run; source-only; see the [POSIXC truncate serialization review](AROS-exec-kernel-coverage.md#posixc-ftruncate-operation-serialization-ek11090).
+
 <a id="ek10268"></a>
 ### EK10268 — M68040 STOP raises a spurious privilege exception when its immediate clears S
 
