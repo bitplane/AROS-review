@@ -14204,6 +14204,9 @@ The platform-gated RAII external-memory handle getters also declare an uninitial
 
 The external-memory/semaphore FD getters in the same optional RAII header also declare uninitialized `int fd`, pass it as the native output, call `resultCheck()`, then move the result into the return wrapper: `Device::getMemoryFdKHR()` (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp`:20162-20167`) and `Device::getSemaphoreFdKHR()` (``:20259-20264`). These are conditional GD10223 candidates under `VK_KHR_external_memory_fd` / `VK_KHR_external_semaphore_fd` if the corresponding Vulkan command may fail without writing the FD. The no-exceptions/disabled-or-nonfatal-assertion condition applies. Whether failure leaves the native output untouched and the precise returned-FD ownership contract remain to be checked against the external command specification; no FD operation or build was run.
 
+
+The RAII fence external-handle getters have the same uninitialized output flow: `Device::getFenceWin32HandleKHR()` uses `HANDLE handle` and returns it after `resultCheck()` (`workbench/hidds/vulkan/vulkan_raii.hpp:20750-20756`), while `Device::getFenceFdKHR()` does so with `int fd` (`:20778-20784`). These extend the qualified conditional GD10223 candidates to `VK_KHR_external_fence_win32` / `VK_KHR_external_fence_fd`; command-specific output-on-error and ownership behavior remain to be verified.
+
 <a id="gd10224"></a>
 ## GD10224 — Vulkan-Hpp owning wrappers retain borrowed allocators and dispatchers
 
@@ -14465,6 +14468,8 @@ The Vulkan 1.3 `Queue::submit2()` wrapper also forwards `submits.size()` with th
 The Vulkan 1.3/1.4 interval also confirms GD10233 at RAII `CommandBuffer::setViewportWithCount()` and `setScissorWithCount()` (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:17933-17934,17943-17944`), and optional host-image-copy `Device::transitionImageLayout()` and push-descriptor `CommandBuffer::pushDescriptorSet()` (`:18215-18216,18233-18235`). `CommandBuffer::bindVertexBuffers2()` repeats the existing GD10279 array-length checks (`:17956-17979`); optional sizes/strides also preserve their supplied pointers, so the separately tracked empty optional-proxy issue applies as in the earlier variant. `Device::mapMemory2()`'s output pointer is result-checked and consumed in the existing GD10223 class of wrappers (`:18081-18084`).
 
 The reviewed video/transform-feedback interval adds `VideoSessionKHR::bindMemory()` as a GD10233 instance (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:19287-19291`), forwarding proxy size and data. Transform-feedback buffer binding and begin/end counter-buffer methods repeat the existing GD10279 parallel-array/optional-array checks (`:19377-19441`); their empty optional offset behavior also matches the already tracked empty-proxy forwarding case. Video-session memory-requirement and AMD shader-info result-size/count flows remain within GD10223's existing output-result family (`:19255-19274,19614-19638`).
+
+The reviewed extension interval also contains GD10233 call sites in `CommandBuffer::setDiscardRectangleEXT()` (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:20593-20595`) and `Device::setHdrMetadataEXT()` (`:20635-20637`). The latter's equal-length validation is a separate already tracked GD10279 check; its actual count/pointer extent shares this finding's proxy narrowing.
 
 ## GD10234 — Vulkan-Hpp debug-utils helpers fail to compile for 32-bit non-dispatchable handles
 
