@@ -14207,6 +14207,9 @@ The external-memory/semaphore FD getters in the same optional RAII header also d
 
 The RAII fence external-handle getters have the same uninitialized output flow: `Device::getFenceWin32HandleKHR()` uses `HANDLE handle` and returns it after `resultCheck()` (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:20750-20756`), while `Device::getFenceFdKHR()` does so with `int fd` (`:20778-20784`). These extend the qualified conditional GD10223 candidates to `VK_KHR_external_fence_win32` / `VK_KHR_external_fence_fd`; command-specific output-on-error and ownership behavior remain to be verified.
 
+
+The Android external-memory getter `Device::getMemoryAndroidHardwareBufferANDROID()` declares `AHardwareBuffer *buffer` without initialization, passes it to the command, then checks and packages the output (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:21395-21402`). This is a further qualified GD10223 candidate under `VK_USE_PLATFORM_ANDROID_KHR` and `VK_ANDROID_external_memory_android_hardware_buffer`; whether the command can return an error without writing the output pointer remains to be checked against its command contract. The no-exceptions/disabled-or-nonfatal result-assertion condition applies. No Android Vulkan call or build was run.
+
 <a id="gd10224"></a>
 ## GD10224 — Vulkan-Hpp owning wrappers retain borrowed allocators and dispatchers
 
