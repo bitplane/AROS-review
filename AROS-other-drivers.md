@@ -45946,14 +45946,6 @@ The common console base computes `cu_XMax` as the usable pixel width divided by 
 
 **Trigger and consequence:** explicitly build `kernel-hidd-uikit-native` or the `kernel-hidd-uikit` target for the iOS configuration. The selected `.m` object targets have no matching project-defined compile/dependency rules; make may stop with a missing-rule error or fall back to an implicit rule that does not use the intended iOS `KERNEL_OBJC`/flags, so the UIKit native library can fail to build or be compiled with unsuitable settings. **Affected configuration:** the optional iOS UIKit graphics HIDD target. A repository-wide manifest search found no default parent target selecting it, so no default-image failure is claimed. **Confidence:** high that the handwritten rules miss the selected object/dependency paths; medium that a particular explicit build fails because the actual make implementation and any fallback rules were not exercised. Correct the rules to use `NATIVE_OBJDIR` and the configured Objective-C compile helper. No build was run; source-only.
 
-<a id="od11800"></a>
-## OD11800 — Serial-mouse startup leaks its hardware root when driver registration fails [optional target]
-
-`init_mouse()` allocates a `CLID_HW_Mouse` object with `OOP_NewObject()` and passes it as the subsystem object to `HW_AddDriver()` (`rom/hidds/serialmouse/startup.c:26-35`). If registration returns NULL, startup returns FALSE without disposing the allocated `ms` object. The selected `HW_AddDriver()` implementation can fail while allocating its driver node, constructing the driver instance, or setting it up; its failure cleanup disposes the attempted driver instance and node, but does not dispose the supplied subsystem object (`rom/hidds/hidd/hwclass.c:140-206`). The `init_mouse()` caller is the serial-mouse library's `ADD2INITLIB` callback (`startup.c:40`).
-
-**Trigger and consequence:** the optional serialmouse HIDD initializes, `OOP_NewObject()` succeeds, and a later `HW_AddDriver()` step fails. Initialization returns failure while the newly allocated hardware-root object remains undisposed. **Affected configuration:** explicit use of the optional serial-mouse HIDD target (`rom/hidds/serialmouse/mmakefile.src:4-13`); no default-image selection is claimed. **Confidence:** high for the unmatched allocation and `HW_AddDriver()` failure ownership, conditional on a registration-stage failure. Dispose `ms` when `HW_AddDriver()` returns NULL. No allocation failure, module initialization, object lifecycle, or build was exercised; source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
-
-
 <a id="od11801"></a>
 ## OD11801 — Serial-mouse probe can spin forever after the PC debugger beep [conditional optional target]
 
