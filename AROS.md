@@ -14288,6 +14288,10 @@ These existing coverage-ledger candidates now have detailed finding entries; thi
 
 **[OD9424](AROS-other-drivers.md#od9424) — LowLevel `ReadJoyPort()` frees its full requested POTGO mask in `llPortClose()` even after `AllocPotBits()` failed, clearing another client’s reservation and POTGO state. The selected AmigaMouse HIDD persistently reserves port 0 mask `0x0f00`, so `ReadJoyPort(0)` supplies a concrete conflicting owner. See the [source trace](AROS-other-drivers-coverage.md#potgo-failed-allocation-unowned-free-od9424). Source-only; no joystick or hardware operation was run.
 
+**[OD2984](AROS-other-drivers.md#od2984)** — PCIPC's MSI-X table read/program paths do not validate the advertised offset and entry span against the decoded BAR size. Conditional on inconsistent device capability/BAR metadata; source-only.
+
+**[OD2985](AROS-other-drivers.md#od2985)** — PCIPC MSI-X table helpers dereference the physical BAR address without calling the selected x86-64 PC mapping method. Conditional on an MSI-X table in a BAR above the 128-GiB identity window; NVMe is a selected caller. Source-only.
+
 **[OD9887](AROS-other-drivers.md#od9887) — IntelGMA uses unchecked framebuffer, MMIO, and GATT mappings.** A failed MMIO map reaches initialization writes; framebuffer and GATT failures can reach invalid graphics-memory and page-table writes on later helper paths. Conditional on explicitly selecting IntelGMA on x86-64 PC with PCIPC and a required BAR mapping failure; source-only. See the [mapping caller trace](AROS-other-drivers-coverage.md#intelgma-pcipc-mapping-failure-caller-trace-od9887-expanded-no-body-path-loc-credit-2026-11-02).
 
 **[OD9900](AROS-other-drivers.md#od9900) — PCIUSB EHCI leaves PCI memory decode enabled if its selected x86-64 PCIPC BAR mapping fails.** The driver enables MEM decode before mapping, and its failure path releases ownership without restoring the PCI command bit. Conditional on an above-128-GiB BAR mapping failure and memory decode initially being clear. Source-only.
