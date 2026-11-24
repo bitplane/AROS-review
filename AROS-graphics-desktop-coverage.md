@@ -24493,3 +24493,18 @@ MUI class API and private-layout header pass (2026-11-24; 11 additional selected
 | `workbench/libs/muimaster/classes/floattext_private.h` | 21 | 14 | Text, formatting and width-cache fields reconciled with layout/set/get methods. |
 | `workbench/libs/muimaster/classes/frameadjust.h` | 22 | 8 | Spec attribute type reconciled with Frameadjust accessors and Popframe caller. |
 | `workbench/libs/muimaster/classes/frameadjust_private.h` | 22 | 19 | Frame spec, gadget pointers and hooks reconciled with instance allocation and methods. |
+
+MUI Area, bitmap, Boopsi, image and optional-widget headers (2026-11-24; ten additional headers read, 675 `cloc 2.06` C/header code lines): read all ten selected/public headers in full and reconciled their availability with `workbench/libs/muimaster/mmakefile.src`. `area`, `bitmap`, and `chunkyimage` occur in the current base `CLASSES`; `boopsi`, `framedisplay`, `gauge`, and `crawling` are configured through conditional class selectors, so their inclusion depends on build configuration. Checked the Area public attribute and message definitions against its class handlers; Bitmap attribute IDs/types against Bitmap's set/get methods; Boopsi public and private trigger/object/class contracts against its methods; ChunkyImage's pixel/palette/dimension attributes against the class's set/get methods and Bitmap superclass attributes; Crawling's delay and timer/event instance fields against its event-handler implementation; Framedisplay's Spec type/private storage against accessors and frame-display caller; and Gauge's public values/private buffer state against its accessors. No independent interface mismatch established in this pass. Header declaration checks do not close implementation-body or downstream-caller review for these classes. No class load, image operation, build, or GUI interaction was run; source-only.
+
+| Source path | Physical lines | `cloc 2.06` code lines | Selection/review note |
+|---|---:|---:|---|
+| `workbench/libs/muimaster/classes/area.h` | 657 | 537 | Base class header; public methods/messages and attributes checked against Area handlers. |
+| `workbench/libs/muimaster/classes/bitmap.h` | 38 | 26 | Base class header; Bitmap attributes checked against set/get methods. |
+| `workbench/libs/muimaster/classes/boopsi.h` | 46 | 32 | Conditional class header; attributes checked against Boopsi handlers. |
+| `workbench/libs/muimaster/classes/chunkyimage.h` | 28 | 14 | Base class header; pixel/palette/dimensions checked against class and Bitmap superclass calls. |
+| `workbench/libs/muimaster/classes/crawling.h` | 18 | 5 | Conditional class descriptor header; class selection is configuration-dependent. |
+| `workbench/libs/muimaster/classes/crawling_private.h` | 15 | 11 | Conditional private layout; timer/event fields checked against Crawling implementation. |
+| `workbench/libs/muimaster/classes/framedisplay.h` | 21 | 8 | Conditional class header; Spec attribute checked against methods and caller. |
+| `workbench/libs/muimaster/classes/framedisplay_private.h` | 11 | 8 | Conditional private layout; intern frame spec and string storage checked against implementation. |
+| `workbench/libs/muimaster/classes/gauge.h` | 33 | 18 | Conditional class header; value attributes checked against Gauge handlers. |
+| `workbench/libs/muimaster/classes/gauge_private.h` | 23 | 16 | Conditional private layout; value, text buffer and dimensions checked against Gauge methods. |
