@@ -24477,3 +24477,19 @@ MUI class interface and private-layout header pass (GD15412; 11 previously unrep
 | `workbench/libs/muimaster/classes/colorfield.h` | 24 | 11 | Full public class header read; pen and RGB attribute types matched to class methods. |
 | `workbench/libs/muimaster/classes/colorfield_private.h` | 13 | 10 | Full private layout read; colormap, RGB, pen and flags matched to implementation. |
 | `workbench/libs/muimaster/classes/configdata.h` | 277 | 246 | Full API header read; config IDs, method/message layout and Configdata attribute contract reconciled; GD15412. |
+
+MUI class API and private-layout header pass (2026-11-24; 11 additional selected/public MUI class headers, 333 `cloc 2.06` C/header code lines): read each header in full, reconciled public class exposure in `workbench/libs/muimaster/mui.h` and `mmakefile.src` built-in/EXTCLASSES selectors, then checked declarations against corresponding class implementation fields, attribute handlers, and method dispatchers. `Cycle` Active/Entries types and next/previous sentinels match its setters; Dataspace method IDs/message layouts and pool attribute match the dispatcher and operations; Dirlist's ReRead message, public attributes/enums, private hooks/state, and FileInfoBlock entry match its implementation; Dtpic public attributes and private bitmap/event/alpha fields match its accessors and draw/state code; Family method messages/attributes, including GetChild, match implementation dispatch; Floattext Append and attributes/private state match the class handlers; Frameadjust Spec and private gadget/hook fields match its setters/getters and instance allocation. No independent header/implementation mismatch was established. This pass adds exact-path coverage records but does not revise historical aggregate denominators or claim the full class bodies/callers are closed. No class object, preference operation, generated header, or build was exercised; source-only.
+
+| Source path | Physical lines | `cloc 2.06` code lines | Review note |
+|---|---:|---:|---|
+| `workbench/libs/muimaster/classes/cycle.h` | 27 | 13 | Public attributes and sentinel values reconciled with Cycle setters and consumers. |
+| `workbench/libs/muimaster/classes/dataspace.h` | 76 | 52 | Method IDs, stacked message members, and Pool attribute reconciled with dispatcher. |
+| `workbench/libs/muimaster/classes/dirlist.h` | 83 | 63 | ReRead message, attribute types, sort/status enums reconciled with class handlers. |
+| `workbench/libs/muimaster/classes/dirlist_private.h` | 41 | 37 | Private hooks, strings, counters, flags and FileInfoBlock entry reconciled with implementation. |
+| `workbench/libs/muimaster/classes/dtpic.h` | 26 | 15 | Public attributes reconciled with Dtpic setters/getters. |
+| `workbench/libs/muimaster/classes/dtpic_private.h` | 40 | 31 | Bitmap, event, alpha, and composite-buffer state reconciled with Dtpic implementation. |
+| `workbench/libs/muimaster/classes/family.h` | 86 | 60 | Method messages, child attributes and GetChild selectors reconciled with dispatcher/body. |
+| `workbench/libs/muimaster/classes/floattext.h` | 37 | 21 | Append message and public attribute types reconciled with class handlers. |
+| `workbench/libs/muimaster/classes/floattext_private.h` | 21 | 14 | Text, formatting and width-cache fields reconciled with layout/set/get methods. |
+| `workbench/libs/muimaster/classes/frameadjust.h` | 22 | 8 | Spec attribute type reconciled with Frameadjust accessors and Popframe caller. |
+| `workbench/libs/muimaster/classes/frameadjust_private.h` | 22 | 19 | Frame spec, gadget pointers and hooks reconciled with instance allocation and methods. |
