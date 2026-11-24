@@ -24614,3 +24614,10 @@ MUI String, Text, Virtgroup, Volumelist and Window headers (2026-11-24; six fina
 | `workbench/libs/muimaster/classes/volumelist.h` | 17 | 6 | Conditional descriptor checked against class source selection. |
 | `workbench/libs/muimaster/classes/volumelist_private.h` | 22 | 18 | Conditional hooks and entry buffers checked against allocation/use. |
 | `workbench/libs/muimaster/classes/window.h` | 451 | 352 | Base Window methods/messages, attributes, sentinels and public layout records checked against implementation; GD5590 rechecked; GD15416/GD15417 added. |
+
+MUI remaining class-source inventory reconciliation (2026-11-24; two exact C paths checked): reconciled the remaining `classes/*.c` paths against the current `mmakefile.src`/`classes/mmakefile.src` selections and legacy makefiles. `levelmeter.c` is already fully body-reviewed and credited above (453 physical lines; 339 `cloc 2.06` C code lines); this exact-path row closes its omission from the explicit class-source inventory. `settings.c` was read in full (111 physical lines; 86 C code lines). It is not selected by the current `mmakefile.src` `CLASSES`/`FILES` or current generated class module list; only legacy `makefile.aos4` and `smakefile` include it. Its placeholder constructor, empty initial-tag switch, and descriptor were checked, but no active current target or maintained caller was established. The legacy-only source is recorded as reviewed/excluded from the current selected-source denominator, not as a current-build defect. No build, class construction or GUI operation was run; source-only.
+
+| Source path | Physical lines | `cloc 2.06` code lines | Selection/review note |
+|---|---:|---:|---|
+| `workbench/libs/muimaster/classes/levelmeter.c` | 453 | 339 | Optional external class module is selected by `classes/mmakefile.src`; body previously fully reviewed and GD5449 covers the declared-but-unimplemented Label API. |
+| `workbench/libs/muimaster/classes/settings.c` | 111 | 86 | Full body read; legacy `makefile.aos4`/`smakefile` only, absent current source selectors; no current caller established. Excluded from current selected-source denominator. |
