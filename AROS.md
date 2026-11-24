@@ -19122,3 +19122,9 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD3253](AROS-other-drivers.md#od3253) — USB hub port-control masks cannot represent port 32 and above.** The class accepts disable/power-cycle requests for descriptor-reported ports but stores them in 32-bit masks; a request for port 32 or higher cannot be represented. Conditional; source-only.
 
 **[OD3233](AROS-other-drivers.md#od3233) — SuperSpeed hub uses the reserved USB 2 port-suspend feature.** The downstream suspend request can fail after child bindings accept suspension, leaving their state inconsistent; resume sends the same reserved selector. Conditional on a real SuperSpeed hub; source-only.
+
+**[OD3394](AROS-other-drivers.md#od3394) — USB hub configuration trusts short xHCI port-status responses.** A short successful transfer leaves status fields partial or stale, which the hub class decodes as current state. Conditional on PCI xHCI and a short hub response; source-only.
+
+**[OD3395](AROS-other-drivers.md#od3395) — USB hub clears port-change flags after a failed status read.** A non-timeout `GET_STATUS` error can consume an insertion/removal event without updating the downstream-device table. Conditional; source-only.
+
+**[OD3396](AROS-other-drivers.md#od3396) — Failed hub reset polling can trigger a power-cycle from stale status.** A prior low-speed status can still satisfy the recovery predicate after the latest read fails. Little-endian USB 2 paths; source-only.
