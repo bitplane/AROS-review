@@ -101,7 +101,7 @@ Reverse reconciliation found 191 active Exec/Kernel finding sections that were n
 | [EK03](AROS-exec-kernel.md#ek03) | Vector-allocation size prefixes can wrap on system and unmanaged-pool paths [high impact, high confidence] |
 | [EK04](AROS-exec-kernel.md#ek04) | Releasing shared semaphore grants later readers ahead of a queued writer [medium impact, high confidence] |
 | [EK06](AROS-exec-kernel.md#ek06) | Failed task creation leaves a dangling caller-visible message-port pointer [medium impact, high confidence] |
-| [EK08](AROS-exec-kernel.md#ek08) | Equal-version resident priority is ignored [medium impact, high confidence] |
+| [EK08](AROS-exec-kernel.md#ek08) | KickTag resident merging can retain stale modules or add duplicate names [medium impact, high confidence] |
 | [EK09](AROS-exec-kernel.md#ek09) | `KrnRemIRQHandler(NULL)` dereferences null; selected callers include i8042, Efika timer, PC AHCI, and i386 PC serial HIDD teardown [medium impact, high confidence] |
 | [EK10](AROS-exec-kernel.md#ek10) | IRQ handler data update races with IRQ execution/removal [high impact, high confidence; SMP] |
 | [EK11](AROS-exec-kernel.md#ek11) | The ninth exception handler is silently dropped on SMP [medium impact, high confidence; SMP] |
