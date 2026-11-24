@@ -9172,11 +9172,9 @@ The implementation subtracts the two signed 32-bit `time_t` arguments before cas
 **Trigger and consequence:** a 32-bit target keeps the stdc base open for roughly 994 days. `clock()` then wraps to a low value, so callers comparing successive results see a backward jump and compute an invalid elapsed duration. **Affected configuration:** AROS targets with 32-bit `unsigned long` and long-running tasks using `clock()`. **Confidence:** high for the counter width, rate, and unchecked accumulation; occurrence requires that long uptime interval without a base reset. Use a wider internal accumulator or report the unrepresentable result before wrap. No clock value, task, or build was exercised; source-only.
 
 <a id="ek10697"></a>
-## EK10697 — `strftime()` writes `%n`, `%t`, and `%%` at the start of the buffer [conditional]
+## EK10697 — Withdrawn: `strftime()` appends `%n`, `%t`, and `%%` at the current output pointer
 
-The `%n`, `%t`, and `%%` branches assign the conversion byte to `s[0]`, even after the output pointer has advanced for earlier format characters (`compiler/crt/stdc/strftime.c:174-184`). The shared epilogue then advances by the conversion length, so the function overwrites the first output byte instead of appending the conversion.
-
-**Trigger and consequence:** the format contains ordinary output before `%n`, `%t`, or `%%`, such as `"date: %%"`. The prefix is overwritten and the resulting string is malformed. **Affected configuration:** callers of the selected stdc `strftime()` implementation using any of these supported specifiers after a nonempty prefix. **Confidence:** high; the write target is explicit and independent of locale or calendar input. Write through the current output pointer. No formatting call or build was run; source-only.
+The earlier report misread `s[0]` as the start of the caller's buffer. In `__strftime_locale()`, `s` is an advancing output pointer: ordinary bytes use `*s++`, and each conversion advances it with `s += tmp` after updating `size` (`compiler/crt/stdc/strftime.c:80-81,286-308`). Therefore `s[0]` in the `%n`, `%t`, and `%%` branches addresses the current output position and appends the character, provided the branch's capacity condition passes (`:174-184`). **Disposition:** withdraw as a false positive. The separate capacity-accounting issue remains EK10698. No formatter call or build was run; source-only.
 
 <a id="ek10698"></a>
 ## EK10698 — `strftime()` can write its final terminator past the caller's buffer [conditional]
