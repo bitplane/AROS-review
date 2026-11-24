@@ -14288,9 +14288,19 @@ These existing coverage-ledger candidates now have detailed finding entries; thi
 
 **[OD9424](AROS-other-drivers.md#od9424) — LowLevel `ReadJoyPort()` frees its full requested POTGO mask in `llPortClose()` even after `AllocPotBits()` failed, clearing another client’s reservation and POTGO state. The selected AmigaMouse HIDD persistently reserves port 0 mask `0x0f00`, so `ReadJoyPort(0)` supplies a concrete conflicting owner. See the [source trace](AROS-other-drivers-coverage.md#potgo-failed-allocation-unowned-free-od9424). Source-only; no joystick or hardware operation was run.
 
+**[OD2418](AROS-other-drivers.md#od2418)** — PCIPC programs MSI and MSI-X messages for APIC ID zero even when the APIC allocator reserves the vector on a different local APIC. Conditional on a nonzero selected APIC ID; source-only.
+
+**[OD2982](AROS-other-drivers.md#od2982)** — PCIPC rounds a non-power-of-two legacy MSI request up when enabling messages after reserving only the requested count. Conditional on a caller/device using the extra enabled message; source-only.
+
+**[OD2983](AROS-other-drivers.md#od2983)** — PCIPC's legacy MSI vector query returns the same base vector for each index. Conditional on a caller querying multiple messages; no selected nonzero-index caller found.
+
 **[OD2984](AROS-other-drivers.md#od2984)** — PCIPC's MSI-X table read/program paths do not validate the advertised offset and entry span against the decoded BAR size. Conditional on inconsistent device capability/BAR metadata; source-only.
 
 **[OD2985](AROS-other-drivers.md#od2985)** — PCIPC MSI-X table helpers dereference the physical BAR address without calling the selected x86-64 PC mapping method. Conditional on an MSI-X table in a BAR above the 128-GiB identity window; NVMe is a selected caller. Source-only.
+
+**[OD2987](AROS-other-drivers.md#od2987)** — PCIPC can return MSI-X success after reducing the allocation below the caller's minimum. Conditional on a direct client requiring more vectors than the device table supports; source-only.
+
+**[OD2993](AROS-other-drivers.md#od2993)** — PCIPC's legacy MSI allocation loop can run indefinitely if an external caller supplies Min=0 and all positive vector allocations fail. Source-only.
 
 **[OD9887](AROS-other-drivers.md#od9887) — IntelGMA uses unchecked framebuffer, MMIO, and GATT mappings.** A failed MMIO map reaches initialization writes; framebuffer and GATT failures can reach invalid graphics-memory and page-table writes on later helper paths. Conditional on explicitly selecting IntelGMA on x86-64 PC with PCIPC and a required BAR mapping failure; source-only. See the [mapping caller trace](AROS-other-drivers-coverage.md#intelgma-pcipc-mapping-failure-caller-trace-od9887-expanded-no-body-path-loc-credit-2026-11-02).
 
