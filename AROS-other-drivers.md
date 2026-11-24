@@ -40615,6 +40615,19 @@ Both hub classes allocate exactly the descriptor's advertised `bLength` and then
 
 Sources: `rom/usb/classes/hub/hub.class.c:857-894`; `rom/usb/classes/hubss/hubss_class.c:817-836`; `compiler/include/devices/usb_hub.h:65-89`; `rom/usb/poseidon/poseidon.library.c:331-367`; `rom/usb/classes/mmakefile.src:36-43`; `rom/usb/mmakefile.src:7-15`. This is separate from OD3362: the selected PCI xHCI descriptor is long enough for the current USB 2 parser read but truncates/misaligns variable bitmap contents.
 
+
+<a id="od3232"></a>
+## OD3232 — USB hub port-change arrays are too small for 32 or more ports [conditional]
+
+Both standard and SuperSpeed hub classes embed only four bytes in `nch_PortChanges` (`rom/usb/classes/hub/hub.h:47`; `hubss_class.h:64`). They size the interrupt-IN request as `(nch_NumPorts + 8) >> 3` (`hub.class.c:450,1453`; `hubss_class.c:404,1555`). For a 32-port standard hub this requests five bytes: the hub-status bit plus one status bit for each of 32 ports requires 33 bits. The class finds an interrupt IN endpoint (`hub.class.c:830-833`) and Poseidon's `psdSendPipe()` sets the supplied pointer and length as the request buffer and transfer length (`rom/usb/poseidon/poseidon.library.c:4742-4766`). A port-32 change therefore requires a five-byte bitmap and writes beyond the four-byte array. The standard USB 2.0 hub descriptor defines the port count in one byte and specifies removable-port bits up to 255 ports (USB 2.0 Specification §11.23.2.1, [PDF](https://bitsavers.trailing-edge.com/components/usb/USB_2.0_2000.pdf)).
+
+Independently, the event workers scan all ports from 1 through `nch_NumPorts` and index the same array with `num >> 3` (`hub.class.c:616-619`; `hubss_class.c:567-570`). At port 32 this reads element 4, outside the four-element array, even when the received packet is shorter and did not write a fifth byte. On 32-bit layouts the fifth transferred byte overlaps the following `nch_Downstream` pointer; 64-bit layouts may place alignment padding after the array, so pointer corruption is not claimed there. The out-of-array port scan applies to both source paths when their descriptor count exceeds 31; the standards-based trigger established here is a 32-or-more-port USB 2 hub. No compliant SuperSpeed hub with that port count is asserted.
+
+**Trigger and consequence:** enumerate a USB 2 hub reporting at least 32 ports and receive a status-change bitmap for port 32 or above. Poseidon requests more bytes than the class buffer holds; the event worker also reads past the array while scanning the descriptor-reported ports. This can overwrite adjacent class state on layouts without padding and can interpret adjacent bytes as port-change bits on other layouts. **Affected configuration:** disk-based USB builds selecting the standard `kernel-usb-classes-hub`; the same unchecked count/array code exists in `hubss.class` for a descriptor claiming more than 31 ports, but that SuperSpeed configuration is not relied on for the conforming trigger. **Confidence:** high for the buffer size, transfer length, and indexed reads; a returned high-port bitmap is required for the transfer overrun. Bound the endpoint transfer and scan to allocated bitmap capacity, or size the state buffer from the validated port count. No hub, port event, transfer, or build was exercised; source-only.
+
+Sources: `rom/usb/classes/hub/hub.h:47`; `rom/usb/classes/hub/hub.class.c:450,616-619,830-833,1453`; `rom/usb/classes/hubss/hubss_class.h:64`; `rom/usb/classes/hubss/hubss_class.c:404,567-570,1555`; `rom/usb/poseidon/poseidon.library.c:4742-4766`; USB 2.0 Specification §11.23.2.1. This is distinct from OD3231's descriptor-length validation defect and OD3362's malformed xHCI bitmap contents.
+
+
 <a id="od3362"></a>
 ## OD3362 — PCI xHCI truncates variable root-hub bitmaps above 15 ports [conditional]
 
