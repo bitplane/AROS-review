@@ -19079,3 +19079,4 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[OD11798](AROS-other-drivers.md#od11798) — The optional WD33C93 probe logs `SCSI=disable` but continues A2091 enumeration.** Conditional on explicit module use with that boot argument. Source-only.
 **[OD2342](AROS-other-drivers.md#od2342)** — Console cursor-forward divides by zero when a caller-supplied borderless window is narrower than one font cell. Conditional on a narrow supplied `CON:WINDOW`; source-only.
+**[OD11799](AROS-other-drivers.md#od11799) — The optional iOS UIKit HIDD's Objective-C compile rules miss their selected object paths.** Explicit UIKit HIDD builds may fail or use an unsuitable implicit compiler rule; no default parent selector was found. Source-only; no build was run.
