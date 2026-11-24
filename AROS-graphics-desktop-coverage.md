@@ -24621,3 +24621,5 @@ MUI remaining class-source inventory reconciliation (2026-11-24; two exact C pat
 |---|---:|---:|---|
 | `workbench/libs/muimaster/classes/levelmeter.c` | 453 | 339 | Optional external class module is selected by `classes/mmakefile.src`; body previously fully reviewed and GD5449 covers the declared-but-unimplemented Label API. |
 | `workbench/libs/muimaster/classes/settings.c` | 111 | 86 | Full body read; legacy `makefile.aos4`/`smakefile` only, absent current source selectors; no current caller established. Excluded from current selected-source denominator. |
+
+OD2595 cross-area detail/index reconciliation (2026-11-24; no new GD, source-body, path or LOC credit): restored the missing detailed OD2595 section and master-index entry in the Other Drivers report after this ledger's earlier raster-scroll review referenced it. Added a cross-reference to the Graphics/Desktop report so the shared `ScrollRaster()` implementation issue remains discoverable without duplicating the finding. The already credited `scrollraster.c`, `scrollrasterbf.c`, standard console and CharMap caller reviews remain unchanged. No raster, console or build operation was run.
