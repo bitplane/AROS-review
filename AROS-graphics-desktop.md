@@ -2332,6 +2332,7 @@ Intuition's selected `WindowLimits()` implementation changes `MinWidth` only whe
 
 **Disposition:** Unverified legacy placeholder. The current report and coverage ledger provide no source location, trigger, consequence, or finding-specific evidence from which to re-establish this candidate. It is not retained as an active bug finding pending provenance.
 
+<a id="gd5184-findport-clients-can-send-through-a-port-during-owner-teardown"></a>
 ## GD5184 — FindPort clients can send through a port during owner teardown
 
 **Finding:** Several preferences clients retain a borrowed public-port pointer after `FindPort()` without protecting the port through `PutMsg()`. On ExecSMP, the owner can remove and free the port on another CPU in that interval; the sender then posts through a stale `MsgPort *`. If the port is removed but not yet freed, a late message can instead arrive after the manager has stopped servicing its queue. Either outcome can leave the sender waiting indefinitely; the freed-port case also passes stale storage to Exec IPC.
@@ -9234,6 +9235,7 @@ The generic bitmap class computes chunky stride as aligned width multiplied by b
 
 **Affected configuration:** Display HIDDs inheriting the generic `CLID_Hidd_Display` software cursor path, including VESAGfx. **Confidence:** High for the ignored failure, success return, and draw guard; requires the specific save-under allocation to fail. No allocation failure or cursor operation was run. See [`AROS-graphics-desktop-coverage.md:L3053`](AROS-graphics-desktop-coverage.md#L3053).
 
+<a id="gd9418"></a>
 ## GD9418 — Generic software cursor save-under allocation can wrap and be overrun on 32-bit builds [conditional]
 
 `cursor_AllocBackup()` allocates `cursor_w * cursor_h * bpp` bytes without checked multiplication (`rom/hidds/gfx/gfx_displayclass.c:209-234`). The cursor dimensions are `UWORD` (`gfx_display.h:44-49`), so each is promoted to `int` for the first multiplication. On a 32-bit target, that product is then converted to unsigned `IPTR` when multiplied by `bpp`; the final multiplication can wrap modulo 2^32. For example, dimensions 32,768 × 32,769 have a pixel count of 1,073,774,592, which fits signed 32-bit `int`; at four native bytes per pixel, the allocation wraps to 131,072 bytes. `cursor_Draw()` clips the shape to the visible framebuffer and calls `HIDD_BM_GetImage()` to save those pixels into the backup (`gfx_displayclass.c:127-190`). A 1,024 × 768 visible intersection writes 3,145,728 bytes into that 131,072-byte allocation.
@@ -12972,6 +12974,7 @@ During display-driver handover, `driver_ExpungeBootDisplay()` refuses removal on
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#L7835), TextEditor InitConfig full-body and setup-caller pass.
 
 
+<a id="gd9996"></a>
 ## GD9996 — Zune text gadgets keep rendering through a failed private bitmap allocation
 
 Both selected Zune text gadgets allocate private drawing bitmaps in their show methods and continue publishing a shown state when allocation fails. TextEditor stores the nullable `MUIG_AllocBitMap()` result in `data->doublebuffer`, assigns it to `data->doublerp.BitMap`, and completes `mShow()` (`workbench/classes/zune/texteditor/mcc/Dispatcher.c:452-470`). Its selected AROS wrapper returns the underlying `AllocBitMap()` result, including NULL (`texteditor/mcc/AllocBitMap.c:39-48`). Later `DumpText()` routes drawing through the double-buffer RastPort when callers request buffering or the draw covers fewer than three lines (`texteditor/mcc/MixedFunctions.c:614-627`); `PrintLine()` then blits from `rp->BitMap` (`texteditor/mcc/PrintLineWithStyles.c:457-465`). Several visible editing and block-operation callers explicitly request this path.
@@ -22393,6 +22396,7 @@ After successfully opening graphics.library and intuition.library, console-devic
 **Trigger and consequence:** console.device open or window creation fails after earlier resources have been acquired. The process exits while library/device references and potentially allocated BOOPSI objects remain unreleased. **Affected configuration:** the explicitly buildable `developer/demos/demowin.c` target. **Confidence:** high for the direct returns and skipped cleanup sequence. Route these failures through shared cleanup. No failure, launch, GUI operation or build was induced; source-only.
 
 <a id="gd14992"></a>
+<a id="gd14992-dto-demo-uses-apis-after-unchecked-required-library-opens"></a>
 ## GD14992 — DTO demo uses APIs after unchecked required-library opens [conditional]
 
 After opening `datatypes.library`, `main()` opens intuition.library, graphics.library and utility.library without checking the results (`developer/demos/dto.c:109-114`). The later public-screen path calls `LockPubScreen()` and `OpenWindowTags()` even if intuition.library failed (`:204-249`). If utility.library failed, the IDCMP update path later uses `NextTagItem()` and `GetTagData()` (`:270-299`). The graphics base is opened but no direct graphics.library function is called in this source; its failed open alone is not claimed as a defect.
@@ -24402,6 +24406,7 @@ Both support-process implementations place `volatile IPTR exitflag` on the worke
 
 
 <a id="gd15261"></a>
+<a id="gd15261-vulkan-hpp-platform-handle-info-wrappers-default-to-the-fd-handle-type"></a>
 ## GD15261 — Vulkan-Hpp platform handle-info wrappers default to the FD handle type
 
 Ten platform-specific Vulkan-Hpp structures initialize `handleType` to `eOpaqueFd`, and their convenience constructors use the same default. The affected types are the Win32/Fuchsia import and export structures for fences, memory, and semaphores: `ImportFenceWin32HandleInfoKHR`, `FenceGetWin32HandleInfoKHR`, `ImportMemoryWin32HandleInfoKHR`, `ImportMemoryZirconHandleInfoFUCHSIA`, `MemoryGetWin32HandleInfoKHR`, `MemoryGetZirconHandleInfoFUCHSIA`, `ImportSemaphoreWin32HandleInfoKHR`, `ImportSemaphoreZirconHandleInfoFUCHSIA`, `SemaphoreGetWin32HandleInfoKHR`, and `SemaphoreGetZirconHandleInfoFUCHSIA` (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:51618,51711,62959,63084,63601,63703,63856,63958,64818,64943,64977,65105,70316,70409,70439,70532,148353,148446,148476,148569`). The matching enum values are platform-specific: Win32 fence/memory/semaphore types use `eOpaqueWin32`; Fuchsia memory uses `eZirconVmoFUCHSIA`, and Fuchsia semaphores use `eZirconEventFUCHSIA` (`vulkan_enums.hpp:4323-4324,4336,4416-4417,4504-4510`). The Vulkan-Hpp import/export methods forward the supplied structures to their Vulkan functions unchanged (`vulkan_funcs.hpp:13734-13755,14962-14983,13557-13568,13764-13787,14991-15014,24823-24847,24899-24924,24933-24957`); memory import structures are passed through allocation `pNext` chains.
@@ -24410,6 +24415,7 @@ Ten platform-specific Vulkan-Hpp structures initialize `handleType` to `eOpaqueF
 
 
 <a id="gd15262"></a>
+<a id="gd15262-vulkan-hpp-setters-can-desynchronize-related-array-counts-and-lengths"></a>
 ## GD15262 — Vulkan-Hpp setters can desynchronize related array counts and lengths
 
 Several enhanced constructors check that arrays governed by one count have compatible lengths, but their setters change counts or pointers independently. The confirmed cases are `SemaphoreWaitInfo` (`semaphoreCount`; `:148857-148871,148911-148930`), `SetDescriptorBufferOffsetsInfoEXT` (`setCount`; `:149043-149063,149115-149134`), `SubmitInfo` (`waitSemaphoreCount`; `:151100-151121,151155-151179`), `SwapchainTimeDomainPropertiesEXT` (`timeDomainCount`; `:155720-155735,155770-155791`), and `VideoDecodeAV1PictureInfoKHR` (`tileCount`; `:159855-159878,159929-159951`). `AccelerationStructureTrianglesDisplacementMicromapNV` checks that its two optional usage-count arrays match when both are supplied, but the corresponding setters can later give them different lengths while changing `usageCountsCount` (`:4585-4616,4724-4758`).
@@ -24421,6 +24427,7 @@ These structures are forwarded through Vulkan-Hpp operations including `vkWaitSe
 **Trigger and consequence:** a caller uses setters with arrays whose lengths do not meet the constructor's invariant. The shared count can then come from whichever setter ran last; or, for subpass descriptions, `setResolveAttachments()` can replace the color count directly. Vulkan may read beyond a shorter input array or reject the invalid structure; output arrays can also be sized inconsistently. **Affected configuration:** downstream clients using these enhanced Vulkan-Hpp setters; no in-tree call site was identified. **Confidence:** high that the setters can construct inconsistent state and wrappers forward it, but medium that this is a project defect: no defect is established when clients provide arrays satisfying Vulkan valid usage, and no in-tree setter caller was found. The concern is that enhanced constructors validate these relationships while the corresponding setters do not; whether those convenience setters promise the same validation remains unestablished. Treat as a wrapper-validation consistency candidate, with operation impact conditional on a client supplying invalid array lengths and on Vulkan validation/implementation behavior. No Vulkan operation or build was run; source-only.
 
 <a id="gd15263"></a>
+<a id="gd15263-vulkan-hpp-shadercreateinfoext-comparisons-can-pass-a-null-name-to-strcmp"></a>
 ## GD15263 — Vulkan-Hpp `ShaderCreateInfoEXT` comparisons can pass a null name to `strcmp`
 
 `ShaderCreateInfoEXT` defaults `pName` to null in both the constructor and stored field (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:149582-149615,149848`). With reflection disabled, `operator==` first checks pointer identity but calls `strcmp(pName, rhs.pName)` when the pointers differ (`:149831-149833`). When `VULKAN_HPP_HAS_SPACESHIP_OPERATOR` is enabled, its three-way comparison also calls `strcmp` whenever the pointers differ, without checking for null (`:149798-149826`). Thus comparing a default-constructed wrapper with one whose name is set can pass a null pointer to `strcmp`, which has undefined behavior and commonly faults. The `VULKAN_HPP_USE_REFLECT` equality path compares the pointer values as tuple fields and does not take this path.
@@ -24429,6 +24436,7 @@ These structures are forwarded through Vulkan-Hpp operations including `vkWaitSe
 
 
 <a id="gd15264"></a>
+<a id="gd15264-vulkan-hpp-shader-identifier-equality-ignores-bytes-included-by-its-hash"></a>
 ## GD15264 — Vulkan-Hpp shader identifier equality ignores bytes included by its hash
 
 `ShaderModuleIdentifierEXT::operator==` compares only the first `identifierSize` bytes of its fixed array (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:150109-150111`). The hash specialization combines every byte up to `VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT`, after also combining `identifierSize` (`workbench/hidds/vulkan/include/vulkan/vulkan_hash.hpp:17984-17994`). The constructor accepts the full fixed array independently of `identifierSize` (`vulkan_structs.hpp:150028-150035`). For two wrappers with the same `sType`, `pNext`, and size, equality ignores differing bytes after the declared prefix while hashing includes them; such equal keys can therefore receive different hash values.
@@ -24436,6 +24444,7 @@ These structures are forwarded through Vulkan-Hpp operations including `vkWaitSe
 **Trigger and consequence:** a client puts `ShaderModuleIdentifierEXT` values with the same declared prefix but different trailing array bytes into an unordered associative container. Equality treats the values as equal, while their hashes can differ, violating the hash/equality requirement and causing lookup or deduplication to fail. **Affected configuration:** clients using the Vulkan-Hpp hash specialization for this type. **Confidence:** high for the equality/hash range mismatch; consequence depends on trailing bytes and hash results. Hash only the declared prefix, or make equality compare the entire fixed array. No container operation or build was run; source-only.
 
 <a id="gd15265"></a>
+<a id="gd15265-vulkan-hpp-shader-identifier-comparisons-trust-an-unchecked-byte-count"></a>
 ## GD15265 — Vulkan-Hpp shader identifier comparisons trust an unchecked byte count
 
 `ShaderModuleIdentifierEXT` stores `identifier` as a fixed `VK_MAX_SHADER_MODULE_IDENTIFIER_SIZE_EXT` array but accepts an independent `uint32_t identifierSize` in its constructor and exposes the size as a public field (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:150028-150035,150113-150115`). Equality passes `identifierSize` as the length to `memcmp`, and the spaceship comparison indexes `identifier[i]` for every `i < identifierSize` (`:150089-150111`). Neither operation bounds-checks the count against the array capacity.
@@ -24444,6 +24453,7 @@ These structures are forwarded through Vulkan-Hpp operations including `vkWaitSe
 
 
 <a id="gd15266"></a>
+<a id="gd15266-vulkan-hpp-surface-present-mode-query-defaults-to-optional-immediate-mode"></a>
 ## GD15266 — Vulkan-Hpp surface-present-mode query defaults to optional immediate mode
 
 `SurfacePresentModeKHR` defaults its constructor argument and stored field to `PresentModeKHR::eImmediate` (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:153761-153765,153843-153845`). This struct can be chained through `PhysicalDeviceSurfaceInfo2KHR::pNext` (`:118920-118934`) when calling `PhysicalDevice::getSurfaceCapabilities2KHR()`. The Vulkan-Hpp query wrapper passes that structure chain directly to `vkGetPhysicalDeviceSurfaceCapabilities2KHR()` (`workbench/hidds/vulkan/include/vulkan/vulkan_funcs.hpp:15303-15315`). `eImmediate` is optional for a surface; FIFO is the universally supported mode.
@@ -24451,6 +24461,7 @@ These structures are forwarded through Vulkan-Hpp operations including `vkWaitSe
 **Trigger and consequence:** a client requests surface capabilities for a FIFO-only surface using a `SurfacePresentModeKHR` built without an explicit mode. The query chain asks for capabilities of unsupported immediate mode, violating the supported-present-mode requirement and potentially yielding an error or unusable result. Explicitly selecting a mode returned by the surface's supported-mode query avoids the issue. **Affected configuration:** downstream Vulkan-Hpp clients using `VK_EXT_surface_maintenance1` with `VK_KHR_get_surface_capabilities2`; no in-tree call site was identified. **Confidence:** high for the default and direct forwarding; effect depends on querying a surface without immediate support. Default to FIFO or require the caller to supply a supported mode. No surface query or build was run; source-only.
 
 <a id="gd15267"></a>
+<a id="gd15267-vulkan-hpp-setters-can-leave-mutually-exclusive-array-representations-active"></a>
 ## GD15267 — Vulkan-Hpp setters can leave mutually exclusive array representations active
 
 Several Vulkan-Hpp structs expose alternative pointer-array representations for one logical array. `AccelerationStructureBuildGeometryInfoKHR` has `pGeometries` and `ppGeometries`; its enhanced constructor selects one and rejects both nonempty, while `setGeometries()`/`setPGeometries()` set their own pointer and shared count without clearing the alternate pointer (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:832-867,921-960`). `MicromapBuildInfoEXT` has the same constructor exclusivity check for `pUsageCounts` versus `ppUsageCounts`, but its setters independently populate either pointer/count representation (`:72045-72073,72121-72155`). The opacity-micromap geometry-chain struct likewise rejects both usage-count representations in its enhanced constructor while its setter pair leaves both pointers settable (`:4902-4939,4980-5011`).
@@ -24460,6 +24471,7 @@ The build wrappers forward these structures to `vkCmdBuildAccelerationStructures
 **Trigger and consequence:** a caller uses both enhanced setters for the same alternative array representation. Both pointers remain populated and the count reflects the most recent array setter. This produces a state that the enhanced constructor rejects; Vulkan validation may reject it, and behavior without validation depends on the implementation. **Affected configuration:** downstream clients using these enhanced setters and their corresponding build APIs; no in-tree call site was identified. **Confidence:** high that the setter combinations can create and forward a state rejected by the enhanced constructor, but medium that this is a project defect: no defect is established for callers that use only one representation as required by Vulkan, and no in-tree setter caller was found. The concern is the mismatch between constructor validation and setters that permit both representations; whether these setters promise to preserve that invariant remains unestablished. Treat as a wrapper-validation consistency candidate, with operation impact conditional on a client supplying invalid input and Vulkan validation/implementation behavior. No Vulkan operation or build was run; source-only.
 
 <a id="gd15268"></a>
+<a id="gd15268-vulkan-hpp-descriptor-write-setters-can-populate-multiple-data-arrays"></a>
 ## GD15268 — Vulkan-Hpp descriptor-write setters can populate multiple data arrays
 
 The enhanced `WriteDescriptorSet` constructor derives `descriptorCount` from the one nonempty image, buffer, or texel-buffer array and rejects more than one nonempty array (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:136888-136917`). Its enhanced `setImageInfo()`, `setBufferInfo()`, and `setTexelBufferView()` setters each overwrite the same `descriptorCount` and their own pointer without clearing the other pointers or enforcing that constructor check (`:136973-137008`). `Device::updateDescriptorSets()` forwards the wrapper array directly to `vkUpdateDescriptorSets()` (`workbench/hidds/vulkan/include/vulkan/vulkan_funcs.hpp:4638-4650`).
@@ -24467,6 +24479,7 @@ The enhanced `WriteDescriptorSet` constructor derives `descriptorCount` from the
 **Trigger and consequence:** a caller invokes setters for more than one data-array type on the same descriptor write. The structure then contains multiple alternative data pointers, and the shared count reflects the last setter. Vulkan descriptor writes require data matching the descriptor type; validation may reject an inconsistent structure, and without validation the selected array/count combination may be invalid. **Affected configuration:** downstream clients using enhanced Vulkan-Hpp setters and `updateDescriptorSets()`; no in-tree caller was identified. **Confidence:** high that setters can produce a state rejected by the enhanced constructor and that the wrapper forwards it, but medium that this is a project defect: valid descriptor writes already require a single matching data representation, and no in-tree setter caller was found. The concern is the mismatch between constructor validation and setters that permit multiple alternatives; whether setters promise to enforce the constructor invariant remains unestablished. Treat as a wrapper-validation consistency candidate, with operation impact conditional on a client supplying invalid descriptor data and Vulkan validation/implementation behavior. No Vulkan operation or build was run; source-only.
 
 <a id="gd15274"></a>
+<a id="gd15274-vgagfx-single-pixel-updates-past-the-display-width-overwrite-the-next-scanline"></a>
 ## GD15274 — VGAGfx single-pixel updates past the display width overwrite the next scanline
 
 `VGAGfxBM__Hidd_BitMap__UpdateRect()` adjusts update coordinates by the bitmap scroll offset and clamps negative left/top values, but it does not reject a rectangle whose right or bottom edge reaches past the physical mode. For a 1×1 update it bypasses `vgaRefreshArea()`'s right/bottom clipping and calls `vgaRefreshPixel()` directly (`arch/all-native/hidd/vgagfx/vgagfx_bitmapclass.c:356-380`). `vgaRefreshPixel()` calculates the VGA aperture address from `x + y * disp_width` without checking either coordinate against the physical dimensions (`arch/all-native/hidd/vgagfx/vgagfx_support.c:420-440`). VGAGfx's selected mode is 640×480 (`vgagfx_displayclass.c:35-41`); displayable HIDD bitmap dimensions may be larger than the mode, and the VGA bitmap constructor keeps requested bitmap width separate from `disp_width` without requiring them to match (`rom/hidds/gfx/gfx_bitmapclass.c:697-699`; `vgagfx_bitmapclass.c:48-91`).
@@ -24503,6 +24516,7 @@ The Nouveau compositor has a parallel clamp path. Its `BitMapStackChanged()` val
 **Trigger and consequence:** build and run the optional PSI preference program, open the Color Presets context menu, and use its documented numeric shortcuts. The intended keys 0–9 do not select their corresponding presets; title-initial shortcuts are installed instead, with duplicate initials selecting the first matching entry. **Affected configuration:** the explicit `workbench-prefs-psi` target; its edge into the `workbench-prefs` aggregate is commented out (`workbench/prefs/PSI/mmakefile.src:11-17`). **Confidence:** high for the key substitution and duplicate mapping from the catalog strings through the selected MUI/GadTools/Intuition path. Preserve the original prefix as the shortcut before advancing the title pointer. No menu or GUI was run; source-only. See the [caller and menu-construction trace](AROS-graphics-desktop-coverage.md#psi-palette-menu-key-prefix-trace-gd15277).
 
 
+<a id="gd15278-2view-palette-setup-writes-past-its-fixed-color-tables-for-six-plane-images"></a>
 ## GD15278 — 2View palette setup writes past its fixed color tables for six-plane images
 
 **Severity / confidence:** High confidence memory corruption in the explicitly buildable 2View demo; configuration-dependent.
@@ -24516,6 +24530,7 @@ For ordinary non-HAM/non-EHB images, `setScreenColors()` computes `numColors = 1
 **Source-only evidence:** `developer/demos/2View/Misc.c:67-100,107-138`; `developer/demos/2View/2View.c:164-165,511-561`; `developer/demos/2View/read.c:18,86-88`; `developer/demos/2View/mmakefile.src:6-16`. No image was loaded, screen opened, or build run.
 
 
+<a id="gd15279-2view-color-cycle-records-overrun-the-32-entry-cycle-table"></a>
 ## GD15279 — 2View color-cycle records overrun the 32-entry cycle table
 
 **Severity / confidence:** High confidence stack-buffer overwrite and missed-cycle boundary case; conditional on an oversized cycle range in the explicitly buildable demo.
@@ -24528,6 +24543,7 @@ The CRNG count is itself stored in `UBYTE`; a full 256-entry range wraps to zero
 
 **Source-only evidence:** `developer/demos/2View/2View.c:398,497-503`; `developer/demos/2View/Misc.c:385-445`; `developer/demos/2View/2View.h:23-45`. No image or cycle record was loaded, and no build was run.
 
+<a id="gd15280-2view-truncates-a-playlist-filename-when-the-final-line-has-no-newline"></a>
 ## GD15280 — 2View truncates a playlist filename when the final line has no newline
 
 **Severity / confidence:** High confidence; a final playlist entry without a trailing LF is opened with its last character missing.
@@ -24539,6 +24555,7 @@ Both playlist-reading paths call `FGets()` and then unconditionally replace `pic
 **Source-only evidence:** `developer/demos/2View/2View.c:300-358,326-333`; `rom/dos/fgets.c:21-53`; the demo is an explicit target in `developer/demos/2View/mmakefile.src:6-16`. No playlist or file was opened and no build was run.
 
 
+<a id="gd15281-2views-ilbm-byte-reader-treats-end-of-chunk-as-image-data"></a>
 ## GD15281 — 2View’s ILBM byte reader treats end-of-chunk as image data
 
 **Severity / confidence:** High confidence malformed/truncated input handling defect; can advance beyond the fixed staging buffer.
@@ -24551,6 +24568,7 @@ The raw and compressed row paths consume `GetByte()` results without checking fo
 
 **Source-only evidence:** `developer/demos/2View/read.c:20-78,118-125`; `workbench/libs/iffparse/readchunkbytes.c:57-88`; `workbench/libs/iffparse/basicfuncs.c:353-388`; `developer/demos/2View/2View.c:561-571`. No image was read and no build was run.
 
+<a id="gd15282-2views-ilbm-rle-decoder-writes-run-packets-beyond-the-current-row"></a>
 ## GD15282 — 2View’s ILBM RLE decoder writes run packets beyond the current row
 
 **Severity / confidence:** High confidence row-boundary overwrite for malformed compressed ILBM data.
@@ -24564,6 +24582,7 @@ The caller supplies dimensions and plane count from the file's BMHD, allocates t
 **Source-only evidence:** `developer/demos/2View/read.c:43-64,81-125`; `developer/demos/2View/2View.c:511-515,564-569`. No image was read and no build was run.
 
 
+<a id="gd15283-readicon-passes-a-missing-default-tool-to-s"></a>
 ## GD15283 — readicon passes a missing default tool to `%s`
 
 **Severity / confidence:** High confidence invalid formatted-output argument; conditional on an icon with no default tool.
@@ -24575,6 +24594,7 @@ After `GetDiskObject()` succeeds, `main()` unconditionally prints `dobj->do_Defa
 **Source-only evidence:** `developer/demos/readicon.c:147-214`; `workbench/libs/icon/diskobjio.c:732-743`; `workbench/libs/workbench/openworkbenchobjecta.c:714-720`; `workbench/system/Wanderer/Tools/Info/main.c:866-871`. No icon was read and no build was run.
 
 
+<a id="gd15284-coolbutton-exits-successfully-after-setup-failures"></a>
 ## GD15284 — coolbutton exits successfully after setup failures
 
 **Severity / confidence:** Low severity, high confidence; applies to the explicitly buildable developer demo.
@@ -24586,6 +24606,7 @@ The shared `cleanup()` routine prints an error when passed a message, releases a
 **Source-only evidence:** `developer/demos/coolbutton.c:26-56,59-91,112-144,164-169,229-248`; the target is listed in `developer/demos/mmakefile.src:12-41,73`, while the parent aggregate edge is commented. No resource failure, GUI operation or build was induced.
 
 
+<a id="gd15285-intuitext-silently-exits-successfully-when-display-setup-fails"></a>
 ## GD15285 — intuitext silently exits successfully when display setup fails
 
 **Severity / confidence:** Low severity, high confidence; applies to the explicitly buildable developer demo.
@@ -24597,6 +24618,7 @@ The shared `cleanup()` routine prints an error when passed a message, releases a
 **Source-only evidence:** `developer/demos/intuitext.c:84-189`; the target is listed in `developer/demos/mmakefile.src:12-41,73`, while the parent aggregate edge is commented. No resource failure, GUI operation or build was induced.
 
 
+<a id="gd15286-aboutaros-formats-into-unchecked-pool-allocations"></a>
 ## GD15286 — AboutAROS formats into unchecked pool allocations
 
 **Severity / confidence:** High confidence crash on pool allocation failure during About window construction.
@@ -24607,6 +24629,7 @@ The shared `cleanup()` routine prints an error when passed a message, releases a
 
 **Source-only evidence:** `workbench/system/AboutAROS/aboutaros.c:208-244`; no allocation failure or GUI operation was induced.
 
+<a id="gd15287-aboutaros-leaks-its-pool-when-mui-object-construction-fails"></a>
 ## GD15287 — AboutAROS leaks its pool when MUI object construction fails
 
 **Severity / confidence:** High confidence bounded pool leak on constructor failure.
@@ -24617,6 +24640,7 @@ The shared `cleanup()` routine prints an error when passed a message, releases a
 
 **Source-only evidence:** `workbench/system/AboutAROS/aboutaros.c:214-215,254-423,448,452-458`; no construction failure was induced.
 
+<a id="gd15288-aboutaros-ignores-author-and-sponsor-list-population-failures"></a>
 ## GD15288 — AboutAROS ignores author and sponsor list population failures
 
 **Severity / confidence:** High confidence incomplete lists when pool allocation fails.
@@ -24627,6 +24651,7 @@ The shared `cleanup()` routine prints an error when passed a message, releases a
 
 **Source-only evidence:** `workbench/system/AboutAROS/aboutaros.c:98-176,420-448`; no pool failure or GUI operation was induced.
 
+<a id="gd15289-about-exits-successfully-when-its-application-object-cannot-be-created"></a>
 ## GD15289 — About exits successfully when its application object cannot be created
 
 **Severity / confidence:** Low severity, high confidence false-success status on construction failure.
@@ -24638,6 +24663,7 @@ The shared `cleanup()` routine prints an error when passed a message, releases a
 **Source-only evidence:** `workbench/system/AboutAROS/main.c:29-40`; `workbench/system/AboutAROS/aboutaros.c:214-215,448`; target files are listed in `workbench/system/AboutAROS/mmakefile.src:5-6,32-34`. No object-construction failure or build was induced.
 
 
+<a id="gd15290-gradientslider-page-click-arithmetic-wraps-before-clamping"></a>
 ## GD15290 — GradientSlider page-click arithmetic wraps before clamping
 
 **Severity / confidence:** High confidence wrong value for a large accepted `GRAD_SkipVal`.
@@ -24648,6 +24674,7 @@ The shared `cleanup()` routine prints an error when passed a message, releases a
 
 **Source-only evidence:** `workbench/classes/gadgets/gradientslider/gradientsliderclass.c:116-125,529-546`; the class is selected by `workbench/classes/gadgets/gradientslider/mmakefile.src:6-11`. No gadget, input event or build was run.
 
+<a id="gd15291-console-demo-fails-to-check-createstdio-allocation-results"></a>
 ## GD15291 — Console demo fails to check `CreateStdIO()` allocation results
 
 **Severity / confidence:** Medium severity, high confidence NULL dereference on the allocation-failure path.
@@ -24658,6 +24685,7 @@ After allocating `consoleWriteMsg`, the demo tests `consoleWritePort` again inst
 
 **Source-only evidence:** `developer/demos/cons.c:228-254,420-427,450-459`; `compiler/alib/createstdio.c:44-45`; `compiler/alib/deletestdio.c:22-36`. No allocation failure or demo operation was induced.
 
+<a id="gd15292-console-device-demo-returns-before-its-request-example"></a>
 ## GD15292 — Console device demo returns before its request example
 
 **Severity / confidence:** Low severity, high confidence unreachable code; whether the retained example is intended to remain active is uncertain.
@@ -24668,6 +24696,7 @@ After allocating `consoleWriteMsg`, the demo tests `consoleWritePort` again inst
 
 **Source-only evidence:** `developer/demos/consoledemo.c:37-79`; no demo was run or built.
 
+<a id="gd15293-font2c-copies-unbounded-arguments-into-fixed-buffers"></a>
 ## GD15293 — font2c copies unbounded arguments into fixed buffers
 
 `main()` copies the parsed font name, output path and optional prefix into three 200-byte local arrays with `strcpy()` and appends the optional prefix separator with `strcat()` (`developer/demos/font2c.c:29-31,52-59`). The font-name normalization later appends `.font` to the same 200-byte array without checking remaining capacity (`:72-80`). `ReadArgs()` supplies argument strings without a 199-byte maximum, and no length validation precedes these writes.
@@ -24676,6 +24705,7 @@ After allocating `consoleWriteMsg`, the demo tests `consoleWritePort` again inst
 
 **Source-only evidence:** `developer/demos/font2c.c:29-31,42-59,72-80`; no command was run.
 
+<a id="gd15294-font2c-emits-charspace-data-from-the-charkern-pointer"></a>
 ## GD15294 — font2c emits CharSpace data from the CharKern pointer
 
 When `tf_CharSpace` is non-NULL, `font2c()` emits a `charspace` array but passes `tf->tf_CharKern` to `print_word_array()` (`developer/demos/font2c.c:249-254`). If CharSpace exists without CharKern, the exporter dereferences a NULL pointer; if both tables exist, it emits the kerning values as spacing values. It then wires the generated structure's `tf_CharSpace` field to that incorrect array (`:308-311`).
@@ -24684,6 +24714,7 @@ When `tf_CharSpace` is non-NULL, `font2c()` emits a `charspace` array but passes
 
 **Source-only evidence:** `developer/demos/font2c.c:249-254,308-311`; no font was converted.
 
+<a id="gd15295-font2c-concatenates-multiple-style-and-flag-names"></a>
 ## GD15295 — font2c concatenates multiple style and flag names
 
 `print_tf_flags()` initializes `flag_found` to FALSE but never sets it after printing a flag (`developer/demos/font2c.c:180-199`). Thus every set bit is emitted with no ` | ` separator. Fonts with multiple style bits or multiple flag bits produce adjacent identifiers, so the generated initializer is not valid C (for example, `FSF_UNDERLINEDFSF_BOLD`).
@@ -24692,6 +24723,7 @@ When `tf_CharSpace` is non-NULL, `font2c()` emits a `charspace` array but passes
 
 **Source-only evidence:** `developer/demos/font2c.c:180-199,281-290`; no generated file was compiled.
 
+<a id="gd15296-font2c-reports-success-when-conversion-setup-fails"></a>
 ## GD15296 — font2c reports success when conversion setup fails
 
 The return status is initialized from argument parsing and is not changed when graphics.library or diskfont.library cannot open, the output file cannot be opened, the font cannot be opened, or a color font is rejected (`developer/demos/font2c.c:38,83-124`). Those branches print diagnostics, then `main()` returns the unchanged `error` value (`:145-146`). A failed conversion can therefore exit with `RETURN_OK`.
@@ -24700,6 +24732,7 @@ The return status is initialized from argument parsing and is not changed when g
 
 **Source-only evidence:** `developer/demos/font2c.c:38-48,70-146`; no failure was induced.
 
+<a id="gd15297-listfonts-formats-each-font-name-with-zero-precision"></a>
 ## GD15297 — listfonts formats each font name with zero precision
 
 The name conversion uses `%-30.s` (`developer/demos/listfonts.c:64-68`). In printf syntax, the period with no precision digits sets string precision to zero, so the `%s` conversion emits no characters. The row still prints type, size, style and flags, but every font name is blank.
@@ -24708,6 +24741,7 @@ The name conversion uses `%-30.s` (`developer/demos/listfonts.c:64-68`). In prin
 
 **Source-only evidence:** `developer/demos/listfonts.c:62-68`; no demo was run.
 
+<a id="gd15298-listfonts-exits-successfully-after-allocation-failure"></a>
 ## GD15298 — listfonts exits successfully after allocation failure
 
 If `AllocMem(afsize, MEMF_ANY)` fails, `afh` is NULL, the retry loop ends, the printing block is skipped, and `main()` still returns `RETURN_OK` (`developer/demos/listfonts.c:37-52,73-76`). Unlike an empty font list, this path did not obtain a buffer or call `AvailFonts()`.
@@ -24716,6 +24750,7 @@ If `AllocMem(afsize, MEMF_ANY)` fails, `afh` is NULL, the retry loop ends, the p
 
 **Source-only evidence:** `developer/demos/listfonts.c:37-52,73-76`; no allocation failure was induced.
 
+<a id="gd15299-font-requester-demo-exits-successfully-when-setup-fails"></a>
 ## GD15299 — Font requester demo exits successfully when setup fails
 
 `main()` only prints a message when asl.library cannot be opened, then returns zero (`developer/demos/fontreq.c:67-76`). If the library opens but either `AllocAslRequest()` fails, `showrequester()` also only prints a message and does not report failure to `main()` (`:42-63`). In each case the demo exits with success although one or both requester examples were not shown.
@@ -24724,6 +24759,7 @@ If `AllocMem(afsize, MEMF_ANY)` fails, `afh` is NULL, the retry loop ends, the p
 
 **Source-only evidence:** `developer/demos/fontreq.c:42-76`; no library failure, allocation failure, requester operation or build was induced.
 
+<a id="gd15300-multi-select-demo-toggles-stored-selection-during-rendering"></a>
 ## GD15300 — Multi-select demo toggles stored selection during rendering
 
 The custom listview hook treats `LV_DRAW` with `lvdm_State == LVR_SELECTED` as an input action and toggles the node's persistent `ln_Pri` selection flag (`developer/demos/gtmultiselect.c:115-125`). GadTools sets that state from the current selected row while constructing each draw message, then invokes the hook from `RenderEntries()` (`workbench/libs/gadtools/listviewclass.c:240-258`). It is therefore a rendering state, not a one-shot selection notification. Redrawing the selected row toggles its stored mark again; repeated expose/refresh or scrolling can make the mark change without another user selection action.
@@ -24732,6 +24768,7 @@ The custom listview hook treats `LV_DRAW` with `lvdm_State == LVR_SELECTED` as a
 
 **Source-only evidence:** `developer/demos/gtmultiselect.c:115-125,156-182`; `workbench/libs/gadtools/listviewclass.c:240-258`. No listview or GUI operation was run.
 
+<a id="gd15301-multi-select-demo-does-not-handle-failed-node-name-allocation"></a>
 ## GD15301 — Multi-select demo does not handle failed node-name allocation
 
 `makegadgets()` assigns each `strdup()` result directly to the node's `ln_Name` and appends the node without checking for NULL (`developer/demos/gtmultiselect.c:214-223`). The selected custom draw hook later calls `strlen(node->ln_Name)` and passes the same pointer to `TextFit()` and `Text()` (`:138-154`). If any string allocation fails, rendering that row dereferences the missing name pointer.
@@ -24740,6 +24777,7 @@ The custom listview hook treats `LV_DRAW` with `lvdm_State == LVR_SELECTED` as a
 
 **Source-only evidence:** `developer/demos/gtmultiselect.c:138-154,214-223`; no allocation failure or render was induced.
 
+<a id="gd15302-multi-select-demo-reports-startup-failures-as-success"></a>
 ## GD15302 — Multi-select demo reports startup failures as success
 
 The shared `cleanup()` routine always calls `exit(0)` (`developer/demos/gtmultiselect.c:42-60`). `openlibs()`, `getvisual()`, `makegadgets()` and `makewin()` call it with failure messages when initialization fails (`:62-88,239-255`), so those failed starts are indistinguishable from a normal close to shell scripts.
@@ -24748,6 +24786,7 @@ The shared `cleanup()` routine always calls `exit(0)` (`developer/demos/gtmultis
 
 **Source-only evidence:** `developer/demos/gtmultiselect.c:42-60,62-88,199-255`; no failure or GUI operation was induced.
 
+<a id="gd15303-notify-demo-waits-even-when-startnotify-fails"></a>
 ## GD15303 — Notify demo waits even when StartNotify fails
 
 The demo ignores the BOOL returned by `StartNotify(nr)` and always waits for `SIGF_SINGLE` (`developer/demos/notify.c:49-53`). The API documents that return as a success/failure indicator (`rom/dos/startnotify.c:32-45`). If registration fails, no notification is established to set the signal, so the demo can wait indefinitely instead of reporting the failure.
@@ -24756,6 +24795,7 @@ The demo ignores the BOOL returned by `StartNotify(nr)` and always waits for `SI
 
 **Source-only evidence:** `developer/demos/notify.c:39-53`; `rom/dos/startnotify.c:32-45`. No notification was registered or waited on.
 
+<a id="gd15304-notify-demo-leaves-its-successful-notification-active-on-exit"></a>
 ## GD15304 — Notify demo leaves its successful notification active on exit
 
 After StartNotify succeeds and the signal arrives, `main()` prints a message and returns without calling `EndNotify()` or freeing the `NotifyRequest` allocated with `AllocVec()` (`developer/demos/notify.c:24-25,49-57`). The DOS API provides `EndNotify()` specifically to remove a previously started request (`rom/dos/endnotify.c:20-43`); the selected RAM handler accepts `ACTION_REMOVE_NOTIFY` (`rom/filesys/ram/handler.c:375-383`). The request can therefore remain registered after the waiting task exits, retaining the allocation and the signal target.
@@ -24764,6 +24804,7 @@ After StartNotify succeeds and the signal arrives, `main()` prints a message and
 
 **Source-only evidence:** `developer/demos/notify.c:24-57`; `rom/dos/endnotify.c:20-43`; `rom/filesys/ram/handler.c:375-383`. No notification was sent or program run.
 
+<a id="gd15305-simple-timer-demo-drops-the-saved-fractional-second-when-restoring-time"></a>
 ## GD15305 — Simple timer demo drops the saved fractional second when restoring time
 
 The initial clock read stores both seconds and microseconds in `oldtimeval` (`developer/demos/simple_timer.c:100-103`). At the end, the demo restores the clock with only `oldtimeval.tv_secs` (`:131-132`); `set_new_time()` always sets `tr_time.tv_micro = 0` (`:212-224`). If the saved time had a nonzero fractional second, the stated reset loses that fraction and moves the clock backward by that amount.
@@ -24772,6 +24813,7 @@ The initial clock read stores both seconds and microseconds in `oldtimeval` (`de
 
 **Source-only evidence:** `developer/demos/simple_timer.c:100-109,131-132,212-224`; no timer operation or clock change was run.
 
+<a id="gd15306-winbackfill-cleanup-calls-intuition-after-its-library-failed-to-open"></a>
 ## GD15306 — WinBackfill cleanup calls Intuition after its library failed to open
 
 `OpenLibs()` calls `Cleanup()` immediately when opening intuition.library fails (`developer/demos/winbackfill.c:76-81`). `Cleanup()` guards `CloseWindow()` and the later library closes, but calls `UnlockPubScreen(0, scr)` unconditionally (`:57-70`). At this point IntuitionBase and `scr` are both still NULL, so cleanup dispatches an Intuition vector without a valid library base instead of returning the intended `RETURN_WARN`.
@@ -24780,6 +24822,7 @@ The initial clock read stores both seconds and microseconds in `oldtimeval` (`de
 
 **Source-only evidence:** `developer/demos/winbackfill.c:43-72,76-81`; no library failure or demo run was induced.
 
+<a id="gd15307-window-demo-reports-success-when-setup-fails"></a>
 ## GD15307 — Window demo reports success when setup fails
 
 `main()` nests the intuition, graphics and DOS library opens, but all failed-open paths fall through to `return 0` without reporting a failure (`developer/demos/window.c:32-89`). If `OpenWindowTags()` fails, `main()` skips the interaction and also returns success; `openwindow()` prints `Window opened` unconditionally even when that call returned NULL (`:104-119`).
@@ -24788,6 +24831,7 @@ The initial clock read stores both seconds and microseconds in `oldtimeval` (`de
 
 **Source-only evidence:** `developer/demos/window.c:32-89,104-119`; no library failure, window operation or build was induced.
 
+<a id="gd15308-iconimage-leaks-diskobjects-loaded-from-file-paths"></a>
 ## GD15308 — IconImage leaks DiskObjects loaded from file paths
 
 `IconImage__OM_NEW()` calls `GetDiskObjectNew(file)` when given `MUIA_IconImage_File` and stores the returned pointer in `iid_DiskObject` (`workbench/classes/zune/iconimage/iconimage.c:58-79`). The selected class method map contains only OM_NEW, MUIM_AskMinMax and MUIM_Draw; neither it nor the implementation has OM_DISPOSE to release that DiskObject (`iconimage.conf:15-18`; `iconimage.c:31-152`). The icon library documents DiskObject allocations as requiring `FreeDiskObject()` (`workbench/libs/icon/icon_intern.h:125`; `workbench/libs/icon/icon.conf:24`).
@@ -24796,6 +24840,7 @@ The initial clock read stores both seconds and microseconds in `oldtimeval` (`de
 
 **Source-only evidence:** `workbench/classes/zune/iconimage/iconimage.c:58-79`; `iconimage.conf:15-18`; `workbench/libs/icon/getdiskobjectnew.c:32-47`; `workbench/libs/icon/icon_intern.h:125`; no object was constructed or disposed.
 
+<a id="gd15309--prefseditor-leaks-its-copied-ictool-string"></a>
 ## GD15309 — PrefsEditor leaks its copied IconTool string
 
 `PrefsEditor__OM_SET()` duplicates every `MUIA_PrefsEditor_IconTool` value into `ped_IconTool` (`workbench/classes/zune/prefseditor/prefseditor.c:200-203`). `PrefsEditor__OM_DISPOSE()` frees `ped_Name` and `ped_Path` but never frees `ped_IconTool` (`:145-155`). The configured class includes OM_DISPOSE (`prefseditor.conf:15-30`), so each destroyed editor leaks its copied IconTool string. The tag is supplied by many maintained Preferences editors, including Input, Palette, Font and Printer (`workbench/prefs/input/ipeditor.c:169`; `palette/paleditor.c:217`; `font/fpeditor.c:131`; `printer/editor.c:214`).
@@ -25175,6 +25220,7 @@ The public `MUI_EventHandlerNode` identifies `ehn_Object` as the object receivin
 
 A second maintained callback can reach the same event-node lifetime boundary through an application notification. `Calendar__MUIM_HandleEvent()` changes `MUIA_Calendar_MonthDay` on mouse-down and then continues to access its embedded handler node to remove and re-add it (`workbench/classes/zune/calendar/calendar.c:620-629`). `Calendar__OM_SET()` forwards the attribute set to its superclass after updating and redrawing the date (`:137-210`); the shared Notify superclass dispatches registered methods synchronously (`workbench/libs/muimaster/classes/notify.c:332-388`). A client notification that disposes the Calendar during that set leaves the callback to touch `data->ehn` after the object's storage has been freed, then return without Eat to Window dispatch. The Calendar class is explicitly buildable (`calendar/mmakefile.src`), but the pinned-tree search found no maintained `MUIA_Calendar_MonthDay` client registration, so this remains conditional on a client-supplied notification. This strengthens the available callback trigger evidence without changing the core dispatch defect or establishing default-application reachability.
 
+<a id="gd15353--list-event-callback-can-resume-after-a-notification-disposes-its-listview"></a>
 ## GD15353 — List event callback can resume after a notification disposes its Listview [conditional]
 
 `List__MUIM_HandleEvent()` is the registered event object's callback: `List__OM_NEW()` stores `obj` in the embedded event node, and `List__MUIM_Setup()` registers that node with the Window (`workbench/libs/muimaster/classes/list.c:1148,1761-1797`). On a mouse-down over a selectable entry, the callback calls `superset(..., MUIA_Listview_ClickColumn, ...)` before proceeding to read and update more fields in `MUI_ListData` (`list.c:4142-4165`). `superset` expands to synchronous `SetSuperAttrs()` (`workbench/libs/muimaster/macros.h:372`); Listview forwards its `MUIM_Notify` registration to the underlying List while preserving the Listview as `MUIV_Notify_Self` destination (`workbench/libs/muimaster/classes/listview.c:211-233,263-265`). The shared Notify class invokes the configured destination method synchronously from the attribute-change path (`workbench/libs/muimaster/classes/notify.c:332-388`).
@@ -25185,6 +25231,7 @@ A client can therefore register a `MUIA_Listview_ClickColumn` notification whose
 
 **Affected configuration:** builds selecting the standard MUI List/Listview/Group/Notify classes. A repository-wide search found no maintained registration for `MUIA_Listview_ClickColumn`; the disposal action is supplied by a client notification method, so this exact in-tree trigger is not demonstrated in current applications. **Confidence:** high for synchronous notification dispatch and the Group-to-List destruction path; reachability remains conditional on a client registering this notification and disposing the Listview from its method. The callback must not resume after a notification can destroy its receiver; defer disposal until dispatch unwinds or protect the instance lifetime. Source-only; no event, disposal, build, or runtime operation was performed.
 
+<a id="gd15354--nlisttree-shares-and-truncates-double-click-row-state"></a>
 ## GD15354 — NListtree shares and truncates double-click row state [conditional]
 
 The selected `NListtree__MUIM_HandleEvent()` keeps each object's previous-click time in its instance data (`LDClickTimeSecs`/`LDClickTimeMicros`), but stores the previous row in a function-static `UWORD lastclickentry` (`workbench/classes/zune/nlist/nlisttree_mcc/NListtree.c:5819,5851-5852,5893`; `NListtree.h:150-153`). That row value is shared by every NListtree instance and narrows the `LONG` row returned by NList TestPos (`workbench/classes/zune/nlist/include/mui/NList_mcc.h:434-441`). The implementation has no 16-bit row-count cap in the selected NList path: `NLData.NList_Entries` is `LONG`, insertion and hit testing use `LONG`, and `NL_List_TestPos()` writes its line index into the `LONG` result (`nlist_mcc/private.h:268`; `NList_func2.c:550-593`; `NList_func.c:1276-1347`). NListtree itself records total nodes as `ULONG` (`NListtree.h:188`).
@@ -25193,6 +25240,7 @@ The shared storage causes cross-instance interference even with small lists. For
 
 **Trigger and consequence:** use two NListtree instances with double-click enabled. Click row 3 in A, row 5 in B, then row 5 in A within the configured interval. A's per-instance timestamp and B's shared static row value combine to falsely recognize a double-click, so A may open or close row 5 after only one click on that row. Large lists can also produce the independent high/low row alias described above. **Affected configuration:** the explicitly buildable `classes-zune-nlisttree-class` MCC target (`workbench/classes/zune/nlist/nlisttree_mcc/mmakefile.src`) when a client uses one or more NListtree instances with double-click enabled. **Confidence:** high for the shared-state and narrowing defects; the common multi-instance interleaving does not require an unusually large list. Keep the previous row in per-instance storage with a type at least as wide as the `LONG` position. No list, click, or build was exercised; source-only.
 
+<a id="gd15355--nlistview-leaves-its-raw-key-handler-linked-when-child-setup-fails"></a>
 ## GD15355 — NListview leaves its raw-key handler linked when child setup fails [conditional]
 
 `mNLV_Setup()` initializes and links its embedded raw-key event node before calling superclass setup; it removes that node only from `mNLV_Cleanup()` (`workbench/classes/zune/nlist/nlistview_mcc/NListview.c:660-704`). The class accepts a caller-supplied NList object or subclass (`workbench/classes/zune/nlist/docs/MCC_NListview.doc:80-99`). If that child or another nested child returns FALSE from `MUIM_Setup`, `Group__MUIM_Setup()` propagates the failure and sends Cleanup only to children preceding the failed child; it does not clean up the failing NListview (`workbench/libs/muimaster/classes/group.c:1027-1075`). The NListview setup method then returns FALSE without unlinking `data->eh`.
@@ -25202,12 +25250,14 @@ When root setup fails during `WindowOpen()`, the Window path calls only `MUIM_Wi
 **Trigger and consequence:** use NListview with a caller-supplied NList subclass whose `MUIM_Setup` returns FALSE (or another nested setup failure), then retry opening the same Window. The first failed attempt leaves the NListview event node linked; the retry attempts to enqueue that same node again, potentially corrupting Window event-handler traversal and preventing other handlers from being reached. **Affected configuration:** the explicitly buildable `classes-zune-nlistview-class` MCC and applications supplying an NList subclass or nested child that can fail setup. The built-in NList setup path does not establish this failure trigger in the checked source. **Confidence:** high for the missed-removal and unchecked re-enqueue sequence; occurrence depends on a child setup failure and a subsequent open attempt. Unlink the node on every failed setup return before propagating FALSE. No setup failure, window open, event, or build was induced; source-only.
 
 <a id="gd15356"></a>
+<a id="gd15356--demos-misc-drawing-loops-cannot-exit-through-their-close-gadgets"></a>
 ## GD15356 — Demos-misc drawing loops cannot exit through their close gadgets [optional target]
 
 Each of the three Demos-misc programs opens a window with `WFLG_CLOSEGADGET`, initializes `running` to `TRUE`, and redraws forever in `while (running)` (`developer/demos/misc/rectangles.c:54-90`; `jellyfish.c:56-92`; `globe.c:51-87`). The only code that waits for the window port, dequeues `IDCMP_CLOSEWINDOW`, and sets `running = FALSE` is inside `#if (0)` in each file (`rectangles.c:90-101`; `jellyfish.c:92-103`; `globe.c:87-98`). No other assignment changes `running`, and the `OpenWindowTags()` calls do not request `WA_IDCMP` (`:55-62`, `:57-64`, `:52-59`). Therefore the `CloseWindow()` calls after the loop are unreachable once drawing starts.
 
 **Trigger and consequence:** explicitly build and run any of the three programs, then click its displayed close gadget. The app continues its redraw loop and does not process a close event; the window and process remain active until something outside the program terminates it. **Affected configuration:** the optional `demos-misc` target, which selects `globe`, `jellyfish`, and `rectangles` (`developer/demos/misc/mmakefile.src:5-13`); no default-image inclusion is claimed. **Confidence:** high for the unchanging loop condition and compiled-out event path. Enable and process `IDCMP_CLOSEWINDOW` (or add another explicit exit path) so the loop can terminate and close the window. No demo, GUI event, or build was run; source-only; see the [Demos-misc full-body pass](AROS-graphics-desktop-coverage.md#demos-misc-render-loop-pass-gd15356).
 
+<a id="gd15357--scrollerwin-allows-window-sizes-smaller-than-its-fixed-scrollbar-gutters"></a>
 ## GD15357 — Scrollerwin allows window sizes smaller than its fixed scrollbar gutters [optional test target]
 
 `developer/debug/test/intuition/scrollerwin.c` builds horizontal and vertical proportional gadgets whose extent is the window's size plus a negative `GA_RelWidth`/`GA_RelHeight` equal to the fixed arrow, size-image, border and title-area reservations (`:128-195`). The same window advertises `WA_MinWidth` and `WA_MinHeight` of only 50 (`:227-249`), without ensuring those minimum dimensions exceed the corresponding fixed reservations.
@@ -25218,72 +25268,84 @@ Intuition applies the relative extent as `gadget->Width/Height + window-domain W
 
 **Withdrawn GD15358 — `printnativekeytable` follows Intuition's raw-key `IAddress` indirection.** The earlier fault claim mistook the raw-key union value for the address in `msg->IAddress`. For `IDCMP_RAWKEY`, `fire_message()` stores the supplied union value in `IntIntuiMessage.prevCodeQuals` and sets `IAddress` to the address of that field (`rom/intuition/inputhandler_support.c:189-212`; `rom/intuition/intuition_intern.h:799-812`). `alloc_intuimessage()` allocates and clears the full `IntIntuiMessage` (`rom/intuition/allocintuimessage.c:57-66`), so the test's `*(ULONG *)msg->IAddress` reads the live field and `*((ULONG **)msg->IAddress)` recovers the stored APTR value before replying to the message (`developer/debug/test/keymap/printnativekeytable.c:141-175`). The raw-key dead-key bytes are the stored value, not the pointer target. No out-of-bounds or invalid-address dereference is established by these expressions; the prior indexed GD15358 entry is withdrawn. No event or build was run; source-only.
 
+<a id="gd15359--printnativekeytable-writes-its-terminator-one-byte-beyond-a-full-maprawkey-result"></a>
 ## GD15359 — printnativekeytable writes its terminator one byte beyond a full MapRawKey result [optional test target]
 
 The test passes a 20-byte local buffer to `MapRawKey()` and writes a terminator whenever the return is nonnegative (`developer/debug/test/keymap/printnativekeytable.c:159-169`). The selected `MapRawKey()` implementation permits output that exactly fills the supplied buffer: `WriteToBuffer()` rejects only when `CharsWritten + numchars > BufLength`, then returns the number of bytes written (`rom/keymap/support.c:29-37`; `rom/keymap/maprawkey.c:260-264`). A 20-byte mapping is representable by the project's keymap generator: `.akmd` string sections are accumulated as encoded bytes and emitted with a byte-sized descriptor length (`tools/mkamikeymap/parsedescriptor.c:244-308`; `tools/mkamikeymap/writekeymap.c:158-163`). With such a selected mapping, `MapRawKey()` returns 20 and the test stores `buf[20] = 0`, one byte beyond the array.
 
 **Trigger and consequence:** configure a keymap string for a raw key that the diagnostic processes to emit exactly 20 non-NUL bytes. The optional diagnostic writes one byte beyond its local buffer before printing the mapping. **Affected configuration:** optional `test-keymap`; no default-image inclusion is claimed. **Confidence:** high for the source-level boundary and generator representability; requires a matching selected keymap and event. Reserve a byte for the terminator or terminate only when `ret < sizeof(buf)`. No keymap, event, or build was exercised; source-only.
 
+<a id="gd15360--ilbmtoc-dereferences-a-failed-window-open"></a>
 ## GD15360 — ilbmtoc dereferences a failed window open [optional test target]
 
 `developer/debug/test/misc/ilbmtoc.c` stores `OpenWindowTags()`'s result in `win` and immediately reads `win->RPort`, with no null check (`:74-85`). Intuition's open path has failure exits that return NULL (`rom/intuition/openwindow.c:1201-1210`).
 
 **Trigger and consequence:** build and run the optional ILBM demo when window creation fails, such as an allocation or screen/window setup failure. The program dereferences NULL before decoding or drawing and terminates instead of reporting/cleaning up the failed open. **Affected configuration:** explicitly selected by `test-misc-common` (`developer/debug/test/misc/mmakefile.src:8-27,48-49`); no default-image inclusion is claimed. **Confidence:** high for the unchecked result and null-dereference path. Check `win` before using its RastPort and release opened libraries on the failure path. No window failure or build was exercised; source-only.
 
+<a id="gd15361--simplepng-returns-without-closing-pngdatatype-when-invoked-without-arguments"></a>
 ## GD15361 — simplepng returns without closing png.datatype when invoked without arguments [optional test target]
 
 `developer/debug/test/misc/simplepng.c` opens `datatypes/png.datatype` before checking `argc`; when no filename is supplied, it prints usage and returns directly, bypassing the `CloseLibrary(PNGBase)` at the end of `main()` (`:127-139,214-221`).
 
 **Trigger and consequence:** run the optional utility without a filename. Its open reference to `png.datatype` is not released; repeated invocations can leave the library's open count elevated and prevent it from being expunged. **Affected configuration:** explicitly selected by `test-misc-common` (`developer/debug/test/misc/mmakefile.src:8-27,48-49`); no default-image inclusion is claimed. **Confidence:** high for the missing close on this return path. Close the library before returning from the usage branch. No utility invocation or build was performed; source-only.
 
+<a id="gd15362--ilbmtoc-leaks-earlier-library-opens-when-a-later-openlibrary-fails"></a>
 ## GD15362 — ilbmtoc leaks earlier library opens when a later OpenLibrary fails [optional test target]
 
 `developer/debug/test/misc/ilbmtoc.c` opens Intuition, Graphics and CyberGraphX in sequence, but only enters its body when all three succeed and has no cleanup branch for a partial open (`:64-70`). If Graphics or CyberGraphX fails, any earlier successful `OpenLibrary()` references remain open when `main()` returns.
 
 **Trigger and consequence:** run the optional demo on a configuration where a later library is unavailable or one open fails. Each earlier successful open remains outstanding after process exit, retaining its library reference and potentially preventing expunge across repeated runs. **Affected configuration:** optional `test-misc-common`; no default-image inclusion is claimed. **Confidence:** high for the unreleased references on the partial-open path. Close each successfully opened base on failure. No library failure or build was exercised; source-only.
 
+<a id="gd15363--testhunkconversion-can-pass-without-exercising-hunk-conversion"></a>
 ## GD15363 — testhunkconversion can pass without exercising hunk conversion [optional regression test]
 
 `developer/debug/test/keymap/testhunkconversion.c` labels `OpenKeymap("usa")` as the 64-bit little-endian hunk-conversion path, but the selected `keymap.library` installs a resident built-in keymap named `usa` during initialization (`rom/keymap/keymap_init.c:52-62`). KMS `OpenKeymap()` checks `keymap.resource` for a short name and returns a resident match before it prepends `DEVS:Keymaps` or calls `LoadSeg()` and `parsekeymapseg()` (`workbench/libs/kms/openkeymap.c:73-104,109-125`). Consequently both tests that call `OpenKeymap("usa")` normally inspect the built-in native keymap, not a converted hunk file. The separate direct `LoadSeg("DEVS:Keymaps/usa")` test only checks `GetSegListInfo()`; it never passes the seglist through the conversion routine. If that file is absent, the test increments `tests_passed` anyway (`testhunkconversion.c:126-143`), and missing-keymap branches in the other tests also increment the pass count (`:94-98,184-187`).
 
 **Trigger and consequence:** run the optional regression test on a system with the normal built-in `usa` keymap and no `DEVS:Keymaps/usa` file. The `OpenKeymap()` checks use the resident map, the direct file test is treated as a pass when absent, and the process can return success without exercising 68K hunk conversion. A regression in `parsekeymapseg()` can therefore go undetected. **Affected configuration:** optional `test-keymap`, which selects `testhunkconversion` (`developer/debug/test/keymap/mmakefile.src:5-16`); conversion is relevant to non-big-endian or non-32-bit targets per `workbench/libs/kms/openkeymap.c` documentation. **Confidence:** high for the resident-name early return and the missing-file-as-pass branch. Require a fixture known to be a hunk keymap, verify that the conversion path ran, and count unavailable fixtures as skipped/failed rather than passed. No test or build was run; source-only.
 
+<a id="gd15364--gamma-test-allows-a-colorwheel-narrower-than-its-fixed-controls"></a>
 ## GD15364 — Gamma test allows a colorwheel narrower than its fixed controls [optional test target]
 
 `developer/debug/test/intuition/gamma.c` computes the colorwheel width as the window domain width minus the two screen borders, eight pixels of horizontal margins, four pixels of spacing, and three fixed 20-pixel gradient sliders (`:183-206,258-267`). It also permits the resizable window to shrink to `WA_MinWidth = 50` (`:275-298`). This window is not GimmeZeroZero, so Intuition's gadget domain uses the full window width; the relative width is added directly to that domain (`rom/intuition/gadgets.c:125-151,234-288`). Even with zero border widths, the fixed reservations total 72 pixels. At the accepted 50-pixel minimum, the ColorWheel gadget therefore has a negative width; ordinary nonzero screen borders make the deficit larger. The program does not clamp the minimum width or wheel extent.
 
 **Trigger and consequence:** build the optional gamma test and resize its window to the allowed 50-pixel minimum. The ColorWheel gadget receives a nonpositive width and becomes unusable or is drawn/hit-tested with invalid geometry while the sliders remain. **Affected configuration:** explicit `test-intuition` target selecting `gamma` (`developer/debug/test/intuition/mmakefile.src:5-22`); no default-image inclusion is claimed. **Confidence:** high for the 72-pixel fixed reservation and 50-pixel minimum; exact rendering of a negative-sized gadget depends on Intuition/gadget handling. Raise the minimum width to cover the fixed controls or clamp the computed wheel width to a positive extent. No window resize or build was run; source-only.
 
+<a id="gd15365--diskfont-test-setup-failures-exit-successfully"></a>
 ## GD15365 — diskfont test setup failures exit successfully [optional test target]
 
 Both `developer/debug/test/diskfont/availfonts.c` and `opendiskfont.c` route library-open and allocation failures through `cleanup(msg)`, which prints the diagnostic and unconditionally calls `exit(0)` (`availfonts.c:22-30,36-40,54-58`; `opendiskfont.c:22-30,36-40`). Thus a missing `diskfont.library` or `utility.library`, and (for `availfonts`) failure to allocate its result buffer, make the test process report success to a shell or automated test runner. The successful execution paths also end with `cleanup(0)` and need to retain a zero status.
 
 **Trigger and consequence:** run either program when a required library cannot be opened, or run `availfonts` when its buffer allocation fails. It prints an error but exits successfully, so automation can count a test that never reached its operation as passed. **Affected configuration:** the optional `test-diskfont` target, which explicitly selects both programs (`developer/debug/test/diskfont/mmakefile.src:5-13`); no default-image inclusion is claimed. **Confidence:** high; all stated error branches call the same cleanup routine and the exit status is explicit. Pass a failure status to cleanup or use separate success and failure exits. No library failure, allocation failure, program execution, or build was induced; source-only.
 
+<a id="gd15366--allocbitmap-test-skips-every-depth-above-eight"></a>
 ## GD15366 — allocbitmap test skips every depth above eight [optional test target]
 
 `developer/debug/test/graphics/allocbitmap.c:14-18` intends to skip unsupported depths above 8, but its exclusion test joins four unequal comparisons with `||`: `depth != 15 || depth != 16 || depth != 24 || depth != 32`. For any depth, at least three terms are true, so every depth from 9 through 32 is skipped before `AllocBitMap()` runs. The diagnostic therefore never tests the listed high-color depths and can miss allocator regressions specific to them.
 
 **Trigger and consequence:** run the optional `test-graphics` program. It exercises only depths 1 through 8, despite iterating to 32, so high-color allocation behavior is absent from this test. **Affected configuration:** `test-graphics`, which selects `allocbitmap` (`developer/debug/test/graphics/mmakefile.src:5-29`); no default-image inclusion is claimed. **Confidence:** high; the Boolean expression is true for every depth greater than 8. Use conjunctions for the exclusion comparisons or explicitly accept the supported depth values. No bitmap was allocated and no build was run; source-only.
 
+<a id="gd15367--visible-region-diagnostics-dereference-a-missing-active-window"></a>
 ## GD15367 — visible-region diagnostics dereference a missing active window [optional test target]
 
 Both `developer/debug/test/graphics/showvisregion.c` and `showvisshape.c` assign `win = IntuitionBase->ActiveWindow` and immediately evaluate `scr = win->WScreen` before checking `if (!win)` (`showvisregion.c:82-86`; `showvisshape.c:82-86`). If no window is active after the three-second delay, the intended `Cleanup("No active window!")` branch is reached only after the null dereference.
 
 **Trigger and consequence:** run either optional diagnostic when no window is active at the sampling point. It can fault instead of reporting the handled no-window condition. **Affected configuration:** `test-graphics`, which selects both programs (`developer/debug/test/graphics/mmakefile.src:5-29`); no default-image inclusion is claimed. **Confidence:** high; the dereference precedes the explicit null check in both bodies. Check `win` before accessing `WScreen`. No window-state scenario or build was exercised; source-only.
 
+<a id="gd15368--testarrayops-computes-an-invalid-misaligned-pixel-array-coordinate"></a>
 ## GD15368 — testarrayops computes an invalid “misaligned” pixel-array coordinate [optional test target]
 
 `developer/debug/test/graphics/testarrayops.c:145-169` computes `tiles = width / 138` and later assigns `endpos = 10 + (tiles - 1 * 138)`. The missing parentheses make this `10 + tiles - 138`, rather than the last tile origin `10 + (tiles - 1) * 138`. The checked-in PNG fixture is 912 pixels wide (`developer/debug/test/datatypes/png/SamplePNGImage_1mb.png`), so `tiles` is 6 and unsigned arithmetic makes `endpos` wrap to a value whose low 16 bits are -122. The benchmark passes it as `destX` for the purported misaligned measurements (`:182-199` and corresponding darken/tint loops). `ProcessPixelArray()` stores the coordinate in a signed-`WORD` rectangle (`workbench/libs/cgfx/processpixelarray.c:21-22,85-92`); `ReadPixelArray()`/`WritePixelArray()` then route through `do_render_func()`, which intersects that rectangle with the bitmap bounds (`workbench/libs/cgfx/readpixelarray.c:135-147`; `writepixelarray.c:172-188`; `rom/graphics/gfxfuncsupport.c:111-125`). For the fixed fixture the negative rectangle is clipped to x=0..5, so the benchmark processes six left-edge pixels rather than the intended 128-pixel tile at x=700. The pixel-array helper's line buffer remains large enough for that clipped span; this review found no out-of-bounds access from this coordinate.
 
 **Trigger and consequence:** run the optional benchmark with its checked-in fixture. The “misaligned” measurements time a six-pixel clipped strip at the left edge instead of the intended final 128-pixel tile, and change that unintended strip; those timings do not measure the named region. **Affected configuration:** `test-graphics`, explicitly selecting `testarrayops`; no default-image inclusion is claimed. **Confidence:** high for the arithmetic, clipping, and wrong region; no memory-safety consequence is claimed. Compute the tile origin with `(tiles - 1) * 138` and validate the resulting rectangle against bitmap bounds. No image operation or build was run; source-only.
 
+<a id="gd15369--readpixelarray-reports-setup-failures-as-successful-execution"></a>
 ## GD15369 — readpixelarray reports setup failures as successful execution [optional test target]
 
 `developer/debug/test/graphics/readpixelarray.c:38-54` routes failures to `cleanup(msg)`, but that routine unconditionally calls `exit(0)` at line 54. Its library-open, public-screen lock, unsupported-screen-depth, and window-open failure paths therefore print an error while returning success to a shell or test runner; `action()` also silently skips the pixel operation if its buffer allocation fails and then reaches normal success cleanup.
 
 **Trigger and consequence:** run the optional test without a required library/window/suitable screen, or when the pixel buffer allocation fails. The process exits successfully even though the requested read/modify/write operation did not complete. **Affected configuration:** `test-graphics`, which selects `readpixelarray` (`developer/debug/test/graphics/mmakefile.src:5-29`); no default-image inclusion is claimed. **Confidence:** high for the error exit status and allocation branch. Return a failure status from error cleanup and report allocation failure before entering the event loop. No failure was induced and no build was run; source-only.
 
+<a id="gd15370--obtainpentest-neither-validates-nor-releases-its-library-opens"></a>
 ## GD15370 — obtainpentest neither validates nor releases its library opens [optional test target]
 
 `developer/debug/test/graphics/obtainpentest.c:23-27` opens `intuition.library` and `graphics.library` without checking either result, then immediately dereferences `IntuitionBase->ActiveScreen` and calls the Graphics pen APIs. An open failure therefore reaches an invalid base/use path rather than a clean diagnostic. On the normal path, `main()` returns without closing either successfully opened library, leaving their open references outstanding after the test finishes.
@@ -25318,6 +25380,7 @@ The Cocoa host view implements pointer movement and left/right button methods, b
 
 **Trigger and consequence:** use a scroll wheel or scrolling device while the optional Darwin Cocoa input HIDD is active. AppKit delivers scroll-wheel events, but the selected view does not publish them and the HIDD cannot translate them; AROS applications therefore receive no mouse wheel motion from this input path. **Affected configuration:** the explicitly buildable Darwin Cocoa graphics/input HIDD paired with its selected Cocoa bootstrap producer; no default-package reachability is claimed. **Confidence:** high for the missing event path and the generic API capability; no scroll event or runtime was exercised. Add a ring event carrying horizontal/vertical deltas and translate it to `vHidd_Mouse_WheelMotion`. No build or Cocoa runtime was used; source-only.
 
+<a id="gd15376--nlisttree-open-and-close-hooks-can-remove-a-node-before-tree-code-resumes"></a>
 ## GD15376 — NListtree open and close hooks can remove a node before tree code resumes [conditional]
 
 The OpenHook contract explicitly allows changing the list before the node opens; the CloseHook contract says the callback may change the list after closing (`workbench/classes/zune/nlist/nlisttree_mcc/NListtree.c:3318-3344,3975-4001`; `workbench/classes/zune/nlist/docs/MCC_NListtree.doc:266-284,939-965`). Both callbacks receive the affected `TreeNode`. The selected implementation then resumes using that node: `OpenTreeNode()` sets its open flag, calls OpenHook, then reads its flags and computes/inserts its visible children (`NListtree.c:1910-1959`); `OpenTreeNodeExpand()` also calls OpenHook and then dereferences the same node (`:1964-1991`). `ExpandTree()` has a separate mutable-table traversal around its child hooks, but that path is not needed to establish this finding. On close, `CloseTreeNode()` and `CloseTreeNodeCollapse()` call CloseHook before clearing the open flag and continue to read the node (`:2075-2139`).
@@ -25481,6 +25544,7 @@ During display setup, `nouveau_display_create()` ignores the return from `drm_mo
 
 **Trigger and consequence:** during optional Nouveau display initialization, scaling-mode property allocation fails, and initialization subsequently creates an eligible connector. The property helper reports success while leaving the stored pointer NULL; attaching it dereferences NULL and interrupts display setup. **Affected configuration:** explicitly built Nouveau HIDD, only when scaling-property allocation fails and a non-TV eligible connector is initialized (or VGA on NV50+); no default-image inclusion is claimed. **Confidence:** high for the unchecked NULL propagation and dereference; occurrence depends on allocation failure and connector discovery. Propagate property-creation failure or guard optional attachment. No allocation failure, display initialization, GPU operation, or build was run; source-only.
 
+<a id="gd15394"></a>
 ## GD15394 — Nouveau can expose an incomplete enum property after allocation failure [optional HIDD]
 
 The `PROP_ENUM` macro counts the generation-supported values, creates a property with that full `num_values`, and then ignores the return from every `drm_property_add_enum()` call (`workbench/hidds/nouveau/drm/nouveau/nouveau_display.c:387-405,619-621`). `drm_property_add_enum()` allocates each enum-list node with `kzalloc()` and returns `-ENOMEM` when that allocation fails (`drm_property.c:390-429`). The property remains non-NULL and the macro continues, unlike the selected `drm_property_create_enum()` helper, which destroys the partially built property and returns NULL when an enum addition fails (`drm_property.c:162-186`). The caller does not propagate the macro's partial failure: `nouveau_display_create_properties()` is void and display initialization proceeds (`nouveau_display.c:606-621,696-703`). Connector setup attaches the property whenever its pointer is non-NULL (`nouveau_connector.c:341-356`).
@@ -25496,6 +25560,7 @@ The ATA module uses `_()`/`__()` for its bus and unit property labels (`Modules/
 
 **Trigger and consequence:** run SysExplorer with a translated SysExplorer catalog available, load the ATA or Storage support module, and open a bus/unit property window that uses one of these message IDs. The module-local `catalog` remains NULL, so those labels use the built-in English fallback even though the application loaded the catalog. This affects localization only; the window and device information paths continue. **Affected configuration:** the selected SysExplorer application and ATA/Storage support modules when a non-English catalog is installed. **Confidence:** high for the separate module source lists, the sole app-side initialization call, and the fallback behavior; no localized application or module was run. Initialize and release a catalog in each module with a valid LocaleBase, or route module lookups through the application's initialized catalog state. No catalog, module, GUI, or build was exercised; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md#sysexplorer-shared-locale-body-and-module-caller-pass-gd15399).
 
+<a id="gd15400"></a>
 ## GD15400 — Text datatype returns a partial FTXT load after later parser errors [conditional]
 
 **Indexed summary:** After loading a complete FTXT `CHRS` chunk, the text datatype ignores subsequent IFF parser errors and can return the already-read prefix as a successful load.
@@ -25514,6 +25579,7 @@ The ATA module uses `_()`/`__()` for its bus and unit property labels (`Modules/
 
 **GD10223 additional confirmed QNX instance (2026-11-23):** With `VK_USE_PLATFORM_SCREEN_QNX`, both enhanced `Device::getScreenBufferPropertiesQNX()` overloads return `ScreenBufferPropertiesQNX` data after result checking (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:27415-27429,27431-27446`). `vkGetScreenBufferPropertiesQNX` has runtime error returns including invalid external handle, out-of-host-memory, unknown, and validation failure; the Vulkan `VkResult` rule says output parameters contain poison contents on runtime errors except `sType`/`pNext` fields unless the command specifies otherwise ([command reference](https://docs.vulkan.org/spec/latest/chapters/memory.html#memory-external-qnx), [VkResult output rule](https://docs.vulkan.org/refpages/latest/refpages/source/VkResult.html)). In `VULKAN_HPP_NO_EXCEPTIONS` builds with result assertions disabled or non-aborting, `resultCheck()` does not stop execution, so the overload returns properties whose other fields are invalid. **Affected configuration:** QNX Vulkan-Hpp RAII clients enabling `VK_QNX_external_memory_screen_buffer` and using either enhanced overload after a runtime error. **Confidence:** high for result handling and the documented output contents. No QNX call or runtime behavior was exercised; source-only.
 
+<a id="gd15401-workbook-reports-an-icon-open-as-handled-when-process-creation-fails-conditional"></a>
 ## GD15401 — Workbook reports an icon open as handled when process creation fails [conditional]
 
 `wbIconOpen()` builds `CreateNewProc()` tags from the icon's stored opener segment and filename, ignores the returned process pointer, and unconditionally returns `TRUE` (`workbench/system/Workbook/wbicon.c:289-303`). DOS documents that `CreateNewProc()` returns NULL on error (`rom/dos/createnewproc.c:65-70`); the new process is the only operation this method performs. The selected Workbook window's Open menu passes `WBIM_Open` to selected icons and ORs their method results (`workbench/system/Workbook/wbwindow.c:1024-1039,1072-1074`), so the method reports success even when there is no child process.
@@ -25570,6 +25636,7 @@ Three more command-specific GD10223 instances appear in the enhanced wrappers: `
 
 Enhanced `Device::createAccelerationStructureNV()` and its Unique overload add GD10223 instances: each leaves a local NV acceleration-structure handle uninitialized, dispatches, checks the result, then returns or wraps it (`workbench/hidds/vulkan/include/vulkan/vulkan_funcs.hpp:18878-18925`). The official reference permits host-memory, unknown, and validation failures ([`vkCreateAccelerationStructureNV`](https://docs.vulkan.org/refpages/latest/refpages/source/vkCreateAccelerationStructureNV.html)). With exceptions disabled and result assertions disabled/nonfatal, the value form can return indeterminate output with the error result; the Unique form can wrap it and later call destruction. This is conditional on optional `VK_NV_ray_tracing` Vulkan-Hpp clients; no in-tree caller or failed creation was established.
 
+<a id="gd15404-betterstring-leaks-its-optional-cybergraphx-library-when-class-initialization-fails"></a>
 ## GD15404 — BetterString leaks its optional CyberGraphX library when class initialization fails
 
 `ClassInit()` opens `cybergraphics.library` at version 41 before creating the shared pool and clipboard server (`workbench/classes/zune/betterstring/mcc/library.c:104-117`). If `CreateSharedPool()` fails, or if `StartClipboardServer()` fails after the pool was created, the failure path deletes the pool as applicable, closes Diskfont/Keymap/Layers/Locale, and returns `FALSE`; it does not release `CyberGfxBase` (`:109-139`). The included MCC startup propagates that failure by deleting the custom class and returning from initialization without calling `ClassExpunge()` (`workbench/classes/zune/betterstring/include/mccinit.c:757-781,809-817`). The only `CyberGfxBase` close is in `ClassExpunge()` (`library.c:143-154`), which the normal mcc expunge path calls only later (`mccinit.c:821-843`).
@@ -25591,12 +25658,14 @@ When `MUIA_Window_AppWindow` is true, `WindowOpen()` first successfully opens an
 
 **Trigger and consequence:** an application supplies a gradient image spec with a component larger than 32 bits, for example `7:0,100000000,00000000,00000000-00000000,00000000,00000000`. `HexToLong()` reports successful consumption and the gradient parser accepts the malformed component as `0xffffffff`, rendering the channel at full intensity instead of rejecting the invalid spec. **Affected configuration:** the selected `muimaster` implementation on AROS, when an application supplies a scaled or tiled gradient through `MUIA_Image_Spec`; this is a malformed-input behavior, not an in-tree default-spec trigger. **Confidence:** high that overflow is accepted and changes the resulting color; no application, gradient, or build was run. Check conversion range/`errno` and reject components outside the documented 32-bit domain. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd15407"></a>
 ## GD15407 — Vulkan-Hpp hashers dereference default-null string fields
 
 `PipelineShaderStageCreateInfo`'s public constructor defaults `pName` to `{}` and its stored field also defaults to null (`workbench/hidds/vulkan/include/vulkan/vulkan_structs.hpp:21791-21803,21930-21935`). Its `std::hash` specialization unconditionally walks the string at `vulkan_hash.hpp:2804-2819`, dereferencing `pName` at the first loop test (`:2814`). Equality treats two null `pName` values as equal by pointer identity (`vulkan_structs.hpp:21917-21920`), so even hashing a default-constructed value that compares equal to another default value faults before any Vulkan call. The same unchecked string-walk defect occurs in `hash<CuFunctionCreateInfoNVX>` (`vulkan_hash.hpp:3310-3323`), beta-gated `hash<CudaFunctionCreateInfoNV>` (`:3378-3394`), `hash<DataGraphPipelineCompilerControlCreateInfoARM>` (`:3505-3520`), `hash<DataGraphPipelineShaderModuleCreateInfoARM>` (`:3702-3721`), `hash<DebugMarkerMarkerInfoEXT>` (`:3752-3769`), `hash<DebugMarkerObjectNameInfoEXT>` (`:3772-3787`), `hash<DebugUtilsLabelEXT>` (`:3822-3839`), and `hash<LayerSettingEXT>` (`:7920-7939`), plus beta-gated `hash<PipelineShaderStageNodeCreateInfoAMDX>` (`vulkan_hash.hpp:16132-16147`). These wrappers' constructors and stored fields also default their names to null (`vulkan_structs.hpp:27103-27108,27204,27750-27756,27851,28903-28907,28996,30608-30619,30779,31051-31058,31155,31180-31189,31298,31669-31676,31770,68186-68197,68423-68424`); the beta-gated AMDX wrapper does so at `:132769-132773,132867-132870`. The Vulkan reference pages specify the debug-marker/label names as null-terminated UTF-8 strings ([marker](https://docs.vulkan.org/refpages/latest/refpages/source/VkDebugMarkerMarkerInfoEXT.html), [object name](https://docs.vulkan.org/refpages/latest/refpages/source/VkDebugMarkerObjectNameInfoEXT.html), [debug label](https://docs.vulkan.org/refpages/latest/refpages/source/VkDebugUtilsLabelEXT.html)); `LayerSettingEXT` also exposes constructible null-name fields through its public constructor. These wrappers also have unsafe string comparison for constructible mixed-null states: `operator==` first checks pointer identity, then calls `strcmp()` if the pointers differ. Comparing a default-null name against a non-null name therefore passes NULL to `strcmp()` (for example, `PipelineShaderStageCreateInfo::operator==` at `vulkan_structs.hpp:21917-21920`; corresponding operators are at `:27190-27192,27837-27839,28982-28985,30763-30766,31141-31143,31282-31285,31756-31758,68410-68413`). When `VULKAN_HPP_HAS_SPACESHIP_OPERATOR` is enabled, each corresponding `<=>` similarly calls `strcmp()` whenever the pointers differ, including a null/non-null pair (`:21895-21908,27174-27183,27821-27830,28968-28975,30741-30750,31125-31132,31264-31275,31740-31747,68391-68397`). The beta AMDX wrapper's mixed-null equality and ordering paths are already covered by GD14745; this addition covers only its separate unchecked hash. This extends GD15407 from hashing to equality and optional ordering for the other listed wrappers; the trigger and consequence remain the same null dereference before a Vulkan submission.
 
 **Trigger and consequence:** downstream C++ code hashes a default-constructed or explicitly null-named `PipelineShaderStageCreateInfo`, `CuFunctionCreateInfoNVX`, `CudaFunctionCreateInfoNV`, `DataGraphPipelineCompilerControlCreateInfoARM`, `DataGraphPipelineShaderModuleCreateInfoARM`, `DebugMarkerMarkerInfoEXT`, `DebugMarkerObjectNameInfoEXT`, `DebugUtilsLabelEXT`, or `LayerSettingEXT`, or beta-gated `PipelineShaderStageNodeCreateInfoAMDX` (for example, inserting one into an unordered container before it is complete); the hasher dereferences null and the process commonly faults. For the other listed wrappers with mixed-null comparison paths, equality reaches `strcmp(NULL, name)` and may fault; ordering has the same trigger when their spaceship operator is enabled. AMDX comparison and ordering are tracked separately under GD14745. **Affected configuration:** C++ clients using the copied optional Vulkan-Hpp hash header (`workbench/hidds/vulkan/mmakefile.src:9-27`); `CudaFunctionCreateInfoNV` and the AMDX hash path additionally require `VK_ENABLE_BETA_EXTENSIONS`; AMDX equality/ordering remain under GD14745, and spaceship comparison additionally requires `VULKAN_HPP_HAS_SPACESHIP_OPERATOR`. No maintained in-tree C++ consumer of these types was found. Vulkan requires valid strings when these structures are submitted ([compiler-control `pVendorOptions`](https://docs.vulkan.org/refpages/latest/refpages/source/VkDataGraphPipelineCompilerControlCreateInfoARM.html); [shader-module `pName`](https://docs.vulkan.org/refpages/latest/refpages/source/VkDataGraphPipelineShaderModuleCreateInfoARM.html); [debug-marker name](https://docs.vulkan.org/refpages/latest/refpages/source/VkDebugMarkerMarkerInfoEXT.html); [debug-marker object name](https://docs.vulkan.org/refpages/latest/refpages/source/VkDebugMarkerObjectNameInfoEXT.html); [debug label](https://docs.vulkan.org/refpages/latest/refpages/source/VkDebugUtilsLabelEXT.html)), so this concerns public wrapper hashing/comparison on constructible pre-submission states, not valid Vulkan calls. **Confidence:** high that hashing null-name values and comparing mixed-null names dereferences null; medium that this should be treated as an API bug because the states are invalid for Vulkan submission. No hash, comparison, Vulkan call, or build was run. Handle null explicitly before string hashing or comparison. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd15408"></a>
 ## GD15408 — Vulkan-Hpp fixed-string hashers include bytes ignored by equality
 
 Several Vulkan-Hpp value wrappers compare fixed-capacity character arrays as C strings but hash every byte in the array. The constructible core examples are `ExtensionProperties` (constructor/equality: `vulkan_structs.hpp:49257-49262,49318-49320`; full-array hasher: `vulkan_hash.hpp:5785-5797`) and `LayerProperties` (constructor/equality: `vulkan_structs.hpp:68085-68093,68154-68157`; full-array hasher: `vulkan_hash.hpp:7901-7918`). The same mismatch is present in the ARM/KHR `PerformanceCounterDescription` wrappers (`vulkan_structs.hpp:76700-76708,76775-76778,76813-76825,76890-76899`; `vulkan_hash.hpp:8933-8973`); `DeviceFaultVendorInfoEXT` and `DeviceFaultInfoEXT` descriptions (`vulkan_structs.hpp:39407-39416,39549-39561,39513-39526,39638-39645`; `vulkan_hash.hpp:4616-4644`); `PhysicalDeviceDataGraphOperationSupportARM::name` (`vulkan_structs.hpp:28632-28642,28746-28757`; `vulkan_hash.hpp:3475-3490`); `PhysicalDeviceDriverProperties` driver strings (`vulkan_structs.hpp:87563-87578,87642-87656`; `vulkan_hash.hpp:10316-10339`); `PhysicalDeviceProperties::deviceName` (`vulkan_structs.hpp:97801-97813,97892-97914`; `vulkan_hash.hpp:11679-11725`); `PhysicalDeviceToolProperties` strings (`vulkan_structs.hpp:120879-120897,120959-120977`; `vulkan_hash.hpp:14700-14727`); `PhysicalDeviceVulkan12Properties` driver strings (`vulkan_structs.hpp:124477-124499,124754-124864`; `vulkan_hash.hpp:15147-15217`); `PipelineExecutableInternalRepresentationKHR` and `PipelineExecutablePropertiesKHR` strings (`vulkan_structs.hpp:129968-129988,130049-130068,130101-130113,130180-130194`; `vulkan_hash.hpp:15804-15851`); and `RenderPassSubpassFeedbackInfoEXT::description` (`vulkan_structs.hpp:144140-144151,144202-144218`; `vulkan_hash.hpp:17351-17369`). Their equality operators use `strcmp` for the identified text members, while each corresponding hasher iterates the fixed array to its declared capacity. Binary arrays such as `PhysicalDeviceProperties::pipelineCacheUUID` are compared as arrays and are not part of this finding. The wrappers accept the complete arrays. The selected enhanced `enumerateInstanceExtensionProperties()` wrapper resizes a vector of `ExtensionProperties` and passes its storage directly to the native Vulkan query by reinterpret-cast (`vulkan_funcs.hpp:571-585`); the basic wrapper likewise forwards the caller's array (`:540-545`). Vulkan Specification §3.11 says returned fixed-buffer strings fit with a terminator and bytes after that terminator are poison ([Khronos Vulkan Specification](https://registry.khronos.org/vulkan/specs/latest/html/vkspec.html#fundamentals-strings)). Therefore valid query output can carry differing post-NUL bytes into these wrappers without relying on a hand-constructed malformed string.
