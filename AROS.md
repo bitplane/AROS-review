@@ -1,3 +1,5 @@
+**[EK11112](AROS-exec-kernel.md#ek11112) — PC ACPI applies the MADT LAPIC address override after reading the bootstrap APIC ID:** if the legacy address does not identify the BSP, ACPI can misclassify it; a one-CPU table then writes past the one-slot APIC array. Conditional on PC firmware using an effective override different from the legacy base. Source-only.
+
 **[EK108](AROS-exec-kernel.md#ek108) — PC ACPI subtable scanning trusts unvalidated entry lengths:** zero-length records can stall ACPI initialization or per-CPU APIC setup; truncated recognized records can cause out-of-bounds reads in their hooks. Requires malformed firmware and the affected PC ACPI hook. Source-only.
 
 **[GD15240](AROS-graphics-desktop.md#gd15240-quickpart-debug-divides-by-zero-for-a-tiny-nvme-namespace) — QuickPart DEBUG builds divide by zero when scanning a partitioned NVMe namespace below 63 sectors whose reported cylinder count is zero. Release-build impact depends on compiler optimization of the diagnostic-only calculation; NVMe PC and QuickPart target paths. Source-only.**
