@@ -19084,3 +19084,4 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD11800](AROS-other-drivers.md#od11800) — The optional serial-mouse HIDD leaks its hardware-root object when driver registration fails.** Conditional on successful root allocation followed by `HW_AddDriver()` failure; source-only.
 
 **[GD15410](AROS-graphics-desktop.md#gd15410)** — The optional GL pass-through library reads its `SYS/GL` override only after a notification on `ENV:SYS/GL`; a persistent `ENVARC:SYS/GL` value without a volatile file receives no initial notification and is silently bypassed in favor of the default. Notification-registration failure has the same effect. Source-only.
+**[GD15411](AROS-graphics-desktop.md#gd15411)** — If the optional GL library cannot open `dos.library`, its initializer still calls DOS vectors through the NULL base and returns the GL base as initialized. Source-only; no failure was induced.
