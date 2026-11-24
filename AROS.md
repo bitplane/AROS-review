@@ -19085,6 +19085,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[OD11801](AROS-other-drivers.md#od11801) — The optional serial-mouse probe can spin forever if the i386-PC debugger beep left PIT channel 2 disabled.** Requires the debugger `BE` command before HIDD initialization; no default-image claim. Source-only.
 **[OD11802](AROS-other-drivers.md#od11802) — The optional serial-mouse PnP parser accepts a two-byte Begin/End frame, then reads uninitialized bytes as revision and EISA ID fields. A stale-byte match can select a mouse protocol for a truncated response; low practical confidence. Source-only.**
+**[OD11803](AROS-other-drivers.md#od11803) — The optional serial-mouse PnP parser ignores checksum mismatches when optional fields are present; a corrupted ID can still select a different supported protocol. Source-only; wrong-protocol impact is conditional.**
 
 **[GD15410](AROS-graphics-desktop.md#gd15410)** — The optional GL pass-through library reads its `SYS/GL` override only after a notification on `ENV:SYS/GL`; a persistent `ENVARC:SYS/GL` value without a volatile file receives no initial notification and is silently bypassed in favor of the default. Notification-registration failure has the same effect. Source-only.
 **[GD15411](AROS-graphics-desktop.md#gd15411)** — If the optional GL library cannot open `dos.library`, its initializer still calls DOS vectors through the NULL base and returns the GL base as initialized. Source-only; no failure was induced.
