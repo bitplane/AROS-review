@@ -24508,3 +24508,17 @@ MUI Area, bitmap, Boopsi, image and optional-widget headers (2026-11-24; ten add
 | `workbench/libs/muimaster/classes/framedisplay_private.h` | 11 | 8 | Conditional private layout; intern frame spec and string storage checked against implementation. |
 | `workbench/libs/muimaster/classes/gauge.h` | 33 | 18 | Conditional class header; value attributes checked against Gauge handlers. |
 | `workbench/libs/muimaster/classes/gauge_private.h` | 23 | 16 | Conditional private layout; value, text buffer and dimensions checked against Gauge methods. |
+
+MUI image/adjustment and meter header pass (2026-11-24; nine additional headers read, 133 `cloc 2.06` C/header code lines): read each public/private header in full and reconciled class availability with the base class list and conditional `EXTCLASSES` in `workbench/libs/muimaster/mmakefile.src`. `image` is in the base class set; Imageadjust, Imagedisplay, Knob, and Levelmeter are conditional class selections. Checked Image's public state/spec/old-image attributes against its handlers; Imageadjust type/spec/originator and private object/hook/spec arrays against its class code and Imagedisplay/Image callers; Imagedisplay Spec/default-size/free-axis attributes and private spec/image/size fields against its setters, getters, and copy path; Knob's event node/angle state against its drawing methods; and Levelmeter's label and private level/background/angle state against its handlers/drawing methods. No independent header/implementation mismatch established. This is header-contract coverage only; lifecycle, geometry, caller paths, and optional target behavior remain subject to body-level review. No image load, adjustment dialog, meter, build, or GUI interaction was run; source-only.
+
+| Source path | Physical lines | `cloc 2.06` code lines | Selection/review note |
+|---|---:|---:|---|
+| `workbench/libs/muimaster/classes/image.h` | 38 | 24 | Base class public attributes checked against Image handlers. |
+| `workbench/libs/muimaster/classes/imageadjust.h` | 37 | 21 | Conditional class API checked against constructor/accessors and callers. |
+| `workbench/libs/muimaster/classes/imageadjust_private.h` | 44 | 35 | Conditional private widget/hooks/spec fields checked against implementation references. |
+| `workbench/libs/muimaster/classes/imagedisplay.h` | 29 | 14 | Conditional attributes checked against setter/getter/copy methods. |
+| `workbench/libs/muimaster/classes/imagedisplay_private.h` | 14 | 11 | Conditional spec/image/size fields checked against implementation. |
+| `workbench/libs/muimaster/classes/knob.h` | 17 | 5 | Conditional descriptor header; class selection depends on configuration. |
+| `workbench/libs/muimaster/classes/knob_private.h` | 12 | 9 | Conditional event/angle fields checked against drawing methods. |
+| `workbench/libs/muimaster/classes/levelmeter.h` | 21 | 6 | Conditional label API checked against accessors. |
+| `workbench/libs/muimaster/classes/levelmeter_private.h` | 10 | 8 | Conditional level/angle fields checked against drawing methods. |
