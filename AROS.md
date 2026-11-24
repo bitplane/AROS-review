@@ -19073,3 +19073,8 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 
 **[OD11796](AROS-other-drivers.md#od11796) — SM502 `Show(NULL)` and reset fill scanout with a visible `0x55` gray pattern rather than zero.** Conditional on the optional Sam440 SM502 HIDD; medium-low confidence because the source does not explicitly specify black blanking. Source-only.
+
+
+**[OD11797](AROS-other-drivers.md#od11797) — The optional WD33C93 HIDD manifest compiles a one-line `diff --git` artifact as C.** Explicit module builds fail at that translation unit; no default parent selector was found. Source-only.
+
+**[OD11798](AROS-other-drivers.md#od11798) — The optional WD33C93 probe logs `SCSI=disable` but continues A2091 enumeration.** Conditional on explicit module use with that boot argument. Source-only.
