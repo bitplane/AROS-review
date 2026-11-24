@@ -19128,3 +19128,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD3395](AROS-other-drivers.md#od3395) — USB hub clears port-change flags after a failed status read.** A non-timeout `GET_STATUS` error can consume an insertion/removal event without updating the downstream-device table. Conditional; source-only.
 
 **[OD3396](AROS-other-drivers.md#od3396) — Failed hub reset polling can trigger a power-cycle from stale status.** A prior low-speed status can still satisfy the recovery predicate after the latest read fails. Little-endian USB 2 paths; source-only.
+
+**[OD3229](AROS-other-drivers.md#od3229) — USB Audio allocation failure leaves the hub-worker release handoff preemptible.** An unmatched `Permit()` shifts the hub task's nesting depth; during concurrent binding release, the waiter may free the hub record after its task pointer is cleared but before the worker finishes using it. Conditional on USB Audio allocation failure and the release interleaving; source-only.
