@@ -24543,3 +24543,18 @@ MUI List and Notify public API headers (2026-11-24; two base-class headers read,
 |---|---:|---:|---|
 | `workbench/libs/muimaster/classes/list.h` | 373 | 305 | Base class method/message declarations and public/private attributes/enums checked against List dispatcher/handlers. |
 | `workbench/libs/muimaster/classes/notify.h` | 225 | 180 | Base class notification API and storage declarations checked against Notify and subclass overrides; GD15413. |
+
+MUI PanelGroup, pen, pixmap and Popasl headers (2026-11-24; ten conditional class headers read, 231 `cloc 2.06` C/header code lines): read all headers in full and checked the conditional class selectors in `workbench/libs/muimaster/mmakefile.src`. Reconciled PanelGroup's public/internal method IDs, messages, node/state fields and attribute access with `panelgroup.c` and its `.conf` vector list; Penadjust's Spec/PSIMode and instance specs/widgets with its accessors; Pendisplay's method message layouts, RGB/pen/spec attributes and private state with the methods and dispatcher; Pixmap's attribute types, DrawSection message and private bitmap/decompression/dither fields with its accessors and dispatcher; and Popasl's Active/Type/hooks and private requester/process/tag storage with `popasl.c`. No independent header/implementation mismatch established. These classes are conditional build selections; this entry does not claim their class bodies or callers complete. No requester, pen selection, pixel decode, class construction or build was run; source-only.
+
+| Source path | Physical lines | `cloc 2.06` code lines | Selection/review note |
+|---|---:|---:|---|
+| `workbench/libs/muimaster/classes/panelgroup.h` | 58 | 36 | Conditional class public methods/attributes checked against implementation/config. |
+| `workbench/libs/muimaster/classes/panelgroup_private.h` | 56 | 36 | Conditional panel tracking/runtime state and internal messages checked against implementation. |
+| `workbench/libs/muimaster/classes/penadjust.h` | 25 | 10 | Conditional Spec/PSIMode API checked against handlers. |
+| `workbench/libs/muimaster/classes/penadjust_private.h` | 14 | 11 | Conditional pen specs and child objects checked against implementation fields. |
+| `workbench/libs/muimaster/classes/pendisplay.h` | 53 | 34 | Conditional methods/message layouts and attributes checked against dispatcher/body. |
+| `workbench/libs/muimaster/classes/pendisplay_private.h` | 13 | 10 | Conditional pen/RGB/reference fields checked against implementation. |
+| `workbench/libs/muimaster/classes/pixmap.h` | 61 | 42 | Conditional attributes and DrawSection message checked against methods. |
+| `workbench/libs/muimaster/classes/pixmap_private.h` | 30 | 22 | Conditional bitmap, decode, dither and storage fields checked against implementation references. |
+| `workbench/libs/muimaster/classes/popasl.h` | 29 | 14 | Conditional requester API checked against class accessors. |
+| `workbench/libs/muimaster/classes/popasl_private.h` | 23 | 16 | Conditional hooks, ASL process, requester and tag storage checked against implementation. |
