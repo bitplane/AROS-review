@@ -19162,3 +19162,6 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[GD9936](AROS-graphics-desktop.md#gd9936)** — Radeon uses unchecked framebuffer and MMIO mappings; if x86-64 PCIPC cannot map a BAR above its identity window, initialization can access an invalid pointer. Conditional on selecting Radeon and the mapping failure; source-only.
 
+
+
+**Active three-area body-coverage checkpoint (2026-11-24; Prism2 header exact-path reconciliation):** Graphics/Desktop is **537,972/585,714 C/header code lines (91.9%)**, with its aggregate file denominator unreconciled. Exec/Kernel is **324,986/376,879 lines (86.2%)** and **2,155/2,155 represented paths**; Other Drivers is **2,206,246/2,237,747 lines (98.6%)** and **5,315/5,494 represented paths (96.7%)**. Additive area-ledger line credit is **3,069,204/3,200,340 (95.9%)**, leaving 131,136 represented lines without full-body credit. Shared paths may be counted in multiple areas; path counts are ledger records, not proof of complete subsystem inventories. None of these regions is complete. See the [Graphics/Desktop coverage ledger](AROS-graphics-desktop-coverage.md), [Exec/Kernel ledger](AROS-exec-kernel-coverage.md), and [Other Drivers ledger](AROS-other-drivers-coverage.md). Source-only.
