@@ -19113,7 +19113,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[OD3236](AROS-other-drivers.md#od3236) — USB hub startup continues powering ports after hub over-current is reported.** Both hub classes log the condition but leave the local guard false, so startup proceeds to power every port. Conditional on a hub status response reporting over-current; source-only.
 
-**[OD3250](AROS-other-drivers.md#od3250) — Hub port over-current handling leaves the child device published.** If an over-current status also reports the child connected, successful port power-off leaves the child marked connected and client transfers admitted. Conditional; source-only.
+**[OD3250](AROS-other-drivers.md#od3250) — Hub over-current handling leaves or enumerates children on unpowered ports.** Port power-off leaves an already published child marked connected; the SuperSpeed fast enumeration path also ignores the decoded power and over-current bits. Conditional; source-only.
 
 **[OD3251](AROS-other-drivers.md#od3251) — Failed aggregate hub suspend leaves earlier children suspended.** If a later child refuses suspend, earlier successful suspends are not rolled back while the hub remains active. Conditional; source-only.
 
