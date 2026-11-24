@@ -19062,3 +19062,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 ## SDL returned-format finding restored (2026-11-24)
 
 **[OD2727](AROS-other-drivers.md#od2727)** — SDL accepts a video surface whose pixel storage can differ from the HIDD format it advertises. On an actual mismatch, the generic software cursor may size save-under storage too small and write past it while capturing the cursor-covered pixels; the host/backend mismatch is conditional and was not reproduced. Optional SDL HIDD; source-only.
+
+**[EK11101](AROS-exec-kernel.md#ek11101)** — OpenSBI startup skips additional mapped RAM spans below 1 MiB when constructing Exec memory headers; whether this resource loss is unintended is low confidence. Applies to fragmented multi-region RISC-V64 OpenSBI memory maps. Source-only.
