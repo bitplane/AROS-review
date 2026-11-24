@@ -19118,3 +19118,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD3251](AROS-other-drivers.md#od3251) — Failed aggregate hub suspend leaves earlier children suspended.** If a later child refuses suspend, earlier successful suspends are not rolled back while the hub remains active. Conditional; source-only.
 
 **[OD3252](AROS-other-drivers.md#od3252) — Hub aggregate resume reports success while child resumes fail.** A failed child port-resume request is ignored, so the child can remain suspended while the aggregate operation reports success. Conditional; source-only.
+
+**[OD3253](AROS-other-drivers.md#od3253) — USB hub port-control masks cannot represent port 32 and above.** The class accepts disable/power-cycle requests for descriptor-reported ports but stores them in 32-bit masks; a request for port 32 or higher cannot be represented. Conditional; source-only.
