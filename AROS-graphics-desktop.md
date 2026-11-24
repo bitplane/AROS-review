@@ -6431,9 +6431,9 @@ In `X11Display__Root__New()`, a successful query writes to the local `modes` poi
 
 ## GD5974
 
-**Cocoa startup ignores failure to create its input-polling process.** After registering the Cocoa mouse and keyboard driver objects, startup sets them as the poller's targets, opens DOS, and calls `CreateNewProc(ptags)` without checking its return value (`arch/all-darwin/hidd/cocoa/startup.c:224-239`). Startup then proceeds to mark the monitor resident and returns `RETURN_OK` (`:245-257`). The poller is the code that drains the host event ring and invokes the input callbacks (`cocoagfx_inputclass.c:186-236`; `startup.c:83-96`).
+**Cocoa startup reports success when its input poller cannot be launched.** After registering the Cocoa mouse and keyboard driver objects, startup sets them as the poller's targets, then calls `OpenLibrary("dos.library", 36)` and only attempts `CreateNewProc(ptags)` if that open succeeds (`arch/all-darwin/hidd/cocoa/startup.c:224-239`). It ignores the process-creation result and in either failure case proceeds to mark the monitor resident and returns `RETURN_OK` (`:245-257`). The poller is the code that drains the host event ring and invokes the input callbacks (`cocoagfx_inputclass.c:186-236`; `startup.c:83-96`).
 
-**Affected configuration and trigger:** Darwin Cocoa HIDD; input drivers register, DOS opens, but `CreateNewProc()` fails (for example, task/process allocation failure). **Consequence:** startup reports success with no input poller, so queued host keyboard and mouse events are never delivered to AROS. **Confidence:** high for the unchecked creation result and success continuation; no task-creation failure was induced. Source-only.
+**Affected configuration and trigger:** Darwin Cocoa HIDD; input drivers register, then either the startup-time DOS library open fails, or it succeeds but `CreateNewProc()` fails (for example, process allocation failure). **Consequence:** startup reports success with no input poller, so queued host keyboard and mouse events are never delivered to AROS. **Confidence:** high for the guarded launch, ignored creation result, and success continuation; neither failure was induced. Source-only.
 
 ## GD5975
 
