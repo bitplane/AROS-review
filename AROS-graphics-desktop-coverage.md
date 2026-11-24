@@ -24558,3 +24558,18 @@ MUI PanelGroup, pen, pixmap and Popasl headers (2026-11-24; ten conditional clas
 | `workbench/libs/muimaster/classes/pixmap_private.h` | 30 | 22 | Conditional bitmap, decode, dither and storage fields checked against implementation references. |
 | `workbench/libs/muimaster/classes/popasl.h` | 29 | 14 | Conditional requester API checked against class accessors. |
 | `workbench/libs/muimaster/classes/popasl_private.h` | 23 | 16 | Conditional hooks, ASL process, requester and tag storage checked against implementation. |
+
+MUI popup class API/private-layout headers (2026-11-24; ten additional headers read, 130 `cloc 2.06` C/header code lines): reconciled Popframe/Popimage/Poppen private OpenWindow/CloseWindow message layouts and instance pointers against their corresponding method dispatchers and allocated instance sizes; checked Poplist Array and hook/list fields against its constructor; checked Popobject public hook/object/follow/light/volatile attributes against its accessor paths and Poplist/Popscreen callers; and checked Popscreen's descriptor exposure against its use of the base Popobject API. The base `popobject` class is selected unconditionally; Popframe, Popimage, Poppen, Poplist, and Popscreen are conditional class selections in `mmakefile.src`. No independent header/implementation mismatch established. This pass does not close popup window ownership, async callback lifecycle, external hooks or user-caller behavior. No popup window, requester, class construction or build was run; source-only.
+
+| Source path | Physical lines | `cloc 2.06` code lines | Selection/review note |
+|---|---:|---:|---|
+| `workbench/libs/muimaster/classes/popframe.h` | 33 | 17 | Conditional private window messages checked against dispatcher. |
+| `workbench/libs/muimaster/classes/popframe_private.h` | 15 | 11 | Conditional window/frameadjust/title fields checked against implementation. |
+| `workbench/libs/muimaster/classes/popimage.h` | 33 | 17 | Conditional private window messages checked against dispatcher. |
+| `workbench/libs/muimaster/classes/popimage_private.h` | 16 | 12 | Conditional window/imageadjust/type/title fields checked against implementation. |
+| `workbench/libs/muimaster/classes/poplist.h` | 22 | 8 | Conditional Array attribute checked against constructor. |
+| `workbench/libs/muimaster/classes/poplist_private.h` | 14 | 11 | Conditional hooks/list field checked against class use. |
+| `workbench/libs/muimaster/classes/popobject.h` | 35 | 20 | Base class attributes checked against accessor paths and callers. |
+| `workbench/libs/muimaster/classes/poppen.h` | 33 | 17 | Conditional private window messages checked against dispatcher. |
+| `workbench/libs/muimaster/classes/poppen_private.h` | 15 | 11 | Conditional window/penadjust/title fields checked against implementation. |
+| `workbench/libs/muimaster/classes/popscreen.h` | 19 | 6 | Conditional descriptor header; implementation composes Popobject. |
