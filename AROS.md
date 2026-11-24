@@ -19132,3 +19132,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD3229](AROS-other-drivers.md#od3229) — USB Audio allocation failure leaves the hub-worker release handoff preemptible.** An unmatched `Permit()` shifts the hub task's nesting depth; during concurrent binding release, the waiter may free the hub record after its task pointer is cleared but before the worker finishes using it. Conditional on USB Audio allocation failure and the release interleaving; source-only.
 
 **[GD15418](AROS-graphics-desktop.md#gd15418) — MUI generated public header omits recursively included header dependencies.** An incremental build can leave `libraries/mui.h` stale after a recursively included class header omitted from `CLASSINCLUDES` changes. Conditional on such a header change and an existing generated output; source-only.
+
+**[OD3578](AROS-other-drivers.md#od3578) — Deneb RTIso OUT rounds hook lengths up to 32-bit reads; a selected USB Audio 90-byte chunk makes it read two bytes past the source buffer. Conditional on m68k-Amiga Deneb USB Audio playback; source-only.**
+
+**[OD3653](AROS-other-drivers.md#od3653) — Deneb unit open ignores `uhwHWInit()` timeout errors, then returns a unit that `devOpen()` reports as successful. Conditional on root-port initialization timeout; source-only.**
