@@ -19130,3 +19130,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD3396](AROS-other-drivers.md#od3396) — Failed hub reset polling can trigger a power-cycle from stale status.** A prior low-speed status can still satisfy the recovery predicate after the latest read fails. Little-endian USB 2 paths; source-only.
 
 **[OD3229](AROS-other-drivers.md#od3229) — USB Audio allocation failure leaves the hub-worker release handoff preemptible.** An unmatched `Permit()` shifts the hub task's nesting depth; during concurrent binding release, the waiter may free the hub record after its task pointer is cleared but before the worker finishes using it. Conditional on USB Audio allocation failure and the release interleaving; source-only.
+
+**[GD15418](AROS-graphics-desktop.md#gd15418) — MUI generated public header omits recursively included header dependencies.** An incremental build can leave `libraries/mui.h` stale after a recursively included class header omitted from `CLASSINCLUDES` changes. Conditional on such a header change and an existing generated output; source-only.
