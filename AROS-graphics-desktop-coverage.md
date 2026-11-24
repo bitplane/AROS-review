@@ -24573,3 +24573,19 @@ MUI popup class API/private-layout headers (2026-11-24; ten additional headers r
 | `workbench/libs/muimaster/classes/poppen.h` | 33 | 17 | Conditional private window messages checked against dispatcher. |
 | `workbench/libs/muimaster/classes/poppen_private.h` | 15 | 11 | Conditional window/penadjust/title fields checked against implementation. |
 | `workbench/libs/muimaster/classes/popscreen.h` | 19 | 6 | Conditional descriptor header; implementation composes Popobject. |
+
+MUI Popstring, Process, Prop and basic control headers (2026-11-24; eleven additional headers read, 195 `cloc 2.06` C/header code lines): read all headers in full; checked Popstring message/attribute declarations against its class entry points, PopScreen private hooks against its constructor, Prop method messages/attributes/sentinels against Prop accessors and dispatch, Radio public attributes/private fields against its setters and button array, Rectangle/Register attribute types against class methods, and Scale's axis attribute/private geometry against its methods. Process's methods and private task/source fields were checked against `process.c`; added GD15414 for five Process pointer attributes documented as `ULONG` even though the class stores/returns pointers (`STRPTR`, `struct IClass *`, `Object *`, `struct Process *`) through pointer-width `IPTR`. For `MUIA_Process_Task`, a caller following the documented ULONG output type may supply a 32-bit object while `Process__OM_GET()` writes the pointer-sized value through `opg_Storage`. This optional class is selected only when `MAKE_BUILTIN_PROCESS=yes` or built as an external class; wider-than-32-bit pointer configurations are affected. No additional mismatch established in this batch. No process, notification, GUI control or build was run; source-only.
+
+| Source path | Physical lines | `cloc 2.06` code lines | Selection/review note |
+|---|---:|---:|---|
+| `workbench/libs/muimaster/classes/popscreen_private.h` | 14 | 11 | Conditional screen list/hooks checked against Popscreen implementation. |
+| `workbench/libs/muimaster/classes/popstring.h` | 45 | 27 | Base class open/close messages and attributes checked against Popstring methods. |
+| `workbench/libs/muimaster/classes/process.h` | 63 | 43 | Conditional Process method/attribute contract checked against implementation; GD15414. |
+| `workbench/libs/muimaster/classes/process_private.h` | 18 | 15 | Conditional task/source/kill instance state checked against Process implementation. |
+| `workbench/libs/muimaster/classes/prop.h` | 66 | 45 | Base Prop methods, attributes and sentinels checked against accessors/dispatcher. |
+| `workbench/libs/muimaster/classes/radio.h` | 24 | 10 | Conditional Radio attributes checked against setters. |
+| `workbench/libs/muimaster/classes/radio_private.h` | 14 | 10 | Conditional entry array and active/count fields checked against class implementation. |
+| `workbench/libs/muimaster/classes/rectangle.h` | 25 | 9 | Base Rectangle attribute types checked against handlers. |
+| `workbench/libs/muimaster/classes/register.h` | 24 | 9 | Base Register frame/title/column attributes checked against constructor. |
+| `workbench/libs/muimaster/classes/scale.h` | 21 | 7 | Conditional Scale axis attribute checked against setter/getter. |
+| `workbench/libs/muimaster/classes/scale_private.h` | 12 | 9 | Conditional axis/label geometry fields checked against Scale implementation. |
