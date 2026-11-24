@@ -45262,6 +45262,47 @@ The Efika boot package includes both `pci-efika` and Radeon (`arch/ppc-chrp/efik
 **Trigger and consequence:** a supported PCI device's MSI-X table resides in a valid memory BAR above the x86-64 PC identity-mapped window and a selected driver requests or queries MSI-X vectors. The helper dereferences the unmapped physical address instead of using the PCIPC mapping path, so vector setup/query can fault or fail before the device's interrupt handler is installed. **Affected configuration:** x86-64 PC with PCIPC and a driver using MSI-X; the selected boot package includes PCIPC and NVMe, whose `USE_MSI` path calls `ObtainVectors()` and `GetVectorAttribs()` (`arch/x86_64-pc/boot/mmakefile.src:66-68`; `rom/devs/nvme/nvme_intern.h:25`; `nvme_busclass.c:335-344`). The trigger requires a table BAR placed above 128 GiB; no such device placement was observed. **Confidence:** high for the returned physical pointer, bypassed mapping method, and selected MSI-X call path; occurrence depends on BAR placement. Map the table BAR through the selected PCIDriver method and validate the returned mapping before access. No BAR, vector operation, device, or build was exercised; source-only.
 
 
+<a id="od2418"></a>
+## OD2418 — PCIPC programs MSI and MSI-X for APIC ID zero [conditional]
+
+Both PCIPC interrupt-message setup paths hard-code the destination to APIC ID zero. The MSI-X path sets `apic_id = 0` before constructing the message address (`arch/all-pc/hidds/pcipc/pcipc_deviceclass.c:443-446`); legacy MSI writes `0xFEE00000`, with destination ID zero in bits 19:12 (`:515-519`). The PC APIC allocator, however, reserves vectors only when `KERNELIRQ_ICID(irq)` matches `APICInt_IntrController.ic_Id` (`arch/all-pc/kernel/apic_msi.c:35-64`). The programmed destination can therefore differ from the local APIC that owns the allocated vector range.
+
+**Trigger and consequence:** enable MSI or MSI-X for a device on an x86 PC whose selected local APIC ID is nonzero. The device sends its messages to APIC ID zero while the allocated vectors belong to the selected APIC, so the device interrupt may not reach its registered handler. **Affected configuration:** PCIPC on PC targets with MSI-capable devices and a nonzero selected APIC ID; the x86-64 package includes PCIPC, NVMe, AHCI and xHCI (`arch/x86_64-pc/boot/mmakefile.src:40-43,66-68`). **Confidence:** high for the hard-coded destination and allocator's selected-controller check; occurrence depends on the selected local APIC ID and whether the platform routes the message to another enabled APIC. Program the destination ID for the APIC that owns the allocated vector. No APIC topology, PCI device, interrupt, or build was exercised; source-only.
+
+<a id="od2982"></a>
+## OD2982 — PCIPC enables more MSI messages than it reserves for a non-power-of-two request [conditional]
+
+The legacy MSI path asks `KrnAllocIRQ()` to reserve exactly `vectcnt` consecutive IRQs, then sets Multiple Message Enable from `roundup_pow_of_two(vectcnt)` (`arch/all-pc/hidds/pcipc/pcipc_deviceclass.c:510-513,540-543`). For a request of three vectors, the allocator reserves three but the device is configured for four messages. The selected APIC allocator reserves exactly its `count` argument and advances `msilast` by that count (`arch/all-pc/kernel/apic_msi.c:41-78`).
+
+**Trigger and consequence:** a direct PCIPC MSI client requests and obtains a non-power-of-two count greater than one, and the device uses the full enabled message set. The extra enabled message targets the next vector after the reserved range, which may belong to another device or have no handler. **Affected configuration:** PCIPC legacy MSI on PC/APIC when a caller requests a non-power-of-two count and the device uses all enabled messages. The selected NVMe caller can request a variable maximum, but current checked-in clients query only vector index zero and the reviewed NVMe path creates one I/O queue; no concrete in-tree higher-message trigger is established. **Confidence:** high for the exact-count reservation and rounded-up MME programming; the interrupt consequence depends on use of the extra message. Allocate and program the same power-of-two count, or reject/round the request before reserving. No vector request, device, interrupt, or build was exercised; source-only.
+
+<a id="od2983"></a>
+## OD2983 — PCIPC returns the same vector attributes for every legacy MSI index [conditional]
+
+For active legacy MSI, `GetVectorAttribs()` validates `vectorno` against the enabled count, then reads the single base MSI data field and returns that value unchanged (`arch/all-pc/hidds/pcipc/pcipc_deviceclass.c:318-357`). It does not incorporate `vectorno` when returning the interrupt/native vector. The API accepts an explicit vector index (`rom/hidds/pci/pcideviceclass.c:208-215`), and a multiple-message MSI allocation represents multiple message indexes.
+
+**Trigger and consequence:** a caller obtains multiple legacy MSI messages and queries an index greater than zero. The method reports the base vector again instead of the requested message's vector, so the caller can associate multiple queues/handlers with the same IRQ or use the wrong vector. **Affected configuration:** direct PCIPC legacy-MSI clients requesting and querying multiple vectors. The checked-in caller census found only index-zero queries; NVMe currently creates one I/O queue, so no maintained nonzero-index trigger is established. **Confidence:** high that the selected method ignores the index after its range check; caller-visible impact requires a nonzero-index query. Derive the returned message vector from the validated index and the programmed MSI allocation. No device, vector query, or build was run; source-only.
+
+<a id="od2987"></a>
+## OD2987 — PCIPC can report MSI-X success below the requested minimum [conditional]
+
+The MSI-X path caps `vectmax` at the table's entry count, then lowers `vectmin` to `vectmax` when the table cannot satisfy the requested minimum (`arch/all-pc/hidds/pcipc/pcipc_deviceclass.c:411-429`). It can allocate that smaller count, program the table, and return TRUE (`:423-482`) even though the caller's `tHidd_PCIVector_Min` requirement was not met. The public tag is documented as the minimum number of vectors to allocate (`rom/hidds/pci/pcideviceclass.c:262-266`).
+
+**Trigger and consequence:** a direct caller requests a minimum greater than the device's MSI-X table capacity and the reduced allocation succeeds. The caller is told allocation succeeded despite receiving fewer vectors than required, so later setup can omit required queues/handlers or misconfigure the device. **Affected configuration:** PCIPC MSI-X callers whose minimum exceeds the table size. The checked-in direct callers request minimum one, so the trigger currently requires an external or future caller. **Confidence:** high for the minimum rewrite and successful return; impact depends on the caller relying on its documented minimum. Return FALSE when the table cannot satisfy `vectmin`. No vector request, device, or build was run; source-only.
+
+<a id="od2993"></a>
+## OD2993 — PCIPC legacy MSI can loop indefinitely for a zero minimum after allocation exhaustion [conditional]
+
+The legacy MSI path reads `tHidd_PCIVector_Min` with default one but does not normalize an explicitly supplied zero (`arch/all-pc/hidds/pcipc/pcipc_deviceclass.c:504-508`). Its descending `UWORD` loop continues while `vectcnt >= vectmin`; if all positive allocations fail, it reaches zero, calls `KrnAllocIRQ(..., 0)`, then decrements and wraps to 65535, which still satisfies the zero minimum (`:510-513`). The selected PC APIC allocator cannot complete a zero-count allocation because its end test compares against `startIRQ + count - 1` (`arch/all-pc/kernel/apic_msi.c:41-64`).
+
+**Trigger and consequence:** a direct caller supplies Min=0, Max permits the legacy MSI path, and every positive contiguous allocation attempt fails. The loop then continues through wrapped `UWORD` values indefinitely, leaving the caller stuck in vector acquisition. **Affected configuration:** PCIPC legacy MSI with a zero minimum and exhausted APIC MSI-vector space; selected in-tree callers use Min=1, so only external/future calls establish this input. **Confidence:** high for the zero-preserving loop, unsigned wrap, and zero-count allocation failure; requires the stated caller input and resource exhaustion. Reject zero minimum or normalize it to one before entering the loop. No allocator, vector request, device, or build was exercised; source-only.
+
+<a id="od2986"></a>
+## OD2986 — Withdrawn: duplicate of OD2418
+
+The fixed APIC destination ID described here is the same PCIPC MSI/MSI-X setup defect detailed under [OD2418](#od2418). Do not count OD2986 separately.
+
+
 <a id="od9887"></a>
 ## OD9887 — IntelGMA continues after a failed PCIPC BAR mapping [conditional]
 
