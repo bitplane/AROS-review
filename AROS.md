@@ -11744,7 +11744,6 @@ Exec/Kernel AArch64 cache-sentinel candidate re-review (EK9884 restored; 2026-10
 
 **EK9515 — DOSBoot divides by zero for an RDB partition with zero cylinder geometry:** a recognized leaf PART entry with zero heads or blocks per track reaches an unconditional remainder by their product. Limited to selected DOSBoot/RDB scanning. See [EK9515](AROS-exec-kernel.md#ek9515) and the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md#ek9515-zero-geometry-rejection-and-selected-scan-recheck-2026-10-26). Source-only; no disk or boot scan was run.
 
-**EK9519 — Linux-hosted task CPU time uses the host monotonic clock instead of process CPU time:** AROS passes clock ID 1 unchanged, which Linux interprets as `CLOCK_MONOTONIC`; task CPU time therefore includes host descheduling intervals. Limited to Linux-hosted builds. See [EK9519](AROS-exec-kernel.md#ek9519) and the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md#unix-host-clock-identifier-error-path-recheck-ek510-restored-ek9519-added-2026-10-26). No clock query was run; source-only.
 
 **EK8866 — ExecSMP `TaskLaunch()` publishes a task before launch setup finishes:** a remote task can exit while the creator still reads its task structure, causing a use-after-free; with task.resource wrappers installed, the late prelaunch hook can also add a stale task-list entry. See [EK8866](AROS-exec-kernel.md#ek8866) and the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md#L7352). Source-only; no task race was run.
 
