@@ -16580,7 +16580,9 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[OD3362](AROS-other-drivers.md#od3362) — PCI xHCI truncates variable root-hub bitmaps above 15 ports.** For 16–20 ports it advertises an 11-byte USB 2 hub descriptor where the two variable bitmaps require 13 bytes; Poseidon reads a power-mask byte as removable-port data for 17–20 ports. Downstream effect of the cached bitmap is unestablished; conditional on a high-port-count controller; source-only.
 
-**[OD11804](AROS-other-drivers.md#od11804) — USB hub descriptor parsing reads past a short returned buffer when `bNbrPorts` requires more removable-bitmap bytes than `bLength` provides.** A malformed/broken USB 2 hub descriptor can cause an out-of-bounds read; later use of the cached bitmap is not established. Conditional; source-only.
+**[OD3231](AROS-other-drivers.md#od3231) — Standard and SuperSpeed hub classes read descriptor fields beyond the advertised `bLength`.** A malformed short descriptor can cause out-of-bounds reads; for SuperSpeed, adjacent bytes also feed the port count used by later loops. Conditional; source-only.
+
+
 
 
 **[OD11409](AROS-other-drivers.md#od11409) — Generic PCI config subword writes use undefined signed shifts.** The byte-lane-3 mask and upper-word mask shift signed `int` values beyond their representable range. No checked-in caller was found to reach either lane; public/external PCI HIDD callers remain in scope; source-only.
