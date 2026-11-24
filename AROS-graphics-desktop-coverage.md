@@ -24589,3 +24589,17 @@ MUI Popstring, Process, Prop and basic control headers (2026-11-24; eleven addit
 | `workbench/libs/muimaster/classes/register.h` | 24 | 9 | Base Register frame/title/column attributes checked against constructor. |
 | `workbench/libs/muimaster/classes/scale.h` | 21 | 7 | Conditional Scale axis attribute checked against setter/getter. |
 | `workbench/libs/muimaster/classes/scale_private.h` | 12 | 9 | Conditional axis/label geometry fields checked against Scale implementation. |
+
+MUI scrolling, semaphore and settings headers (2026-11-24; nine additional headers read, 148 `cloc 2.06` C/header code lines): compared the public headers with current `CLASSES`/conditional selectors and checked Scrollbar and Scrollbutton attributes, Scrollgroup attributes/private state, Semaphore's no-argument messages, Settingsgroup messages/private state, and Slider attributes against corresponding class methods and handlers. These declarations matched the inspected implementations. `settings.h` is included from public `mui.h` and `settings.c` exists, but neither current `CLASSES` nor `FILES` in `mmakefile.src` selects it; only legacy `makefile.aos4`/`smakefile` references `settings.c`. Its current generated/built-in class reachability therefore remains an inventory question, not a confirmed implementation defect. Scrollgroup and Settingsgroup are conditional class selections; Semaphore, Scrollbar, Scrollbutton, Slider, and the settings descriptor header appear in the base public interface. No independent header mismatch established. No scroller, semaphore operation, settings class, or build was exercised; source-only.
+
+| Source path | Physical lines | `cloc 2.06` code lines | Selection/review note |
+|---|---:|---:|---|
+| `workbench/libs/muimaster/classes/scrollbar.h` | 30 | 15 | Base attributes/enums checked against Scrollbar handlers. |
+| `workbench/libs/muimaster/classes/scrollbutton.h` | 31 | 17 | Base attributes/macro checked against Scrollbutton accessors. |
+| `workbench/libs/muimaster/classes/scrollgroup.h` | 38 | 24 | Conditional attributes checked against constructor/getter. |
+| `workbench/libs/muimaster/classes/scrollgroup_private.h` | 18 | 14 | Conditional contents/bar/layout-hook fields checked against implementation. |
+| `workbench/libs/muimaster/classes/semaphore.h` | 50 | 31 | Base no-argument messages/IDs checked against dispatcher and semaphore operations. |
+| `workbench/libs/muimaster/classes/settings.h` | 18 | 6 | Public descriptor-only API; current `mmakefile.src` source selection unresolved. |
+| `workbench/libs/muimaster/classes/settingsgroup.h` | 36 | 20 | Conditional config method messages checked against dispatcher. |
+| `workbench/libs/muimaster/classes/settingsgroup_private.h` | 10 | 7 | Conditional placeholder instance field checked against allocated layout. |
+| `workbench/libs/muimaster/classes/slider.h` | 32 | 14 | Base public/obsolete attribute declarations checked against Slider handlers. |
