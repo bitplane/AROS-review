@@ -19154,5 +19154,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[GD15420](AROS-graphics-desktop.md#gd15420) — Vulkan-Hpp equality compares only `identifierSize` valid shader-identifier bytes, but its hash includes the entire array, including poison tail bytes. Equal values can hash differently. Conditional on optional Vulkan-Hpp use; source-only.**
 
+**[GD15421](AROS-graphics-desktop.md#gd15421)** — Nouveau and VMware SVGA ignore mode-configuration initialization failure, then reuse its destroyed object IDR while creating display properties. Conditional on allocation failure in optional HIDD initialization; source-only.
+
 
 **[GD9936](AROS-graphics-desktop.md#gd9936)** — Radeon uses unchecked framebuffer and MMIO mappings; if x86-64 PCIPC cannot map a BAR above its identity window, initialization can access an invalid pointer. Conditional on selecting Radeon and the mapping failure; source-only.
