@@ -18462,7 +18462,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11669](AROS-other-drivers.md#od11669)** — Serial mouse PnP fallback reads an uninitialized response byte after an unrecognized partial/noisy response. Legacy i386-PC/x86-64-PC package; source-only.
 
-**[OD11670](AROS-other-drivers.md#od11670)** — On the selected i386-PC path, serial mouse resynchronization can spin forever inside the synchronous UART receive interrupt callback when a three-byte group has no Microsoft header bit. Legacy serialmouse HIDD; source-only.
+**[OD11670](AROS-other-drivers.md#od11670)** — On the selected i386-PC and x86_64-PC paths, serial mouse resynchronization can spin forever inside the synchronous UART receive interrupt callback when a three-byte group has no Microsoft header bit. Legacy serialmouse HIDD; source-only.
 
 **[OD11671](AROS-other-drivers.md#od11671)** — Nouveau MST accepts four setup writes before an I²C read but masks the count to two bits, so all four setup writes are omitted. Selected Nouveau MST I²C-over-AUX path; source-only.
 
