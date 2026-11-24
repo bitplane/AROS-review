@@ -24522,3 +24522,17 @@ MUI image/adjustment and meter header pass (2026-11-24; nine additional headers 
 | `workbench/libs/muimaster/classes/knob_private.h` | 12 | 9 | Conditional event/angle fields checked against drawing methods. |
 | `workbench/libs/muimaster/classes/levelmeter.h` | 21 | 6 | Conditional label API checked against accessors. |
 | `workbench/libs/muimaster/classes/levelmeter_private.h` | 10 | 8 | Conditional level/angle fields checked against drawing methods. |
+
+MUI Group, Listview, menu, numeric and Panel API headers (2026-11-24; nine headers read, 386 `cloc 2.06` C/header code lines): read each header in full and reconciled class selection in `mmakefile.src`. Group, Listview, Mccprefs, Menuitem, and Numeric are in the base class list; Numericbutton and Panel are conditional selections. Checked Group's method message structures, group attributes, page sentinels and layout-hook message against `group.c` methods/attributes; Listview public attributes and enums against `listview.c`; Menustrip/Menu/Menuitem attributes against `menuitem.c` construction and set/get paths; Numeric method messages and public attributes against `numeric.c` dispatch/accessors; Numericbutton's private popup/knob fields against implementation references; and Panel/PanelTitle public tags, toggle message, private state fields and child-layout relationships against `panel.c`. Mccprefs exposes only its class descriptor, matched to its selected class descriptor. No independent interface mismatch established. No full-body credit is implied for files in this header-only pass; list.h and notify.h remain unread in this header inventory. No GUI operation, class construction or build was run; source-only.
+
+| Source path | Physical lines | `cloc 2.06` code lines | Selection/review note |
+|---|---:|---:|---|
+| `workbench/libs/muimaster/classes/group.h` | 148 | 111 | Base class methods/messages/attributes checked against Group implementation. |
+| `workbench/libs/muimaster/classes/listview.h` | 60 | 43 | Base class attributes/enums checked against Listview implementation. |
+| `workbench/libs/muimaster/classes/mccprefs.h` | 12 | 5 | Base descriptor-only header checked against selected class descriptor. |
+| `workbench/libs/muimaster/classes/menuitem.h` | 72 | 36 | Base Menu/Menuitem/Menustrip attributes checked against shared implementation. |
+| `workbench/libs/muimaster/classes/numeric.h` | 93 | 70 | Base method messages and attributes checked against Numeric dispatcher/accessors. |
+| `workbench/libs/muimaster/classes/numericbutton.h` | 17 | 5 | Conditional class descriptor header. |
+| `workbench/libs/muimaster/classes/numericbutton_private.h` | 25 | 23 | Conditional popup/knob state fields checked against Numericbutton implementation. |
+| `workbench/libs/muimaster/classes/panel.h` | 107 | 50 | Conditional Panel/PanelTitle public API checked against class implementation. |
+| `workbench/libs/muimaster/classes/panel_private.h` | 71 | 43 | Conditional Panel/PanelTitle state checked against implementation fields. |
