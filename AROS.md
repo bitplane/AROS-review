@@ -16582,6 +16582,8 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[OD3231](AROS-other-drivers.md#od3231) — Standard and SuperSpeed hub classes read descriptor fields beyond the advertised `bLength`.** A malformed short descriptor can cause out-of-bounds reads; for SuperSpeed, adjacent bytes also feed the port count used by later loops. Conditional; source-only.
 
+**[OD3232](AROS-other-drivers.md#od3232) — USB hub port-change arrays hold only four bytes, while a 32-port bitmap requires five.** The standard hub path can overrun the buffer on a high-port change and scans beyond the array; SuperSpeed is included only for a descriptor claiming more than 31 ports. Source-only.
+
 
 
 
