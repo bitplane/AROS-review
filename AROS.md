@@ -19162,4 +19162,3 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[GD9936](AROS-graphics-desktop.md#gd9936)** — Radeon uses unchecked framebuffer and MMIO mappings; if x86-64 PCIPC cannot map a BAR above its identity window, initialization can access an invalid pointer. Conditional on selecting Radeon and the mapping failure; source-only.
 
-**[GD15422](AROS-graphics-desktop.md#gd15422) — Resizing the optional Darwin Cocoa window scales the fixed framebuffer but not absolute mouse coordinates, so pointer and clicks no longer track the displayed image. Source-only.**
