@@ -40606,6 +40606,15 @@ The event-ring and port workers run unbounded `Wait()` loops after successful st
 
 
 
+<a id="od11804"></a>
+## OD11804 — USB hub descriptor parser trusts the port count beyond the returned length [malformed-descriptor conditional]
+
+The USB hub class reads the first descriptor byte to obtain `bLength`, allocates exactly that many bytes with `psdAllocVec(len)`, and requests that length (`rom/usb/classes/hub/hub.class.c:857-874`). After a successful transfer it trusts `bNbrPorts` and reads `ceil(bNbrPorts/8)` bytes starting at `DeviceRemovable`, without checking that the advertised descriptor length includes those bytes (`:879-894`). `UsbHubDesc.DeviceRemovable` is at byte offset 7 (`compiler/include/devices/usb_hub.h:65-75`). For example, a hub descriptor with `bLength=7` and `bNbrPorts=1` causes one byte to be read at offset 7, immediately beyond the seven-byte allocation. Poseidon's allocator records the requested user size and, in MEMDEBUG builds, places its overrun marker immediately after that size (`rom/usb/poseidon/poseidon.library.c:331-367,351-363`).
+
+**Trigger and consequence:** the selected USB 2 hub class receives a successful but internally inconsistent descriptor whose positive port count requires more removable-bitmap bytes than its `bLength` provides. The parser reads beyond the allocated descriptor buffer and may copy unrelated adjacent data into `nch_Removable`. The tracked hub sources do not consume that field after initialization, so no later device-management effect is asserted here. Validate `bLength` against the fixed header and bitmap size before reading the bitmap. **Affected configuration:** disk-based `kernel-usb` builds that select `kernel-usb-classes-hub`; package inclusion varies by platform. **Confidence:** high for the length/port-count mismatch and out-of-bounds read; occurrence requires a malformed or broken hub descriptor. No descriptor, hub, memory failure, or build was exercised; source-only.
+
+Sources: `rom/usb/classes/hub/hub.class.c:857-894`; `compiler/include/devices/usb_hub.h:65-75`; `rom/usb/poseidon/poseidon.library.c:331-367`; `rom/usb/classes/mmakefile.src:36-43`; `rom/usb/mmakefile.src:7-15`. This is separate from OD3362, whose selected xHCI descriptor is long enough for Poseidon's read but has truncated/misaligned variable bitmaps.
+
 <a id="od3362"></a>
 ## OD3362 — PCI xHCI truncates variable root-hub bitmaps above 15 ports [conditional]
 
