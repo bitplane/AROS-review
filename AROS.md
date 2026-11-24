@@ -19138,3 +19138,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD3653](AROS-other-drivers.md#od3653) — Deneb unit open ignores `uhwHWInit()` timeout errors, then returns a unit that `devOpen()` reports as successful. Conditional on root-port initialization timeout; source-only.**
 
 **[GD15419](AROS-graphics-desktop.md#gd15419) — Vulkan-Hpp's `ShaderCreateInfoEXT` hash unconditionally dereferences `pName`, although the wrapper defaults it to null and the Vulkan reference permits null. Hashing such a value can fault. Conditional on optional Vulkan-Hpp use; source-only.**
+
+**[GD15420](AROS-graphics-desktop.md#gd15420) — Vulkan-Hpp equality compares only `identifierSize` valid shader-identifier bytes, but its hash includes the entire array, including undefined tail bytes. Equal values can hash differently. Conditional on optional Vulkan-Hpp use; source-only.**
