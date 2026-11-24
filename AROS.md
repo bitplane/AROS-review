@@ -19070,3 +19070,6 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[EK11101](AROS-exec-kernel.md#ek11101)** — OpenSBI startup skips additional mapped RAM spans below 1 MiB when constructing Exec memory headers; whether this resource loss is unintended is low confidence. Applies to fragmented multi-region RISC-V64 OpenSBI memory maps. Source-only.
 
 **[EK11102](AROS-exec-kernel.md#ek11102)** — OpenSBI can add overlapping FDT secondary RAM spans as independent Exec heaps, allowing the same physical bytes to be allocated twice. Requires an overlapping firmware memory map; no in-tree instance was found. Source-only.
+
+
+**[OD11796](AROS-other-drivers.md#od11796) — SM502 `Show(NULL)` and reset fill scanout with a visible `0x55` gray pattern rather than zero.** Conditional on the optional Sam440 SM502 HIDD; medium-low confidence because the source does not explicitly specify black blanking. Source-only.
