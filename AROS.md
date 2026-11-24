@@ -19140,3 +19140,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[GD15419](AROS-graphics-desktop.md#gd15419) — Vulkan-Hpp's `ShaderCreateInfoEXT` hash unconditionally dereferences `pName`, although the wrapper defaults it to null and the Vulkan reference permits null. Hashing such a value can fault. Conditional on optional Vulkan-Hpp use; source-only.**
 
 **[GD15420](AROS-graphics-desktop.md#gd15420) — Vulkan-Hpp equality compares only `identifierSize` valid shader-identifier bytes, but its hash includes the entire array, including undefined tail bytes. Equal values can hash differently. Conditional on optional Vulkan-Hpp use; source-only.**
+
+**[EK11109](AROS-exec-kernel.md#ek11109) — Efika ignores `NewAddTask()` failure for its idle task, leaks the prepared task resources, and publishes an unstarted task pointer; the CPU meter can report 100% usage. Conditional on ETask allocation failure; optional Efika/CHRP target; source-only.**
