@@ -41072,3 +41072,12 @@ Read all 17 `cloc 2.06` C code lines in `workbench/devs/diskimage/plugins/cue/fd
 | Selected source path | C code lines | Body status |
 |---|---:|---|
 | `workbench/devs/diskimage/plugins/cue/fdio.c` | 17 | Full body read; local POSIX call census and callback-based audio consumers checked; external codec internals remain unverified. |
+
+<a id="diskimage-cue-pool-allocator-exact-path-and-target-reconciliation-od10176-od10177"></a>
+## DiskImage CUE pool allocator exact-path and target reconciliation (OD10176/OD10177; 2026-11-25)
+
+Re-read all 66 `cloc 2.06` C code lines in `workbench/devs/diskimage/plugins/cue/malloc.c`; traced pool/semaphore setup and teardown through `CUE_Init()`/`CUE_Exit()` (`plugins/cue/cue.c:129-159`). The pool semaphore serializes pooled allocation and freeing, and CUE calls `mpg123_exit()` before destroying the pool. Checked local allocator callsites: `string.c` calls `malloc()` only; no checked-in CUE/audio `realloc()` or `calloc()` caller exists. The CUE object is selected by the x86/PPC legacy AROS `all`/`dist` target through `CUE_OBJS`, despite the commented MetaMake parent edge; external static codec internals remain unavailable. Restored canonical existing IDs OD10176 (failed `realloc()` frees old) and OD10177 (unchecked malloc/calloc size arithmetic); the duplicate OD11810/OD11811 labels were removed. Crediting this previously unrepresented selected path adds one path and 66 C code lines, advancing Other Drivers from 5,327/5,506 to **5,328/5,507 paths (96.7%)** and from 2,207,101/2,238,333 to **2,207,167/2,238,399 C/header code lines (98.6%)**. The additive three-area line measure advances from 3,079,072/3,200,954 to **3,079,138/3,201,020 (96.2%)**. No allocator failure, oversized request, codec, or build was used; source-only.
+
+| Selected source path | C code lines | Body status |
+|---|---:|---|
+| `workbench/devs/diskimage/plugins/cue/malloc.c` | 66 | Full body read; pool lifecycle and local callers traced; existing OD10176/OD10177 restored in the detail report/index. |
