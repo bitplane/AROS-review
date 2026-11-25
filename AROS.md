@@ -19696,6 +19696,6 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[EK11118](AROS-exec-kernel.md#ek11118) — A pthread timed wait can return during timer `ReplyMsg()` publication, leaving the timer path to access the expired stack request and port.** Conditional on a timer/semaphore or timer/condition wake overlap on ExecSMP; source-only.
 
-**[EK11119](AROS-exec-kernel.md#ek11119-aarch64-execsmp-generic-logger-interleaves-records) — The AArch64 ExecSMP generic logger can interleave concurrent records because it does not use the configured atomic debug-output guard.** Conditional on enabled Exec debug output and concurrent logging; source-only.
+**[EK11119](AROS-exec-kernel.md#ek11119-raspberry-pi-execsmp-generic-logger-interleaving) — The Raspberry Pi ARM/AArch64 ExecSMP generic logger can interleave concurrent records because it does not use the configured atomic debug-output guard.** Conditional on enabled Exec debug output and concurrent logging; source-only.
 
 **[OD4287](AROS-other-drivers.md#od4287) — Printer startup reply-port allocation failure removes and frees the unit without stopping or joining its worker.** The child can remain stranded with stale task user data or run after the unit is freed. Applies to the standard complete Workbench device target and explicit printer-device builds; source-only.
