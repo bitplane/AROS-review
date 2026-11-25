@@ -310,6 +310,8 @@ Reverse reconciliation found 191 active Exec/Kernel finding sections that were n
 
 ## Graphics/Desktop findings reconciled into the index (2026-11-02)
 
+**[GD4764](AROS-graphics-desktop.md#gd4764) — Popasl teardown can free the ASL requester while its worker is unwinding or queue completion against a disposed popup; the deferred close then queues a second hook call through hook storage embedded in that popup. Conditional on teardown overlapping requester setup/completion. Source-only.**
+
 **[GD9731](AROS-graphics-desktop.md#gd9731) — NList, NListtree, BetterString and TextEditor MCC initialization can wait forever when the clipboard helper exits after a failed IFFParse open/interface or worker-port allocation without replying to the startup message. The worker-creation failure semaphore leak is tracked separately as GD10440. Source-only; no failure was induced.**
 
 **[GD5629](AROS-graphics-desktop.md#gd5629) — AmigaGuide accepts failed worker startup: a command-port allocation failure leaves no usable queue, so later layout/trigger dispatch passes NULL to Exec `PutMsg()`, and disposal can wait forever for the exited worker. Task-creation failure is also masked by the NULL-equals-NULL startup check. Conditional on worker/task allocation failure; source-only.**
