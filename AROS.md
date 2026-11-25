@@ -19705,3 +19705,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[EK11119](AROS-exec-kernel.md#ek11119-raspberry-pi-execsmp-generic-logger-interleaving) — The Raspberry Pi ARM/AArch64 ExecSMP generic logger can interleave concurrent records because it does not use the configured atomic debug-output guard.** Conditional on enabled Exec debug output and concurrent logging; source-only.
 
 **[OD4287](AROS-other-drivers.md#od4287) — Printer startup reply-port allocation failure removes and frees the unit without stopping or joining its worker.** The child can remain stranded with stale task user data or run after the unit is freed. Applies to the standard complete Workbench device target and explicit printer-device builds; source-only.
+
+**[OD11812](AROS-other-drivers.md#od11812) — PC serial HIDD can route requested units 1–3 to COM1 if its attrbase acquisition fails but class initialization later succeeds.** Conditional on transient OOP interface-bucket allocation failure during HIDD initialization; source-only.
