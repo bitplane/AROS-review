@@ -41063,3 +41063,12 @@ Reconciled the earlier full-body read of `workbench/devs/diskimage/plugins/cue/s
 | Selected source path | C code lines | Body status |
 |---|---:|---|
 | `workbench/devs/diskimage/plugins/cue/string.c` | 20 | Full body read; selected by x86/PPC AROS `all`/`dist`; caller census and UtilityBase setup checked; no new finding. |
+
+<a id="diskimage-cue-posix-io-stub-full-body-pass-2026-11-25"></a>
+## DiskImage CUE POSIX I/O stub full-body and caller pass (no new OD; 2026-11-25)
+
+Read all 17 `cloc 2.06` C code lines in `workbench/devs/diskimage/plugins/cue/fdio.c`, selected by both legacy x86/PPC CUE object lists. The `open`, `read`, `lseek`, `close`, and `fstat` compatibility functions all return -1 and do not maintain state. Searched checked-in CUE/audio sources for those POSIX entry points; there are no callers. The active MP3, FLAC, Vorbis, and WavPack adapters use callback/handle APIs (`audio/mp3_mpg123.c:81`; `audio/flac.c:94`; `audio/vorbis.c:89`; `audio/wavpack.c:110,198`), while CUE file reads use the AROS stream callbacks. Static external codec/library internals are not available in this source checkout, so no claim is made about arbitrary library-internal calls. No defect established in the maintained caller path. Crediting this selected helper adds one path and 17 C code lines: Other Drivers advances from 5,326/5,505 to **5,327/5,506 paths (96.8%)** and from 2,207,084/2,238,316 to **2,207,101/2,238,333 C/header code lines (98.6%)**. The additive three-area line measure advances from 3,079,055/3,200,937 to **3,079,072/3,200,954 (96.2%)**. These remain body-read proxies, not goal completion. No decoder, file, or build was run; source-only.
+
+| Selected source path | C code lines | Body status |
+|---|---:|---|
+| `workbench/devs/diskimage/plugins/cue/fdio.c` | 17 | Full body read; local POSIX call census and callback-based audio consumers checked; external codec internals remain unverified. |
