@@ -36870,6 +36870,15 @@ The startup loader is called by BTStackLoader and uses ENV/ENVARC fallback (`rom
 
 Preferences `DoCfgImport()` has the same `len + 8` allocation followed by a fixed 12-byte header copy; it is included in OD3765. No separate finding remains under this ID.
 
+<a id="od9993"></a>
+## OD9993 — Bluetooth Preferences can act on a stale hardware row after event setup fails [conditional]
+
+During `MUIM_Setup`, Preferences ignores failure of both `CreateMsgPort()` and `btAddEventHandler()` and continues through `RefreshHardware()` before returning TRUE (`rom/bluetooth/prefs/ActionClass.c:1662-1682`). The refresh stores each borrowed hardware object pointer in the visible row (`:637-668`). If port creation fails, no input handler or event subscription is installed. If hook allocation fails, the input handler is installed for an event port that has no registered producer. In either case, external hardware changes do not reach `HandleEvents()`.
+
+The selected `AddBTHardware REMOVE` command can remove a radio while Preferences remains open: it releases the base read lock and calls `btRemHardware()` on the selected live list node (`rom/bluetooth/bluetooth/shellcommands/AddBTHardware.c:82-104`). `btRemHardware()` ultimately frees the `BtHardware` object (`rom/bluetooth/bluetooth/objects.c:117-183`). With no removal notification, the stale Preferences row remains. A later Remove or Hardware Information action obtains `e->bth` through `SelectedHardware()` and passes it to `btRemHardware()` or the hardware getters (`ActionClass.c:167-207,277-318,637-668`), which dereference the freed object.
+
+**Trigger and consequence:** Preferences setup succeeds despite event-port or event-hook allocation failure; another in-tree client removes a listed radio; then the user invokes an action on its stale row. This can fault while reading freed hardware state or corrupt state through a repeated removal. **Affected configuration:** Bluetooth Preferences with `kernel-bluetooth` selected, alongside an external-to-this-window removal such as the checked-in `AddBTHardware REMOVE` command. **Confidence:** high for ignored setup failures, borrowed-row storage, removal/free order, and later pointer use; allocation failure and the interleaving are conditional and were not exercised. Fail setup when the notification path cannot be established, or prevent actions on borrowed rows until a successful refresh has revalidated them. No allocation failure, radio removal, GUI action, or build was run; source-only.
+
 <a id="od9992"></a>
 ## OD9992 — Bluetooth pairing dialog can retain a device linked to freed hardware [conditional]
 
