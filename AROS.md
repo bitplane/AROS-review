@@ -11787,6 +11787,8 @@ Bluetooth core target-selection correction (2026-11-25; no new finding or body/L
 
 
 **OD9993 — Bluetooth Preferences can act on a stale hardware row after event setup fails:** setup continues after event-port or event-hook allocation failure, leaving borrowed hardware rows without removal notifications; a later action can use a radio object freed by another in-tree client. See [OD9993](AROS-other-drivers.md#od9993) and the [setup/event-subscription recheck](AROS-other-drivers-coverage.md#od9993-hardware-row-after-event-setup-failure). Source-only; no allocation failure, removal, or GUI action was exercised.
+
+**OD9994 — Bluetooth Preferences “All Online”, “All Offline”, and “Restart” buttons only refresh lists:** their dispatchers do not change radio state or restart the stack. This is a UI/functionality candidate with medium confidence because the intended operation is inferred from the labels. See [OD9994](AROS-other-drivers.md#od9994) and the [button-handler review](AROS-other-drivers-coverage.md#od9994-preferences-bottom-bar-buttons). Source-only; no button or radio operation was used.
 **OD9992 — Bluetooth pairing Preferences can retain a device linked to freed hardware:** if shutdown cannot allocate the `BEHMB_PAIRINGDONE` event, the later removal event does not clear the open dialog's saved device pointer; a user response then follows that device's stale hardware pointer. Conditional on radio removal during pairing, event-note allocation failure, and later user response. See [OD9992](AROS-other-drivers.md#od9992) and the [pairing/removal recheck](AROS-other-drivers-coverage.md#od9992-pairing-dialog-hardware-removal-recheck). Source-only; no GUI, removal, or allocation failure was exercised.
 
 
