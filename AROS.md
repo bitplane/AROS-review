@@ -184,7 +184,7 @@ Reverse reconciliation found 191 active Exec/Kernel finding sections that were n
 | [EK8954](AROS-exec-kernel.md#ek8954) | Adding a new interface to a class derived from an IFMeta-created class can dereference a missing interface bucket during construction. |
 | [EK8961](AROS-exec-kernel.md#ek8961) | The i386 alert backtrace treats a saved EBP register as a frame-chain pointer. |
 | [EK8963](AROS-exec-kernel.md#ek8963) | i386 task setup can start ordinary C entry functions with a stack alignment different from the compiler's expected function-entry alignment. |
-| [EK8965](AROS-exec-kernel.md#ek8965) | A failed kernel platform initializer leaves `kernel.resource` published as if initialization succeeded. |
+| [EK8965](AROS-exec-kernel.md#ek8965) | A failed platform initializer leaves `kernel.resource` published; MinGW clock-start failure also leaves its host task-switcher running. |
 | [EK8974](AROS-exec-kernel.md#ek8974) | PC processor probes race while publishing shared topology. |
 | [EK8975](AROS-exec-kernel.md#ek8975) | i386 PC reports APIC-discovered CPUs without per-CPU information in non-SMP builds |
 | [EK8988](AROS-exec-kernel.md#ek8988) | MinGW IRQ registration truncates the public IRQ number before validating it. |
