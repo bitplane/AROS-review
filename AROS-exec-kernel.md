@@ -111,7 +111,7 @@ The m68k AROSBootstrap path has a parallel selection error in `copyres()`: when 
 <a id="ek13"></a>
 ### EK13 — PC SMP startup uses an unchecked spinlock-array allocation [high impact, high confidence; PC SMP]
 
-`arch/all-pc/kernel/smp.c:230-245` allocates `apicReadyLocks` and indexes it for each secondary CPU without a null check. Trigger: memory exhaustion during SMP bring-up. Consequence: boot-time null dereference instead of falling back to one CPU. Per-CPU schedule-data allocations at `:250-253` are also used without checks.
+`platform_post()` calls `smp_Initialize()` during PC startup; when `kb_APIC->apic_count > 1`, it proceeds into `smp_Wake()` (`arch/all-pc/kernel/platform_post.c:202`; `smp.c:321-370`). `smp_Wake()` allocates `apicReadyLocks` but does not check the result before the secondary-CPU loop passes `&apicReadyLocks[cpuNo]` to `KrnSpinInit()` (`smp.c:228-245`; `spininit.c:16-27`), which writes the lock fields. If the allocation failed, the computed address is near zero and the write can fault or corrupt low memory instead of reporting failure or falling back to one CPU. In ExecSMP builds, the same loop also dereferences `cpu_TLS` to store `ScheduleData`, then passes an unchecked `AllocMem()` result to `core_InitScheduleData()`, which writes its fields (`smp.c:247-253`; `kernel_scheduler.c:56-61`). Trigger: allocation failure for the ready-lock array, or for TLS/scheduler data on ExecSMP. Consequence: PC startup fails while preparing secondary CPUs.
 
 <a id="ek14"></a>
 ### EK14 — Fixed-address page allocation can read beyond the selected MemHeader map [conditional; `USE_MMU=1`]
