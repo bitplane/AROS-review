@@ -44474,6 +44474,13 @@ OD3387's stale `SANA2OPF_MINE` flag after the last Close is the zero-count outco
 
 OD3397 describes the same failed `BufMan` allocation in the seven USB Ethernet vectors covered by OD11725. The caller's tag-list pointer remains in `ios2_BufferManagement`, Open still succeeds, and later request/Close paths treat the caller-owned pointer as an allocated `BufMan`; the DEBUG-only NULL dereference is also covered. OD11725 includes those seven vectors plus Bluetooth PAN. No separate OD3397 defect is asserted; see [OD11725](AROS-other-drivers.md#od11725).
 
+<a id="od3580"></a>
+## OD3580 — DenebUSB accepts unit 32 and indexes past its unit table [conditional]
+
+`MAXUNITS` is 32, and `hd_Units` contains exactly 32 pointers, indexed 0 through 31 (`arch/m68k-amiga/usb/denebusb/denebusb.h:331,349`). `Open_Unit()` rejects negative units and values greater than `MAXUNITS`, so unit 32 passes and is immediately read as `base->hd_Units[32]` before the driver checks whether a matching board exists (`arch/m68k-amiga/usb/denebusb/uhwcmd.c:304-320`). If a matching board is enumerated for that unit, the later successful allocation is also stored at the out-of-range index (`:335-336`). `devOpen()` forwards the caller's unit number directly to `Open_Unit()` (`arch/m68k-amiga/usb/denebusb/dev.c:281-320`).
+
+**Trigger and consequence:** a caller opens DenebUSB with unit number 32. The driver reads beyond `hd_Units` before determining whether that unit exists; if 33 matching boards are present, it can also write the new unit pointer past the table. The read alone is reachable without that hardware topology. **Affected configuration:** all Deneb variants; `OpenDevice()` unit 32. **Confidence:** high for the accepted bound and out-of-range read; the additional write requires a 33rd matching board. Reject `unitnr >= MAXUNITS` before indexing the table. No device open or board enumeration was run; source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
+
 <a id="od3581"></a>
 ## OD3581 — DenebUSB publishes a unit even when its worker task cannot be added
 
