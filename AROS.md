@@ -1,3 +1,5 @@
+**[EK11115](AROS-exec-kernel.md#ek11115) — A long task name can overrun Exec’s fixed alert-text buffer:** common Exec alert formatting writes unrestricted `TASKTAG_NAME` text into 2,048-byte or 4,096-byte buffers without a capacity check. Conditional on a sufficiently long task name and a subsequent alert; source-only.
+
 **[EK11114](AROS-exec-kernel.md#ek11114) — OpenSBI continues boot without arming timer delivery when FDT timebase data is unavailable:** the zero frequency bypasses timer initialization and supervisor timer enable, while startup proceeds. Limited to missing/zero data or malformed firmware input; no matching in-tree DTB was found. Source-only.
 
 **[EK11113](AROS-exec-kernel.md#ek11113) — QuickPart compares a 512-byte block-size placeholder directly with block-number coordinates:** a short leading free range can be deleted from the scanned model, and a generated trailing spacer can skip 511 free blocks. The Create button is disabled; this is a UI model error in explicit QuickPart builds, with byte impact dependent on device geometry. Source-only.
