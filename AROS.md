@@ -14646,7 +14646,7 @@ These existing coverage-ledger candidates now have detailed finding entries; thi
 
 **[OD11109](AROS-other-drivers.md#od11109-workbench-load-command-ejects-media-and-masks-scsi-failure) — Workbench `Load` always sends a SCSI eject CDB after its load CDB, and then overwrites the SCSI result with the trackdisk request result.** The AHCI trackdisk request is itself a successful no-op for removable media (OD11108), so this can report success after ejecting. See the [Eject/Load trace](AROS-other-drivers-coverage.md#workbench-load-command-od11109).
 
-**[GD14471](AROS-graphics-desktop.md#gd14471-reqtools-shared-idcmp-port-walk-omits-smp-lock) — ReqTools’ shared-IDCMP close helper and file requester timer cleanup traverse/remove UserPort messages without the port spinlock required to serialize ExecSMP producers/consumers.** Scoped to ExecSMP ReqTools paths; source-only.
+**[GD14471](AROS-graphics-desktop.md#gd14471-reqtools-shared-idcmp-port-walk-omits-smp-lock) — ReqTools cleanup and ReAction Window close/dispose paths traverse/remove shared UserPort messages without the port spinlock required to serialize ExecSMP producers/consumers; DiskImage GUI supplies an in-tree ReAction shared-port client.** Conditional on concurrent queue mutation; optional clients/configuration only; source-only.
 
 **[GD14472](AROS-graphics-desktop.md#gd14472-rtlockwindow-reads-private-tail-of-requesters) — ReqTools `rtLockWindow()` reads its private magic and backpointer beyond ordinary public `Requester` objects while scanning a window’s requester chain.** Applies when the window already has a non-ReqTools requester; source-only.
 
