@@ -19260,3 +19260,11 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 
 **Active three-area body-coverage checkpoint (2026-11-25; after CUE POSIX I/O stub):** Graphics/Desktop remains **546,957/585,714 C/header code lines (93.4%)**, with its aggregate file denominator unreconciled; Exec/Kernel remains **325,014/376,907 (86.2%)** and **2,156/2,156 represented paths**; Other Drivers is **2,207,101/2,238,333 lines (98.6%)** and **5,327/5,506 represented paths (96.8%)**. The additive three-area measure is **3,079,072/3,200,954 lines (96.2%)**; shared paths/lines may overlap. These figures measure recorded source-body reads and represented paths; subsystem, caller/configuration/platform/runtime closure is incomplete. Source-only.
+
+
+**[OD11810](AROS-other-drivers.md#od11810) — CUE’s replacement allocator does not check `malloc` header or `calloc` product overflow.** A wrapped request can yield a too-small non-NULL pool block if allocation succeeds; external codec caller impact is conditional. Applies to x86/PPC CUE targets; source-only.
+
+**[OD11811](AROS-other-drivers.md#od11811) — CUE’s `realloc` frees the old allocation when replacement allocation fails.** A caller that retains and reuses the old pointer per the standard contract can access freed pool storage; no checked-in caller found. Applies to x86/PPC CUE targets; source-only.
+
+
+**Active three-area body-coverage checkpoint (2026-11-25; after CUE allocator review):** Graphics/Desktop remains **546,957/585,714 C/header code lines (93.4%)**, with its aggregate file denominator unreconciled; Exec/Kernel remains **325,014/376,907 (86.2%)** and **2,156/2,156 represented paths**; Other Drivers is **2,207,167/2,238,399 lines (98.6%)** and **5,328/5,507 represented paths (96.7%)**. The additive three-area measure is **3,079,138/3,201,020 lines (96.2%)**; shared paths/lines may overlap. These are body/path ledger measures, not subsystem, caller, finding-validation, configuration, platform or runtime completion. All areas remain incomplete. Source-only.
