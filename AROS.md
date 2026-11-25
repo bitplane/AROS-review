@@ -17589,7 +17589,7 @@ PSI CLI and application-construction failure recheck (2026-11-08; no new GD or b
 
 **OD11567 — OHCI may free another request’s TD chain after a reused ED fails its first allocation.** Interrupt/bulk ED cleanup retains `oed_FirstTD`; after TD-pool exhaustion it can traverse that stale link after those descriptors have been reused. Conditional on ED/TD reuse ordering; source-only. See [OD11567](AROS-other-drivers.md#od11567).
 
-**OD11568 — PCI xHCI ring exhaustion can strand a request and endpoint after partially queueing TRBs.** Multi-TRB setup stops on a full ring without rolling back the prefix, then requeues the request while leaving its endpoint busy. Affected by requests larger than available ring capacity; source-only. See [OD11568](AROS-other-drivers.md#od11568).
+**OD11568 — PCI xHCI ring exhaustion can strand a request and endpoint after partially queueing TRBs.** Multi-TRB setup stops on a full ring without rolling back the prefix, then requeues the request while leaving its endpoint busy; aborting from that retry queue also skips request-context and busy-slot cleanup. Affected by requests larger than available ring capacity; source-only. See [OD11568](AROS-other-drivers.md#od11568).
 
 **OD11569 — RTBTCore v2 fallback selects the first nonmatching ECO snippet.** If the controller rejects it, firmware loading is marked handled and HCI bring-up continues without retrying, potentially leaving the controller on ROM firmware. Device impact depends on its firmware. Conditional on optional Realtek v2 firmware contents; source-only. See [OD11569](AROS-other-drivers.md#od11569).
 
