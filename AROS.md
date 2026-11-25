@@ -19131,7 +19131,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15260](AROS-graphics-desktop.md#gd15260-swapchain-wrapper-defaults-to-optional-present-mode)** — Vulkan-Hpp defaults swapchain creation to optional `eImmediate`; a FIFO-only surface can reject a client that omits the mode. No in-tree C++ caller was found; source-only.
 
 **[OD11729](AROS-other-drivers.md#od11729)** — Hosted Ethernet/TAP failed Open frees its opener but leaves the pointer in the request; retrying the same request can read freed memory as a TagItem list. Conditional on retry after setup failure; source-only.
-**[OD11730](AROS-other-drivers.md#od11730-ata-scsi-identify-transfer-actual-count)** — ATA and SCSI copy 512 bytes in the undocumented 514-byte `TD_GETGEOMETRY` compatibility path but leave `io_Actual` unchanged. Conditional on an external caller using that form and checking the transferred byte count; source-only.
+**[OD11730](AROS-other-drivers.md#od11730-ata-scsi-identify-transfer-actual-count)** — ATA and SCSI copy 512 bytes in the undocumented 514-byte `TD_GETGEOMETRY` path but leave `io_Actual` unchanged; SCSI also passes caller data to `CopyMemQuick()` without an alignment check. Conditional on an external compatibility-form caller; source-only.
 
 
 
