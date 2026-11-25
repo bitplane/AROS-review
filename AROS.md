@@ -15234,7 +15234,7 @@ Coverage-link repair: GD10288's coverage link now resolves to the explicit `setr
 
 **[OD10149](AROS-other-drivers.md#od10149) — Bluetooth GATT descriptor errors are treated as successful absence.** Non-absence ATT, protocol, or timeout errors during descriptor discovery/Report Reference reads are swallowed, and enumeration continues with incomplete metadata. Conditional on an operation error; source-only.
 
-**[OD10173](AROS-other-drivers.md#od10173) — CUE audio readers overflow signed length arithmetic for large valid streams.** FLAC, Vorbis, mpg123, and WavPack shift a signed 32-bit sample count left by two to obtain decoded byte length. Files with at least 536,870,912 sample frames reach signed overflow before track-sector sizing. Explicit CUE decoder targets; source-only.
+**[OD10173](AROS-other-drivers.md#od10173) — CUE audio readers overflow signed sample-length arithmetic for large valid streams.** FLAC, Vorbis, mpg123, and WavPack shift signed 32-bit sample counts left by two; 536,870,912–1,073,741,823 frames fit in `LONG` and yield byte lengths representable by `ULONG`, but overflow the signed shift before CUE track-sector sizing. Applies to CUE included in the x86/PPC AROS DiskImage `all`/`dist` targets; the resulting length/geometry depends on compiler handling of undefined behavior. Source-only.
 
 **[OD10205](AROS-other-drivers.md#od10205) — DMS decoders read packed data without enforcing its declared extent.** Truncated mode data can make bit and RLE readers consume past the packed track extent and potentially beyond their 32-KiB input buffer. Explicit optional DMS plugin; malformed archive required.
 
