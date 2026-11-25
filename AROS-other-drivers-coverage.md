@@ -41028,4 +41028,12 @@ Re-read all 47 `cloc 2.06` C code lines in `workbench/devs/diskimage/plugins/dmg
 
 | Optional selected path | C code lines | Body status |
 |---|---:|---|
-| `workbench/devs/diskimage/plugins/dmg/base64.c` | 47 | Full body reread; OD11807 traced through the XML caller; optional x86/PPC plugin, excluded from default aggregate. |
+| `workbench/devs/diskimage/plugins/dmg/base64.c` | 47 | Full body reread; OD11807 traced through the XML caller; included by x86/PPC AROS DiskImage `all`/`dist` targets. |
+| `workbench/devs/diskimage/plugins/dmg/adc.c` | 68 | Full body previously read; OD10200/OD10201 traced through DMG reads; included in x86/PPC AROS DiskImage `all`/`dist`. |
+| `workbench/devs/diskimage/plugins/dmg/adc.h` | 7 | Full header previously read; selected by `adc.c` and `dmg.c`; included in the x86/PPC DMG plugin compilation. |
+| `workbench/devs/diskimage/plugins/dmg/base64.h` | 8 | Full header previously read; selected by `base64.c` and `dmg.c`; included in the x86/PPC DMG plugin compilation. |
+
+<a id="dmg-target-scope-and-exact-path-reconciliation-od11807"></a>
+## DMG target-scope and exact-path reconciliation (OD11807; 2026-11-25)
+
+The earlier optional-DMG notes excluded this plugin from the active default aggregate because `plugins/mmakefile.src` comments out the MetaMake parent edge. Rechecked the separate legacy AROS makefiles: both list `plugins/dmg/DMG` in `PLUGINS`, include it in `all`, and copy it under `dist` (`Makefile.x86-aros:51,57,174-178`; corresponding PPC lines). Therefore the plugin is selected in those explicit AROS distribution configurations. Reconciled exact source/header rows for `dmg.c` (already represented), `adc.c`, `adc.h`, `base64.c`, and `base64.h`; the four newly represented paths had prior full-body reads, totaling 130 code lines. OD11807 applies to the x86/PPC `all`/`dist` configurations. This correction supersedes earlier wording that treated DMG as excluded from the AROS build scope. Updated Other Drivers from 5,317/5,496 to **5,321/5,500 represented paths (96.7%)** and from 2,206,572/2,237,804 to **2,206,702/2,237,934 C/header code lines (98.6%)**. The additive three-area measure advances from 3,078,543/3,200,425 to **3,078,673/3,200,555 (96.2%)**. This is ledger body coverage only; the broader plugin/API caller audit remains open. No build or image was run; source-only.
