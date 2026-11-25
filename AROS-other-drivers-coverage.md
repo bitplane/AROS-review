@@ -26719,11 +26719,14 @@ DiskImage SCSI command handler full-body and READ TOC caller pass (OD10453 added
 
 
 <a id="diskimage-cue-select-shim-pass"></a>
-DiskImage optional CUE `select()` shim full-body and link/caller pass (no new finding; 2026-10-30): confirmed `cue/select.c` is included in the explicit CUE target's `CFILES` list (`workbench/devs/diskimage/plugins/mmakefile.src:82-87`) and read its complete 33-line body (6 `cloc 2.06` C code lines). The function unconditionally returns -1; a repository-wide search found no checked-in call site. The selected local MP3 adapter opens through `mpg123_open_handle()` with registered handle callbacks (`audio/mp3_mpg123.c:67-83`), rather than local direct `select()` usage. The statically linked mpg123 implementation is external to this checkout, so its internal symbol references and behavior cannot be confirmed from this source pass; no failure of the maintained local path is inferred from the stub alone. This closes one raw `workbench/devs` C-source gap, reducing that remainder from 398 to 397; CUE is explicit-buildable while its parent plugin aggregate is commented, so no default-image inclusion is claimed. No decoder, link, build, or file operation was exercised; source-only.
+DiskImage CUE `select()` shim full-body and link/caller pass (no new finding; target-scope correction 2026-11-25): confirmed `cue/select.c` is included in the CUE target's `CFILES` list (`workbench/devs/diskimage/plugins/mmakefile.src:82-87`) and read its complete 33-line body (6 `cloc 2.06` C code lines). The function unconditionally returns -1; a repository-wide search found no checked-in call site. The selected local MP3 adapter opens through `mpg123_open_handle()` with registered handle callbacks (`audio/mp3_mpg123.c:67-83`), rather than local direct `select()` usage. The statically linked mpg123 implementation is external to this checkout, so its internal symbol references and behavior cannot be confirmed from this source pass; no failure of the maintained local path is inferred from the stub alone. The legacy x86/PPC AROS Makefiles include CUE in `PLUGINS` and `all`/`dist` through `CUE_OBJS`, so the prior statement that no default-image inclusion was claimed is retained only as a MetaMake aggregate limitation, not as a reason to exclude these explicit AROS builds. The raw workbench/devs inventory gap is a separate measure. No decoder, link, build, or file operation was exercised; source-only.
 
 | Selected source path | C code lines | Body status |
 |---|---:|---|
 | `workbench/devs/diskimage/plugins/cue/select.c` | 6 | Full 33-line compatibility shim read; manifest selection and checked-in caller census traced; no local caller found. External static mpg123 internals remain outside this source pass. |
+
+DiskImage CUE `select.c` target/path reconciliation (2026-11-25; no new finding): the x86/PPC legacy AROS `all` targets include the CUE executable through `PLUGINS`; that target links the listed `CFILES`, including `cue/select.c`. The earlier read therefore qualifies for represented coverage. Adding one path and six C lines advances Other Drivers from 5,329/5,508 to **5,330/5,509 paths (96.8%)** and from 2,207,972/2,239,204 to **2,207,978/2,239,210 C/header lines (98.7%)**. The additive three-area line measure becomes **3,079,949/3,201,831 (96.2%)**. No build or link was run; source-only.
+
 
 
 <a id="diskimage-mountdiskimage-command-pass"></a>
@@ -41087,3 +41090,7 @@ Re-read all 66 `cloc 2.06` C code lines in `workbench/devs/diskimage/plugins/cue
 | Selected source path | C code lines | Body status |
 |---|---:|---|
 | `workbench/devs/diskimage/plugins/cue/malloc.c` | 66 | Full body read; pool lifecycle and local callers traced; existing OD10176/OD10177 restored in the detail report/index. |
+
+| Explicit legacy AROS target source path | C code lines | Body status |
+|---|---:|---|
+| `workbench/devs/diskimage/plugins/cue/select.c` | 6 | Full body read; unconditional failure stub; checked-in caller census found no use; selected through CUE in x86/PPC AROS `all`/`dist`. |

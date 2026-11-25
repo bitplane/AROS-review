@@ -19265,7 +19265,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 
 
-**Active three-area body-coverage checkpoint (2026-11-25; after CUE parser path reconciliation):** Graphics/Desktop remains **546,957/585,714 C/header code lines (93.4%)**, with its aggregate file denominator unreconciled; Exec/Kernel remains **325,014/376,907 (86.2%)** and **2,156/2,156 represented paths**; Other Drivers is **2,207,972/2,239,204 lines (98.7%)** and **5,329/5,508 represented paths (96.8%)**. The additive three-area line measure is **3,079,943/3,201,825 (96.2%)**; shared paths/lines may overlap. These are body/path ledger measures, not subsystem, caller, finding-validation, configuration, platform or runtime completion. All areas remain incomplete. Source-only.
+**Active three-area body-coverage checkpoint (2026-11-25; after CUE select shim path reconciliation):** Graphics/Desktop remains **546,957/585,714 C/header code lines (93.4%)**, with its aggregate file denominator unreconciled; Exec/Kernel remains **325,014/376,907 (86.2%)** and **2,156/2,156 represented paths**; Other Drivers is **2,207,978/2,239,210 lines (98.7%)** and **5,330/5,509 represented paths (96.8%)**. The additive three-area line measure is **3,079,949/3,201,831 (96.2%)**; shared paths/lines may overlap. These are body/path ledger measures, not subsystem, caller, finding-validation, configuration, platform or runtime completion. All areas remain incomplete. Source-only.
 
 **[OD10176](AROS-other-drivers.md#od10176) — CUE `realloc()` frees the old block when replacement allocation fails.** A caller retaining the old pointer per the standard contract can access freed pool storage; no checked-in realloc caller was found. Applies to x86/PPC CUE targets; source-only.
 
