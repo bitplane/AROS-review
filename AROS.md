@@ -190,6 +190,9 @@ Reverse reconciliation found 191 active Exec/Kernel finding sections that were n
 | [EK8988](AROS-exec-kernel.md#ek8988) | MinGW IRQ registration truncates the public IRQ number before validating it. |
 | [EK8990](AROS-exec-kernel.md#ek8990) | Generic CopyMemQuick truncates 64-bit copy sizes at 128 GiB (conditional short or omitted copy; high source confidence). |
 | [EK8992](AROS-exec-kernel.md#ek8992) | Reset callback timeout setup failure leaves callback waits unbounded (conditional shutdown stall; high source confidence). |
+| [EK8994](AROS-exec-kernel.md#ek8994) | POSIXC `pipe()` and `opendir()` publish descriptor-table allocation failures through index -1. |
+| [EK8995](AROS-exec-kernel.md#ek8995) | Concurrent POSIXC `pipe()`/`opendir()` calls can collide in the shared descriptor table; an unguarded scan can race with table growth/free. |
+| [EK8996](AROS-exec-kernel.md#ek8996) | POSIXC descriptor-table growth failure returns with stale `errno`. |
 | [EK8999](AROS-exec-kernel.md#ek8999) | `scandir()` treats a directory-read error as successful end of directory. |
 | [EK9000](AROS-exec-kernel.md#ek9000) | `scandir()` overwrites the original `opendir()` error while cleaning up. |
 | [EK9014](AROS-exec-kernel.md#ek9014) | OOP attribute-base allocation wraps and aliases earlier attribute IDs after 2^22 unique bases. |
