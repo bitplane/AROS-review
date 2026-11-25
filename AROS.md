@@ -19230,3 +19230,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD11806](AROS-other-drivers.md#od11806) — Nouveau's AROS environment reader truncates string parameters to 255 bytes without checking `IoErr()`.** Long `NOUVEAU_REGISTRY` values can lose later entries before R535 GSP parses them; also affects config/debug strings. Conditional on overlong values and the selected GSP path; source-only.
 
 **[EK11116](AROS-exec-kernel.md#ek11116-smp-affinity-restores-a-truncated-cpu-mask-on-systems-with-more-than-32-cpus)** — The optional SMP-Affinity test saves only CPUs 0–31, then restores that truncated mask. On systems above 32 CPUs this can permanently narrow the invoking task's affinity after the test, or reject an empty restore mask. Conditional on the caller's original affinity including CPUs above 31; source-only.
+
+**[EK11117](AROS-exec-kernel.md#ek11117-smp-affinity-leaks-its-saved-cpu-mask-when-signal-allocation-fails)** — If the optional SMP-Affinity test cannot allocate a signal after successfully allocating its saved CPU mask, its early return leaks that independent mask. Conditional on signal exhaustion; source-only.
