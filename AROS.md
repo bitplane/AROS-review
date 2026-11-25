@@ -19225,3 +19225,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[GD15430](AROS-graphics-desktop.md#gd15430-vulkan-raii-query-result-moves-uninitialized-value-on-not-ready)** — Vulkan-Hpp RAII `QueryPool::getResult()` moves an uninitialized payload into its return value when an unavailable query returns `VK_NOT_READY`. Conditional on downstream optional-header use and the query result remaining unavailable; source-only.
 
 **[GD15431](AROS-graphics-desktop.md#gd15431-animation-worker-teardown) — Animation disposal can free `ProcessPrivate` after a worker clears its RUNNING bit but before its final access to that structure.** A scheduling interleaving during normal shutdown can cause a use-after-free in either worker. Applies to the Animation datatype; source-only, not reproduced.
+
+**[OD11806](AROS-other-drivers.md#od11806) — Nouveau's AROS environment reader truncates string parameters to 255 bytes without checking `IoErr()`.** Long `NOUVEAU_REGISTRY` values can lose later entries before R535 GSP parses them; also affects config/debug strings. Conditional on overlong values and the selected GSP path; source-only.
