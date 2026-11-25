@@ -17399,7 +17399,7 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 
 **[GD5167](AROS-graphics-desktop.md#gd5167) — PSI uses an imported fixed-width public-screen name in unbounded EditWindow concatenation and Copy-action `strcpy()` into an equally sized stack buffer. Conditional on a malformed `.mps` record; source-only.**
 
-**[EK10931](AROS-exec-kernel.md#ek10931) — `NewCreateTaskA()` discards the documented `TASKTAG_FLAGS` value. Conditional on an external caller using the tag; source-only.**
+**[EK10931](AROS-exec-kernel.md#ek10931) — `NewCreateTaskA()` documentation contradicts itself about whether `TASKTAG_FLAGS` is supported. The same entry lists the initial flag value and says it is ignored; no in-tree caller or functional consequence established. Source-only.**
 
 **[OD76](AROS-other-drivers.md#od76) — PrintToFile and PrintToTool can strand a unit semaphore after a drawer-lock failure. Conditional on the selected drawer becoming un-lockable; source-only.**
 
