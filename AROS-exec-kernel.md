@@ -148,7 +148,7 @@ The public `KrnAllocPages()` wrapper currently returns NULL while `kb_PageSize` 
 <a id="ek18"></a>
 ### EK18 — AArch64 affinity mask functions index beyond their one-word allocation [medium impact, high confidence; AArch64 native]
 
-`arch/aarch64-native/kernel/alloccpumask.c:14-23` allocates one 32-bit word, while `getcpumask.c:19-22` and `cpuinmask.c:29` index it by `id >> 5` without validating the CPU ID. Trigger: an ID of 32 or greater passed to the exported mask APIs. Consequence: out-of-bounds write/read. The current native platform advertises at most four CPUs, so normal scheduler IDs should remain in range; this affects invalid or future-expanded IDs.
+`arch/aarch64-native/kernel/alloccpumask.c:14-23` allocates one 32-bit word, while `getcpumask.c:14-24` and `cpuinmask.c:14-31` index it by `id >> 5` without validating the CPU ID. An ID of 32 or greater passed to either exported API therefore reads or writes beyond the allocated mask. The selected platform caps CPU state at four (`kernel_cpu.h:102`) and starts secondary CPUs only for IDs 1 through 3 (`platform_bcm27xx.c:362-380`); `KrnGetCPUCount()` reports the registered-CPU population (`getcpucount.c:16-22`), which bounds the IDs used by the reviewed AArch64 startup and ordinary Exec affinity callers. No selected in-tree caller supplying ID 32 or greater was found. Retain this as an unchecked public API boundary condition for invalid callers or a future platform expansion; no current scheduler trigger is established.
 
 <a id="ek19"></a>
 ### EK19 — Boot panic formatting can overflow its fixed buffer [medium impact; high source confidence, trigger length unverified]
