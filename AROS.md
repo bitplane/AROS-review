@@ -17117,7 +17117,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[OD4256](AROS-other-drivers.md#od4256) — PPP timer-open rollback aborts an unopened request.** `OpenTimer()` calls `CloseTimer()` after `OpenDevice()` failure, and cleanup unconditionally calls `AbortIO()` on the request whose device pointer was cleared. Conditional on timer.device open failure; source-only.
 
-**[GD14909](AROS-graphics-desktop.md#gd14909) — Vulkan-Hpp scalar property and ray-tracing helpers pass one-result storage for array counts.** Enhanced and RAII helpers forward multiple input structures/groups but provide and return storage for one result, including the NV shader-group handle wrappers; optional-client misuse can issue invalid undersized-output calls. No in-tree callers found; source-only.
+**[GD14909](AROS-graphics-desktop.md#gd14909) — Vulkan-Hpp scalar property and ray-tracing helpers pass one-result storage for array counts.** Enhanced and RAII helpers forward multiple input structures/groups but provide and return storage for one result, including acceleration-structure and micromap properties and the NV shader-group handle wrappers; optional-client misuse can issue invalid undersized-output calls. No in-tree callers found; source-only.
 
 GD10227's batch unique-handle ownership-transfer finding also covers both `Device::createPipelineBinariesKHRUnique()` overloads (`vulkan_funcs.hpp:28687-28790`); optional pipeline-binary API, allocation-failure conditional, source-only.
 
