@@ -44561,6 +44561,15 @@ The controller-memory map has 25 granules on the non-Zorro-II variants. Twelve R
 
 **Trigger and consequence:** the ordinary ISO queue is blocked only by exhausted large-area memory, an RTIso handler is removed and frees sufficient memory, and no unrelated completion or new request triggers another soft-interrupt scheduling pass. The queued request then waits despite available memory. **Affected configuration:** all three explicitly buildable Deneb variants; this uses shared ISO scheduler and RTIso code. **Confidence:** high for the missing scheduling signal and queue retention; indefinite wait is conditional on no other scheduler trigger. Cause the soft interrupt or schedule ordinary ISO work after returning RTIso memory. No handler, request, transfer, interrupt, or build was exercised; source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
 
+<a id="od4158"></a>
+## OD4158 — DenebUSB reports USB reset success without resetting the root port [external caller]
+
+`cmdUsbReset()` has its `uhwHWInit(unit)` call commented out. It only reads `EHCI_PORTSC1` through `uhwGetUsbState()` and returns success whenever the connected bit makes the state appear operational (`arch/m68k-amiga/usb/denebusb/uhwcmd.c:594-615,529-550`). The public USBHardware documentation defines `UHCMD_USBRESET` as resetting USB and entering operational mode after about 50 ms (`rom/usb/docs/usbhardware.doc:589-612`); BeginIO dispatches this command directly to `cmdUsbReset()` (`arch/m68k-amiga/usb/denebusb/dev.c:558-564`).
+
+The checked-in Poseidon root-hub probe calls this command only after opening the unit, whose `Open_Unit()` path has already called `uhwHWInit()`; that selected startup call does not demonstrate a failure caused by the no-op. No other selected in-tree caller requests a later bus reset. The defect therefore applies to a later or external USBHardware client relying on the documented command to reset an already connected bus: Deneb may acknowledge success while leaving the controller and root port in their existing state.
+
+**Trigger and consequence:** a client issues `UHCMD_USBRESET` after the unit is open and relies on the command to reset the connected root port. The request can complete successfully without the documented reset, leaving device/controller state unchanged. **Affected configuration:** all three explicitly buildable Deneb variants; caller must rely on a later reset through the public command. **Confidence:** high for the state-only handler and documented contract mismatch; no selected in-tree later-reset trigger or hardware result was established. Implement the root-port reset sequence and report its completion status, or return an error when reset is not performed. No reset, command, controller, or build was run; source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
+
 <a id="od3364"></a>
 ## OD3364 — USB class initialization can strand a device base after configuration allocation fails [multiple USB classes]
 
