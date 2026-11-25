@@ -29627,6 +29627,7 @@ RP1 DesignWare I²C `OOP_DoMethod()` return-contract and caller recheck (OD9455 
 
 <a id="workbench-usb-massstorage-capacity-od11104"></a>
 <a id="od11104-workbench-usb-massstorage-underreports-capacity-by-one-sector"></a>
+<a id="od11104"></a>
 ## OD11104 — USB MassStorage reports the inclusive last LBA as the sector count [GPT writer consequence]
 
 SCSI READ CAPACITY returns the address of the final logical block. `HIDD_USBStorage_ReadCapacity()` copies bytes 0–3 of that response directly to `blockTotal` (`workbench/devs/USB/classes/MassStorage/storageclass.c:618-632`). The selected storage worker saves this value as `unit->msu_blockCount` (`storage_task.c:136-140`); read/write bounds accept `block + count - 1 == msu_blockCount`, confirming that the field is used as an inclusive last LBA (`storage_device.c:206-222`). However, `cmd_GetGeometry()` copies `msu_blockCount` directly into `DriveGeometry.dg_TotalSectors`, whose contract is a sector count (`storage_device.c:104-124`). The GPT writer treats `dg_TotalSectors` as a count and chooses `backup = dg_TotalSectors - 1` (`rom/partition/partitiongpt.c:565-568`); `GPTWriteTable()` records the supplied backup block in the header and writes that header there (`:482-504`). `WritePartitionTable()` dispatches through the selected GPT handler (`rom/partition/writepartitiontable.c:48-68`), and HDToolBox saves modified tables through that API (`workbench/tools/HDToolBox/gui.c:321-344`).
@@ -37118,6 +37119,7 @@ The generic bus constructor defaults `RiseFallTime` to 2, but accepts `aHidd_I2C
 
 
 <a id="od1030-ipmi-sensor-linear-conversion-overflows-long"></a>
+<a id="od1030"></a>
 ## OD1030 — IPMI sensor linear conversion overflows signed 32-bit arithmetic [coefficient conditional]
 
 `ConvertReading()` performs each conversion in `LONG`, which AROS defines as signed 32-bit (`compiler/include/exec/types.h:38`). For an unsigned raw reading of 255, signed 10-bit M coefficient 511, B coefficient 0, and range exponent +2, the source first computes `m * x * 1000 = 130,305,000`, then multiplies by 10 twice, reaching `13,030,500,000`; that exceeds signed 32-bit range (`workbench/c/IPMI.c:317-346`). Signed overflow in C is undefined behavior, so the final value is not reliable and may be reported incorrectly. `DoSensors()` applies this conversion to linear type-1 SDR records with at least 30 bytes, using the reading and coefficients returned by the BMC (`:365-481`).
@@ -37125,6 +37127,7 @@ The generic bus constructor defaults `RiseFallTime` to 2, but accepts `aHidd_I2C
 **Trigger and consequence:** the BMC supplies a linear SDR with coefficients/exponents and reading whose scaled result exceeds `LONG`; `IPMI` sensor output can be wrong. **Scope:** conditional on such BMC-provided data; no controller was queried and no in-tree record producing this combination was established. Use wider checked arithmetic and define behavior when the converted value is outside the printable range. Source-only; no command or device was run.
 
 <a id="od1031-ipmi-sensor-offset-truncates-before-exponent-combination"></a>
+<a id="od1031"></a>
 ## OD1031 — IPMI sensor conversion truncates the offset before combining exponents [coefficient conditional]
 
 `ConvertReading()` applies the signed B exponent to `b * 1000` using repeated integer division, then applies the M term and the range exponent (`workbench/c/IPMI.c:317-346`). A valid linear record with B=1, B exponent −4, range exponent +4, and raw reading x=0 has mathematical result `(0 + 1 × 10^-4) × 10^4 × 1000 = 1000` milli-units. The implementation instead truncates `1000 / 10^4` to zero before the range exponent is applied; multiplying zero by 10 four times remains zero. `DoSensors()` then prints `0.000` instead of `1.000` for that reading (`:421-429`).
@@ -37190,6 +37193,7 @@ Sources: `workbench/hidds/nouveau/drm/nouveau/dispnv04/{dac.c,tvnv04.c,tvnv17.c,
 
 
 <a id="od888-hosted-parallel-hidd-double-removes-failed-unixio-registration"></a>
+<a id="od888"></a>
 ## OD888 — Hosted parallel HIDD repeats UnixIO cleanup after interrupt registration fails [non-Darwin conditional]
 
 The hosted parallel unit constructor opens a device file, then calls `Hidd_UnixIO_AddInterrupt()` with its interrupt node (`arch/all-unix/hidd/parallel/ParallelUnitClass.c:105-133`). On non-Darwin hosts, `UXIO__Hidd_UnixIO__AddInterrupt()` appends the node to the UnixIO list, attempts to set host async-I/O flags, and if `fcntl()` fails, calls `Hidd_UnixIO_RemInterrupt()` to remove the node before returning the error (`arch/all-unix/hidd/unixio/unixio_class.c:828-872`). The parallel constructor then closes the file and disposes the partially constructed unit. Its Dispose method sees the still-populated fd field, calls `RemInterrupt()` again, and closes the same descriptor again (`ParallelUnitClass.c:138-152`).
@@ -37277,6 +37281,7 @@ The SB128 PCI interrupt handler advances playback/record state and queues their 
 
 
 <a id="od2150-ipmi-sdr-reservation-validation-and-retry"></a>
+<a id="od2150"></a>
 ## OD2150 — IPMI SENSORS trusts short SDR reservation replies and can lose retry progress [BMC-response conditional]
 
 `DoSensors()` calls the shared `Command()` helper for Reserve SDR Repository, but that helper checks only the completion code and not the response payload length. The caller immediately reads `resp[1]` and `resp[2]` as the reservation ID (`workbench/c/IPMI.c:365-374`). `Command()` can return true for a successful transport response containing only the completion-code byte because the selected KCS/BT transports return actual short lengths. The invalid-reservation recovery repeats the same unchecked reservation read (`:399-405`).
@@ -37286,6 +37291,7 @@ For Get SDR, `nextId` is declared without initialization and assigned only after
 **Trigger and consequence:** a BMC returns a short successful Reserve SDR payload, invalidates the reservation on the first chunk, or repeatedly invalidates later chunks. The command can use an indeterminate reservation/record ID or fail to make progress. **Scope:** malformed or unusual BMC response behavior; no controller or response was queried. **Confidence:** high for missing length checks and no-progress control flow; occurrence depends on BMC responses. Validate reservation payload lengths, initialize/retain a safe record cursor, and bound or otherwise terminate repeated reservation recovery. Source-only; no command or device was run.
 
 <a id="od2151-ipmi-sel-reservation-and-clear-status-lengths"></a>
+<a id="od2151"></a>
 ## OD2151 — IPMI SEL CLEAR reads reservation and erase status from unchecked short replies [BMC-response conditional]
 
 `DoSEL(clear)` validates the Get SEL Info payload length, but after Reserve SEL it reads `resp[1]` and `resp[2]` for the reservation without checking that those bytes arrived (`workbench/c/IPMI.c:510-538`). The shared `Command()` helper checks only the completion code, so a successful short transport response can pass. After Clear SEL starts an erase, the code reads `resp[1]` as the erase-status nibble in its polling condition without checking a two-byte payload length (`:539-553`); the same occurs for each status poll.
@@ -37293,6 +37299,7 @@ For Get SDR, `nextId` is declared without initialization and assigned only after
 **Trigger and consequence:** a BMC/transport returns a successful completion code with a truncated Reserve SEL or Clear SEL response. The utility uses an indeterminate reservation ID or status and may send a malformed clear request or report completion/progress incorrectly. **Scope:** conditional on short BMC replies; selected KCS/BT transports permit successful responses with only the completion code, and no controller was queried. **Confidence:** high for the unchecked fixed-offset reads; occurrence depends on response length. Require at least three payload bytes for Reserve SEL and two for erase status before reading them. Source-only; no command or device was run.
 
 <a id="od2804-ipmi-sensors-parses-incomplete-sdr-records"></a>
+<a id="od2804"></a>
 ## OD2804 — IPMI SENSORS reads metadata from incomplete SDR records [malformed-record conditional]
 
 `DoSensors()` stores received SDR bytes into an uninitialized 64-byte local `rec` buffer. A zero-data successful Get SDR chunk exits the fetch loop, but the parser accepts any type-1 or type-2 record once `offset >= 8` (`workbench/c/IPMI.c:375-429`). It then reads `rec[12]` as the sensor type and later `rec[13]` to decide whether threshold metadata is present (`:431-475`). An eight-byte prefix does contain the sensor number at `rec[7]`, but does not contain either metadata byte, so those reads consume uninitialized stack contents.
@@ -37356,6 +37363,7 @@ Both selected block devices return zero unconditionally from their `AbortIO` vec
 
 
 <a id="od2373-charmap-scrollback-frees-a-selected-line"></a>
+<a id="od2373"></a>
 ## OD2373 — CharMap scrollback frees a line still referenced by the active selection [history-cap conditional]
 
 At the scrollback limit, the `C_SCROLL_UP` path advances `top_of_window` and trims excess history by disposing `top_of_scrollback`, but it does not adjust `select_line_min` or `select_line_max` (`rom/devs/console/charmapconclass.c:521-555,870-889`). The separate line-finding trim path performs those endpoint adjustments before disposal (`:392-465`). If the selected range still points at the oldest node, the scroll-up trim frees that line while leaving the selection pointer stale. The selection copy routine later passes those stored line pointers to selection sizing/copy traversal (`:1307-1360`).
@@ -39560,6 +39568,7 @@ On arrival, VUSBHCI stores `UPSF_PORT_CONNECTION` and its change flag in little-
 Sources: `rom/usb/vusbhc/vusbhci_bridge.c:140-142,156-171`; `rom/usb/vusbhc/vusbhci_commands.c:612-628`; `rom/usb/classes/hub/hub.class.c:622-624,695-712`; `compiler/include/devices/usb_hub.h:118-130`. Source-only review.
 
 <a id="od11538-vusbhci-hotplug-before-unit-publish"></a>
+<a id="od11538"></a>
 ## OD11538 — VUSBHCI hotplug callback can run before its root unit is published [conditional startup race]
 
 `VUSBHCIBase` is allocated by `MakeLibrary()` with cleared memory, so `usbunit200` starts as NULL (`rom/exec/makelibrary.c:109`; `rom/usb/vusbhc/vusbhci_device.h:90-95`). `Init()` registers the wildcard libusb arrival/departure callback before calling `VUSBHCI_AddNewUnit200()`, and assigns the returned unit to `usbunit200` only after that helper returns (`vusbhci_device.c:133-145`; `vusbhci_bridge.c:229-238`). The helper creates a priority-5 handler task and waits for its startup signal (`vusbhci_device.c:503-519`). That task signals its parent at entry, then continues setup and reaches the event loop, whose first iteration calls `libusb_handle_events()` (`vusbhci_device.c:35-48,104-112`; bridge wrapper `vusbhci_bridge.c:262-264`). Exec publishes the new task and can reschedule to it before `NewCreateTask()` returns when its priority permits; ExecSMP can also run it on another CPU (`rom/exec/newaddtask.c:32-47,69-80`). Therefore a host hotplug event can be dispatched after callback registration but before `Init()` publishes the root-unit pointer. The callback snapshots `VUSBHCIBase->usbunit200` and dereferences `unit->allocated` in both arrival and departure handling (`vusbhci_bridge.c:30-46,156-171`).
@@ -39567,6 +39576,7 @@ Sources: `rom/usb/vusbhc/vusbhci_bridge.c:140-142,156-171`; `rom/usb/vusbhc/vusb
 **Trigger and consequence:** a host device arrives or departs after libusb callback registration, and the handler task processes that event before `VUSBHCI_AddNewUnit200()` returns to `Init()` and publishes the unit pointer. The callback then dereferences the still-NULL unit pointer, interrupting or faulting VUSBHCI startup. **Affected configuration:** explicitly built VUSBHCI on a host with libusb hotplug support, when a device event overlaps initialization and the priority-5 task preempts its creator or runs concurrently on ExecSMP. **Confidence:** high for registration/publication order, early event pumping and unchecked dereference; occurrence requires the described startup interleaving. Publish the initialized unit before registering the callback or defer event handling until the unit pointer is valid. No host device event, initialization, build, or runtime behavior was exercised; source-only.
 
 <a id="od9967-vusbhci-handler-startup-failure-leaves-caller-waiting"></a>
+<a id="od9967"></a>
 ## OD9967 — VUSBHCI handler startup failure leaves the initializing task waiting [conditional]
 
 `VUSBHCI_AddNewUnit200()` stores the result of `NewCreateTask()` but does not check it before waiting on the startup signal (`rom/usb/vusbhc/vusbhci_device.c:503-519`). `NewCreateTaskA()` returns NULL when task setup/allocation fails (`rom/exec/newcreatetaska.c:49-72,257-272`). In that case there is no child handler to send the startup signal, and the initializing task waits without a producer. Separately, if `AllocSignal(-1)` fails, the code logs the error but still creates the task; both the child `Signal()` and parent `Wait()` evaluate `1L << unit->handler_task_sig_run` with the value `-1` (`vusbhci_device.c:35-39,503-519`). Exec documents `AllocSignal()` as returning `-1` when no signal is available (`rom/exec/allocsignal.c:33-43,85-103`). The allocation belongs to the initializing caller, so the new handler task's signal pool does not rule out caller-side exhaustion.
@@ -39574,6 +39584,7 @@ Sources: `rom/usb/vusbhc/vusbhci_bridge.c:140-142,156-171`; `rom/usb/vusbhc/vusb
 **Trigger and consequence:** task setup/allocation fails after `VUSBHCI_AddNewUnit200()` begins startup, leaving the caller waiting for a signal no child can send. Alternatively, the caller has exhausted its allocatable signals, making the two startup shifts undefined in C and the handshake behavior target/compiler dependent. The task-creation failure can therefore block driver initialization; signal exhaustion invalidates the intended synchronization. **Scope:** explicitly built VUSBHCI, conditional on task-creation failure or signal exhaustion in the initializing task. **Confidence:** high for unchecked task creation, the wait without a child, and the invalid shift operands; runtime outcomes were not exercised. Check both results and unwind unit creation on failure. No allocation failure, signal exhaustion, task, device, or build was run; source-only.
 
 <a id="od9968-vusbhci-publishes-unit-before-handler-resources-ready"></a>
+<a id="od9968"></a>
 ## OD9968 — VUSBHCI publishes a unit after an early handler signal even when worker setup fails [conditional]
 
 The VUSBHCI handler sends its startup signal immediately on entry, before creating its message port and timer I/O request or opening `timer.device` (`rom/usb/vusbhc/vusbhci_device.c:35-47`). Each setup step is conditional; if any fails, the handler skips the polling loop and exits (`:48-117`). `VUSBHCI_AddNewUnit200()` treats that early signal as successful startup and returns the unit, which `Init()` then publishes (`:503-519,133-153`). No retry or worker replacement is performed. The selected control, interrupt, bulk and isochronous handlers enqueue non-root requests and return `RC_DONTREPLY`; the VUSBHCI worker is the code that removes those requests and calls the transfer handlers (`rom/usb/vusbhc/vusbhci_commands.c:1030-1118`; `vusbhci_device.c:58-103`).
@@ -39600,6 +39611,7 @@ For interrupt and bulk requests, the worker removes the request from its queue a
 **Trigger and consequence:** a control transfer returns a negative libusb error code outside the five handled cases. The request is replied to with an indeterminate `io_Error` value, so the caller may receive a false success or unrelated error. **Scope:** explicitly built VUSBHCI on a hosted target, conditional on an unlisted libusb control-transfer error. **Confidence:** high for the incomplete switch and unconditional use of `err`; no transfer or runtime result was exercised. Initialize `err` to a generic transfer failure and map every libusb result before replying. No device, transfer, library, or build was used; source-only.
 
 <a id="od9962-vusbhci-does-not-enumerate-preconnected-host-devices"></a>
+<a id="od9962"></a>
 ## OD9962 — VUSBHCI does not enumerate host USB devices already connected at startup [conditional]
 
 The libusb hotplug callback is registered for arrival and departure events with callback flags set to zero (`rom/usb/vusbhc/vusbhci_bridge.c:229-238`). The callback only handles arrivals when `unit->allocated` is true (`:30-47`), and the unit becomes allocated later in VUSBHCI's Open path (`rom/usb/vusbhci_device.c:156-195`). The registration does not request libusb's enumeration of devices already attached. The later Open/reset path initializes the emulated root hub but does not scan existing host devices (`rom/usb/vusbhc/vusbhci_commands.c:114-124`; selected Poseidon enumeration caller `rom/usb/poseidon/poseidon.library.c:4098-4145,4272-4305`).
@@ -39607,6 +39619,7 @@ The libusb hotplug callback is registered for arrival and departure events with 
 **Trigger and consequence:** a host USB device is already connected when VUSBHCI registers its callback, or its arrival callback is consumed before the unit is allocated. With no later physical unplug/replug to generate another arrival event, VUSBHCI does not attach that backing device to the emulated root hub. **Scope:** explicitly built VUSBHCI on a hosted target with libusb hotplug support; optional backend. **Confidence:** high for registration flags and the callback's allocation gate; host-device enumeration behavior follows the libusb callback contract and is conditional on its implementation. Request enumeration of already attached devices or scan them when the unit becomes active. No host device, callback, root-hub request, or build was used; source-only.
 
 <a id="od9963-vusbhci-skips-interface-claim-when-no-kernel-driver-active"></a>
+<a id="od9963"></a>
 ## OD9963 — VUSBHCI skips claiming USB interfaces with no active host kernel driver [conditional]
 
 For each interface in the active configuration, VUSBHCI calls `libusb_claim_interface()` only inside a branch where `libusb_kernel_driver_active()` returns 1 (`rom/usb/vusbhc/vusbhci_bridge.c:73-113`). If no host kernel driver is active, the code only logs and proceeds without claiming the interface. The later asynchronous endpoint paths submit transfers using the open device handle without claiming the corresponding interface (`:465-589`). The libusb interface contract requires an interface to be claimed before transferring through it.
@@ -39614,6 +39627,7 @@ For each interface in the active configuration, VUSBHCI calls `libusb_claim_inte
 **Trigger and consequence:** VUSBHCI opens a non-SuperSpeed host device with an interface that has no active host kernel driver. The callback leaves that interface unclaimed, then endpoint transfers targeting it are submitted anyway and can fail as unclaimed-interface requests, preventing the emulated device from operating. **Scope:** explicitly built VUSBHCI on a hosted target; conditional on a backing device/interface with no active kernel driver. **Confidence:** high for the local branch and transfer ordering; the claim-before-transfer requirement is the libusb API contract. Claim each interface after any required detach, including when no kernel driver was active. No device, transfer, callback, or build was run; source-only.
 
 <a id="od9966-vusbhci-init-failure-leaves-host-library-open"></a>
+<a id="od9966"></a>
 ## OD9966 — VUSBHCI initialization failure leaves the host libusb library open [conditional]
 
 `libusb_bridge_init()` opens `libusb.so` through `hostlib_load_so()` and stores the handle globally. If `libusb_init()` returns an error, the function returns FALSE without calling `libusb_bridge_cleanup()` to close that handle (`rom/usb/vusbhc/vusbhci_bridge.c:209-224,251-260`). If bridge initialization succeeds but `VUSBHCI_AddNewUnit200()` fails to allocate the unit, the module `Init()` returns FALSE (`rom/usb/vusbhc/vusbhci_device.c:133-145`); the module registers `ADD2INITLIB` but has no `ADD2EXPUNGELIB` cleanup hook (`:225`). The generated init rollback therefore has no VUSBHCI expunge callback to release the manually opened host-library reference (`compiler/autoinit/functions.c:55-69`).
@@ -39621,6 +39635,7 @@ For each interface in the active configuration, VUSBHCI calls `libusb_claim_inte
 **Trigger and consequence:** either `libusb_init()` fails after the host library was opened, or bridge setup succeeds and subsequent root-unit allocation fails. The failed module initialization leaves the host-library handle open; on the latter path the initialized libusb callback/context state is also left behind. **Scope:** explicitly built VUSBHCI on a hosted target with `libusb.so`; conditional on the stated initialization failure. **Confidence:** high for the unclosed handle and absent module cleanup hook; no retry or callback behavior is asserted. Close the host-library handle and release initialized bridge state on every failed-init path. No host library, allocation failure, callback, or build was exercised; source-only.
 
 <a id="od9989-vusbhci-hotplug-registration-failure-skips-libusb-exit"></a>
+<a id="od9989"></a>
 ## OD9989 — VUSBHCI skips `libusb_exit()` when hotplug callback registration fails [conditional]
 
 After `libusb_init()` succeeds and hotplug is reported as supported, `libusb_bridge_init()` attempts to register the callback. If registration returns an error, control reaches `libusb_bridge_cleanup()`, which closes the host-library handle but never calls the already-loaded `libusb_exit()` function (`rom/usb/vusbhc/vusbhci_bridge.c:223-260`). In the separate no-hotplug-support branch, the code does call `libusb_exit()` before closing the handle (`:247-255`), confirming the success/failure cleanup paths differ.
@@ -39628,6 +39643,7 @@ After `libusb_init()` succeeds and hotplug is reported as supported, `libusb_bri
 **Trigger and consequence:** libusb initializes successfully, reports hotplug support, then rejects callback registration. VUSBHCI returns initialization failure and closes its shared-library handle without the matching context shutdown call. This leaves cleanup of libusb-owned state unrequested; the exact retained resources and any later impact depend on the external libusb implementation and are not inferred here. **Scope:** explicitly built VUSBHCI on a hosted target with libusb hotplug support, conditional on registration failure. **Confidence:** high for the unmatched successful-init cleanup call; external library consequences are implementation-dependent. Call `libusb_exit()` before closing the host-library handle on this failure branch. No library, callback registration, failure, or build was exercised; source-only.
 
 <a id="od10036-nouveau-abi16-failed-channel-allocation-leaves-gem-handle"></a>
+<a id="od10036"></a>
 ## OD10036 — Failed Nouveau ABI16 channel setup leaves its notifier GEM handle in the file table [conditional]
 
 `nouveau_abi16_chan_alloc()` creates the notifier BO and, after pin/VMA setup, publishes a per-file GEM handle through `drm_gem_handle_create()` before initializing the channel's notifier heap (`workbench/hidds/nouveau/drm/nouveau/nouveau_abi16.c:486-507`). If `nvkm_mm_init()` fails, the common error path calls `nouveau_abi16_chan_fini()`, which drops the BO reference and destroys channel state but never deletes the handle just created (`:508-512,172-205`). GEM handle creation adds a handle reference, and GEM documentation requires that reference to be released with `drm_gem_handle_delete()` (`workbench/hidds/nouveau/drm/drm_gem.c:510-528,358-389`).
@@ -39637,6 +39653,7 @@ The maintained AROS libdrm channel caller passes a local, zero-initialized `drm_
 **Trigger and consequence:** a legacy ABI16 channel request reaches notifier handle creation, then notifier-heap initialization fails (for example, allocation failure). Channel setup reports failure, but the per-file handle table retains the notifier BO handle reference until the DRM file is closed; repeated failures can consume per-file GEM handle entries and retain corresponding BO references. **Scope:** selected optional Nouveau ABI16 channel path when called through the maintained AROS libdrm wrapper; default-image inclusion is not claimed. **Confidence:** high for the handle creation, failure cleanup omission, and local caller discarding the error-path output; the allocation failure was not induced. Delete the newly created handle on every later constructor failure. No ioctl, allocation failure, GPU operation, or build was run; source-only.
 
 <a id="od10031-nouveau-nvif-edid-error-skips-pm-release-and-preserves-old-edid"></a>
+<a id="od10031"></a>
 ## OD10031 — NVIF EDID failure skips runtime-PM release and leaves the previous EDID published [conditional]
 
 `nouveau_connector_detect()` acquires a runtime-PM usage reference before connector detection: the poll worker uses `pm_runtime_get_noresume()`, while other callers use `pm_runtime_get_sync()` (`workbench/hidds/nouveau/drm/nouveau/nouveau_connector.c:572-588`). For an encoder without an I²C adapter, it requests EDID through `nvif_outp_edid_get()` (`:598-605`). That helper can return an error when its argument allocation fails, the NVIF method fails, or copying the EDID fails (`nvif/outp.c:444-470`). On a negative result, detection returns immediately (`nouveau_connector.c:603-604`), bypassing the common `pm_runtime_mark_last_busy()` and `pm_runtime_put_autosuspend()` at `:675-677`. It also bypasses `nouveau_connector_set_edid()`, so any previously stored EDID and connector EDID property remain published.
@@ -39646,6 +39663,7 @@ The maintained AROS libdrm channel caller passes a local, zero-initialized `drm_
 Sources: `workbench/hidds/nouveau/drm/nouveau/nouveau_connector.c:563-608,675-677`; `workbench/hidds/nouveau/drm/nouveau/nvif/outp.c:444-470`; selected connector helper registration at `nouveau_connector.c:1159-1176`. No GPU, EDID operation, runtime-PM transition or build was run; source-only review.
 
 <a id="od3423-usb-printer-short-device-id-response"></a>
+<a id="od3423"></a>
 ## OD3423 — USB printer class trusts short GET_DEVICE_ID responses [conditional]
 
 `nPrinterTask()` requests a two-byte big-endian length header into local `len` and treats any zero `psdDoPipe()` result as a complete header (`rom/usb/classes/printer/printer.class.c:516-535`). It then allocates `len + 1`, requests `len` bytes, and on any zero result writes a terminator at `tmpbuf[len]` and reads/compares from `tmpbuf + 2` (`:536-548`). The `psdDoPipe()` contract reports zero for a successful transfer but does not promise that the requested number of bytes arrived (`rom/usb/docs/poseidon.doc:1111-1139`; `poseidon.library.c:4705-4735`). The selected xHCI path records the actual transferred count and treats `TRB_CC_SHORT_PACKET` as success (`rom/usb/pcixhci/xhci_hcd.c:2490-2505,3090-3118,3420-3432`).
@@ -39657,6 +39675,7 @@ A header response shorter than two bytes leaves part or all of `len` untouched b
 Sources: `rom/usb/classes/printer/printer.class.c:516-548`; `rom/usb/docs/poseidon.doc:1111-1139`; `rom/usb/poseidon/poseidon.library.c:4705-4735`; `rom/usb/pcixhci/xhci_hcd.c:2490-2505,3090-3118,3420-3432`. No USB transfer, printer or build was used; source-only review.
 
 <a id="od3424-usb-printer-port-status-reads-unreceived-byte"></a>
+<a id="od3424"></a>
 ## OD3424 — USB printer query decodes port status without confirming that a byte arrived [conditional]
 
 The printer worker declares `portstatus` as an uninitialized local byte (`rom/usb/classes/printer/printer.class.c:494`) and passes it to a one-byte `UPR_GET_PORT_STATUS` request (`:651-656`). An error sets `ioreq->IOPar.io_Error`, but control still falls through to test `portstatus` and set `io_Status` flags (`:657-664`). More critically, success from `psdDoPipe()` does not guarantee the requested byte count (`rom/usb/docs/poseidon.doc:1111-1139`); the selected xHCI controller treats `TRB_CC_SHORT_PACKET` as success while retaining the actual transfer count (`rom/usb/pcixhci/xhci_hcd.c:2490-2505,3090-3118,3420-3432`). A zero-byte short success therefore bypasses the error branch and decodes the untouched local byte as if it were returned device status.
@@ -39702,6 +39721,7 @@ For a compressed frame, `DAX_Read()` sets the destination capacity to 8,192 byte
 Sources: `workbench/devs/diskimage/plugins/dax.c:204-207,259-261,305-313,330-360`; `workbench/devs/diskimage/z_library/uncompr.c:13-18,24-58`; `workbench/devs/diskimage/device/unit.c:531-537`. No image, read, decompression or build was run; source-only review.
 
 <a id="od10421-drm-edid-to-sad-helper-returns-descriptors-from-only-the-first-audio-block"></a>
+<a id="od10421"></a>
 ## OD10421 — DRM EDID-to-SAD helper returns descriptors from only the first audio block [external-caller conditional]
 
 `_drm_edid_to_sad()` iterates the CTA data blocks across EDID CTA extensions and DisplayID CTA blocks, but on the first `CTA_DB_AUDIO` block it allocates and fills results only from that block, then breaks out of the iterator (`workbench/hidds/vmwaresvga/drm/drm_edid.c:5750-5777`). The iterator itself advances to later blocks and extension collections (`:5128-5168`), so later audio blocks are available to the function but never collected. `drm_edid_to_sad()` exports this behavior, and its API comment says it extracts SADs from the EDID (`:5781-5797`; public declaration at `workbench/hidds/vmwaresvga/include/drm/drm_edid.h:359`). The selected Nouveau copy is byte-identical for this helper, and both optional DRM source manifests select the file (`workbench/hidds/nouveau/drm/drm_edid.c`; `sources.drm.mak` VMware `:24`, Nouveau `:29`).
@@ -39711,6 +39731,7 @@ Sources: `workbench/devs/diskimage/plugins/dax.c:204-207,259-261,305-313,330-360
 Sources: `workbench/hidds/vmwaresvga/drm/drm_edid.c:5128-5168,5750-5797`; identical selected copy `workbench/hidds/nouveau/drm/drm_edid.c:5750-5797`; manifests `workbench/hidds/vmwaresvga/sources.drm.mak:24`, `workbench/hidds/nouveau/sources.drm.mak:29`; public header `workbench/hidds/vmwaresvga/include/drm/drm_edid.h:359`. No EDID, external client or build was used; source-only review.
 
 <a id="od10422-diskimage-expat-allocator-can-wrap-the-private-header-size"></a>
+<a id="od10422"></a>
 ## OD10422 — DiskImage Expat allocator can wrap the private-header size [large-request conditional]
 
 The custom `malloc()` prepends one `size_t` to each allocation and requests `sizeof(size_t) + size` bytes from `AllocPooled()` without checking for overflow (`workbench/devs/diskimage/expat_library/malloc.c:54-63`). It then stores the original, unmodified `size` in that prefix and returns the pointer after the header. On the selected 32-bit x86-aros and ppc-aros builds, a sufficiently large `size` wraps the addition to a small pool request; if that small request succeeds, even writing the header or later using the requested payload exceeds the allocated block. `XML_MemMalloc()` routes through the parser's memory-suite allocator (`expat_library/xmlparse.c:1819-1822`), and the exported `MemMalloc` vector invokes it (`init.c:1879-1891`). The parser's default memory suite selects this custom `malloc`/`realloc`/`free` implementation (`xmlparse.c:715-728`); callers that supply their own memory suite are not affected by this allocator path.
@@ -39738,6 +39759,7 @@ After constructing the DOS node, MountHDF calls `AddBootNode()`; if it returns f
 Sources: `workbench/devs/diskimage/cmd/mounthdf.c:258-269,280-296`; `rom/expansion/makedosnode.c:140-145,214-250`; `rom/expansion/addbootnode.c:146-167,188-211`; `rom/dos/adddosentry.c:91-107`. No mount attempt, duplicate registration or build was run; source-only review.
 
 <a id="od10425-diskimage-aros-fallback-truncates-64-bit-file-offsets"></a>
+<a id="od10425"></a>
 ## OD10425 — DiskImage AROS fallback truncates 64-bit file offsets [large-file conditional]
 
 Under `__AROS__`, `ChangeFilePosition64()` is a stub that sets `ERROR_ACTION_NOT_KNOWN` and returns false (`workbench/devs/diskimage/support/dos64.c:36-40`). The wrapper then falls back to DOS `Seek()` after narrowing its `QUAD position` to `LONG` (`:79-91`); `Seek()` therefore receives only the low 32-bit signed offset on these targets. The selected DMG plugin parses 64-bit Koly plist and resource-fork offsets and passes them into `ChangeFilePosition()` before reading the sections (`workbench/devs/diskimage/plugins/dmg/dmg.c:285-305,362-380`).
@@ -39747,6 +39769,7 @@ Under `__AROS__`, `ChangeFilePosition64()` is a stub that sets `ERROR_ACTION_NOT
 Sources: `workbench/devs/diskimage/support/dos64.c:36-40,79-91`; `workbench/devs/diskimage/plugins/dmg/dmg.c:285-305,362-380`; helper selected by `support/mmakefile.src:6-9,17-18` and target lists `Makefile.x86-aros:29,58`, `Makefile.ppc-aros:29,58`. No large image, seek or build was used; source-only review.
 
 <a id="od10426-diskimage-image-name-allocation-failure-is-reported-as-success"></a>
+<a id="od10426"></a>
 ## OD10426 — DiskImage image-name allocation failure is reported as success [allocation conditional]
 
 For `DITAG_GetImageName`, the DiskImage unit worker assigns the `ASPrintf()` result to the caller's output slot, then incorrectly tests `ti->ti_Data`—the tag's non-NULL output-slot address—instead of the returned string pointer (`workbench/devs/diskimage/device/unit.c:251-260`). If `ASPrintf()` fails, the output remains NULL and the worker does not call `SetDiskImageError()`. Each `DICMD_TAGLIST` starts with `unit->Error = NO_ERROR` and resets the supplied error pointer before processing tags (`:163-177`); `UnitControlA()` also returns `NO_ERROR` after the synchronous message completes (`device/main_vectors.c:48-75`). Thus the failed copy is not reported to the caller.
@@ -39771,6 +39794,7 @@ Exec's `PutMsg()` signals `1 << mp_SigBit` for `PA_SIGNAL` (`rom/exec/putmsg.c:9
 Sources: `workbench/devs/diskimage/support/ports.c:30-41`; `workbench/devs/diskimage/device/init_aros.c:148-160,254-269`; `workbench/devs/diskimage/device/main_vectors.c:48-73,218-230`; `rom/exec/putmsg.c:94-105`; `rom/exec/waitport.c:72-88`; `compiler/include/exec/tasks.h:138,146`; AROS x86/PPC target lists `workbench/devs/diskimage/Makefile.x86-aros:29,58` and `Makefile.ppc-aros:29,58`. No signal, device operation, or build was run; source-only review.
 
 <a id="od10429-cue-cdda-byte-swapping-uses-unaligned-word-accesses-on-powerpc"></a>
+<a id="od10429"></a>
 ## OD10429 — CUE CDDA byte swapping uses unaligned word accesses on PowerPC [alignment conditional]
 
 For a Motorola-format binary audio track, `CUE_ReadCDDA()` reads the requested bytes into the caller's buffer and passes that same address to `swab2()` (`workbench/devs/diskimage/plugins/cue/cue.c:806-858`). The helper treats its source and destination as `ULONG *` for the bulk of the swap, then as `UWORD *` for its tail (`support/swab2.c:30-58`). On PPC, the selected AROS target includes this C implementation (`Makefile.ppc-aros:29-32`); its word accesses require their respective natural alignment, but the SCSI caller's `scsi_Data` is declared only as `UWORD *` (`compiler/include/devices/scsidisk.h:21-28`). The caller routes `scsi_Data` through `BytePackInit()` into `Plugin_ReadCDDA()` for `SCSICMD_READ_CD` and `SCSICMD_READ_CD_MSF` (`device/scsicmd.c:81,257-315`). Thus a legal two-byte-aligned destination that is not four-byte aligned reaches the `ULONG *` accesses unaltered. On PPC this can fault or produce target-dependent behavior; the x86 target's unaligned access behavior does not establish safety for PPC.
@@ -39788,6 +39812,7 @@ OD10463 withdrawn as a duplicate of [OD10430](#od10430-diskimage-extraction-over
 OD10467 withdrawn as a duplicate of [OD10429](#od10429-cue-cdda-byte-swapping-uses-unaligned-word-accesses-on-powerpc): both findings describe the same Motorola-format CUE CDDA buffer passed to `swab2()` without a four-byte alignment guarantee, with the demonstrated strict-alignment concern scoped to PPC. The `swab2.c` body review remains credited in the coverage ledger.
 
 <a id="od10430-diskimage-extraction-overwrites-a-predictable-temporary-file-collision"></a>
+<a id="od10430"></a>
 ## OD10430 — DiskImage extraction replaces a pre-existing temporary-name collision [data preservation]
 
 The shared `CreateTempFile()` helper chooses the configured `DiskImageTempDir` (falling back to `T:`), then assigns the fixed leaf name `unit_<unit number>.<extension>` without checking whether it already exists (`workbench/devs/diskimage/device/tempfile.c:29-77`). The DMS, XAD and XPK extraction paths call this helper and open the result with `MODE_NEWFILE` (`plugins/dms.c:168-173`; `plugins/xad.c:186-190`; `plugins/xpk.c:138-142`). DOS documents `MODE_NEWFILE` as deleting an old file and creating a new one (`rom/dos/open.c:43-48`). Thus a pre-existing file with the selected unit/extension name is truncated/replaced when extraction starts. If the image later closes or fails to open, `RemoveDisk()` calls `RemoveTempFile()`, which deletes the same fixed leaf and clears the unit's temp state (`device/unit.c:578-593`; `device/tempfile.c:89-102`).
@@ -39808,6 +39833,7 @@ Exec documents `AbortIO()` as returning zero when the abort request went well, w
 Sources: `workbench/devs/diskimage/device/io.c:80-95,178-206`; `workbench/devs/diskimage/device/unit.c:317-433,459-467`; `rom/exec/abortio.c:26-49`; target selection `workbench/devs/diskimage/Makefile.x86-aros:29-38` and `Makefile.ppc-aros:29-38`. No request, abort, device operation, or build was run; source-only review.
 
 <a id="od10433-usb-hid-report-parser-reads-truncated-item-bytes-past-the-descriptor"></a>
+<a id="od10433"></a>
 ## OD10433 — USB HID report parser reads truncated item bytes past the descriptor [malformed-descriptor conditional]
 
 The standalone Poseidon HID class fetches `nhr_ReportLength` bytes into an allocation of that exact size, then passes the buffer to `nParseReport()` (`rom/usb/classes/hid/hid.class.c:2220-2238`). The parser sets `rptrend` to the allocation end and checks only that an item prefix byte remains before decoding an item (`:2602-2653`). For short-item sizes 1, 2, and 4, it dereferences and increments `rptr` the encoded number of times without checking whether those bytes remain (`:2670-2688`). A descriptor ending after the item prefix, or partway through its payload, therefore causes reads beyond the fetched report buffer.
@@ -39819,6 +39845,7 @@ The long-item branch similarly consumes its size and tag bytes without first che
 Sources: `rom/usb/classes/hid/hid.class.c:2220-2238,2602-2688,3444-3447`; standalone target `rom/usb/classes/hid/mmakefile.src:3-9`; target aggregation context `rom/usb/classes/mmakefile.src:35-52` and `rom/usb/mmakefile.src:8-20`. No descriptor, device, parser execution, or build was used; source-only review.
 
 <a id="od10434-cdfs-buffer-cache-deletion-closes-the-pointer-slot-instead-of-its-io-request"></a>
+<a id="od10434"></a>
 ## OD10434 — CDFS buffer-cache teardown passes an IORequest pointer slot to CloseDevice [normal teardown]
 
 On successful cache creation, `BCache_Create()` allocates a message port and `IOStdReq`, opens the configured device with that request, stores the request in `bp->bp_IOStdReq`, and returns the cache (`rom/filesys/cdfs/bcache.c:90-101,209-216`). CDFS retains the returned cache in `dev->cd_BCache`; its normal device-close path calls `BCache_Delete()` for that successfully created cache (`rom/filesys/cdfs/cdfs.c:145-165`, device deletion caller at `:611`).
@@ -39830,6 +39857,7 @@ On successful cache creation, `BCache_Create()` allocates a message port and `IO
 Sources: `rom/filesys/cdfs/bcache.c:90-101,209-216,251-260`; `rom/filesys/cdfs/cdfs.c:145-165,605-615`; `rom/exec/closedevice.c:29-40,60-70`; target `rom/filesys/cdfs/mmakefile.src:3-12`. No mount, device open/close, or build was run; source-only review.
 
 <a id="od10435-iso9660-ascii-date-conversion-subtracts-the-wrong-digit-base"></a>
+<a id="od10435"></a>
 ## OD10435 — ISO9660 volume creation date conversion subtracts the wrong digit base [media conditional]
 
 The CDFS ISO parser converts the primary volume descriptor's ASCII `VolumeCreation` date into the volume `DateStamp` (`rom/filesys/cdfs/iso9660.c:587-589`). Its `ascdec()` helper accepts decimal bytes `'0'` through `'9'`, but accumulates each digit as `*val - '9'` rather than `*val - '0'` (`:43-54`). Thus valid digits 0–8 contribute negative values converted into the unsigned `ULONG` accumulator; digit 9 contributes zero. The resulting year/month/day/time fields are not the descriptor's decimal values, and the subsequent date calculation produces a wrong volume date. Directory-entry timestamps use `bindate2stamp()` on binary date fields (`:77-90,140-145`), so this finding is limited to the primary volume creation date conversion.
@@ -39839,6 +39867,7 @@ The CDFS ISO parser converts the primary volume descriptor's ASCII `VolumeCreati
 Sources: `rom/filesys/cdfs/iso9660.c:43-54,57-75,77-90,587-589`; descriptor field declaration `rom/filesys/cdfs/iso9660.h:36-40,80-91`; optional target `rom/filesys/cdfs/mmakefile.src:3-12`. No image, mount, date conversion, or build was run; source-only review.
 
 <a id="od10436-rock-ridge-nm-names-and-as-comments-are-skipped-unless-they-exceed-remaining-capacity"></a>
+<a id="od10436"></a>
 ## OD10436 — Rock Ridge NM names and AS comments are mishandled [extension conditional]
 
 `isoParseDir()` first stores the ISO directory identifier in `fib_FileName`, then processes Rock Ridge System Use entries (`rom/filesys/cdfs/iso9660.c:142-167,189-201`). For an AS comment, it copies the comment only when its length is greater than the remaining comment capacity; a comment that fits is ignored (`:216-224`). The same inverted fit test appears for Rock Ridge NM names (`:252-260`), so a normal NM fragment that fits the available space is skipped. When an NM fragment exceeds the computed space, the code copies only that computed amount and appends it to the existing ISO identifier rather than replacing the name.
@@ -39850,6 +39879,7 @@ The NM bound also uses `MAXCOMMENTLENGTH` (80) instead of `MAXFILENAMELENGTH` (1
 Sources: `rom/filesys/cdfs/iso9660.c:142-167,189-224,252-260,416-426`; `compiler/include/dos/dos.h:57,61,81,88`; `rom/exec/copymem.c:13-21`; optional target `rom/filesys/cdfs/mmakefile.src:3-12`. No image, media, parser, or build was used; source-only review.
 
 <a id="od10437-iso-path-traversal-leaks-a-lock-record-for-a-non-directory-intermediate-component"></a>
+<a id="od10437"></a>
 ## OD10437 — ISO path lookup leaks its lock record for a non-directory intermediate component [path-shape conditional]
 
 `ISO9660_Locate()` allocates `fl` before walking path components (`rom/filesys/cdfs/iso9660.c:656-678`). While processing each component followed by `/`, it first checks whether the current `il` is a directory. If not, it returns `ERROR_DIR_NOT_FOUND` directly (`:730-737`). Other nearby error exits in the same loop free `fl` before returning (`:739-744,750-755`), but this branch does not. The CDFS packet caller propagates the failed locate result and does not own or free the backend's private `ISOLock` allocation on failure (`rom/filesys/cdfs/cdfs.c:510-537`).
@@ -39861,6 +39891,7 @@ The leak occurs when path walking resolves a non-directory as an intermediate co
 Sources: `rom/filesys/cdfs/iso9660.c:656-678,730-755`; `rom/filesys/cdfs/cdfs.c:510-537`; optional target `rom/filesys/cdfs/mmakefile.src:3-12`. No path lookup, mount, or build was run; source-only review.
 
 <a id="od10438-iso9660-unmount-leaks-separately-allocated-path-table-storage"></a>
+<a id="od10438"></a>
 ## OD10438 — ISO9660 unmount leaks separately allocated path-table storage [path-table conditional]
 
 When a non-Rock-Ridge ISO volume has a nonempty path table, `isoReadPathTables()` retains the raw table buffer in `iv_PathTable.Data` and separately allocates an array of entry pointers in `iv_PathTable.Entry` (`rom/filesys/cdfs/iso9660.c:460-532`). The root Rock Ridge handling can explicitly free and zero these two members when it identifies Rock Ridge (`:294-298`); otherwise the allocated path table remains available for parent-directory traversal (`:709-713`).
@@ -39870,6 +39901,7 @@ When a non-Rock-Ridge ISO volume has a nonempty path table, `isoReadPathTables()
 Sources: `rom/filesys/cdfs/iso9660.c:294-298,460-532,648-654,709-713`; `rom/filesys/cdfs/cdfs.c:115-127`; optional target `rom/filesys/cdfs/mmakefile.src:3-12`. No mount, unmount, image, or build was used; source-only review.
 
 <a id="od10439-iso9660-directory-lookup-applies-the-full-directory-offset-twice"></a>
+<a id="od10439"></a>
 ## OD10439 — ISO9660 directory lookup applies the full offset twice [multi-block directory]
 
 `isoReadDir()` computes the device block as `extent + offset / 2048` and asks `BCache_Read()` for that block, but then indexes the returned buffer as `&buff[offset]` (`rom/filesys/cdfs/iso9660.c:316-328`). `BCache_Read()` returns the buffer for a single cache block, whose size is the CDFS block size of 2048 bytes (`rom/filesys/cdfs/bcache.c:429-456`; CDFS requires 2048-byte blocks in `iso9660.c:544-546`). The in-block displacement must therefore be the remainder, not the full directory offset.
@@ -39881,6 +39913,7 @@ Both directory search and `ExamineNext()` advance offsets through the directory 
 Sources: `rom/filesys/cdfs/iso9660.c:316-328,380-404,811-839`; `rom/filesys/cdfs/bcache.c:429-456`; CDFS block-size requirement `rom/filesys/cdfs/iso9660.c:544-546`; target `rom/filesys/cdfs/mmakefile.src:3-12`. No directory, image, lookup, enumeration, or build was used; source-only review.
 
 <a id="od10440-iso9660-path-table-entry-lengths-and-parent-indexes-are-not-validated"></a>
+<a id="od10440"></a>
 ## OD10440 — ISO9660 path-table entry lengths and parent indexes are not validated [malformed-table conditional]
 
 `isoReadPathTables()` allocates a buffer of the descriptor-supplied path-table size and copies that many bytes from the selected table extent (`rom/filesys/cdfs/iso9660.c:460-490`). It then scans entries while signed `size > 0`, calculates each entry extent from `dp[0] + 8` (rounded to even), advances `dp`, and subtracts that extent without checking it against remaining bytes (`:492-503`). A truncated final entry is therefore counted even when its declared name length makes its record extend past the allocated table. The second pass stores a pointer to each counted entry without validating its extent (`:513-530`), so later reads of its fields can extend beyond the copied table.
@@ -39892,6 +39925,7 @@ The path-table `ParentDirectory` field is also used as a 1-based array index wit
 Sources: `rom/filesys/cdfs/iso9660.c:460-530,118-124,709-713`; path-table structure `rom/filesys/cdfs/iso9660.h:101-107`; optional target `rom/filesys/cdfs/mmakefile.src:3-12`. No image, mount, path table, directory traversal, or build was used; source-only review.
 
 <a id="od10441-iso9660-directory-and-rock-ridge-record-lengths-are-not-bounded"></a>
+<a id="od10441"></a>
 ## OD10441 — ISO9660 directory and Rock Ridge record lengths are not bounded [inconsistent-record conditional]
 
 `isoReadDir()` obtains one 2048-byte cache block and passes `&buff[offset]` to `isoParseDir()` without checking that the directory record's declared `DirectoryLength` fits in the remaining block (`rom/filesys/cdfs/iso9660.c:316-329`). Within the record, `isoParseDir()` computes the System Use start from `FileIdentifierLength` and then reads extension entries while that cursor is less than `DirectoryLength - 3`; it does not first require the filename and its padding to fit within the record (`:189-200`). For each Rock Ridge entry it reads signature/version fields, uses type-specific fields, and advances by `rr->Length` without requiring the entry header or full declared extent to remain inside the enclosing directory record (`:194-201,202-288`). A nonzero but oversized extension length can therefore move parsing beyond the record; a short extension can still be interpreted through fixed fields for its signature/version.
@@ -39901,6 +39935,7 @@ The ISO record layout declares `DirectoryLength` and `FileIdentifierLength` as i
 Sources: `rom/filesys/cdfs/iso9660.c:189-200,202-288,316-329`; record layout `rom/filesys/cdfs/iso9660.h:109-128,132-140`; optional target `rom/filesys/cdfs/mmakefile.src:3-12`. No image, media, parser, or build was used; source-only review.
 
 <a id="od10442-diskimage-read-cd-paths-do-not-bound-audio-output-to-scsi_length"></a>
+<a id="od10442"></a>
 ## OD10442 — DiskImage READ CD paths do not bound audio output to `scsi_Length` [buffer-capacity conditional]
 
 `HandleSCSICmd()` initializes its `BytePackBuffer` with `scsi_Data` and `scsi_Length` (`workbench/devs/diskimage/device/scsicmd.c:65-85`). For `SCSICMD_READ_CD` and `SCSICMD_READ_CD_MSF`, it derives the requested frame count from the CDB and calls `Plugin_ReadCDDA()` with `data.start` and that count, without passing the data buffer's declared length (`:257-315`). It then sets `data.current` from the plugin's returned byte count and reports `BytePackBytesWritten()` as `scsi_Actual` (`:334-335`); this happens after the write and does not constrain it.
@@ -39912,6 +39947,7 @@ The selected AROS x86 and PPC manifests package CCD, CUE, MDS, and NRG. Their co
 Sources: `workbench/devs/diskimage/device/scsicmd.c:65-85,257-315,334-335`; `compiler/include/devices/scsidisk.h:21-34`; `workbench/devs/diskimage/plugins/ccd.c:481-521`; `plugins/cue/cue.c:806-858`; `plugins/mds.c:490-535`; `plugins/nrg.c:578-623`; selected manifests `workbench/devs/diskimage/Makefile.x86-aros:29-38` and `Makefile.ppc-aros:29-38`. No image, command, plugin read, or build was run; source-only review.
 
 <a id="od10443-diskimage-inquiry-strings-overwrite-the-final-byte-of-each-identifier"></a>
+<a id="od10443"></a>
 ## OD10443 — DiskImage INQUIRY overwrites the final byte of each identifier [every INQUIRY]
 
 For standard INQUIRY, `HandleSCSICmd()` writes the vendor, product, and revision fields as fixed-width 8-, 16-, and 4-byte values (`workbench/devs/diskimage/device/scsicmd.c:115-125`). These calls use `BytePackWriteText()`, which copies up to the supplied width and then replaces `current[len - 1]` with NUL (`workbench/devs/diskimage/include/bytepack.h:85-95`). The resulting fields are `a500.or\0`, `diskimage.devic\0`, and `DI5\0`, rather than the full identifiers.
@@ -39921,6 +39957,7 @@ For standard INQUIRY, `HandleSCSICmd()` writes the vendor, product, and revision
 Sources: `workbench/devs/diskimage/device/scsicmd.c:108-125`; `workbench/devs/diskimage/include/bytepack.h:85-95`; selected DiskImage device targets `workbench/devs/diskimage/Makefile.x86-aros:29-38` and `Makefile.ppc-aros:29-38`. No INQUIRY, device, or build was run; source-only review.
 
 <a id="od10444-diskimage-reads-the-cdb-opcode-before-checking-its-declared-length"></a>
+<a id="od10444"></a>
 ## OD10444 — DiskImage reads the CDB opcode before checking its declared length [invalid-request conditional]
 
 `DoSCSICmd()` checks only that the enclosing `IOStdReq.io_Length` is large enough for a `struct SCSICmd`, then copies `scsi_Command` and `scsi_CmdLength` into local variables (`workbench/devs/diskimage/device/scsicmd.c:64-80`). It initializes the data/sense buffers and immediately dispatches on `cmd[0]` (`:81-90`). The per-command `cmd_len >= N` checks occur only after entering the opcode case. There is no check that `scsi_Command` is non-NULL or that `scsi_CmdLength` is at least one before reading the opcode. `unit.c` forwards `HD_SCSICMD` directly to this function using `io_Data` as the `SCSICmd` pointer (`:421-423`).
@@ -39930,6 +39967,7 @@ Sources: `workbench/devs/diskimage/device/scsicmd.c:108-125`; `workbench/devs/di
 Sources: `workbench/devs/diskimage/device/scsicmd.c:64-90`; `workbench/devs/diskimage/device/unit.c:421-423`; `compiler/include/devices/scsidisk.h:21-34`; target selection `workbench/devs/diskimage/Makefile.x86-aros:29-38` and `Makefile.ppc-aros:29-38`. No request, command, device, or build was used; source-only review.
 
 <a id="od10445-diskimage-retains-a-callers-error-pointer-after-unitcontrol-returns"></a>
+<a id="od10445"></a>
 ## OD10445 — DiskImage retains a caller's error pointer after UnitControl returns [later-error conditional]
 
 During each `DICMD_TAGLIST`, the unit worker resets `unit->Error` and `ErrorString` but does not reset `unit->ErrorPtr` (`workbench/devs/diskimage/device/unit.c:163-172`). If it encounters `DITAG_Error`, it stores the supplied pointer in `unit->ErrorPtr` (`:174-179`). The public convenience vectors `MountImage()`, `UnitInfo()`, and `WriteProtect()` build tag arrays on their own stack and store the address of a stack-local `LONG error` in `DITAG_Error`; each then returns after synchronous `Internal_UnitControl()` completes (`workbench/devs/diskimage/device/main_vectors.c:90-101,121-132,151-160`). The worker keeps that address after the wrapper's stack frame ends.
@@ -39941,6 +39979,7 @@ On a later tag-list operation that omits `DITAG_Error`, an error path in `SetDis
 Sources: `workbench/devs/diskimage/device/unit.c:163-179,560-572,624-637`; `workbench/devs/diskimage/device/main_vectors.c:90-101,121-132,151-160`; optional AROS GUI caller `workbench/devs/diskimage/zune_gui/drivelist.c:151-158`; target selection `workbench/devs/diskimage/Makefile.x86-aros:29-38` and `Makefile.ppc-aros:29-38`. No error operation, stack reuse, device, or build was run; source-only review.
 
 <a id="od10446-diskimage-read-capacity-underflows-for-a-generic-image-smaller-than-one-block"></a>
+<a id="od10446"></a>
 ## OD10446 — DiskImage READ CAPACITY underflows for a Generic image smaller than one block [image-size conditional]
 
 `Generic_OpenImage()` accepts every file size except the `GetFileSize()` error sentinel `-1`; it stores `total_blocks = total_bytes >> 9` with a 512-byte block size (`workbench/devs/diskimage/plugins/generic.c:100-123`). Thus an accepted zero-byte through 511-byte image has zero complete blocks. `Generic_Geometry()` returns success while reporting that zero sector count (`:146-155`), and the SCSI helper `GetGeometry()` forwards the plugin's success (`workbench/devs/diskimage/device/scsicmd.c:32-48`). The `SCSICMD_READ_CAPACITY` case then writes `dg_TotalSectors - 1` as the last LBA (`scsicmd.c:136-151`), which wraps the zero count to `0xffffffff`.
@@ -39950,6 +39989,7 @@ Sources: `workbench/devs/diskimage/device/unit.c:163-179,560-572,624-637`; `work
 Sources: `workbench/devs/diskimage/plugins/generic.c:100-123,146-155`; `workbench/devs/diskimage/device/scsicmd.c:32-48,136-151`; built-in plugin registration `workbench/devs/diskimage/device/plugins.c:30-56`. No image, capacity command, device, or build was run; source-only review.
 
 <a id="od10447-diskimage-saves-an-invalid-path-when-namefromfh-fails"></a>
+<a id="od10447"></a>
 ## OD10447 — DiskImage saves an unchecked path buffer when `NameFromFH()` fails [path-resolution conditional]
 
 The `DITAG_Filename` handler declares `TEXT fullpath[512]` without initialization and passes it to `InsertDisk()` (`workbench/devs/diskimage/device/unit.c:216-223`). Once the source `Open()` succeeds, `InsertDisk()` calls `NameFromFH(file, fullpath, fullpath_size)` but ignores its boolean result, then continues to open the image through the selected plugin (`:550-567`). DOS documents `NameFromFH()` as producing a NUL-terminated pathname only when it succeeds; the implementation can return false on allocation, parent-lock, name-resolution, or buffer-append failure without guaranteeing a valid output string (`rom/dos/namefromfh.c:27-39,45-76`).
@@ -39961,6 +40001,7 @@ If the plugin nevertheless opens the image, the tag handler persists `fullpath` 
 Sources: `workbench/devs/diskimage/device/unit.c:216-242,550-567`; `rom/dos/namefromfh.c:27-39,45-76`; `workbench/devs/diskimage/prefs/prefs.c:68-79`; AROS targets `workbench/devs/diskimage/Makefile.x86-aros:29-38` and `Makefile.ppc-aros:29-38`. No path resolution failure, image open, preference write, or build was run; source-only review.
 
 <a id="od10448-drm-mode-validation-accepts-modes-without-a-compatible-crtc"></a>
+<a id="od10448"></a>
 ## OD10448 — DRM mode validation can retain a mode without a compatible CRTC [topology conditional; in-tree trigger unconfirmed]
 
 The optional VMware SVGA and Nouveau DRM source sets both compile their copy of `drm_probe_helper.c` (`workbench/hidds/vmwaresvga/sources.drm.mak:34-40`; `workbench/hidds/nouveau/sources.drm.mak:38-44`). In `drm_mode_validate_pipeline()`, the helper leaves `*status` at the mode-valid result from the connector/encoder/bridge checks if the CRTC loop finds no encoder-compatible registered CRTC; it returns zero without changing the status (`drm_probe_helper.c:89-144` in both trees). Its caller starts with modes whose status is `MODE_OK` and prunes only non-OK status values (`:463-495,665-672`). In the single-encoder case, when connector, encoder, and bridge checks accept the mode but `drm_encoder_crtc_ok()` matches no registered CRTC, the mode can remain exposed as valid despite lacking an encoder/CRTC route.
@@ -40156,6 +40197,7 @@ The parser is called during BIOS initialization for PCI devices without GSP when
 Sources: `workbench/hidds/nouveau/drm/nouveau/nouveau_bios.h:27,55-59`; `nouveau_bios.c:1290-1321,1372-1379,1784-1817,2081-2098`; `nouveau_display.c:696-704`; `dispnv04/disp.c:251-265`; optional target `workbench/hidds/nouveau/mmakefile.src:22-28`. No ROM or hardware was used; source-only review.
 
 <a id="od10449-cdfs-treats-a-negative-read-length-as-the-remainder-of-the-file"></a>
+<a id="od10449"></a>
 ## OD10449 — CDFS does not reject a negative `Read()` length [invalid-argument candidate; no in-tree negative caller found]
 
 DOS `Read()` accepts a signed `LONG length` and forwards it as the `ACTION_READ` packet argument without rejecting negative values (`rom/dos/read.c:17-25,59-75`). CDFS forwards that length to `ISO9660_Read()` (`rom/filesys/cdfs/cdfs.c:577-586`), whose `len` parameter is signed `SIPTR` (`iso9660.c:857-867`). It compares `len + il->il_Offset` with unsigned `UQUAD size` and clamps only when the sum is greater than the file size (`:869-873`). At a nonzero file offset greater than the magnitude of a negative length, the sum can be nonnegative and remain below EOF, so the clamp does not run. The `while (len)` loop then computes unsigned `ULONG tocopy` and compares/copies it against the negative `len` without rejecting it (`:874-887`).
@@ -40167,6 +40209,7 @@ The exact consequence varies by pointer width. On 32-bit targets, `tocopy > len`
 Sources: `rom/dos/read.c:17-25,59-75`; `rom/filesys/cdfs/cdfs.c:577-586`; `rom/filesys/cdfs/iso9660.c:857-895`; type widths `compiler/include/exec/types.h:35-54,84-92`; optional target `rom/filesys/cdfs/mmakefile.src:3-12`. No negative read, file, buffer, or build was used; source-only review.
 
 <a id="od10450-cdfs-negates-the-minimum-signed-seek-offset"></a>
+<a id="od10450"></a>
 ## OD10450 — CDFS negates the minimum signed seek offset [32-bit; large-file conditional]
 
 DOS `Seek()` takes a signed 32-bit `LONG` relative position and permits negative offsets (`rom/dos/seek.c:14-22,32-40`). For `OFFSET_CURRENT`, `ISO9660_Seek()` checks `-pos > il->il_Offset` before adding `pos` to the current offset (`rom/filesys/cdfs/iso9660.c:897-914`). On a 32-bit target, `SIPTR` is also signed 32-bit; negating `LONG_MIN` (`-2147483648`) overflows the signed type and is undefined. If the operation wraps to the same negative value, the comparison with the unsigned `UQUAD il_Offset` converts it to a large unsigned value and rejects the seek even when the current file position is at least 2 GiB and moving backward 2 GiB would remain within the file. Other compiler handling of the undefined expression is not guaranteed.
@@ -40202,6 +40245,7 @@ Neither XAD nor XPK closes the reopened output handle after `IPlugin_OpenImage()
 Sources: `workbench/devs/diskimage/plugins/xad.c:233-260`; `xpk.c:181-202`; `workbench/devs/diskimage/device/plugins.c:237-241,300-308`; `workbench/devs/diskimage/device/unit.c:562-590`; `workbench/devs/diskimage/device/tempfile.c:89-102`; `workbench/devs/diskimage/plugins/generic.c:94-98`; `plugins/mmakefile.src:129-133`.
 
 <a id="od10527--opensbi-pcidt-reports-initialization-success-when-a-bridge-driver-was-not-registered"></a>
+<a id="od10527"></a>
 ## OD10527 — OpenSBI PCIDT reports initialization success when a bridge driver was not registered
 
 **Trigger and consequence:** During PCIDT startup, registration of one discovered host bridge fails because the generic hardware layer cannot allocate its driver node, construct the driver object, or complete driver setup. `PCI__Hidd_PCI__AddHardwareDriver()` discards the nullable result of `HW_AddDriver()` (`rom/hidds/pci/pciclass.c:561-565`; `rom/hidds/hidd/hwclass.c:140-207`), while `PCIDT_InitClass()` ignores the legacy `VOID` method result inside its per-bridge loop and returns `TRUE` after the loop (`arch/riscv64-opensbi/hidd/pcidt/pcidt_driverclass.c:1029-1096`). PCI can therefore finish startup without a registered driver for every discovered bridge. If driver-node allocation or object construction fails before `PCIDT__Root__New()` assigns the bridge, its selector does not advance; a later successful registration can reuse that bridge and leave another undiscovered by the PCI driver. If setup fails after object construction, the selector has advanced, so the failed bridge remains missing but the next attempt proceeds to the next bridge.
@@ -40218,6 +40262,7 @@ Sources: `workbench/devs/diskimage/plugins/xad.c:233-260`; `xpk.c:181-202`; `wor
 
 
 <a id="od10991--ahi-handler-plays-compressed-aifc-payloads-as-raw-pcm"></a>
+<a id="od10991"></a>
 ## OD10991 — AHI-Handler plays compressed AIFC payloads as raw PCM
 
 **Trigger and consequence:** A compressed AIFC file is sent to the AHI-Handler through the documented DOS copy-to-`AUDIO:` path. The first `ACTION_WRITE` recognizes the `AIFC` form and `ReadCOMMchunk()` extracts channels, sample frames, sample size, and rate, but never reads or validates the `compressionType` field (`workbench/devs/AHI/AHI-Handler/main.c:543-589,890-920`). `InitHData()` selects an AHI sample type only from bit depth and channel count, and `PlayAndSwap()` submits the copied payload with that PCM type (`main.c:1072-1150,716-760`). Compressed bytes are therefore played as raw PCM rather than decoded or rejected. The handler's Filesave AIFC writer sets the compression code to `NONE`, so this does not affect its own uncompressed AIFC output (`workbench/devs/AHI/Drivers/Filesave/filesave-playslave.c:166-180`).
@@ -40226,6 +40271,7 @@ Sources: `workbench/devs/diskimage/plugins/xad.c:233-260`; `xpk.c:181-202`; `wor
 
 
 <a id="od11094-workbench-usb-hid-report-count-overflow-leaves-a-one-byte-input-buffer"></a>
+<a id="od11094"></a>
 ## OD11094 — Workbench USB HID report-count overflow leaves a one-byte input buffer
 
 **Trigger and consequence:** A HID report descriptor contains a four-data-byte Global Report ID item with value 65,535. `hid_maxrepid()` returns that value; `HID::New` adds one and stores the result in the 16-bit `nreport`, which wraps to zero (`workbench/devs/USB/classes/HID/hid.c:62-79`; `hidclass.c:65-84,270-318`). The report-size loop then runs zero times, and the multi-report branch allocates only the one-byte ID prefix. `HidInterrupt()` consumes that byte and passes its one-past pointer to the selected keyboard parser; `kbdclass.c` reads descriptor-derived modifier and key fields without checking the provided report length (`hidclass.c:65-84,270-318`; `kbdclass.c:99-117`; `kbdclass.c:145-197`). The descriptor and allocated input length therefore disagree, and keyboard state is computed from data outside the one-byte buffer.
@@ -40234,6 +40280,7 @@ Sources: `workbench/devs/diskimage/plugins/xad.c:233-260`; `xpk.c:181-202`; `wor
 
 
 <a id="od11095-serial-and-parallel-devices-report-a-successful-open-when-unit-record-allocation-fails"></a>
+<a id="od11095"></a>
 ## OD11095 — Serial and parallel devices report successful Open when unit-record allocation fails
 
 **Trigger and consequence:** On the first `OpenDevice()` for a unit, the serial or parallel device cannot allocate its per-unit record. The serial `Open()` leaves `io_Error` unchanged when `AllocMem()` returns NULL; the parallel `Open()` does the same and returns TRUE (`workbench/devs/serial/serial_init.c:109-207`; `workbench/devs/parallel/parallel_init.c:109-211`). Exec determines open success from `io_Error`, which it initialized to zero, so it leaves `io_Device` set and reports success while `io_Unit` remains NULL (`rom/exec/opendevice.c:95-135`). The matching `Close()` hooks immediately dereference `io_Unit` (`serial_init.c:233-274`; `parallel_init.c:222-257`), so closing the apparently opened request uses an invalid unit pointer.
@@ -40242,6 +40289,7 @@ Sources: `workbench/devs/diskimage/plugins/xad.c:233-260`; `xpk.c:181-202`; `wor
 
 
 <a id="od11096-usb-hid-mouse-discards-wheel-report-magnitude"></a>
+<a id="od11096"></a>
 ## OD11096 — Workbench USB HID mouse discards wheel-report magnitude
 
 **Trigger and consequence:** A relative Z/Wheel report contains a nonzero magnitude greater than one. The Workbench HID mouse parser stores the decoded signed value in `report_ring[].dz` (`workbench/devs/USB/classes/HID/mouseclass.c:63-85`). Its event worker tests only whether `z != 0` and emits exactly one wheel-down or wheel-up key-down/up pair, selecting direction from the sign and discarding the magnitude (`mouseclass.c:436-461`). A multi-notch report is therefore delivered as one notch, so scrolling movement is lost. The selected Poseidon bootmouse path repeats the down event according to the absolute wheel value before sending one release (`rom/usb/classes/bootmouse/bootmouse.class.c:580-603`).
@@ -41087,6 +41135,7 @@ Last-close handling has a related race. `CloseUnit()` decrements `ud_OpenCnt` wi
 **Trigger and consequence:** On an ExecSMP system with the optional RTL8029 card-driver target built, OpenDevice and CloseDevice calls for the same unit overlap across CPUs during first initialization or last-close teardown. Concurrent first opens can proceed despite a failed board-owner claim, creating separate unit state/workers for one board; a last-close/open interleaving can dereference freed unit state; clearing a duplicated unit's shared slot can permit another initialization while an earlier open remains active. This is distinct from OD11222's invalid slot index on failed hardware discovery. **Confidence:** high for the unsynchronized accesses, ignored ownership result and source-level interleavings; concurrent call incidence and hardware effects were not measured. Serialize per-unit open/close, publish initialization state atomically, and clear the slot before freeing only after excluding new openers. No task, device open/close, board, or build was run; source-only.
 
 <a id="od3726-bluetooth-incoming-rfcomm-endpoint-allocation-failure"></a>
+<a id="od3726"></a>
 ## OD3726 — Bluetooth reuses an empty incoming RFCOMM service as an endpoint after allocation failure
 
 `bRFCOMMAccept()` creates and publishes an incoming `BtService` before allocating its first `BtEndpoint` (`rom/bluetooth/bluetooth/hwconn.c:613-645`; `objects.c:303-312,334-344`). If service allocation succeeds but endpoint allocation fails, the callback returns false without removing the newly linked service (`hwconn.c:647-649`). On the next accept for the same channel, the service lookup succeeds and assigns `bsv->bsv_Endpoints.lh_Head` directly to `bep` (`:614-619`). For an empty list, that value is the list sentinel, not a `BtEndpoint`.
@@ -41102,6 +41151,7 @@ The selected caller makes this retry path concrete. `btserial.class` registers i
 **Coverage evidence:** [Bluetooth RFCOMM retry and report-restoration trace](AROS-other-drivers-coverage.md#bluetooth-rfcomm-retry-and-od3726-report-restoration).
 
 <a id="od1909-netinfo-does-not-retry-failed-notify-registration"></a>
+<a id="od1909"></a>
 ## OD1909 — NetInfo does not retry a failed database notification registration
 
 `InternalSetEnts()` sets `nr_UserData` to the `NetInfo` object before calling `StartNotify()`, then ignores the function's return value (`workbench/devs/netinfo/entries.c:430-440`). `StartNotify()` can fail when path resolution, allocation, or handler registration fails (`rom/dos/startnotify.c:67-69,91-105,157-197`). Because the request's marker remains set, subsequent calls to `InternalSetEnts()` skip notification setup. The marker is cleared only by `EntHandleNotify()`, which cannot run if registration never became active (`entries.c:478-487`).
@@ -41113,6 +41163,7 @@ The selected lookup path makes the stale state observable: `GetByNameCmd` and `G
 **Affected configuration:** explicitly built/installed NetInfo device; the selected usergroup library contains lookup callers but has no dependency on the device target in the checked-in aggregate graph. Conditional on a `StartNotify()` failure after successful parsing and a later database change. **Confidence:** high for marker ordering, ignored failure, and missing retry; stale lookup consequence follows the selected caller path. No notification failure or database change was induced; source-only.
 
 <a id="od9852-controller-axis-normalization-can-overflow"></a>
+<a id="od9852"></a>
 ## OD9852 — Controller axis normalization can overflow signed arithmetic
 
 `ctrl_NormaliseAxis()` multiplies a signed `LONG` offset by 65,535 when the descriptor range is at most 65,535 (`workbench/hidds/controller/controller_controls.c:231-240`). A descriptor spanning the signed 16-bit input range can make that product exceed signed 32-bit range before division. The unipolar path also multiplies the raw offset by `HIDD_CONTROLLER_TRIGGER_MAX` in `LONG` without widening (`:219-227`). The later clamp cannot repair a value already produced by overflowing arithmetic.
@@ -41120,6 +41171,7 @@ The selected lookup path makes the stale state observable: `GetByNameCmd` and `G
 **Trigger and consequence:** a controller driver supplies a wide-range axis descriptor and reports an upper-range value. The normalized reading can be incorrect or compiler-dependent. Widen the product before multiplication and division. **Affected configuration:** explicit `workbench-hidds-controller` target with an external or alternate controller driver; its aggregate edge is commented out and no checked-in producer is known. **Confidence:** high for the arithmetic bound; conditional on such a descriptor and report. Source-only; no controller or report was run.
 
 <a id="od9853-controller-unchanged-reports-omit-frame-events"></a>
+<a id="od9853"></a>
 ## OD9853 — Unchanged controller reports omit the documented Frame event
 
 `ctrl_Flush()` emits a `vHidd_Controller_Frame` event after the changed-control events (`workbench/hidds/controller/controller_reading.c:112-139`). But `ctrl_PushReport()` calls it only when `n` is nonzero (`:218-230`); an accepted report whose button, axis, and hat values are unchanged leaves `n` at zero. The public event definition specifies one Frame event per accepted report (`include/controller.h:366-373`).
@@ -41127,6 +41179,7 @@ The selected lookup path makes the stale state observable: `GetByNameCmd` and `G
 **Trigger and consequence:** a producer submits an accepted report with no changed controls. Consumers monitoring Frame events receive no indication that the report was processed, contrary to the public contract. Flush a frame event for every accepted report, including reports with no control changes. **Affected configuration:** explicit target with an external or alternate controller producer; no checked-in producer or active aggregate edge was found. **Confidence:** high for the control-flow and documented contract; downstream impact depends on consumers using Frame. Source-only; no report was submitted.
 
 <a id="od9854-controller-writers-are-not-serialized-across-cpus"></a>
+<a id="od9854"></a>
 ## OD9854 — Controller reading updates are not serialized and the reader retry uses an uninitialized value
 
 The reading writer brackets updates by incrementing `dev->seq` under `Disable()`/`Enable()` (`workbench/hidds/controller/controller_reading.c:87-99`), while the source comments that raw reports run in the producer's context and the public interface permits Push calls from any context. Exec `Disable()` is CPU-local on ExecSMP (`rom/exec/disable.c:58-61`), so two producers on separate CPUs can enter the same device update concurrently. Their sequence increments can make the counter even while one writer is still modifying the reading, defeating `ctrl_CopyReading()`'s seqlock retry (`controller_reading.c:64-84`). `ctrl_PushValue()` also snapshots the other controls before entering `ctrl_PushReport()`'s write section (`:232-273`), so a concurrent report can be overwritten by that stale snapshot. Independently, a reader on another CPU can observe the odd sequence from a single writer: the `continue` in `ctrl_CopyReading()` jumps to the `do/while` condition before `s2` is assigned (`controller_reading.c:69-81`). The comparison therefore evaluates uninitialized `s2` before it has been assigned. That is an indeterminate-value read (and undefined behavior under the C execution model), so the source does not guarantee a retry or establish one deterministic returned reading; a false equality and return without a fresh coherent copy is a plausible manifestation on ordinary targets, not a guaranteed one. This reader-side path needs only one writer and a concurrent reader on ExecSMP, independent of overlapping writers.
@@ -41134,6 +41187,7 @@ The reading writer brackets updates by incrementing `dev->seq` under `Disable()`
 **Trigger and consequence:** either two CPUs push updates to the same controller concurrently, or one writer updates while a reader samples an odd sequence. The writer interleaving defeats the seqlock and can overwrite newer controls; the reader path evaluates an uninitialized value in the retry condition, so the result is not defined by the intended retry logic. Serialize writers per device, take the `PushValue` snapshot within the same serialized update, and structure the reader retry so an odd sequence branches directly back to sampling without evaluating `s2`. **Affected configuration:** explicit target on ExecSMP with an external or alternate producer that submits concurrent updates; no checked-in producer or active aggregate edge was found. **Confidence:** high for missing cross-CPU exclusion and source-level interleavings; their occurrence is conditional. No concurrent update or read was run; source-only.
 
 <a id="od9855-controller-mapping-ignores-input-flags"></a>
+<a id="od9855"></a>
 ## OD9855 — Controller mapping ignores input inversion and half-axis flags
 
 The public `Hidd_Controller_Binding` flags define `BF_Invert`, `BF_HalfPos`, and `BF_HalfNeg` alongside output direction flags (`workbench/hidds/controller/include/controller.h:425-430`). Mapping evaluation tests `BF_OutPos` and `BF_OutNeg` to choose the output range but does not apply the three input flags (`controller_mapping.c:330-370`). The copied mapping therefore retains these requested flags without honoring them.
@@ -41141,6 +41195,7 @@ The public `Hidd_Controller_Binding` flags define `BF_Invert`, `BF_HalfPos`, and
 **Trigger and consequence:** a user/API mapping sets input inversion or positive/negative half-axis behavior. The evaluated standard control uses the untransformed full input range, producing the wrong mapped direction or activating behavior across the full axis. Implement the declared input transforms during evaluation or reject unsupported flags. **Affected configuration:** explicit target with an external or alternate mapping; the built-in database contains no records and no in-tree mapping caller was found. **Confidence:** high for the ignored public flags; conditional on mappings using them. Source-only; no mapping was evaluated.
 
 <a id="od9856-controller-registration-is-not-smp-serialized"></a>
+<a id="od9856"></a>
 ## OD9856 — Controller device-list and ID state lack SMP-safe synchronization [conditional]
 
 `ControllerHW__HW__SetUpDriver()` assigns `next_id`, appends to the device list and increments `devcount` while holding only `Disable()` (`workbench/hidds/controller/controllersubsystem.c:253-282`). Cleanup unlinks and decrements under the same CPU-local protection (`:301-317`). `ctrl_FindDevice()` and `GetDeviceIDs()` also traverse that shared list and read IDs under `Disable()` only (`:79-95,335-359`). Generic `HW_AddDriver()` calls subclass setup before taking the generic driver-list semaphore (`rom/hidds/hidd/hwclass.c:185-199`), while `HW_RemoveDriver()` releases it before subclass cleanup (`:275-295`); it therefore does not serialize controller setup, cleanup or these readers. Exec documents that `Disable()` is CPU-local on ExecSMP (`rom/exec/disable.c:28-59`). Automatic slot selection separately checks an empty slot and later publishes the chosen device (`controllersubsystem.c:127-142`). The public `AssignSlot()` method also resolves a device and calls this same `ctrl_SlotSet()` without a shared lock (`controller.conf:124,195`; `controllersubsystem.c:440-454`), so concurrent explicit assignments can race the same slot table and per-device `legacy_port` fields; this is the same unsynchronized slot-state transition, not a separate root cause.
@@ -41148,6 +41203,7 @@ The public `Hidd_Controller_Binding` flags define `BF_Invert`, `BF_HalfPos`, and
 **Trigger and consequence:** concurrent controller registration, cleanup, lookup, ID enumeration, or automatic/explicit slot assignment runs on different ExecSMP CPUs. The `UWORD` ID increment can assign duplicates, list insertion/removal can race traversal or other list mutation, and the count can diverge from the list. Concurrent automatic registration or explicit `AssignSlot()` calls can also leave the slot table and per-device `legacy_port` fields inconsistent or emit `PortChanged` events out of order. Use one SMP-safe subsystem lock consistently across device-list/ID mutation, lookup/enumeration, and slot ownership transitions. **Affected configuration:** explicitly built controller HIDD on ExecSMP with concurrent device operations; no in-tree controller device producer or active aggregate edge was found. **Confidence:** high for the missing cross-CPU synchronization and shared accesses; manifestation requires overlap. No device operation, interleaving, or build was run; source-only.
 
 <a id="od9857-controller-device-ids-are-reused-after-wrap"></a>
+<a id="od9857"></a>
 ## OD9857 — Controller device IDs are reused after the 16-bit counter wraps
 
 The controller subsystem initializes `next_id` to 1, assigns it to each device, increments the `UWORD`, and resets zero to 1 (`workbench/hidds/controller/controllersubsystem.c:182-185,265-271`). Its source documentation says IDs are never reused (`:35-42`). After the counter cycles, a new device receives an ID that may still be held by a consumer or client for a prior device.
@@ -41155,6 +41211,7 @@ The controller subsystem initializes `next_id` to 1, assigns it to each device, 
 **Trigger and consequence:** enough registrations occur over the subsystem lifetime to wrap the 16-bit ID counter. A stale ID can identify a different device, breaking the documented stable identity contract. Use a wider monotonic ID or fail registration when IDs are exhausted. **Affected configuration:** explicit target with repeated device churn; no checked-in controller producer or active aggregate edge was found. **Confidence:** high for wrap and reuse; conditional on at least 65,535 successful registrations. No device churn was performed; source-only.
 
 <a id="od9858-controller-remapping-skips-devices-after-the-64th"></a>
+<a id="od9858"></a>
 ## OD9858 — Controller mapping updates skip devices after the 64th
 
 `ctrl_RemapDevices()` snapshots at most 64 device IDs (`workbench/hidds/controller/controllersubsystem.c:361-390`), but driver registration has no matching 64-device cap (`:265-282`). Mapping add/remove calls this routine to apply the changed mapping and emit remap events (`:392-416`).
@@ -41167,6 +41224,7 @@ The controller subsystem initializes `next_id` to 1, assigns it to each device, 
 The proposed failure-path leak is not present. `OOP_NewObject(NULL, CLID_HW_Root, NULL)` returns the `CLID_HW_Root` class-wide singleton: `HWRoot__Root__New()` creates it only when `csd->hwroot` is NULL and returns the stored pointer on every call (`rom/hidds/hidd/hwroot.c:40-64`). Its `Root.Dispose` implementation deliberately does nothing (`hwroot.c:67-70`), and generic HIDD initialization creates and retains the singleton before controller initialization (`rom/hidds/hidd/initcode.c:43-53`). Thus the local `root` variable is a borrowed singleton reference, not an owned per-call allocation; leaving it undisposed when `HW_AddDriver()` fails does not leak a root object. The failure-path candidate is withdrawn. No module failure or build was induced; source-only.
 
 <a id="od9860-controller-event-fanout-silently-stops-at-32-consumers"></a>
+<a id="od9860"></a>
 ## OD9860 — Controller event fanout silently stops at 32 consumers
 
 `ctrl_DeliverEvent()` stores matching consumer pointers in a 32-entry local array and stops appending when it reaches `CTRL_FANOUT_MAX` (`workbench/hidds/controller/controller_notify.c:148-175`; `controller_intern.h:31`). `ctrl_ConsumerAttach()` has no matching limit or rejection (`controller_notify.c:194-201`), so consumers beyond the delivery array capacity can be attached successfully.
@@ -41174,6 +41232,7 @@ The proposed failure-path leak is not present. `OOP_NewObject(NULL, CLID_HW_Root
 **Trigger and consequence:** more than 32 attached consumers match one event. Only the first 32 receive it, while later consumers remain attached without an error indicating that delivery is truncated. Reject attachments beyond the cap or deliver to all matches safely. **Affected configuration:** explicit target with external/alternate consumers; no in-tree consumer or active aggregate edge was found. **Confidence:** high for the cap and lack of attach rejection; conditional on consumer count and matching filters. No consumer or event was created; source-only.
 
 <a id="od9861-controller-initial-device-events-stop-at-64"></a>
+<a id="od9861"></a>
 ## OD9861 — New controller consumers miss existing devices after the 64th
 
 When a subsystem-wide consumer requests `DeviceAdded`, `ctrl_ConsumerAttach()` snapshots existing registered device IDs into a fixed 64-entry array and silently stops adding IDs at that capacity (`workbench/hidds/controller/controller_notify.c:203-231`). Device registration itself has no 64-device limit (`controllersubsystem.c:265-282`).
@@ -41181,6 +41240,7 @@ When a subsystem-wide consumer requests `DeviceAdded`, `ctrl_ConsumerAttach()` s
 **Trigger and consequence:** a subsystem-wide consumer attaches after more than 64 devices are already registered. It receives initial `DeviceAdded` events only for the first 64 and has no indication that the enumeration was truncated. Enumerate all registered devices safely or report/enforce a capacity limit. **Affected configuration:** explicit target with external/alternate device producers and consumers; no in-tree caller or active aggregate edge was found. **Confidence:** high for the bounded snapshot and uncapped registration; conditional on device count and consumer interest in `DeviceAdded`. No controller or event was run; source-only.
 
 <a id="od2883-input-and-controller-consumer-fanout-can-race-disposal"></a>
+<a id="od2883"></a>
 ## OD2883 — Input and Controller HIDD fanout can race consumer disposal
 
 The Input HIDD callback traversal reads consumer nodes without pinning them (`rom/hidds/input/inputsubsystem.c:94-113,240-257`). `Input__Root__Dispose()` unlinks a consumer under local `Disable()` and the root disposer frees the object (`rom/hidds/input/inputclass.c:240-251`; `rom/oop/rootclass.c:137-149`). On ExecSMP, a producer on one CPU can therefore retain/traverse a consumer while another CPU disposes it.
@@ -41190,6 +41250,7 @@ The explicit Controller HIDD has the same lifetime shape: `ctrl_DeliverEvent()` 
 **Trigger and consequence:** an active consumer is disposed while an event fanout on another CPU has traversed or snapshotted it. Delivery can access freed consumer state or its released ring/message array. Defer reclamation until in-flight deliveries complete, or protect delivery and disposal with shared synchronization. **Affected configuration:** ExecSMP for the Input HIDD with a concurrently disposed public/alternate consumer; the Controller HIDD case additionally requires its explicit target and an external/alternate client. Selected keyboard.device and gameport.device consumers remain resident during ordinary operation, so those do not establish the overlap. **Confidence:** high for the missing cross-CPU lifetime protection and source-level interleaving; actual overlap is conditional. No event or disposal race was run; source-only.
 
 <a id="od11483-nouveau-stderr-override-uses-incompatible-file-layout"></a>
+<a id="od11483"></a>
 ## OD11483 — Nouveau stderr override returns an incompatible `FILE` layout
 
 The selected Nouveau helper defines `__stdio_getstderr()` to return a pointer to a two-field `hackFILE` containing only `int fd` and `int flags` (`workbench/hidds/nouveau/arosc_emul.c:9-23`). The StdCIO `FILE` ABI instead begins with a `MinNode`, then the descriptor union, `fhFlags`, and `flags` (`compiler/crt/stdc/include/aros/types/file_s.h:16-28`). Standard `fputc()` dereferences the real `flags` field and then the `fh` field (`compiler/crt/stdc/fputc.c:45-56`). Thus an ordinary stdio write to the stderr pointer returned by the Nouveau override reads and may write beyond the static two-int object, using offsets incompatible with the actual stream layout.
@@ -41197,6 +41258,7 @@ The selected Nouveau helper defines `__stdio_getstderr()` to return a pointer to
 **Trigger and consequence:** code linked into the optional Nouveau HIDD calls `fprintf(stderr, ...)`, `fputc(..., stderr)`, or another stdio output path. The returned object is too small and has incompatible field offsets; the operation may access invalid memory or treat unrelated bytes as a DOS file handle. A repository search found no direct stderr/stdout call in the checked-in Nouveau source, so an in-tree trigger is not established. **Affected configuration:** the explicitly buildable Nouveau HIDD target, which links `stdcio` and `stdc`; target selection is Mesa/toolchain dependent; the active aggregate is requested by x86_64 PC and OpenSBI RISC-V64 full-image targets when an alias resolves (`workbench/hidds/nouveau/mmakefile.src:14-28,309-311`). **Confidence:** high for the layout mismatch and standard-library access; conditional on a stderr consumer being linked and exercised. Return a correctly laid-out `struct __sFILE` or route logging through a type-safe callback. No Nouveau operation, stdio write, or build was run; source-only.
 
 <a id="od11484-mesa-usleep-returns-without-waiting"></a>
+<a id="od11484"></a>
 ## OD11484 — Mesa `usleep()` returns without waiting
 
 The shared AROS Mesa compatibility layer implements `usleep()` by emitting only an `IMPLEMENT()` debug message and returning zero (`workbench/libs/mesa/emul_arosc.c:140-144`); it never waits for the requested interval. The checked-in Mesa 20.0.8 and 21.0.2 AROS patches select the AROS branch of `os_time_sleep_ns()` and forward `usecs` directly to `usleep()` (`mesa-20.0.8-aros.diff:847-849`; `mesa-21.0.2-aros.diff:408-410`). Calls through that Mesa sleep helper therefore complete immediately, so timing backoff/poll intervals are skipped and retry loops can busy-spin.
@@ -41204,6 +41266,7 @@ The shared AROS Mesa compatibility layer implements `usleep()` by emitting only 
 **Trigger and consequence:** a Mesa/Gallium caller uses `os_time_sleep_ns()` in an AROS build using one of the checked-in patched Mesa versions. Requested waits are omitted and callers may spin or proceed before the intended delay. **Affected configuration:** the Mesa library and optional Nouveau/llvmpipe targets that compile `emul_arosc.c`; the default Mesa version is 26.0.0, while the checked-in compatibility patches include 20.0.8/20.3.2/21.0.2 (`workbench/libs/mesa/mesa.cfg:11-36`). **Confidence:** high for the no-wait implementation and patched dispatch; the exact runtime impact depends on which Mesa code path calls the sleep helper. Implement the requested delay or return an explicit unsupported/error result rather than success. No wait, Mesa call, or build was run; source-only.
 
 <a id="od11485-mesa-gettimeofday-reports-success-without-a-timestamp"></a>
+<a id="od11485"></a>
 ## OD11485 — Mesa `gettimeofday()` can report success with an uninitialized timestamp
 
 The compatibility implementation fills `tv` only if `CreateIORequest()` succeeds and `OpenDevice("timer.device", ...)` returns success (`workbench/libs/mesa/emul_arosc.c:114-131`). If either resource operation fails, it still deletes the optional resources and returns zero unconditionally (`:134-137`), leaving the caller's `struct timeval` unchanged. The checked-in Mesa 20.0.8/21.0.2 patches select the AROS `os_time_get_nano()` branch, call `gettimeofday(&tv, NULL)`, and derive the result from `tv` without checking the status (`mesa-20.0.8-aros.diff:839-842`; `mesa-21.0.2-aros.diff:399-403`).
@@ -41211,6 +41274,7 @@ The compatibility implementation fills `tv` only if `CreateIORequest()` succeeds
 **Trigger and consequence:** timer-request allocation or timer-device open fails in a supported patched Mesa build. The caller receives success and computes a timestamp from uninitialized or stale fields, which can invalidate timeouts and elapsed-time comparisons. **Affected configuration:** Mesa 20.0.8/20.3.2/21.0.2 AROS builds using this compatibility source; optional Nouveau/llvmpipe callers depend on the selected Mesa version. **Confidence:** high for the unchecked failure paths and unconditional success; the trigger requires resource/device failure. Return failure when time cannot be obtained and ensure callers handle it, or provide a valid fallback. No device open, timestamp query, or build was run; source-only.
 
 <a id="od11486-mesa-calloc-size-overflow-can-underallocate"></a>
+<a id="od11486"></a>
 ## OD11486 — Mesa `calloc()` can underallocate after size arithmetic wraps
 
 The compatibility allocator computes `user = nmemb * size` without checking multiplication overflow, then adds its header and narrows the total to `ULONG` for `AllocMem()` (`workbench/libs/mesa/emul_arosc.c:68-81`). `malloc()` performs the same unchecked header addition and `ULONG` conversion (`:41-54`). A wrapped `calloc()` product or total smaller than the requested allocation can therefore produce a small non-NULL block while recording the wrapped size; callers that initialize or use the requested element range then write past the block. `realloc()` delegates new storage to the same `malloc()` implementation (`:85-104`).
@@ -41218,6 +41282,7 @@ The compatibility allocator computes `user = nmemb * size` without checking mult
 **Trigger and consequence:** a Mesa caller requests a `calloc(nmemb, size)` whose product exceeds `SIZE_MAX`, or a `malloc`/`calloc` size whose header-inclusive total exceeds `ULONG_MAX`. The allocator may return an undersized block rather than NULL, enabling caller out-of-bounds writes; `calloc()` also fails the standard requirement to detect multiplication overflow. **Affected configuration:** builds selecting `workbench/libs/mesa/emul_arosc.c`, including the optional Mesa/Nouveau/llvmpipe paths; the overflow requires an unusually large size/count and no in-tree caller with a concrete triggering value was established. **Confidence:** high for missing overflow checks and narrowing; caller impact is conditional on such a request. Check multiplication and header addition before converting to the Exec allocation size. No oversized allocation or build was attempted; source-only.
 
 <a id="od11487-mesa-memstream-flush-hides-buffer-growth-failure"></a>
+<a id="od11487"></a>
 ## OD11487 — Mesa memstream flush reports success when buffer growth fails
 
 `update_buffer_locked()` attempts to grow the caller-visible buffer with `realloc()`, but if that allocation fails it restores the file position and returns without updating the buffer or size (`workbench/libs/mesa/libmesautil/mesa_memstream_aros.c:53-62`). The caller `u_memstream_flush()` checks `fflush()` but discards the update helper's failure state and returns zero (`:141-160`). A caller therefore receives successful flush status while its exported buffer still contains stale/truncated data. The same silent return paths occur if the helper cannot seek to determine or copy the file contents (`:45-50,65-67`).
@@ -41225,6 +41290,7 @@ The compatibility allocator computes `user = nmemb * size` without checking mult
 **Trigger and consequence:** a memory allocation or seek/read failure while a Mesa memstream is flushed after its backing temporary file has grown. Callers that trust the zero return can consume incomplete or stale serialized text/data. **Affected configuration:** the Mesa utility library source selected by `workbench/libs/mesa/libmesautil/mmakefile.src:122`; optional Mesa-dependent builds. **Confidence:** medium-high for the suppressed buffer-growth failure; no in-tree fetched-Mesa caller is present in this checkout to establish how each consumer handles the buffer. Propagate snapshot/update failure from the helper through `u_memstream_flush()`. No file, allocation failure, or build was exercised; source-only.
 
 <a id="od11488-mesa-context-creation-dereferences-failed-rastport-clone"></a>
+<a id="od11488"></a>
 ## OD11488 — Mesa context setup dereferences a failed RastPort clone
 
 `MESA3DGLStandardInit()` replaces `ctx->visible_rp` with `CloneRastPort(ctx->visible_rp)` and immediately dereferences the result's Layer bounds without checking it (`workbench/libs/mesa/mesa3dgl_support.c:237-256`). The selected Intuition implementation of `CloneRastPort()` returns NULL when its `AllocMem()` fails (`rom/intuition/misc.c:145-158`). `MESA3DGLCreateContext()` calls this setup after checking only that the original visible RastPort exists, and ignores the setup method's Boolean result (`workbench/libs/mesa/mesa3dgl_glacreatecontext.c:138-150`). The RastPort-reset path also invokes it after replacing the old clone (`mesa3dgl_glasetrast.c:61-73`).
@@ -41232,6 +41298,7 @@ The compatibility allocator computes `user = nmemb * size` without checking mult
 **Trigger and consequence:** clone allocation fails during GL context creation or RastPort reset. The next bounds read dereferences NULL, so the operation crashes rather than returning a context/setup failure. **Affected configuration:** Mesa3DGL builds using the selected AROS support path, including optional Mesa-dependent graphics drivers. **Confidence:** high for the unchecked NULL return and caller sequence; trigger requires allocation failure. Check the clone result and propagate failure while preserving valid ownership state. No context, RastPort, allocation failure, or build was run; source-only.
 
 <a id="od11489-mesa-rastport-dimension-underflow-wraps-to-large-framebuffer"></a>
+<a id="od11489"></a>
 ## OD11489 — Mesa RastPort dimension underflow wraps to a large framebuffer size
 
 `MESA3DGLRecalculateBufferWidthHeight()` stores the drawable width and height in `ULONG` fields and subtracts the `ULONG` left/right/top/bottom margins into `ULONG newwidth/newheight` (`workbench/libs/mesa/mesa3dgl_support.c:301-323`; `mesa3dgl_types.h:43-47`). It then attempts to clamp negative results with comparisons against zero (`:325-326`), which cannot detect unsigned underflow. If the supplied margins exceed the RastPort layer dimensions, subtraction wraps to a very large positive dimension and is written to the framebuffer (`:340-356`). The dimensions are later passed through Mesa framebuffer validation and rendering/presentation (`mesa3dgl_gallium.c:312-324`; `mesa3dgl_glaswapbuffers.c:58-69`).
@@ -41247,6 +41314,7 @@ The compatibility allocator computes `user = nmemb * size` without checking mult
 **Trigger and consequence:** create and destroy a Mesa3DGL context, or fail any later setup stage after `CreatePipeV()` succeeds. The per-context Gallium driver OOP object remains allocated; repeated context lifecycles accumulate driver objects. **Affected configuration:** optional Mesa/Gallium builds using the display or fallback pipe HIDD; aggregate selection depends on the Mesa/toolchain configuration. **Confidence:** high for the object creation/destruction mismatch and all inspected teardown paths. Call `DestroyPipe()` after destroying the screen and before freeing the owning context. No GL context or HIDD object was created; source-only.
 
 <a id="od11490-mesa-createcontext-error-path-leaks-state-tracker-context"></a>
+<a id="od11490"></a>
 ## OD11490 — Mesa context creation leaks a state-tracker context on framebuffer allocation failure
 
 After `st_api_create_context()` succeeds, `glACreateContext()` stores the state-tracker context in `ctx->st` and attempts to allocate `ctx->framebuffer` (`workbench/libs/mesa/mesa3dgl_glacreatecontext.c:199-212`). If framebuffer allocation fails, control reaches `error_out`, which frees the state manager and the outer context but never calls `st_destroy_context(ctx->st)` (`:216-219`). The normal destructor does call `st_destroy_context()` before releasing the framebuffer, screen manager and context (`mesa3dgl_gladestroycontext.c:55-63`). Thus this creation-failure branch leaks the newly created state-tracker context and its owned resources; repeated failures can accumulate them.
@@ -41254,6 +41322,7 @@ After `st_api_create_context()` succeeds, `glACreateContext()` stores the state-
 **Trigger and consequence:** the `MESA3DGLNewFrameBuffer()` allocation fails after successful state-tracker context creation. The API returns NULL but leaves the internal state-tracker context allocated; cleanup also releases the manager/screen while that context was not destroyed. **Affected configuration:** optional Mesa3DGL/Gallium context creation on any backend. **Confidence:** high for the success/failure ordering and omitted destructor. Destroy the state-tracker context before freeing its screen manager on this error path. No allocation failure, GL context, or build was induced; source-only.
 
 <a id="od11491-mesa-makecurrent-resize-does-not-invalidate-framebuffer-stamp"></a>
+<a id="od11491"></a>
 ## OD11491 — Mesa make-current resize path does not invalidate framebuffer resources
 
 When switching to a context, `glAMakeCurrent()` recalculates the drawable dimensions and then attaches the framebuffer (`workbench/libs/mesa/mesa3dgl_glamakecurrent.c:44-54`). The recalculation updates width/height and sets `framebuffer->resized` when they change (`mesa3dgl_support.c:340-357`), but it does not increment the frontend drawable stamp. Mesa's own framebuffer helper documents that the state tracker only revalidates when this stamp differs; `MESA3DGLCheckAndUpdateBufferSize()` performs the required atomic increment (`mesa3dgl_gallium.c:312-324`). `glASwapBuffers()` invokes that helper after presentation, but if make-current already copied the new dimensions into the context, the subsequent recalculation sees no dimension change and does not set/increment the stamp (`mesa3dgl_glaswapbuffers.c:63-69`). The old render resource and attachment textures can therefore remain allocated at the previous size.
@@ -41261,6 +41330,7 @@ When switching to a context, `glAMakeCurrent()` recalculates the drawable dimens
 **Trigger and consequence:** a target RastPort/layer changes size while its context is detached or another context is current, then the resized context is made current and rendered without a prior `glASetRast()` or `glASwapBuffers()` size check. The cached drawable stamp is unchanged, so state-tracker validation can skip dropping/recreating the old-sized resources; drawing or presentation can use stale-size buffers. **Affected configuration:** Mesa3DGL contexts on any Gallium backend when a drawable is resized while its context is not current. **Confidence:** medium-high; the missing stamp update is direct, and the expected validation gate is documented by the adjacent helper, but no fetched Mesa runtime was exercised. Use the stamp-updating helper when making a resized context current. No context, resize, draw, or build was run; source-only.
 
 <a id="od11492-mesa-nodepth-can-request-an-empty-depth-stencil-format"></a>
+<a id="od11492"></a>
 ## OD11492 — Mesa can request a depth/stencil attachment with `PIPE_FORMAT_NONE`
 
 `MESA3DGLSelectDepthStencilFormat()` immediately returns success with `PIPE_FORMAT_NONE` when `GLA_NoDepth` is set, regardless of whether stencil remains enabled (`workbench/libs/mesa/mesa3dgl_gallium.c:70-79`). `MESA3DGLFillVisual()` sets the depth/stencil attachment bit whenever either depth or stencil is enabled (`:155-165`), so setting `GLA_NoDepth` alone (with the default `GLA_NoStencil` false) still requests a depth/stencil attachment. The framebuffer resource callback then passes the `PIPE_FORMAT_NONE` format to `resource_create()` for that attachment (`:170-187`), and `glAGetConfig()` reports both depth and stencil as -1 for that format (`mesa3dgl_glagetconfig.c:50-57`).
@@ -41268,6 +41338,7 @@ When switching to a context, `glAMakeCurrent()` recalculates the drawable dimens
 **Trigger and consequence:** a client requests `GLA_NoDepth` but leaves stencil enabled. The visual requests an attachment that has no valid format, so the stencil buffer cannot be created or reported correctly despite the option combination. **Affected configuration:** Mesa3DGL contexts on all Gallium backends when depth is disabled independently of stencil. **Confidence:** high for the inconsistent option/mask/format flow; the exact backend response to `PIPE_FORMAT_NONE` is backend-dependent. Select a stencil-only format when supported, or make the option contract explicitly disable stencil too and keep the mask consistent. No context or resource operation was run; source-only.
 
 <a id="od11493-mesa-framebuffer-validation-hides-resource-allocation-failure"></a>
+<a id="od11493"></a>
 ## OD11493 — Mesa framebuffer validation reports success after resource allocation fails
 
 `MESA3DGLFrameBufferCreateResource()` stores the return from `pipe_screen::resource_create()` directly in the attachment slot without checking for NULL (`workbench/libs/mesa/mesa3dgl_gallium.c:170-187`). `MESA3DGLFrameBufferValidate()` then optionally copies those slots to `out[]` and returns TRUE unconditionally, even if one or more requested resources are NULL (`:215-259`). The callback therefore suppresses the resource-creation failure signal and tells the state tracker that framebuffer validation succeeded with missing attachments.
@@ -41275,6 +41346,7 @@ When switching to a context, `glAMakeCurrent()` recalculates the drawable dimens
 **Trigger and consequence:** a backend resource allocation fails while the state tracker validates requested color or depth/stencil attachments. The drawable is accepted with missing render resources; subsequent rendering or presentation can fail or silently omit the affected buffer instead of propagating validation failure. **Affected configuration:** Mesa3DGL on any Gallium backend when attachment allocation fails. **Confidence:** high for the unchecked NULL and unconditional success; the exact renderer response depends on the state tracker/backend. Propagate resource-creation failure from the callback and avoid returning incomplete attachments as successful validation. No allocation failure or rendering operation was induced; source-only.
 
 <a id="od11494-nouveau-ignores-cursor-buffer-allocation-failure"></a>
+<a id="od11494"></a>
 ## OD11494 — Nouveau ignores cursor buffer allocation failure
 
 The Nouveau graphics-class constructor requests a 64×64 cursor BO but ignores the return value and continues constructing/returns the graphics object (`workbench/hidds/nouveau/nouveau_hiddclass.c:701-704,756-771`). `nouveau_bo_new()` returns an error without setting its output pointer when its allocation or GEM creation fails (`workbench/hidds/nouveau/libdrm/nouveau/nouveau.c:667-678,708-724`). Later, cursor display and shape paths dereference `gfxdata->cursor` for its handle or map (`nouveau_displayclass.c:50-58,411-416,449-453`); the mode-switch path also shows the cursor after switching (`:213-223`).
@@ -41282,6 +41354,7 @@ The Nouveau graphics-class constructor requests a 64×64 cursor BO but ignores t
 **Trigger and consequence:** cursor BO allocation fails during Nouveau graphics-object creation, followed by a mode switch, visibility update, or shape update. Initialization still succeeds, but a later cursor operation dereferences the absent BO and can crash. **Affected configuration:** the optional Nouveau HIDD on a supported GPU when cursor BO allocation/GEM creation fails. **Confidence:** high for the ignored result and later dereference; trigger requires allocation/device failure followed by cursor use. Treat the cursor as unavailable or fail initialization before exposing methods that require it. No GPU, allocation failure, cursor operation, or build was run; source-only.
 
 <a id="od11495-nouveau-cursor-shape-ignores-bo-map-failure"></a>
+<a id="od11495"></a>
 ## OD11495 — Nouveau cursor shape update writes through a failed BO mapping
 
 `SetCursorShape()` calls `nouveau_bo_map()` but ignores its return before clearing and writing the cursor BO through `gfxdata->cursor->map` (`workbench/hidds/nouveau/nouveau_displayclass.c:411-416,445-450`). The selected AROS Nouveau mapping implementation returns `-EINVAL` when `drmMMap()` fails and leaves `bo->map` NULL (`workbench/hidds/nouveau/libdrm/nouveau/nouveau.c:762-773`).
@@ -41293,6 +41366,7 @@ Nouveau I2C compatibility and HIDD callback pass (2026-11-07; no new OD finding)
 Nouveau Gallium HIDD pass (2026-11-07; no new OD finding): completed a full-body read of selected `workbench/hidds/nouveau/nouveau_galliumclass.c` (1 path, 209 C code lines). Checked chipset-to-screen dispatch against the accepted device range, failure cleanup for screen creation/context support, resource-to-bitmap format/stride mapping, and the synchronous display-resource copy path and lock release. No independent defect established in this class. This does not close the separate Gallium library or Nouveau bitmap/copy implementation review. No Gallium screen, resource copy, GPU, or build was exercised; source-only.
 
 <a id="od11496-mesa-tls-creation-dereferences-failed-allocation"></a>
+<a id="od11496"></a>
 ## OD11496 — Mesa task-local storage creation dereferences a failed allocation
 
 `CreateTLS()` calls `AllocVec()` and immediately passes its result to `InitSemaphore()` without checking for allocation failure (`workbench/libs/mesa/tls.c:30-38`). When the allocation fails, the initializer dereferences NULL instead of returning the NULL value that its caller-side `DECLARE_STATIC_TLS` macro explicitly checks (`tls.h:20-29`). The helper is linked into `mesa3dgl` through `SHARED_LIB_SOURCES` (`mmakefile.src:37-40`) and is used by the AROS branches in the checked-in Mesa 20.0.8, 20.3.2, and 21.0.2 patches; Mesa 26.0.0 instead uses pthread TLS in its current patch.
@@ -41300,6 +41374,7 @@ Nouveau Gallium HIDD pass (2026-11-07; no new OD finding): completed a full-body
 **Trigger and consequence:** allocation failure during static TLS initialization for a legacy Mesa 20/21 AROS build. The library initializer dereferences an invalid pointer and fails before its intended null-return handling. **Affected configuration:** only builds selecting the older Mesa integration patches; the configured Mesa 26.0.0 path does not use these helpers. **Confidence:** high for the unchecked allocation and caller intent. Check `AllocVec()` before initializing the semaphore and return NULL on failure. No allocation failure or build was induced; source-only.
 
 <a id="od11497-mesa-tls-insertion-dereferences-failed-node-allocation"></a>
+<a id="od11497"></a>
 ## OD11497 — Mesa task-local storage insertion dereferences a failed node allocation
 
 When the current task has no TLS node, `InsertIntoTLS()` allocates one and immediately writes `selected->tl_Task` without checking the result (`workbench/libs/mesa/tls.c:56-64`). Under node-allocation failure this dereferences NULL. The function is used by the AROS GLAPI context/table setters in the checked-in Mesa 20.0.8, 20.3.2, and 21.0.2 patches, including current-context installation (`mesa-21.0.2-aros.diff:244-250,263-269`); the configured Mesa 26.0.0 integration uses pthread keys instead.
@@ -41307,6 +41382,7 @@ When the current task has no TLS node, `InsertIntoTLS()` allocates one and immed
 **Trigger and consequence:** the first TLS insertion for a task when node allocation fails in a legacy Mesa 20/21 build. The GLAPI setter crashes instead of preserving the previous/unset task-local value. **Affected configuration:** older Mesa integration patches only, not the default Mesa 26.0.0 patch path. **Confidence:** high for the missing check and selected legacy callers. Check allocation before initializing/inserting the node and propagate failure through the setter path. No allocation failure or GLAPI call was induced; source-only.
 
 <a id="od11498-mesa-glapi-aliases-unregistered-exec-tasks"></a>
+<a id="od11498"></a>
 ## OD11498 — Mesa GLAPI aliases unregistered Exec tasks in its pthread TLS fallback
 
 The default Mesa 26 AROS patch stores the current GL dispatch table and context in two `pthread_key_t` slots (`workbench/libs/mesa/mesa-26.0.0-aros.diff:718-743,754-805`). AROS `pthread_self()` maps a task absent from its pthread thread table to ID 0 (`compiler/pthread/pthread_self.c:29-43`; `pthread.c:80-95`). That ID is explicitly reserved for the single task recorded when the linked pthread code initializes (`pthread.c:1217-1230`). Consequently, independent Exec tasks that were not created through `pthread_create()` address the same `ThreadInfo[0].tlsvalues` entries. The Mesa setters then overwrite each other's context and dispatch values, and the getters return whichever task most recently stored them.
@@ -41319,6 +41395,7 @@ The default Mesa 26 AROS patch stores the current GL dispatch table and context 
 This Other Drivers entry is withdrawn because the same Nouveau mode-tag allocation behavior is already documented in Graphics/Desktop finding GD10134. No separate Other Drivers finding is retained. The Nouveau source review and coverage credit remain intact.
 
 <a id="od11500-nouveau-selects-first-crtc-without-checking-connector-compatibility"></a>
+<a id="od11500"></a>
 ## OD11500 — Nouveau selects the first CRTC without checking connector compatibility
 
 `HIDDNouveauSelectConnectorCrtc()` chooses the first connected connector, then assigns `drmmode->crtcs[0]` as its CRTC without examining the connector's encoders or their `possible_crtcs` masks (`workbench/hidds/nouveau/nouveau_hiddclass.c:75-89,101-107`). The selected CRTC ID is retained in the graphics object and later paired with that connector's ID in `drmModeSetCrtc()` (`nouveau_hiddclass.c:605-607`; `nouveau_displayclass.c:93-98`). The selected Nouveau NV50 encoder setup derives `possible_crtcs` from the hardware head mask (`workbench/hidds/nouveau/drm/nouveau/dispnv50/disp.c:3033`); NV04 encoders likewise use the parsed DCB `entry->heads` mask (for example `dispnv04/dac.c:556`). Both checked-in DRM mode-setting routes reject an encoder/CRTC mismatch (`drm_atomic_helper.c:374-381`; `drm_crtc_helper.c:738-744`). The display switch then returns FALSE when `drmModeSetCrtc()` fails (`nouveau_displayclass.c:213-219`).
@@ -41326,6 +41403,7 @@ This Other Drivers entry is withdrawn because the same Nouveau mode-tag allocati
 **Trigger and consequence:** the first connected connector's selected encoder cannot drive the first CRTC returned by DRM resources, while another listed CRTC is compatible. Nouveau still exposes the connector's modes, but attempting to show a bitmap on them fails at mode setting, so the selected output cannot display through this driver. **Affected configuration:** optional Nouveau HIDD on a multi-CRTC GPU/connector topology with that ordering and compatibility-mask mismatch. **Confidence:** high for the unchecked selection and rejection path; medium for occurrence on a particular supported GPU, whose connector/head topology was not exercised. Select a CRTC from the connector's compatible encoder masks, or reject/retry incompatible pairings during enumeration. No connector, CRTC, modeset, GPU, or build was run; source-only.
 
 <a id="od11501-nouveau-bitmap-access-ignores-map-failure"></a>
+<a id="od11501"></a>
 ## OD11501 — Nouveau bitmap methods ignore failed buffer mappings
 
 The shared `MAP_BUFFER` macro ignores the return from `nouveau_bo_map()` and then proceeds (`workbench/hidds/nouveau/nouveau_intern.h:300-301`). The AROS `nouveau_bo_map()` implementation returns `-EINVAL` and leaves `bo->map` NULL when `drmMMap()` fails (`workbench/hidds/nouveau/libdrm/nouveau/nouveau.c:762-773`). Bitmap CPU paths use the macro and then dereference `bo->map`: PutImage/GetImage, PutAlphaImage, PutAlphaTemplate, PutTemplate, PutPattern, and DrawLine (`workbench/hidds/nouveau/nouveau_bitmapclass.c:474-483,539-548,736-748,882-903,939-968,1006-1038,1052-1056`). PutPixel/GetPixel separately map when the pointer is NULL and then form a pixel address from the still-NULL `bo->map` without checking it (`:247-260,291-304`). `ObtainDirectAccess()` also writes the NULL map to `addressReturn` and returns TRUE (`:764-778`).
@@ -41334,6 +41412,7 @@ The shared `MAP_BUFFER` macro ignores the return from `nouveau_bo_map()` and the
 
 
 <a id="od11502-nouveau-alpha-blend-left-shifts-negative-values"></a>
+<a id="od11502"></a>
 ## OD11502 — Nouveau alpha blending left-shifts negative channel deltas
 
 `do_alpha()` multiplies the alpha by a signed channel delta and left-shifts the product (`workbench/hidds/nouveau/nouveau_accel.c:41-45`). Its image and template callers pass `source_channel - destination_channel` (`:110-112,192-194,284-286,323-325,503-505,542-544`), which is negative for ordinary blends where a source channel is darker than the destination. Left-shifting a negative signed integer is undefined behavior in C. The Nouveau build flags do not request wrapping semantics (`workbench/hidds/nouveau/mmakefile.src:242,304`).
@@ -41341,6 +41420,7 @@ The shared `MAP_BUFFER` macro ignores the return from `nouveau_bo_map()` and the
 **Trigger and consequence:** a partially transparent image/template blend with any source channel below the corresponding destination channel. The computed blend is not portable and may be miscompiled, producing incorrect colors. **Affected configuration:** optional Nouveau bitmap paths using CPU alpha blending, including the software/staging helpers. **Confidence:** high for the signed negative shift and reachable color inputs. Use defined fixed-point arithmetic, for example multiplication/division with an explicitly chosen rounding rule or unsigned arithmetic with proven bounds. No blend, compiler experiment, GPU operation, or build was run; source-only.
 
 <a id="od11503-nouveau-alpha-upload-left-shifts-byte-into-signed-int"></a>
+<a id="od11503"></a>
 ## OD11503 — Nouveau alpha upload left-shifts a byte into signed `int`
 
 `HiddNouveauAccelAPENUpload3D()` stores the alpha input as `char *` and constructs each 32-bit pixel with `src[srcx] << 24` (`workbench/hidds/nouveau/nouveau_accel.c:1012,1038,1053`). Alpha input is an 8-bit value (`srcalpha` is `UBYTE *`); for values at or above 128, a signed-`char` implementation promotes it to a negative `int`, and shifting that value is undefined. If plain `char` is unsigned, the promoted value is positive but shifting values 128–255 by 24 cannot be represented as a signed 32-bit `int`, also undefined. The value is then ORed into the ARGB upload pixel; the inverted path applies XOR 255 after the shift, which does not make the shift defined.
@@ -41348,6 +41428,7 @@ The shared `MAP_BUFFER` macro ignores the return from `nouveau_bo_map()` and the
 **Trigger and consequence:** a transparent-template upload on the Nouveau 3D alpha path with an alpha byte at least 128. Pixel construction has undefined behavior before upload and can yield incorrect alpha or color. **Affected configuration:** optional Nouveau HIDD on NV10–NV40 architectures when the GART accelerated alpha-template route is selected (`nouveau_bitmapclass.c:843-861`). **Confidence:** high for the integer-promotion/shift issue on the project's 32-bit `int` targets; no platform was run. Promote through an unsigned 32-bit type before shifting, and express alpha inversion as a byte operation before packing. No template upload, GPU operation, or build was run; source-only.
 
 <a id="od11504-nouveau-solid-axis-lines-omit-final-pixel"></a>
+<a id="od11504"></a>
 ## OD11504 — Nouveau solid horizontal and vertical lines omit their final pixel
 
 `HIDDNouveauBitMapDrawSolidLine()` normalizes axis-aligned endpoints, then iterates while `i != x2` for horizontal lines and `i != y2` for vertical lines (`workbench/hidds/nouveau/nouveau_accel.c:1121-1145`). Both loops stop before the second endpoint, and a zero-length line draws no pixel. The HIDD `DrawLine` contract specifies the supplied start and end points (`rom/hidds/gfx/gfx.conf:527-542`), and the generic bitmap implementation includes both ends (`rom/hidds/gfx/gfx_bitmapclass.c:1737-1740`). Nouveau dispatches copy-mode, full-color-mask lines to this helper (`workbench/hidds/nouveau/nouveau_bitmapclass.c:1045-1062`).
@@ -41356,6 +41437,7 @@ The shared `MAP_BUFFER` macro ignores the return from `nouveau_bo_map()` and the
 
 
 <a id="od11505-nouveau-compositor-stack-node-allocation-is-unchecked"></a>
+<a id="od11505"></a>
 ## OD11505 — Nouveau compositor dereferences a failed bitmap-stack allocation
 
 `Compositor::BitMapStackChanged()` allocates one `StackBitMapNode` for each compositable viewport, then immediately initializes and appends the result without checking `AllocMem()` (`workbench/hidds/nouveau/nouveau_compositorclass.c:601-609`). The viewport list is supplied by the display class (`nouveau_displayclass.c:357-365`), and the memory allocation can return NULL.
@@ -41363,6 +41445,7 @@ The shared `MAP_BUFFER` macro ignores the return from `nouveau_bo_map()` and the
 **Trigger and consequence:** allocation failure while processing a stack containing a bitmap accepted by `HIDDCompositorCanCompositeWithScreenBitMap()`. The compositor dereferences NULL before finishing the display-stack update. **Affected configuration:** optional Nouveau HIDD when compositor notifications include at least one compositable bitmap and node allocation fails. **Confidence:** high for the unchecked allocation and direct dereference. Check the allocation and stop or skip the node while preserving a valid compositor stack. No allocation failure, display-stack update, GPU operation, or build was induced; source-only.
 
 <a id="od11506-nouveau-compositor-bitmap-creation-failure-passes-null-to-modeset"></a>
+<a id="od11506"></a>
 ## OD11506 — Nouveau compositor passes a failed composite-bitmap creation to modeset
 
 When a top bitmap is dragged below the screen's top edge and no composite bitmap exists, `HIDDCompositorToggleCompositing()` creates a screen-sized bitmap but does not check the returned object (`workbench/hidds/nouveau/nouveau_compositorclass.c:443-468`). The `HIDD_Display_CreateObject()` contract explicitly returns NULL on failure (`rom/hidds/gfx/gfx_displayclass.c:689-722`). The code stores that NULL as `screenbitmap`; when it differs from the previously displayed bitmap, it passes the pointer to `HIDDNouveauSwitchToVideoMode()`. That routine immediately calls `OOP_OCLASS(bm)` and uses the resulting object (`workbench/hidds/nouveau/nouveau_compositorclass.c:476-483`; `nouveau_displayclass.c:111-119`).
@@ -41371,6 +41454,7 @@ When a top bitmap is dragged below the screen's top edge and no composite bitmap
 
 
 <a id="od11507-nouveau-acceleration-failure-dereferences-missing-pattern-object"></a>
+<a id="od11507"></a>
 ## OD11507 — Nouveau acceleration setup failure is followed by a NULL pattern-object dereference
 
 `NVAccelCommonInit()` returns FALSE when allocating or mapping its scratch BO fails, but by then it has already created the main GPU channel and push buffer; the failure branch returns without clearing or finalizing those fields (`workbench/hidds/nouveau/xf86-video-nouveau/nv_accel_common.c:674-707`). `HIDDNouveauAccelCommonInit()` propagates FALSE without cleanup (`:813-823`), and the graphics constructor logs that acceleration setup failed but continues (`workbench/hidds/nouveau/nouveau_hiddclass.c:705-708`). It later decides whether to set the initial pattern using only `carddata->channel` (`:728-737`). For NV_ARCH_03 through NV_ARCH_40 this calls `NV04EXASetPattern()`, which dereferences `pNv->NvImagePattern->handle` (`workbench/hidds/nouveau/xf86-video-nouveau/nv04_exa.c:31-38`). A scratch-BO failure occurs before `NVAccelInitImagePattern()` can create that object (`nv_accel_common.c:699-707,723-725`).
@@ -41379,6 +41463,7 @@ When a top bitmap is dragged below the screen's top edge and no composite bitmap
 
 
 <a id="od11508-nouveau-nv50-hostdata-upload-overreads-odd-width-rows"></a>
+<a id="od11508"></a>
 ## OD11508 — Nouveau NV50/NVC0 hostdata upload reads past odd-width 16-bit rows
 
 `NV50EXAUploadSIFC()` and `NVC0EXAUploadSIFC()` each round an input row's byte count up to 32-bit dwords (`line_dwords = (w * cpp + 3) / 4`) and pass that dword count to `PUSH_DATAp()` as though all those bytes belong to the row (`nv50_exa.c:324-330,365-382`; `nvc0_exa.c:327-332,367-384`). For a 16-bit bitmap and odd width, both read two bytes beyond the row; on the final row with a tightly packed source buffer, they read two bytes beyond the caller-provided image. The HIDD upload helper selects this hostdata path for native 16-bit small transfers on Tesla and later (`nouveau_exa.c:571-594`). The destination clips limit writes to the requested rectangle (`nv50_exa.c:341-342`; `nvc0_exa.c:343-344`), but do not bound the CPU reads from `src`.
@@ -41387,6 +41472,7 @@ When a top bitmap is dragged below the screen's top edge and no composite bitmap
 
 
 <a id="od11509-blackwell-small-image-upload-uses-removed-2d-engine"></a>
+<a id="od11509"></a>
 ## OD11509 — Nouveau Blackwell small-image upload submits work to the removed 2D engine
 
 `NVAccelCommonInit()` explicitly skips 2D engine initialization on NV_BLACKWELL and documents that those operations fall back to software (`workbench/hidds/nouveau/xf86-video-nouveau/nv_accel_common.c:732-745`). However, `HiddNouveauNVAccelUploadM2MF()` still routes every architecture at or above NV_FERMI to `NVC0EXAUploadSIFC()` for small native uploads (`nouveau_exa.c:575-594`). That function writes NV50 2D SIFC methods and returns success after push-buffer validation without checking that the removed 2D class exists (`nvc0_exa.c:327-365,367-393`). The bitmap caller treats TRUE as a completed upload and returns without its software fallback (`nouveau_bitmapclass.c:443-465`).
@@ -41394,6 +41480,7 @@ When a top bitmap is dragged below the screen's top edge and no composite bitmap
 **Trigger and consequence:** on Blackwell, a native small `PutImage` that reaches the GART upload helper (including a 32×32 16-bit image) and fits the hostdata threshold. The helper submits the transfer through the unavailable NVC0 2D path, then reports success, so the image is not copied through the supported copy-engine/GART path and may remain stale; submitting methods without the initialized engine can also fault the GPU channel. **Affected configuration:** optional Nouveau HIDD on NV_BLACKWELL for the small native-image upload route. **Confidence:** high that the path is selected despite the deliberate omission of 2D initialization; device behavior of the unsupported method stream was not exercised. Skip the 2D hostdata fast path on Blackwell and continue to its copy-engine upload path. No image upload, GPU operation or build was run; source-only.
 
 <a id="od11510-nouveau-3d-upload-reports-success-when-draw-space-reservation-fails"></a>
+<a id="od11510"></a>
 ## OD11510 — Nouveau 3D uploads report success when draw reservation fails
 
 Both `NV30EXAComposite()` and `NV40EXAComposite()` return immediately when `PUSH_SPACE(push, 64)` fails, but their return type is `void` (`workbench/hidds/nouveau/xf86-video-nouveau/nv30_exa.c:563-572`; `nv40_exa.c:547-556`). The AROS wrappers `HIDDNouveauNV303DCopyBox()` and `HIDDNouveauNV403DCopyBox()` call these functions and then return `TRUE` unconditionally (`nv30_exa.c:992-1000`; `nv40_exa.c:1044-1051`). Their selected caller, `HiddNouveau3DCopyBoxFromGART()`, ignores the wrapper result as well (`workbench/hidds/nouveau/nouveau_accel.c:888-905`). Consequently, when push-buffer reservation fails, the GART-to-bitmap draw is skipped but the surrounding ARGB/APEN upload continues and reports success (`nouveau_accel.c:989-995,1058-1064`), leaving that image region stale without a software retry.
@@ -41401,6 +41488,7 @@ Both `NV30EXAComposite()` and `NV40EXAComposite()` return immediately when `PUSH
 **Trigger and consequence:** the optional NV_ARCH_30/40 accelerated ARGB or alpha-pen upload reaches the 3D GART copy path and the compositor cannot reserve 64 push-buffer words. No draw is emitted, yet the upload completes as successful. **Affected configuration:** optional Nouveau HIDD on NV_ARCH_30 and NV_ARCH_40 when push-buffer reservation fails during a 3D upload. **Confidence:** high for skipped draw and success propagation; occurrence of reservation failure depends on push-buffer state. Return and propagate the draw result so the upload can fail or use its software fallback. No push-buffer failure, image upload, GPU operation or build was induced; source-only.
 
 <a id="od11511-nouveau-nv30-nv40-shader-upload-failure-is-ignored"></a>
+<a id="od11511"></a>
 ## OD11511 — Nouveau NV30/NV40 initialization ignores failed shader uploads
 
 The shared `PUSH_DATAu()` helper returns without emitting the upload commands when either `nouveau_pushbuf_space()` or `nouveau_pushbuf_refn()` fails, but its return type is `void` (`workbench/hidds/nouveau/xf86-video-nouveau/nv04_accel.h:52-62`). The selected NV30 and NV40 TCL initializers call it repeatedly to populate fragment programs in the scratch BO, then continue and return success without any way to observe a skipped upload (`nv30_exa.c:831,841,875`; `nv40_exa.c:791,797,807,817,831,845,859,873,908`). `NVAccelCommonInit()` treats the initializer result as the context-object status and completes the 3D setup when it is TRUE (`nv_accel_common.c:598-606,771-775`). The HIDD later uses those programs for NV_ARCH_30/40 GART alpha uploads (`nouveau_accel.c:891-899`; `nv30_exa.c:475-530,831-875`; `nv40_exa.c:475-533,791-908`).
@@ -41408,6 +41496,7 @@ The shared `PUSH_DATAu()` helper returns without emitting the upload commands wh
 **Trigger and consequence:** during NV30/NV40 TCL initialization, push-buffer space reservation or scratch-BO reference registration fails for one shader upload. That program is omitted, but initialization reports success and acceleration remains enabled; subsequent GART compositing selects the absent or stale program, producing incorrect or missing rendered pixels. **Affected configuration:** optional Nouveau HIDD on NV_ARCH_30 and NV_ARCH_40 when the push-buffer helper encounters a reservation/reference failure during 3D setup. **Confidence:** high that the helper failure is swallowed and parent initialization cannot detect it; resulting rendering depends on the previous scratch contents and device command handling. Return a status from the helper and abort/roll back TCL initialization when an upload fails. No push-buffer failure, shader upload, GPU operation or build was induced; source-only.
 
 <a id="od11512-nvidia-ignores-failed-pci-bar-mappings"></a>
+<a id="od11512"></a>
 ## OD11512 — NVIDIA HIDD dereferences failed PCI BAR mappings
 
 `Enumerator()` maps framebuffer BAR1 and register BAR0 with `MapPCI()` but does not check either result (`workbench/hidds/nvidia/nvidia_init.c:619-645`). The framebuffer result is immediately stored as the first `MemChunk` and used to initialize the card-memory header; if it is NULL, a successful later chipset initialization reaches writes through `mc` at lines 653-658. A failed register mapping is passed to `sup->Init(sd)`; `NV4Init()`/`GenericInit()` derive register pointers from it and read PFB/PRAMDAC state before returning (`nvidia_init.c:105-127,338-339`). The selected x86-64 PCIPC `MapPCI()` returns NULL when an above-128-GiB BAR cannot be installed with `KrnMapGlobal()` (`arch/all-pc/hidds/pcipc/pcipc_driverclass.c:230-254`).
@@ -41415,6 +41504,7 @@ The shared `PUSH_DATAu()` helper returns without emitting the upload commands wh
 **Trigger and consequence:** the optional NVIDIA HIDD is explicitly built on x86-64 PC and either BAR mapping fails, for example when firmware assigns a BAR beyond PCIPC's identity-mapped window and the additional global mapping fails. The unchecked framebuffer failure reaches a NULL `MemChunk` dereference; the unchecked register failure reaches MMIO reads through a NULL-derived register base. Initialization faults instead of rejecting the device and releasing any successful mapping. **Affected configuration:** explicit `hidd-nvidia` target on x86-64 PC with PCIPC, under the stated BAR-mapping failure. The NVIDIA parent aggregate is commented, so default-image inclusion is not claimed. **Confidence:** high for the unchecked results and downstream uses; no qualifying BAR or mapping failure was exercised. Validate both mappings before `sup->Init()`, and unmap the first successful BAR if the second mapping fails. No device, mapping, initialization failure or build was run; source-only.
 
 <a id="od11513-nvidia-cross-depth-copy-ignores-gc-draw-mode"></a>
+<a id="od11513"></a>
 ## OD11513 — NVIDIA cross-depth bitmap copies ignore the GC draw mode
 
 `NV__Hidd_Gfx__CopyBox()` reads the GC draw mode and programs the corresponding ROP in the same-depth blit branch (`workbench/hidds/nvidia/nvidiaclass.c:463,494-507`). When both on-card bitmaps have different depths, it instead enters the stretch-blit branch (`:553-635`), which does not inspect `mode`, set a corresponding ROP, or fall back for non-Copy modes. The generic `CopyBox` implementation applies the GC draw mode through `DRAWPIXEL()` in its per-pixel fallback (`rom/hidds/gfx/gfx_hiddclass.c:1127-1138,1150-1172`), so the accelerated override changes the requested operation for that bitmap combination.
@@ -41422,6 +41512,7 @@ The shared `PUSH_DATAu()` helper returns without emitting the upload commands wh
 **Trigger and consequence:** an on-card `CopyBox` between two supported truecolor bitmaps of different depths with a non-Copy draw mode, such as XOR. The NVIDIA HIDD submits a stretch blit rather than applying the requested raster operation, so destination pixels do not follow the GC operation. **Affected configuration:** explicit optional NVIDIA HIDD target when using its different-depth framebuffer copy branch. **Confidence:** high that this branch ignores the supplied mode and bypasses the generic mode-aware fallback; no GPU operation was run. Use the stretch path only for Copy mode and delegate other modes to the superclass, or implement the required ROP behavior. No bitmap copy or build was run; source-only.
 
 <a id="od11514-nvidia-offscreen-cpu-clear-ignores-padded-row-pitch"></a>
+<a id="od11514"></a>
 ## OD11514 — NVIDIA offscreen CPU clear ignores the bitmap row pitch
 
 When VRAM allocation for an offscreen bitmap fails, `NVOffBM__Root__New()` allocates a CPU buffer of `bm->pitch * bm->height` bytes and sets `fbgfx` false (`workbench/hidds/nvidia/nvidiabitmap.c:251-268`). The CPU fallback in `NVBM__Hidd_BitMap__Clear()` then writes a single contiguous sequence sized from `width * height * bpp`, instead of advancing by `bm->pitch` for each row (`nvidiabitmap.c:409-440`). Other CPU bitmap accessors, including `PutPixel` and `GetPixel`, use `bm->pitch` when locating rows (`:448-459,472-486`).
@@ -41429,6 +41520,7 @@ When VRAM allocation for an offscreen bitmap fails, `NVOffBM__Root__New()` alloc
 **Trigger and consequence:** VRAM allocation fails for an offscreen bitmap, CPU allocation succeeds, and a caller clears a bitmap whose packed row bytes are less than its 64-byte-aligned pitch. The clear writes later rows at the wrong offsets, leaving portions of the bitmap with old or zero data rather than the requested background color. **Affected configuration:** explicit optional NVIDIA HIDD when offscreen storage falls back from VRAM to system memory. **Confidence:** high for the pitch mismatch and distinct row layout; no allocation failure or clear was exercised. Clear row-by-row using `bm->pitch`, while limiting each row write to its visible pixel bytes. No bitmap operation or build was run; source-only.
 
 <a id="od11515-nvidia-small-offscreen-clear-underflows-word-count"></a>
+<a id="od11515"></a>
 ## OD11515 — NVIDIA small offscreen clear underflows its word count
 
 The system-memory fallback computes `i = width * height * bpp / 4`, then uses a do-while loop that writes one `ULONG` before testing `--i` (`workbench/hidds/nvidia/nvidiabitmap.c:409-440`). For any allocated offscreen bitmap with fewer than four visible bytes, integer division initializes `i` to zero; the first decrement makes it negative and therefore true, so the loop continues writing beyond the `bm->pitch * bm->height` allocation. For nonzero byte counts that are not divisible by four, the same calculation also omits trailing bytes.
@@ -41436,6 +41528,7 @@ The system-memory fallback computes `i = width * height * bpp / 4`, then uses a 
 **Trigger and consequence:** VRAM allocation fails, a small offscreen bitmap falls back to successful system-memory allocation, and a caller invokes `Clear()`. With fewer than four visible bytes the loop does not terminate normally and keeps overwriting memory beyond the bitmap buffer; other non-word-aligned sizes leave trailing pixels uncleared. **Affected configuration:** explicit optional NVIDIA HIDD using the system-memory offscreen fallback. **Confidence:** high for the zero initial count, do-while decrement and allocation extent; no failure or clear was induced. Use a zero-safe, byte-counted or row-wise loop that handles a partial final word without writing outside the buffer. No bitmap operation or build was run; source-only.
 
 <a id="od11516-nvidia-planar-loops-skip-later-planes"></a>
+<a id="od11516"></a>
 ## OD11516 — NVIDIA planar image operations skip later planes after a missing plane
 
 Several per-plane loops in `planarbm.c` increment the `plane` pointer only at the bottom of the loop body, but use `continue` when the current plane is NULL or the all-one sentinel `(UBYTE *)-1` (`workbench/hidds/nvidia/planarbm.c:281-282,330-331,400-401,480-481,566-567,656-657`). The bitmap implementation explicitly treats those plane values as valid zero/all-one planes in its pixel read/write methods (`:191-239`). Thus a missing/sentinel plane leaves the pointer on that same slot for subsequent depth iterations rather than advancing to the next plane.
@@ -41443,6 +41536,7 @@ Several per-plane loops in `planarbm.c` increment the `plane` pointer only at th
 **Trigger and consequence:** an NVIDIA planar bitmap has a NULL or all-one plane before a later allocated plane, and a caller invokes native image upload, LUT image upload/download, or color expansion. Later plane data is skipped or the earlier plane is interpreted at the wrong bit depth, yielding incorrect pixel values. **Affected configuration:** explicit optional NVIDIA HIDD planar bitmap class when wrapped Amiga planar bitmaps contain special plane entries. **Confidence:** high for the pointer-increment control flow and explicit special-plane handling; no bitmap was used. Advance the plane pointer for every depth iteration, including skipped planes. No image operation or build was run; source-only.
 
 <a id="od11517-nvidia-planar-color-expansion-dereferences-empty-mask-plane"></a>
+<a id="od11517"></a>
 ## OD11517 — NVIDIA planar color expansion dereferences special mask-plane values
 
 When `BlitColorExpansion()` receives a source bitmap of the same planar class, it takes `maskdata->planes[0]` and immediately adds the source offset, then reads through `msk` for each source pixel (`workbench/hidds/nvidia/planarbm.c:548-557,582-610`). Elsewhere this class explicitly represents an absent plane as NULL and an all-one plane as `(UBYTE *)-1` (`:191-239`), so either value can reach this branch without a backing byte array.
@@ -41450,6 +41544,7 @@ When `BlitColorExpansion()` receives a source bitmap of the same planar class, i
 **Trigger and consequence:** color expansion uses an NVIDIA planar source whose plane zero is NULL or the all-one sentinel. The loop dereferences NULL or address `-1` while reading the expansion mask, faulting instead of applying the constant-zero or constant-one mask semantics. **Affected configuration:** explicit optional NVIDIA HIDD when planar `BlitColorExpansion` receives a source with a special plane-zero entry. **Confidence:** high for the unchecked pointer and dereference; no bitmap operation was run. Handle the NULL and all-one representations explicitly or use the generic expansion path for them. No bitmap operation or build was run; source-only.
 
 <a id="od11518-nvidia-planar-color-expansion-signed-loop-overflow"></a>
+<a id="od11518"></a>
 ## OD11518 — NVIDIA planar color expansion uses signed counters for unsigned dimensions
 
 `BlitColorExpansion()` stores `x` and `y` loop counters in `WORD`, while its HIDD message declares `width` and `height` as `UWORD` (`workbench/hidds/nvidia/planarbm.c:524,551,571`; `rom/hidds/gfx/gfx.conf:538`). `WORD` is explicitly signed 16-bit and `UWORD` unsigned 16-bit (`compiler/include/exec/types.h:61-62`). The loops compare the counters directly against those dimensions. If a dimension exceeds 32767, the corresponding counter must increment past `WORD_MAX`; signed overflow is undefined behavior in C. On wraparound implementations the counter becomes negative while the positive dimension remains the loop bound, so the loop can continue indexing past the requested plane or mask region. The exact post-overflow manifestation is compiler-dependent.
@@ -41457,6 +41552,7 @@ When `BlitColorExpansion()` receives a source bitmap of the same planar class, i
 **Trigger and consequence:** a caller submits a planar color expansion rectangle with width or height greater than 32767, which the HIDD method signature permits and this implementation does not reject. The counter overflows; depending on compiler behavior, the loop can continue beyond the requested rectangle, corrupting later bitmap data or stalling the caller. **Affected configuration:** explicit optional NVIDIA HIDD planar class for expansion dimensions above `WORD_MAX`. **Confidence:** high that the declared types permit a counter overflow for such a request; the resulting behavior after undefined overflow is compiler-dependent. Use a counter type wide enough for the message dimensions. No bitmap operation or build was run; source-only.
 
 <a id="od11519-controller-subscription-can-duplicate-or-stale-device-added"></a>
+<a id="od11519"></a>
 ## OD11519 — Controller subscription can duplicate or stale a device-added event
 
 `ControllerHW__HW__SetUpDriver()` inserts the device into `hw->devices`, later sets `CTRL_DF_REGISTERED`, and then sends its `DeviceAdded` event (`workbench/hidds/controller/controllersubsystem.c:264-280`). A subsystem-wide consumer attaches to `hw->consumers` and separately snapshots all registered devices to send its initial `DeviceAdded` salvo (`workbench/hidds/controller/controller_notify.c:194-232`). These list/flag/event steps are not one synchronized operation: `Disable()` protects only individual local sections, and the consumer-list insertion, registered-device snapshot, and live event delivery are separated. Cleanup has the inverse gap: `CleanUpDriver()` sends `DeviceRemoved` while `CTRL_DF_REGISTERED` is still set, then only later removes the device from `hw->devices` and clears the flag (`controllersubsystem.c:301-317`). A consumer attaching in that interval can snapshot the still-registered device and receive `DeviceAdded` after the already-delivered `DeviceRemoved`.
@@ -41466,6 +41562,7 @@ When `BlitColorExpansion()` receives a source bitmap of the same planar class, i
 **Affected configuration:** the explicit `workbench-hidds-controller` target under ExecSMP, with concurrent external or alternate controller-driver registration/removal and subsystem-wide consumer creation. Its common parent aggregate edge is commented, and no in-tree producer or public consumer client was found. **Confidence:** high for the unsynchronized ordering and both event sequences; occurrence requires the stated overlap. No consumer, controller, event or build was run; source-only.
 
 <a id="od11520-rtl8029-worker-startup-timeout-strands-device-open"></a>
+<a id="od11520"></a>
 ## OD11520 — RTL8029 worker startup failure leaves unit initialization waiting forever
 
 `RunTask()` creates the worker process, then polls `FindPort(ud->ud_Name)` up to 50 times, delaying one tick between misses. If it never discovers the worker port, it returns `FALSE` without terminating or joining the worker (`workbench/devs/networks/rtl8029/driver.c:715-754`). `InitializeUnit()` responds by calling `ExpungeUnit()` (`:872-884`); because `ud_Task` was stored when `CreateNewProc()` succeeded, `ExpungeUnit()` calls `KillTask()` (`:890-902`). `KillTask()` signals Ctrl-C and then waits for a message on `ud_LifeTime` (`:758-767`).
@@ -41475,6 +41572,7 @@ The worker only sends that lifetime reply after its startup message has been deq
 **Trigger and consequence:** during the first open of an RTL8029 unit, the public worker port remains undiscovered through the 50 one-tick polls while the worker is still alive (worker-port allocation failure also exits without a lifetime reply). `RunTask()` reports failure and cleanup waits for a lifetime reply that the worker cannot send before consuming the absent startup message; unit initialization and the opening call can hang indefinitely. **Affected configuration:** the explicitly buildable RTL8029 network device selected through the active network-card aggregate on supported targets (`workbench/devs/networks/mmakefile.src:52`; `rtl8029/mmakefile.src:4-11`). This does not require ExecSMP; concurrent-open races remain separate OD11482. **Confidence:** high for the delayed-worker deadlock and missing-reply paths; the hang requires the worker to remain alive but unstarted past the polling window, while worker-port allocation failure follows the separate no-reply/possibly-exited-task cleanup path. Make the worker report startup failure through the lifetime port on every exit, check timeout/process state, and avoid waiting for a reply that cannot be produced. No task, allocation failure, device open, or build was induced; source-only.
 
 <a id="od11521-rtl8029-worker-creation-failure-leaks-lifetime-port"></a>
+<a id="od11521"></a>
 ## OD11521 — RTL8029 leaks its lifetime message port when worker creation fails
 
 `RunTask()` first stores a successfully created lifetime message port in `ud->ud_LifeTime`, then calls `CreateNewProc(task_tags)` and stores its result in `ud->ud_Task` (`workbench/devs/networks/rtl8029/driver.c:715-754`). When process creation returns NULL, `RunTask()` falls through and returns FALSE without deleting the lifetime port. `InitializeUnit()` then calls `ExpungeUnit()` (`:872-884`); its cleanup only calls `KillTask()` when `ud->ud_Task` is non-NULL, and it frees `UnitData` without deleting `ud_LifeTime` (`:890-903`). `CreateMsgPort()` allocates the port and a signal owned by the calling task; `DeleteMsgPort()` is the matching cleanup path (`rom/exec/createmsgport.c:50-74`; `rom/exec/deletemsgport.c:37-57`).
@@ -41552,6 +41650,7 @@ The selected Nouveau build includes `nvkm/subdev/i2c/bit.c` but its `USER_CPPFLA
 **Trigger and consequence:** a configured ICCSense sensor returns readings whose intermediate product exceeds `INT_MAX`, or multiple rail results sum past `INT_MAX`, and a client calls `nvkm_iccsense_read_all()`. The C arithmetic is undefined and can return an incorrect power total or a negative value that is mistaken for an I2C error. **Affected configuration:** explicitly buildable optional Nouveau HIDD with a populated supported ICCSENSE sensor table. The public internal header declares `nvkm_iccsense_read_all()`, but a source-wide C/header search found no in-tree caller; current client reachability is external/unestablished. **Confidence:** high for the unchecked signed arithmetic and representable intermediate example; conditional on such sensor readings or aggregate values and a direct caller. No device, I2C read, or build was used; source-only. Widen the products and accumulation before multiplication/addition and define the API's overflow behavior.
 
 <a id="od11527-cmi8738-non-aros-pci-wrapper-includes-missing-backend"></a>
+<a id="od11527"></a>
 ## OD11527 — CMI8738 non-AROS builds include a missing PCI backend
 
 `workbench/devs/AHI/Drivers/CMI8738/pci_wrapper.c:3-8` includes `pci_aos4.c` when `__AMIGAOS4__` is defined and `pci_openpci.c` for other non-AROS builds. Neither file exists in the checked-in CMI8738 directory or elsewhere in the checkout; only `pci_aros.c` is present. The CMI8738 Makefile selects `pci_wrapper.o`, and the AHI driver aggregate includes the CMI8738 directory whenever `HAVE_ASMIO` is nonempty (`workbench/devs/AHI/Drivers/CMI8738/Makefile.in:12`; `workbench/devs/AHI/Drivers/Makefile.in:46-57`). CMI8738 source also contains explicit AmigaOS4-specific interrupt and sample conversion paths, so the OS4 selector is a supported source configuration, not dead conditional text.
@@ -41559,6 +41658,7 @@ The selected Nouveau build includes `nvkm/subdev/i2c/bit.c` but its `USER_CPPFLA
 **Trigger and consequence:** compile CMI8738 for AmigaOS4 with the driver selected by `HAVE_ASMIO` (or use another non-AROS configuration reaching the fallback branch). Preprocessing `pci_wrapper.c` fails because the selected include file is absent, preventing the driver from building. **Affected configuration:** non-AROS CMI8738 builds; the regular AROS branch includes the present `pci_aros.c` and is unaffected. **Confidence:** high for the missing selected source and resulting include failure; the precise set of configured targets reaching each non-AROS branch depends on their compiler/configure setup. Add the corresponding PCI backend source or exclude unsupported configurations in the build selection. No non-AROS build was run; source-only.
 
 <a id="od11528-sb128-extra-cards-have-no-shipped-audio-mode"></a>
+<a id="od11528"></a>
 ## OD11528 — SB128 extra initialized cards have no shipped selectable mode
 
 The SB128 mode descriptor contains only AudioIDs `0x00340002` and `0x00340004`; both encode card index zero in bits 12–15 (`workbench/devs/AHI/Drivers/SB128/SB128.s:8-31`). `AHI_LoadModeFile` copies the descriptor tags into the mode database without assigning per-card IDs (`workbench/devs/AHI/Device/database.c:838-873`). The selected `DriverInit` enumerates four supported vendor/device pairs and creates a `driverdatas[]` entry for each match (`workbench/devs/AHI/Drivers/SB128/driver-init.c:103-135,176-199`), while `_AHIsub_AllocAudio()` derives the selected card index from those AudioID bits (`sb128hw.c:108-118`).
@@ -41566,6 +41666,7 @@ The SB128 mode descriptor contains only AudioIDs `0x00340002` and `0x00340004`; 
 **Trigger and consequence:** two or more supported SB128/ES137x cards with distinct IDs are found in one initialization. The driver allocates and initializes all matching cards, but the shipped mode file only addresses index zero; the additional card data cannot be selected through the shipped AHI modes. **Affected configuration:** AHI builds selecting SB128 and systems with multiple supported cards present. **Confidence:** medium: the source-level mode-ID mismatch is direct, but coexistence and user-facing handling of multiple supported cards were not exercised. Emit a mode ID for each discovered card or intentionally expose only one card. No PCI hardware, mode loading or build was run; source-only.
 
 <a id="od11529-via-ac97-interrupt-header-tests-wrong-os4-macro"></a>
+<a id="od11529"></a>
 ## OD11529 — VIA-AC97 interrupt header selects the wrong AmigaOS 4 macro
 
 `workbench/devs/AHI/Drivers/VIA-AC97/interrupt.h:13` tests uppercase `__AMIGAOS4__` to declare three-argument OS4 handlers, but the AmigaOS 4 compiler defines lowercase `__amigaos4__` ([AmigaOS 4 Migration Guide](https://wiki.amigaos.net/wiki/Migration_Guide)). The implementation uses lowercase `__amigaos4__` for its handler definitions (`interrupt.c:26-35,94-101,168-175`), so the OS4 translation unit includes the header's one-argument declarations and then defines the same functions with three arguments. These declarations have conflicting types and prevent compilation.
@@ -41573,6 +41674,7 @@ The SB128 mode descriptor contains only AudioIDs `0x00340002` and `0x00340004`; 
 **Trigger and consequence:** compile the VIA-AC97 driver with the AmigaOS 4 compiler. The mismatched prototypes cause a compile-time error in `interrupt.c`. **Affected configuration:** AmigaOS 4 builds of the AHI VIA-AC97 driver; the AROS branch uses the one-argument prototypes and matches its `INTGW` wrappers. **Confidence:** high based on the target compiler macro documented by AmigaOS and the in-tree conditional signatures. Use the compiler's lowercase macro consistently in the header. No non-AROS build was run; source-only.
 
 <a id="od11530-pci-express-capability-cycle-hangs-query"></a>
+<a id="od11530"></a>
 ## OD11530 — PCIe extended-capability cycles hang HIDD queries
 
 `findExpressExtendedCapabilityOffset()` walks the PCIe extended-capability next-pointer field from configuration offset `0x100` (`rom/hidds/pci/pcideviceclass.c:149-164`). It stops for zero/all-ones headers or when the next offset leaves the valid range, but it does not track visited offsets or cap the number of entries. A nonzero self-loop or multi-node cycle therefore repeats forever. The selected attribute dispatcher invokes this walker for the four extended-capability queries (`:976-1001`). PCITool queries the Serial Number attribute while rendering the selected PCI device (`rom/hidds/pci/pcitool/main.c:378`), so malformed configuration on a PCIe device selected there leaves the synchronous query and UI path hung.
@@ -41587,6 +41689,7 @@ The SB128 mode descriptor contains only AudioIDs `0x00340002` and `0x00340004`; 
 **Trigger and consequence:** an ECAM-backed PCIPC device reports a Serial Number extended-capability ID at `0xffc`, and the optional PCITool displays that device. The two payload reads wrap to the PCI header and produce a false serial-number string. **Affected configuration:** x86 PCIPC with ECAM/MMCONFIG and the optional `debug-tools-pcitool` target; the case requires malformed/truncated PCI configuration. **Confidence:** high for the walker acceptance, caller offsets, and PCIPC mask/wrap behavior; occurrence depends on device configuration. Validate that the recognized capability's complete payload fits within `ConfigSize` before returning or reading its data. No PCI config read, device, PCITool session, or build was used; source-only.
 
 <a id="od11531-ahi-v2-close-reads-v4-private-tail"></a>
+<a id="od11531"></a>
 ## OD11531 — AHI close logging reads beyond a short V2 request [conditional]
 
 `_DevOpen()` accepts a request whose length is only `sizeof(struct IOStdReq) + 2`, enough for the standard request plus `ahir_Version` (`workbench/devs/AHI/Device/device.c:254-261`). For a V2 low-level open on `AHI_NO_UNIT`, this path intentionally does not require the full current `struct AHIRequest` or initialize its `ahir_Private[1]` field (`:264-272`). The header marks `ahir_Pad1` and `ahir_Private[2]` as new for V4 (`workbench/devs/AHI/Include/C/devices/ahi.h:394-400`), and the device documentation says V2 remains supported for the low-level API (`workbench/devs/AHI/Docs/ahidev.html:1047-1049`). However, `_DevClose()` reads and prints `ahir_Private[1]` whenever `ahib_DebugLevel >= AHI_DEBUG_LOW`, without checking the request version or length (`device.c:391-400`). The debug level is user-configurable in `ENV:Sys/ahi.prefs` (`device.c:600-612`; `ahi.h:365-369`). The historical changelog also explicitly records support for opening `AHI_NO_UNIT` with a V2-sized request (`workbench/devs/AHI/ChangeLog:514-515`).
@@ -41655,6 +41758,7 @@ Trident application entry and fatal-cleanup caller pass (no new OD or body/path/
 
 
 <a id="od10195-hosted-oss-wrong-base"></a>
+<a id="od10195"></a>
 ## OD10195 — Hosted OSS driver shadows its library base with the AHI module base [conditional]
 
 `OSS-init.c` defines a module-global `struct Library *OSSBase`, but `DriverInit()` declares a local `struct OSSBase *OSSBase` initialized from the AHI driver base. The subsequent `OpenLibrary("oss.library", 0)` assigns the OSS library pointer to that local, so the initialization-time probe can use the right base; the module-global remains NULL. The AHI callbacks and worker repeat the local declaration as a cast of `AHIsubBase`, so their `OSS_*` proto calls pass the AHI module base where the OSS library base is required (`workbench/devs/AHI/Drivers/OSS/OSS-init.c:12,19-21,34-58`; `OSS-main.c:52,73-90,112-116,133-167`; `OSS-playslave.c:126,219`). `DriverCleanup()` makes the same shadowing declaration and passes the AHI module base to `CloseLibrary()`, leaving the opened OSS library reference unclosed (`OSS-init.c:66-73`). The common loader invokes this cleanup after failed initialization and on normal expunge (`workbench/devs/AHI/Drivers/Common/library.c:460-468,483-508`).
@@ -41671,6 +41775,7 @@ The selected PCI ATA manifest defines both `__OOP_NOATTRBASES__` and `__OOP_NOME
 
 
 <a id="od11532-controller-dispose-frees-queued-port-messages"></a>
+<a id="od11532"></a>
 ## OD11532 — Controller HIDD disposal frees queued port messages [conditional]
 
 Port-mode consumers allocate a fixed array of `Hidd_Controller_EventMsg` objects inside the consumer instance (`workbench/hidds/controller/controllerclass.c:256-267`). Event delivery selects a free object from that array and passes its embedded `Message` to the caller's port with `PutMsg()` (`workbench/hidds/controller/controller_notify.c:57-73,93-127`). The public API tells clients to reply to these messages (`workbench/hidds/controller/include/controller.h:406-411`), but consumer disposal only detaches future delivery and immediately frees the backing array (`controllerclass.c:285-300`); it does not retract queued messages or wait for them to be replied.
@@ -41678,6 +41783,7 @@ Port-mode consumers allocate a fixed array of `Hidd_Controller_EventMsg` objects
 **Trigger and consequence:** an event has been queued to a port-mode consumer's client port, then the consumer object is disposed before the client retrieves and replies to that message. The port still contains a pointer into the released consumer allocation; later retrieving or replying to it operates on invalid message storage. **Affected configuration:** explicit optional `workbench-hidds-controller` target, built by its module recipe; the `workbench-hidds` aggregate edge is commented, and no checked-in port-mode consumer caller was found. **Confidence:** high for the `PutMsg()`/free ordering and the dangling queued message; occurrence depends on client disposal timing. Keep the message storage alive until all in-flight port messages are replied, or provide a shutdown handshake that drains/reclaims them before freeing the consumer. No consumer, port, message, disposal sequence, or build was run; source-only.
 
 <a id="od4357-pc-kernel-irq-node-failure-hidden"></a>
+<a id="od4357"></a>
 ## OD4357 — The Nouveau and VMware IRQ shims report success when PC kernel IRQ registration fails [conditional]
 
 The selected compatibility `request_threaded_irq()` allocates and publishes its private entry, calls Exec `AddIntServer()`, then returns success without a way to observe whether the hardware IRQ handler was installed (`workbench/hidds/nouveau/drm-compat/linux_irq.c:72-93`; VMware copy `:72-93`). `AddIntServer()` has a void interface and stores `KrnAddIRQHandler()`'s result in `is_Node.ln_Succ` (`rom/exec/addintserver.c:64-67`). On the selected PC kernel backend, `KrnAddIRQHandler()` returns NULL when `krnAllocIntrNode()` fails (`arch/all-pc/kernel/addirqhandler.c:74-110`), so the wrapper still reports a successful registration with a NULL kernel-handler token.
@@ -41687,6 +41793,7 @@ Nouveau's caller checks only that compatibility return: `nvkm_intr_install()` ma
 **Trigger and consequence:** an explicitly built Nouveau or VMware HIDD runs on the PC kernel backend and `KrnAddIRQHandler()` cannot allocate its interrupt node. The shim reports success; the driver proceeds as if its IRQ were installed, and cleanup can later reach a NULL dereference in `KrnRemIRQHandler()`. **Affected configuration:** optional Nouveau or VMware HIDD targets on i386-PC/x86-64-PC under kernel IRQ-node allocation failure; neither HIDD aggregate is enabled by default in this snapshot. **Confidence:** high for failure propagation, the Nouveau successful-init state, and the NULL cleanup dereference; occurrence depends on kernel interrupt-node allocation failure. Make IRQ registration report failure to callers, and avoid removing a NULL kernel token. No allocation failure, IRQ registration, device, teardown, or build was exercised; source-only.
 
 <a id="od11534-threaded-irq-accepts-null-primary-handler"></a>
+<a id="od11534"></a>
 ## OD11534 — Threaded IRQ registration accepts a NULL primary handler, then calls through it [conditional]
 
 `request_threaded_irq()` rejects registration only when both callbacks are NULL, then stores the primary handler unchanged and reports success (`workbench/hidds/nouveau/drm-compat/linux_irq.c:64-93`). The interrupt server unconditionally calls `entry->handler` before it can schedule `thread_fn` (`:40-52`). Therefore a registration with `handler == NULL` and non-NULL `thread_fn` is accepted, but the first delivery calls a NULL function pointer in interrupt context instead of scheduling the threaded callback. The same implementation and condition appear in VMware's compatibility copy (`workbench/hidds/vmwaresvga/drm-compat/linux_irq.c:40-52,64-93`); both files are selected by their respective `sources.drm.mak` lists (`workbench/hidds/nouveau/sources.drm.mak:55-68`; VMware `:52-69`).
@@ -41694,6 +41801,7 @@ Nouveau's caller checks only that compatibility return: `nvkm_intr_install()` ma
 **Trigger and consequence:** a client of either selected compatibility target registers a thread-only handler (`handler == NULL`, `thread_fn != NULL`) and its IRQ fires. The accepted registration reaches a null call from the hardware interrupt server, preventing the threaded work from being queued and potentially faulting the kernel. **Affected configuration:** explicitly built Nouveau or VMware HIDD compatibility target with a client using the nullable-primary form; both parent HIDD aggregate edges are optional in this snapshot, and repository-wide direct-caller searches found no such in-tree registration. **Confidence:** high for the accepted state and unconditional call; current reachability is limited to external/future API callers. Reject a NULL primary handler or dispatch a synthetic `IRQ_WAKE_THREAD` when only the thread function is supplied. No IRQ registration, interrupt, build, or runtime operation was performed; source-only.
 
 <a id="od11533-nouveau-pci-attrbase-leak-on-bus-object-failure"></a>
+<a id="od11533"></a>
 ## OD11533 — Nouveau PCI bridge initialization leaks attribute-base references on bus-object failure [optional target]
 
 `drm_aros_pci_init()` obtains the `IID_Hidd_PCIDevice` and `IID_Hidd_PCIDriver` attribute bases before creating the `CLID_Hidd_PCI` object (`workbench/hidds/nouveau/drm-aros/drm_aros_pci.c:183-194`). If `OOP_NewObject()` fails, it returns `-1` without releasing either base. `OOP_ObtainAttrBase()` increments each interface bucket's reference count when it returns a nonzero base (`rom/oop/obtainattrbase.c:130-134`), and the matching releases exist only in `drm_aros_pci_shutdown()` (`drm_aros_pci.c:197-218`). The selected caller `nouveau_init_findcard()` returns immediately on this failure (`drm_drv.c:537-543`); `nouveau_init_probe(NULL)` then returns before any bridge shutdown (`:564-570`).
@@ -41710,6 +41818,7 @@ The NV04 MMU declares `dma_bits = 32` (`workbench/hidds/nouveau/drm/nouveau/nvkm
 
 
 <a id="od11535-workqueue-list-race-execsmp"></a>
+<a id="od11535"></a>
 ## OD11535 — DRM compatibility workqueue accesses its shared queue without SMP locking [conditional]
 
 The compatibility worker removes items from `wq->items` and updates `work->state`, `wq->running`, and the generation counters while holding only `Disable()` (`workbench/hidds/nouveau/drm-compat/linux_workqueue.c:70-90`). Producers use the same local interrupt/task disable around `work->state`, `ADDTAIL()`, and `wq->generation` (`:163-184`). Exec documents that on ExecSMP, `Disable()` applies only to the calling processor and shared data also requires a spinlock (`rom/exec/disable.c:58-61`). The queue operations are multi-write doubly linked list macros (`compiler/include/exec/lists.h:122-134,179-181`), so a worker dequeue and producer enqueue on separate CPUs can interleave their pointer updates. `alloc_workqueue()` runs the worker as a separate process (`linux_workqueue.c:96-136`), and the selected IRQ shim queues threaded handlers from interrupt context (`drm-compat/linux_irq.c:40-52`); VMware has the same implementation (`workbench/hidds/vmwaresvga/drm-compat/linux_workqueue.c` and `drm-compat/linux_irq.c:40-52`).
@@ -41738,6 +41847,7 @@ This output contract reaches the POSIX wrapper: `getentropy()` documents its byt
 
 
 <a id="od11536-nouveau-log-flusher-creation-failure"></a>
+<a id="od11536"></a>
 ## OD11536 — Nouveau and VMware loggers retain buffered messages if flusher creation fails [conditional]
 
 Both selected DRM compatibility stacks set their logger's `started` flag and allocate a 2 MiB ring before calling `CreateNewProcTags()` for the log-flusher process, then ignore the returned process pointer and report successful logger initialization (`workbench/hidds/nouveau/drm-compat/linux_printk.c:498-510`; `workbench/hidds/vmwaresvga/drm-compat/linux_printk.c:501-513`). Exec documents that `CreateNewProc()` returns NULL on error, and the `CreateNewProcTags` wrapper forwards that result unchanged (`rom/dos/createnewproc.c:54-70`; `compiler/alib/createnewproctags.c:17-49`). Each stack's `workqueue_init()` also ignores its logger initializer's Boolean result and proceeds (`workbench/hidds/nouveau/drm-compat/linux_workqueue.c:389-400`; `workbench/hidds/vmwaresvga/drm-compat/linux_workqueue.c:389-400`).
@@ -41754,6 +41864,7 @@ The separate `AllocSignal(-1)` failure return in each flusher is excluded. Each 
 The PC IRQ-chain race is consolidated under [EK9263](AROS-exec-kernel.md#ek9263), which now includes the shared `kb_LastIntr` traversal cursor, the missing SMP read/write-lock protocol, and the selected Nouveau display-workqueue teardown manifestation. The source trace remains in the [Other Drivers coverage ledger](AROS-other-drivers-coverage.md#L37294); no separate Other Drivers root cause remains.
 
 <a id="od2327-usb-configuration-descriptor-failure"></a>
+<a id="od2327"></a>
 ## OD2327 — USB configuration continues after descriptor reads fail [conditional]
 
 `USBDevice::Configure()` requests the first configuration header into an uninitialized stack object and ignores the `GetConfigDescriptor()` result before reading `cd.wTotalLength` into `length` (`workbench/devs/USB/stack/usbdeviceclass.c:531-536`). A failed transfer therefore leaves the allocation size and subsequent descriptor-request length derived from whatever value remains in that stack field. If that value is positive and the pooled allocation succeeds, Configure retries the full descriptor up to three times, but after all retries fail it only logs the failure; it continues to read `cdp->bConfigurationValue` and `bNumInterface`, calls `set_config()`, stores the state and returns TRUE (`:538-578`). The USB stack pool is created with `MEMF_CLEAR` (`workbench/devs/USB/stack/usb_init.c:118-123`), so repeated full-descriptor failure leaves zero fields in `cdp`; `set_config(0)` then leaves `dev->config` equal to the `USB_UNCONFIG_NO` sentinel (`usb_core.h:449`). The returned success consequently does not mean the device was configured. Selected hub, HID and MassStorage constructors continue their setup after calling Configure without checking its result (`usbhubclass.c:127`; `HID/hidclass.c:244-250`; `MassStorage/storageclass.c:161-173`).
@@ -41761,6 +41872,7 @@ The PC IRQ-chain race is consolidated under [EK9263](AROS-exec-kernel.md#ek9263)
 **Trigger and consequence:** a selected USB client attempts configuration while the first configuration-header transfer fails and the residual stack length is positive and allocatable. Configure may issue a full-descriptor request using that uncontrolled length; if those retries also fail, it still reports success while retaining the unconfigured sentinel state. The selected constructors continue their later descriptor/endpoint setup, which can fail or operate on missing interface data. **Affected configuration:** USB stack and selected hub/HID/MassStorage clients on targets that include `hidd-usb`; exact package selection varies by platform. **Confidence:** high for the unchecked transfer results, uninitialized size use, clear-pool behavior and false-success return; reaching the later effects depends on the residual stack value and transfer failures. Check the initial header result and validate its minimum/maximum length, then return failure and release `cdp` if the complete descriptor cannot be fetched or SET_CONFIGURATION fails. No USB device, transfer failure, allocation, enumeration or build was exercised; source-only.
 
 <a id="od4035-vmware-threaded-irq-work-teardown"></a>
+<a id="od4035"></a>
 ## OD4035 — VMware IRQ teardown frees state used by queued threaded work [conditional]
 
 The VMware compatibility IRQ shim embeds `thread_work` in each `irq_handler_entry`. Its hard handler queues that work when the driver's primary handler returns `IRQ_WAKE_THREAD`; the worker recovers the containing entry and calls its `thread_fn` with the stored IRQ and `dev_id` (`workbench/hidds/vmwaresvga/drm-compat/linux_irq.c:35-51`). `free_irq()` removes the Exec interrupt server and compatibility list node, then immediately frees the entry without cancelling or draining `thread_work` (`:92-105`). The compatibility workqueue provides `cancel_work_sync()` and `flush_work()`, but `free_irq()` does not use them (`workbench/hidds/vmwaresvga/drm-compat/linux_workqueue.c:205-218`).
@@ -41807,6 +41919,7 @@ OD1454 first-open input-loss qualification: in the selected OpenSBI DesignWare U
 
 
 <a id="od11539-nouveau-external-dp-irq"></a>
+<a id="od11539"></a>
 ## OD11539 — Nouveau loses DP IRQ events for external AUX connectors [optional target]
 
 `nvkm_uconn_uevent()` translates a requested connector IRQ into `NVKM_I2C_IRQ` only when the output has an AUX channel **and** `outp->info.location` is zero (`workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/uconn.c:130-136`). `nvkm_dp_new()` selects `NVKM_I2C_AUX_EXT` for nonzero locations and rejects construction if that AUX channel cannot be found (`nvkm/engine/disp/dp.c:645-657`); `uoutp.c` exposes such an output as a PIOR with the external AUX identifier (`:620-638`). For a non-GSP external output, the event setup therefore reaches the GPIO fallback. That branch maps only PLUG and UNPLUG into `NVKM_GPIO_HI` and `NVKM_GPIO_LO`; the IRQ check at lines 141-145 does not add any event bit.
@@ -41823,6 +41936,7 @@ Sources: `workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/uconn.c:94-149`; 
 
 
 <a id="od11540-nouveau-display-error-handler-dereferences-an-empty-channel-slot-conditional-optional-target"></a>
+<a id="od11540"></a>
 ## OD11540 — Nouveau display error handler dereferences an empty channel slot [conditional optional target]
 
 The GP102 display error handler checks only that the reported channel ID fits `disp->chan`; when the reported method is `0x080`, it passes `disp->chan[chid]` to `nv50_disp_chan_mthd()` without checking whether the slot contains a channel (`workbench/hidds/nouveau/drm/nouveau/nvkm/engine/disp/gp102.c:159-163`). The helper immediately reads `chan->disp` (`nv50.c:480-484`), so an empty slot faults while processing the interrupt. Channel destruction clears its slot under `disp->client.lock` (`chan.c:150-158`) and `nvkm_object_del()` frees the object after its destructor returns (`core/object.c:259-268`). The IRQ reader does not take `disp->client.lock`: NVKM dispatches the display callback while holding `device->intr.lock` (`core/intr.c:164-226`), a different lock that channel teardown does not acquire. Therefore an error interrupt matching method `0x080` can dereference NULL after the slot is cleared; on SMP, if the handler already loaded the pointer, concurrent teardown can also free the channel before `nv50_disp_chan_mthd()` finishes using it. The shared GF119 and NV50 error callbacks have the same unchecked call (`gf119.c:1086-1090`; `nv50.c:1456-1460`). Channel fini disables that channel's interrupt before destruction, but the source does not synchronize teardown with an already pending or in-progress display error handler.
@@ -41831,6 +41945,7 @@ The GP102 display error handler checks only that the reported channel ID fits `d
 
 
 <a id="od11541-ga102-gr-firmware-reference-is-released-only-on-success-conditional-optional-target"></a>
+<a id="od11541"></a>
 ## OD11541 — GA102 GR firmware reference is released only on success [conditional optional target]
 
 `ga102_gr_load()` acquires the `NET_img` firmware with `nvkm_firmware_get()` and releases it only after both FECS and GPCCS ACR transfers succeed (`workbench/hidds/nouveau/drm/nouveau/nvkm/engine/gr/ga102.c:283-285,320-341`). Either transfer error returns directly without `nvkm_firmware_put()`. `nvkm_firmware_get()` obtains a firmware reference and its paired put calls `release_firmware()` (`nvkm/core/firmware.c:73-110`); the GR firmware-selection wrapper may then try the no-firmware fallback or fail a forced-version initialization, but neither releases the leaked reference.
@@ -42240,6 +42355,7 @@ The `S2INFO_Disassociate` branch discards `BWFMIoctl(BWFM_C_DISASSOC, ...)`'s re
 **Affected configuration:** The explicitly buildable `workbench-devs-networks-bwfm` device target (`workbench/devs/networks/bwfm/mmakefile.src:13-15`); its edge from the general network-device aggregate is commented out (`workbench/devs/networks/mmakefile.src:43`). The selected WirelessManager transition path serializes its own online/offline requests, so the demonstrated trigger requires another direct SANA-II caller that overlaps `S2_ONEVENT` with a level transition. `BeginIO` dispatches requests directly without a per-unit serialization lock (`bwfm_dev.c:1904-1910`). **Confidence:** high for the check-to-enqueue lost-completion interleaving; no concurrent direct client was identified in the selected in-tree callers, so incidence remains conditional. Sample the level and link the listener atomically with respect to state transitions, or recheck the level after linking before returning pending. No request, event interleaving, device or build was run; source-only.
 
 <a id="od1901-netinfo-initgroups-member-buffer-overrun"></a>
+<a id="od1901"></a>
 ## OD1901 — NetInfo `initgroups()` member query writes and reads one GID past its buffer [conditional]
 
 `ug_OpenUnit()` allocates the group-unit result buffer with exactly `MAXLINELENGTH` bytes (1,024) and sets `io_Length` to that size (`workbench/libs/usergroup/usergroup.c:286-294`; `base.h:41-42`). `initgroups()` stores the base GID in slot zero and then advances `io_Data` by one `gid_t`, but leaves `io_Length` unchanged (`workbench/libs/usergroup/initgroups.c:65-78`). `gid_t` is a 32-bit unsigned type (`compiler/crt/posixc/include/aros/types/gid_t.h:13`). The NetInfo `NI_MEMBERS` handler computes capacity as `io_Length / sizeof(LONG)` (256), then writes matching GIDs starting at the already advanced pointer (`workbench/devs/netinfo/groupunit.c:312-340`). Consequently, the 256th matching group is written at byte offset 1,024 from the allocation base, one `LONG` beyond it. The handler reports 1,024 bytes in `io_Actual` (`:343-348`); `initgroups()` adds one for the reserved base slot and reads entries through index 256 before it clamps the submitted list to `NGROUPS == 32` (`initgroups.c:80-89`; `usergroup.h:38-39`). That final read is beyond the same buffer.
@@ -42249,6 +42365,7 @@ The group parser loads records independently and limits each line to 1,024 bytes
 **Trigger and consequence:** call the legacy `usergroup.library` `initgroups()` path for a user listed in at least 256 group records. `netinfo.device` writes one 32-bit GID beyond the allocated result buffer, then `initgroups()` reads the out-of-bounds slot while compacting before the later `NGROUPS` clamp. This can corrupt adjacent allocated memory and can feed an invalid group value into the credential update. **Affected configuration:** selected `usergroup.library` plus `netinfo.device` path using the legacy group database; requires at least 256 matching records. **Confidence:** high for the buffer length/pointer mismatch, 32-bit element size, and paired out-of-bounds accesses; occurrence depends on database contents. Reduce `io_Length` by the reserved base-slot size when advancing `io_Data`, and have `GetGroups()` enforce the actual remaining capacity. No database was modified, request issued, or build/run performed; source-only.
 
 <a id="od11542-freeing-one-poseidon-pipe-tears-down-a-shared-endpoint-context-conditional"></a>
+<a id="od11542"></a>
 ## OD11542 — Freeing one Poseidon pipe tears down an endpoint context shared by sibling pipes [conditional]
 
 `psdAllocPipe()` stores the same `PsdEndpoint *` in every pipe created for that endpoint, and `pPrepareHWEndpoint()` prepares one shared `pep_IOReq` only while `pep_IOReq` is NULL (`rom/usb/poseidon/poseidon.library.c:1672-1707,4480-4643`). `psdFreePipe()` calls `pTearDownHWEndpoint(pp->pp_Endpoint)` for every pipe being freed (`:4650-4677`); that invokes the HCD destroy callback and clears the shared `pep_IOReq` without checking whether other pipes still use the endpoint (`:1653-1668`). The public contract allows multiple pipes for asynchronous double buffering and only requires pending I/O on the pipe being freed to be completed or aborted (`rom/usb/docs/poseidon.doc:885-896,1324-1338`).
@@ -42261,6 +42378,7 @@ The group parser loads records independently and limits each line to 1,024 bytes
 
 
 <a id="od3741-iffparse-collection-read-error-fallthrough"></a>
+<a id="od3741"></a>
 ## OD3741 — IFFParse publishes a freed collection item after a chunk read error [conditional]
 
 `CollectionFunc()` allocates or finds the property collection, allocates a `CollectionItem` and a buffer, then reads the chunk with `ReadChunkBytes()` (`workbench/libs/iffparse/collectionhooks.c:117-203`). If the read does not return the declared chunk size, `CF_FreeResources()` frees the buffer and collection item; for a newly created collection it also removes and frees the local context item (`:69-75,206-213`). The error branch does not return. It then fetches the collection data through `lci` and links `collitem` and `buf` into it (`:217-225`), even though those allocations have just been freed. With an existing collection, the freed item and buffer are published into its live list; with a new collection, the code also accesses the freed local item and its user data. The hook returns success, so this read failure is not reported to `ParseIFF()`.
@@ -42270,6 +42388,7 @@ The group parser loads records independently and limits each line to 1,024 bytes
 **Trigger and consequence:** a nonempty collection chunk is truncated in the backing stream after a matching collection has already been registered, and the stream handler reports the short read. The handler returns success after linking freed allocations, leaving a dangling collection entry that later lookup or context cleanup dereferences and may free again. **Affected configuration:** callers using `CollectionChunk()` with a stream that can report a failed/short read; the selected AHI mode-file loader is one such caller. **Confidence:** high for the cleanup-then-publication path and the selected DOS read-error propagation; exact allocator manifestation was not run. Return the read error immediately after releasing temporary resources, before linking the collection item. No file, stream failure, collection, or build was exercised; source-only.
 
 <a id="od11543-iffparse-property-read-error-fallthrough"></a>
+<a id="od11543"></a>
 ## OD11543 — IFFParse stores a freed property after a chunk read error [conditional]
 
 `PropFunc()` allocates a local context item and stores the new `StoredProperty` data/buffer pointers in its allocations (`workbench/libs/iffparse/prophooks.c:100-141`). If `ReadChunkBytes()` returns a value other than the declared size, it calls `PF_FreeResources()`, which frees both the local item (including its `StoredProperty` userdata) and the data buffer (`:22-35,152-165`). The function then falls through to `StoreLocalItem()` with the freed item and unconditionally sets its purge hook (`:169-185`), returning success instead of the read error. `StoreLocalItem()` links the node into the enclosing FORM/LIST context (`workbench/libs/iffparse/storelocalitem.c:87-102`); later `FindProp()` returns its userdata (`findprop.c:55-81`), and normal context cleanup invokes the purge hook, which reads and frees the already released property state (`prophooks.c:12-35`; `basicfuncs.c:318-339`).
@@ -42280,6 +42399,7 @@ The group parser loads records independently and limits each line to 1,024 bytes
 
 
 <a id="od11544-iffparse-forward-only-seek-overreads"></a>
+<a id="od11544"></a>
 ## OD11544 — IFFParse forward-only seek consumes a fixed 10,000 bytes [conditional]
 
 When a stream has neither `IFFF_RSEEK` nor `IFFF_FSEEK`, `SeekStream()` simulates a positive seek by reading and discarding data (`workbench/libs/iffparse/basicfuncs.c:457-495`). It consumes full `SEEKBUFSIZE` blocks while `offset > SEEKBUFSIZE`, then the final read at line 490 also requests `SEEKBUFSIZE` instead of the remaining `offset`. For any positive remainder below 10,000 bytes, this consumes 10,000 bytes rather than the requested distance. The parser's `IFFSTATE_SCANEXIT` caller advances `cn_Scan` by its requested `toseek` after `SeekStream()` succeeds (`workbench/libs/iffparse/parseiff.c:181-215`); the stream position and recorded chunk position therefore diverge. If fewer than 10,000 bytes remain in the underlying stream, the read can fail and `SeekStream()` returns `IFFERR_SEEK`; if enough bytes remain, the parser resumes beyond the intended chunk boundary and can skip following chunks or parse from a misaligned position.
@@ -42290,6 +42410,7 @@ The trigger is supported by the public custom-stream API: `InitIFF()` accepts ca
 
 
 <a id="od11546-iffparse-entryhandler-leaks-on-prop-scope-error"></a>
+<a id="od11546"></a>
 ## OD11546 — handler registration leaks its item when PROP scope is unavailable [conditional]
 
 `EntryHandler()` and `ExitHandler()` each allocate a local context item, fill its `HandlerInfo`, then return the result of `StoreLocalItem()` without releasing the item on failure (`workbench/libs/iffparse/entryhandler.c:73-99`; `exithandler.c:71-96`). `IFFSLI_PROP` is a documented supported position (`compiler/include/libraries/iffparse.h:104-106`). For that position, `StoreLocalItem()` calls `FindPropContext()` and returns `IFFERR_NOSCOPE` when there is no enclosing FORM or LIST (`storelocalitem.c:87-103`; `findpropcontext.c:57-75`). For either API, the allocated item is then neither linked into a context nor freed, and its user-data allocation is leaked. Repeated failed registrations accumulate Exec allocations.
@@ -42298,6 +42419,7 @@ The trigger is supported by the public custom-stream API: `InitIFF()` accepts ca
 
 
 <a id="od11545-iffparse-closeiff-retains-freed-buffered-stream"></a>
+<a id="od11545"></a>
 ## OD11545 — `CloseIFF()` leaves a failed buffered stream pointed at freed storage [conditional]
 
 `PushChunk(..., IFFSIZE_UNKNOWN)` on a stream without `IFFF_RSEEK` calls `InitBufferedStream()`, which saves the original stream, handler and flags, then redirects the handle to an allocated `BufferList` and `BufStreamHandler` (`workbench/libs/iffparse/pushchunk.c:169-178`; `bufferingfuncs.c:509-544`). The normal restoration is in `ExitBufferedStream()`, which reinstalls those saved fields before flushing and freeing the buffer (`bufferingfuncs.c:551-596`). Several `PopChunk()` write/error exits occur before that restoration (`workbench/libs/iffparse/popchunk.c:80-111,118-143`), including a failed write of an odd-byte pad.
@@ -42308,6 +42430,7 @@ If `PopChunk()` returns one of these errors, `CloseIFF()` stops its pop loop and
 
 
 <a id="od11547-iffparse-pushchunk-writes-invalid-first-type"></a>
+<a id="od11547"></a>
 ## OD11547 — `PushChunk()` writes an invalid first composite header before rejecting its type [conditional]
 
 For a newly opened write handle, `PushChunk()` recognizes the first chunk when `CurrentChunk()` returns NULL and `IFFF_NEWFILE` is set (`workbench/libs/iffparse/pushchunk.c:95-105`). That branch checks that the first chunk ID is FORM, LIST or CAT, but it does not validate the supplied type with `GoodType()`. The later generic-ID branch that checks `GoodType(type)` is skipped because the first-chunk branch is an `else if` (`pushchunk.c:117-152`). The function then writes the ID, size and composite type to the stream before calling `PushContextNode()` (`pushchunk.c:180-227`). `PushContextNode()` performs the deferred `GoodType()` validation and returns `IFFERR_MANGLED` on failure (`basicfuncs.c:48-50`).
@@ -42316,6 +42439,7 @@ The rejected call has already emitted an invalid first chunk header. It also cle
 
 
 <a id="od11548-iffparse-record-width-zero-divides-by-zero"></a>
+<a id="od11548"></a>
 ## OD11548 — chunk record helpers divide by zero for a zero record width [conditional]
 
 `ReadChunkRecords()` computes `bytestoread = bytesPerRecord * numRecords`, then unconditionally divides the successful byte count by `bytesPerRecord` (`workbench/libs/iffparse/readchunkrecords.c:66,89-99`). If `bytesPerRecord` is zero, a valid nonnegative remaining chunk size avoids the truncation modulo at line 75 but the final division still faults; if the remaining size is negative, the earlier `lefttoread % bytesPerRecord` faults instead. `WriteChunkRecords()` likewise divides by `bytesPerRecord` after writing (`workbench/libs/iffparse/writechunkrecords.c:65,80,96`). The record-width parameter is documented as a number of bytes per record, but neither public function rejects zero.
@@ -42323,6 +42447,7 @@ The rejected call has already emitted an invalid first chunk header. It also cle
 **Trigger and consequence:** a caller passes `bytesPerRecord == 0` to `ReadChunkRecords()` or `WriteChunkRecords()`. The function performs modulo or integer division by zero instead of returning a defined error or zero records. **Affected configuration:** public IFFParse callers using either record API with a zero width; no maintained `ReadChunkRecords()` caller was found. **Confidence:** high for the unchecked zero divisor; validity policy is not specified explicitly. Reject zero before multiplication, modulo or division. No call or build was exercised; source-only.
 
 <a id="od11549-iffparse-record-byte-count-overflows"></a>
+<a id="od11549"></a>
 ## OD11549 — chunk record helpers overflow the signed byte-count product before clipping [conditional]
 
 `ReadChunkRecords()` and `WriteChunkRecords()` multiply `bytesPerRecord * numRecords` in signed `LONG` before comparing the result with the remaining chunk size (`readchunkrecords.c:66-76`; `writechunkrecords.c:64-81`). Positive arguments whose product exceeds the representable LONG range invoke signed integer overflow before the intended chunk-boundary truncation. The subsequent I/O length, records returned and scan update can no longer reliably represent the requested/clipped operation.
@@ -42331,6 +42456,7 @@ The rejected call has already emitted an invalid first chunk header. It also cle
 
 
 <a id="od11550-iffparse-forward-seek-masks-intermediate-read-error"></a>
+<a id="od11550"></a>
 ## OD11550 — forward-only `SeekStream()` can mask a failed intermediate read [conditional]
 
 For a positive seek larger than `SEEKBUFSIZE`, the forward-only fallback loops over 10,000-byte reads. A short/error result sets `retval = IFFERR_SEEK`, but the loop continues (`workbench/libs/iffparse/basicfuncs.c:481-487`). Afterward the final read assigns directly to `retval` (`basicfuncs.c:489-492`), replacing any earlier failure with success if that later read returns exactly `SEEKBUFSIZE`. `ParseIFF()` then increments `cn_Scan` by the full requested distance when `SeekStream()` returns zero (`parseiff.c:200-210`), although an intermediate block was not successfully consumed. This is separate from OD11544, which covers the final read's fixed request length.
@@ -42339,6 +42465,7 @@ For a positive seek larger than `SEEKBUFSIZE`, the forward-only fallback loops o
 
 
 <a id="od11551-iffparse-little-endian-header-shift-overflows"></a>
+<a id="od11551"></a>
 ## OD11551 — little-endian chunk-header decoding left-shifts a signed byte into overflow [conditional]
 
 On little-endian targets, `ReadStreamLong()` assembles a 32-bit value with `bytes[0] << 24` where `bytes[0]` is `UBYTE` (`workbench/libs/iffparse/basicfuncs.c:124-140`). Integer promotion converts that byte to signed `int`; values at or above `0x80` make the left shift unrepresentable and invoke undefined behavior before `PushContextNode()` can validate the resulting ID/type. `GoodID()` rejects high-bit chunk-ID bytes, but that check happens only after this decoding step.
@@ -42346,6 +42473,7 @@ On little-endian targets, `ReadStreamLong()` assembles a 32-bit value with `byte
 **Trigger and consequence:** a little-endian caller parses an IFF stream whose chunk-header word begins with a byte at least `0x80` (for example, a malformed/non-IFF ID). Header decoding has undefined signed-shift behavior before the parser can return its normal invalid-ID error; the value and subsequent error handling are not defined by C. **Affected configuration:** little-endian builds parsing malformed high-bit header words; big-endian builds copy bytes directly. **Confidence:** high for the signed promotion/shift rule; no malformed stream or build was exercised. Assemble using an unsigned 32-bit value before converting to LONG. Source-only.
 
 <a id="od11552-iffparse-accepts-negative-chunk-sizes"></a>
+<a id="od11552"></a>
 ## OD11552 — `GetChunkHeader()` accepts negative chunk sizes into parser state [conditional]
 
 `GetChunkHeader()` reads the on-disk size into signed `LONG` and passes it to `PushContextNode()` without checking that it is nonnegative (`workbench/libs/iffparse/basicfuncs.c:184-250`). `PushContextNode()` validates only the type and ID, then stores the size as `cn_Size` (`basicfuncs.c:48-65`). `IFFSIZE_UNKNOWN == -1` is documented for write-side `PushChunk()` use; it is not a valid known size to accept from a read stream. Subsequent code subtracts `cn_Scan` from this negative size (`readchunkbytes.c:61-65`; `parseiff.c:194-210`) and can pass negative lengths to stream handlers or issue a backwards seek instead of rejecting the malformed header.
@@ -42354,6 +42482,7 @@ On little-endian targets, `ReadStreamLong()` assembles a 32-bit value with `byte
 
 
 <a id="od11553-iffparse-parses-children-past-container-boundary"></a>
+<a id="od11553"></a>
 ## OD11553 — IFFParse reads composite/child data before checking declared chunk boundaries [conditional]
 
 In `IFFSTATE_COMPOSITE`, the parser transitions directly to `IFFSTATE_PUSHCHUNK` and calls `GetChunkHeader()` without first checking whether the current composite's `cn_Scan` has reached its declared `cn_Size` (`workbench/libs/iffparse/parseiff.c:116-148`). The parent scan is advanced only after the child has been fully consumed and popped (`parseiff.c:234-269`); only then does the parser compare it against the parent size (`parseiff.c:285-299`). Thus a child header/body that extends beyond its enclosing FORM/LIST/CAT can be read or skipped across the container boundary before that comparison. If bytes follow the declared container, they may be interpreted as part of the child or as further nested chunks. Separately, `GetChunkHeader()` unconditionally reads a four-byte type after the size field whenever the ID is FORM, LIST, CAT or PROP, without first requiring `size >= sizeof(LONG)` (`basicfuncs.c:211-226`); a composite declaring less than four bytes of contents consumes its type from following stream data.
@@ -43611,6 +43740,7 @@ Sources: `workbench/devs/USB/classes/HID/hid.c:142-148,239-240`; `workbench/devs
 
 
 <a id="od4070-eaudio-allocation-abort-counter-wrap"></a>
+<a id="od4070"></a>
 ## OD4070 — eaudio can strand queued allocation requests after AbortIO counter wrap [optional target]
 
 `AllocateProc()` queues an unsatisfied `ADCMD_ALLOCATE` request on `ETASK.et_allocatelist` and increments the `UWORD` `et_allocated` counter. `_CMD_ABORTIO()`'s fallback removes a queued request and replies with `IOERR_ABORTED`, but does not decrement that counter. `ReAllocateUnits()` checks `et_allocated` before touching the queue and uses a saved counter to limit its head-removal loop.
@@ -43890,6 +44020,7 @@ After `PRS_INIT` succeeds, `Printer_Gfx_DumpRPort()` (`workbench/devs/printer/gf
 **Trigger and consequence:** with `printer.device` and a graphics-capable segment selected, fail the scaled-row or scaled-bitmap allocation after successful `PRS_INIT`; the caller receives success for an incomplete/omitted raster. `printer.device` and the PostScript segment are selected by the standard `workbench-complete` graph; the trigger requires a graphics dump through a graphics-capable segment and the specified allocation failure. **Confidence:** high for the stale return value; allocation failure was not induced. Set an error on each failed allocation and preserve it through close/cleanup. Source-only.
 
 <a id="od11613-ttm-execbuf-fence-allocation-failure-retains-current-reservation"></a>
+<a id="od11613"></a>
 ## OD11613 — TTM execbuf fence-allocation failure retains the current buffer reservation [no in-tree caller]
 
 `ttm_eu_reserve_buffers()` first locks the current BO with `ttm_bo_reserve()` (`workbench/hidds/nouveau/drm/ttm/ttm_execbuf_util.c:89-94`). After that succeeds, it reserves fence-array capacity (`:102-108`). If this allocation fails, the error path calls `ttm_eu_backoff_reservation_reverse(list, entry)` (`:110-118`). That helper uses `list_for_each_entry_continue_reverse()`, whose AROS list macro begins at `entry->prev`, so it unlocks only the earlier BOs and skips the current BO (`ttm_execbuf_util.c:34-42`; `workbench/hidds/nouveau/include/linux/list.h:230-232`). For the resulting non-`-EDEADLK` error, execution reaches the return at `:124-129` without unlocking the current reservation. The allocation failure is reachable: the selected `dma_resv_reserve_fences()` returns `-ENOMEM` when `dma_resv_list_alloc()` fails (`workbench/hidds/nouveau/drm-compat/linux_dma_resv.c:183-208`).
@@ -43897,6 +44028,7 @@ After `PRS_INIT` succeeds, `Printer_Gfx_DumpRPort()` (`workbench/devs/printer/gf
 **Trigger and consequence:** a caller invokes this helper for a BO whose reservation succeeds, then fence-list growth allocation fails. The helper returns an error while leaving that BO's reservation locked, so later operations that need the same BO can block indefinitely. **Affected configuration:** the optional Nouveau DRM link library, if a consumer calls this selected exported TTM utility; repository-wide search found no checked-in caller of `ttm_eu_reserve_buffers()` or its paired helpers, so no current in-tree trigger is established. **Confidence:** high in the lock-retention path and allocation-failure return; practical reachability depends on an external or future consumer. Unlock the current BO on the fence-reservation failure path before returning. No allocation failure, BO operation, GPU or build was exercised; source-only.
 
 <a id="od11614-vmware-dirtyfb-copy-annotates-source-as-damage"></a>
+<a id="od11614"></a>
 ## OD11614 — VMware dirtyfb copy annotations mark the source rectangle as damage
 
 `drm_atomic_helper_dirtyfb()` handles `DRM_MODE_FB_DIRTY_ANNOTATE_COPY` by setting `inc = 2` and halving `num_clips`, then `convert_clip_rect_to_rect()` copies the first rectangle of each pair into the damage blob (`workbench/hidds/vmwaresvga/drm/drm_damage_helper.c:135-152,40-52`). The DIRTYFB UAPI defines each pair as source then destination (`workbench/hidds/vmwaresvga/include/uapi/drm/drm_mode.h:761-764`), and the ioctl validates that the clip count is even before invoking the framebuffer's dirty callback (`workbench/hidds/vmwaresvga/drm/drm_framebuffer.c:739-766`). Both VMware framebuffer function tables install this helper as `.dirty` (`workbench/hidds/vmwaresvga/drm/vmwgfx/vmwgfx_kms.c:494-498,597-601`).
@@ -43906,6 +44038,7 @@ The resulting damage list is consumed by VMware's plane-update path: `vmw_du_hel
 **Trigger and consequence:** a caller submits `DRM_IOCTL_MODE_DIRTYFB` with `DRM_MODE_FB_DIRTY_ANNOTATE_COPY` and a valid source/destination pair for a displayed VMware framebuffer. The helper reports the unchanged source as damage; VMware refreshes the wrong region, leaving the destination display area stale until another update. **Affected configuration:** optional VMware SVGA HIDD when using its BO or surface framebuffer dirty callback; the checked-in `drmModeDirtyFB()` wrapper does not expose flags, so a caller must use the ioctl ABI directly. No in-tree caller setting this flag was found. **Confidence:** high for the source/destination selection and downstream region use; no dirtyfb request or display was run. Select the destination rectangle from each validated pair when constructing the damage blob. Source-only.
 
 <a id="od11615-nouveau-legacy-primary-plane-drops-fractional-source-origin"></a>
+<a id="od11615"></a>
 ## OD11615 — Nouveau legacy primary-plane updates silently drop fractional source origins [optional Nouveau target]
 
 The selected `drm_mode_set_plane` UAPI defines source fields in 16.16 fixed-point units (`workbench/hidds/nouveau/include/uapi/drm/drm_mode.h:296-313`). The non-atomic `drm_mode_setplane()` path forwards those values unchanged to `__setplane_internal()` and the driver's `update_plane` callback (`workbench/hidds/nouveau/drm/drm_plane.c:1008-1063,1135-1207`). `__setplane_check()` calls `drm_framebuffer_check_src_coords()`, which checks that the 16.16 rectangle lies within the framebuffer but does not reject fractional low bits (`drm_plane.c:947-984`; `drm_framebuffer.c:76-102`). The primary-plane helper validates the rectangle, then initializes `drm_mode_set.x` and `.y` with `src_x >> 16` and `src_y >> 16` (`drm_plane_helper.c:165-207`). Its `SUBPIXEL_MASK` constant is unused, and the no-scaling check constrains source/destination size but not fractional origin (`drm_atomic_helper.c:892-958`).
@@ -43917,6 +44050,7 @@ For NV04, the primary plane uses `DRM_PLANE_NON_ATOMIC_FUNCS`; its CRTC `set_con
 Sources: `workbench/hidds/nouveau/include/uapi/drm/drm_mode.h:296-313`; `workbench/hidds/nouveau/drm/drm_plane.c:947-984,1008-1063,1135-1207`; `workbench/hidds/nouveau/drm/drm_framebuffer.c:76-102`; `workbench/hidds/nouveau/drm/drm_plane_helper.c:39,165-207`; `workbench/hidds/nouveau/drm/drm_atomic_helper.c:892-958`; `workbench/hidds/nouveau/drm/drm_crtc_helper.c:552-553,786-799`; `workbench/hidds/nouveau/drm/nouveau/dispnv04/crtc.c:838-923,1263,1276-1289`; `workbench/hidds/nouveau/drm/nouveau/dispnv04/disp.c:235`.
 
 <a id="od11618-nouveau-nv50-cursor-clipping-overflows-at-minimum-crtc-coordinate"></a>
+<a id="od11618"></a>
 ## OD11618 — Nouveau NV50 cursor clipping overflows at the minimum CRTC coordinate [optional Nouveau target]
 
 The DRM atomic plane-state validation rejects a destination rectangle whose right or bottom edge exceeds `INT_MAX`, but it does not impose a lower bound on `crtc_x` or `crtc_y` (`workbench/hidds/nouveau/drm/drm_atomic.c:642-653`). For an active CRTC, `drm_atomic_helper_check_plane_state()` clips the destination against a rectangle beginning at `(0, 0)` after checking its source/destination scale (`drm_atomic_helper.c:892-944`). In `drm_rect_clip_scaled()`, the leading-edge distance is computed as signed `int diff = clip->x1 - dst->x1` (`drm_rect.c:91-103`). An accepted destination beginning at `INT_MIN` therefore overflows this subtraction when clipping against x=0. The C operation has undefined behavior; on the common wraparound result, `diff` becomes negative, the left clip is skipped, and the positive-size destination is returned as visible instead of fully clipped.
@@ -43928,6 +44062,7 @@ This reaches Nouveau's NV50 cursor acquire path, which calls the helper with `ca
 Sources: `workbench/hidds/nouveau/drm/drm_atomic.c:642-653`; `workbench/hidds/nouveau/drm/drm_atomic_helper.c:892-944`; `workbench/hidds/nouveau/drm/drm_rect.c:91-103,129`; `workbench/hidds/nouveau/drm/nouveau/dispnv50/curs507a.c:107-143`; `workbench/hidds/nouveau/drm/nouveau/dispnv50/wndw.c:363-370`; `workbench/hidds/nouveau/drm/nouveau/dispnv50/curs507a.c:59-68`; `workbench/hidds/nouveau/drm/nouveau/dispnv50/cursc37a.c:38-47`; `workbench/hidds/nouveau/drm/nouveau/include/nvhw/class/cl507a.h:34-35`; `workbench/hidds/nouveau/drm/nouveau/include/nvhw/class/clc37a.h:29-30`.
 
 <a id="od11619-dp-aux-zero-speed-parameter-divides-by-zero"></a>
+<a id="od11619"></a>
 ## OD11619 — Zero DP AUX I²C speed parameter divides by zero [invalid configuration]
 
 `dp_aux_i2c_speed_khz` is an `int` module parameter with write permission (`0644`) and a description specifying the supported range as 1–400, but the value is never validated or clamped (`workbench/hidds/nouveau/drm/display/drm_dp_helper.c:1969-1972`). Every `drm_dp_i2c_do_msg()` computes its retry count using that value (`:1982-1995`). The duration calculation divides by `i2c_speed_khz` without checking for zero (`:1941-1948`). Nouveau registers this helper's AUX adapter for DP/eDP connectors and provides a transfer callback, so ordinary I²C-over-AUX traffic can reach the calculation (`nouveau/nouveau_connector.c:938-954,1400-1410`).
@@ -43935,6 +44070,7 @@ Sources: `workbench/hidds/nouveau/drm/drm_atomic.c:642-653`; `workbench/hidds/no
 **Trigger and consequence:** set the writable `dp_aux_i2c_speed_khz` module parameter to zero, then issue any I²C-over-AUX transfer on an active Nouveau DP/eDP connector. The retry-count calculation divides by zero before issuing the AUX request, causing a kernel arithmetic fault rather than rejecting or clamping the invalid value. **Affected configuration:** optional Nouveau DRM target with a registered DP/eDP AUX adapter; changing the parameter requires privileged system configuration. **Confidence:** high from the unvalidated parameter and direct division; no parameter change or transfer was performed. Validate or clamp the parameter to its documented range before using it in the duration calculation. Source-only.
 
 <a id="od11620-nouveau-ignores-edp-backlight-enable-failure"></a>
+<a id="od11620"></a>
 ## OD11620 — Nouveau silently ignores eDP backlight enable failures [optional backlight configuration]
 
 The selected `drm_edp_backlight_enable()` helper reports errors from the DPCD mode, brightness, or enable writes (`workbench/hidds/nouveau/drm/display/drm_dp_helper.c:4092-4108`). Nouveau's NV50 SOR atomic-enable path calls it for DPCD-controlled backlights but discards its return value (`nouveau/dispnv50/disp.c:1924-1938`); the surrounding enable path continues with encoder update (`:1947-1950`). The disable path separately checks and logs its result (`:1660-1668`), showing that failure reporting is available.
@@ -43944,6 +44080,7 @@ The selected `drm_edp_backlight_enable()` helper reports errors from the DPCD mo
 Sources: `workbench/hidds/nouveau/drm/display/drm_dp_helper.c:4092-4108`; `workbench/hidds/nouveau/drm/nouveau/dispnv50/disp.c:1660-1668,1924-1950`.
 
 <a id="od11616-nouveau-ttm-dma-map-clear-spins-on-zero-ref-lru-entry"></a>
+<a id="od11616"></a>
 ## OD11616 — TTM DMA-map clearing can spin forever on a zero-reference LRU entry [no in-tree caller found]
 
 `ttm_device_clear_dma_mappings()` traverses the device's unevictable and manager LRU lists through `ttm_device_clear_lru_dma_mappings()` (`workbench/hidds/nouveau/drm/ttm/ttm_device.c:284-321`). Under `bdev->lru_lock`, the helper repeatedly selects the first resource. If `ttm_bo_get_unless_zero()` fails, it immediately continues without dropping the lock or removing/skipping that resource (`:284-292`). The failed get means the BO kref has already reached zero. Its final `ttm_bo_put()` is then running `ttm_bo_release()` (`ttm_bo.c:248-330`); normal cleanup eventually removes the resource through `ttm_resource_fini()`, which needs the same `lru_lock` (`ttm_resource.c:352-371`). The delayed-delete branch also takes that lock before it can resurrect the BO (`ttm_bo.c:282-312`). Thus the clear loop repeatedly encounters the same still-linked zero-reference entry while preventing the final-release path from unlinking it.
@@ -43953,6 +44090,7 @@ Sources: `workbench/hidds/nouveau/drm/display/drm_dp_helper.c:4092-4108`; `workb
 Sources: `workbench/hidds/nouveau/drm/ttm/ttm_device.c:284-321`; `workbench/hidds/nouveau/drm/ttm/ttm_bo_internal.h:41-54`; `workbench/hidds/nouveau/drm/ttm/ttm_bo.c:248-330`; `workbench/hidds/nouveau/drm/ttm/ttm_resource.c:352-371`; `workbench/hidds/nouveau/include/drm/ttm/ttm_device.h:297`.
 
 <a id="od11617-nouveau-plane-init-swallows-modifier-blob-allocation-failure"></a>
+<a id="od11617"></a>
 ## OD11617 — Nouveau plane setup can succeed without advertising supported modifiers [allocation-failure conditional]
 
 `nv50_wndw_new_()` passes the selected Nouveau modifier list to `drm_universal_plane_init()` for non-cursor NV50 planes (`workbench/hidds/nouveau/drm/nouveau/dispnv50/wndw.c:846-884`; the cursor list is explicitly linear-only). The DRM UAPI documents that the `IN_FORMATS` plane property reports supported format/modifier pairs and that, without this property, userspace should treat the plane as not supporting modifiers (`drm_plane.c:132-142`). `create_in_format_blob()` returns an error pointer if `drm_property_create_blob()` cannot allocate the blob (`drm_plane.c:196-227`). But `__drm_universal_plane_init()` ignores that error and continues returning success, attaching `IN_FORMATS` only if blob creation succeeded (`drm_plane.c:479-489`). The plane retains its format/modifier arrays, and `drm_plane_has_format()` continues to test them for actual requests (`drm_plane.c:917-945`), so the hardware modifier support is not removed when the property allocation fails.
@@ -43962,6 +44100,7 @@ Sources: `workbench/hidds/nouveau/drm/ttm/ttm_device.c:284-321`; `workbench/hidd
 Sources: `workbench/hidds/nouveau/drm/drm_plane.c:196-227,479-489,917-945`; `workbench/hidds/nouveau/drm/nouveau/dispnv50/wndw.c:846-884`; `workbench/hidds/nouveau/drm/nouveau/nouveau_display.c:187-216`.
 
 <a id="od11621-nouveau-cta-217-alternate-clock-overflows"></a>
+<a id="od11621"></a>
 ## OD11621 — CTA VIC 217 alternate pixel clock overflows [high pixel clock]
 
 `cea_mode_alternate_clock()` multiplies a mode's unsigned pixel clock by 1000 before dividing by 1001 for the 59.94 Hz alternate (`workbench/hidds/nouveau/drm/drm_edid.c:4264-4282`). CTA VIC 217 is the 10,240×4,320@120 Hz mode with a 5,940,000 kHz clock (`:1549-1553`), which meets the helper's 6 Hz divisibility check. The product 5,940,000,000 exceeds 32-bit `unsigned int`, so it wraps before `DIV_ROUND_CLOSEST` divides it; the returned alternate is about 1,643,389 kHz rather than about 5,934,066 kHz. The C unsigned wrap is defined, but the computed alternate is wrong.
@@ -43971,6 +44110,7 @@ Sources: `workbench/hidds/nouveau/drm/drm_plane.c:196-227,479-489,917-945`; `wor
 Sources: `workbench/hidds/nouveau/drm/drm_edid.c:4264-4282,1549-1553,4514-4544,6940-6967`; `workbench/hidds/nouveau/drm/nouveau/nouveau_connector.c:960-977`.
 
 <a id="od11622-nouveau-ignores-encoder-initialization-errors"></a>
+<a id="od11622"></a>
 ## OD11622 — Nouveau attaches encoders after initialization fails [allocation failure]
 
 `__drm_encoder_init()` can fail before adding the encoder to the device list or assigning its index: `drm_mode_object_add()` errors return immediately, and failure to allocate the encoder name unregisters the object and returns `-ENOMEM` (`workbench/hidds/nouveau/drm/drm_encoder.c:101-139`). The latter allocation is performed for every Nouveau encoder constructed with `name == NULL` and also for the explicitly formatted NV50 output names. Yet the NV50 DAC, SOR, and PIOR constructors ignore `drm_encoder_init()`'s result, continue setting up the helper, attach the encoder, and report success (`nouveau/dispnv50/disp.c:658-664,2003-2009,2180-2190`). NV04 DAC, DFP, and TV constructors likewise ignore the result before attaching (`nouveau/dispnv04/dac.c:552-560`; `dfp.c:712-723`; `tvnv17.c:818-831`). The separate NV50 MST-output constructor does check and unwind the result (`disp.c:1206-1215`).
@@ -43980,6 +44120,7 @@ Sources: `workbench/hidds/nouveau/drm/drm_edid.c:4264-4282,1549-1553,4514-4544,6
 Sources: `workbench/hidds/nouveau/drm/drm_encoder.c:101-139`; `workbench/hidds/nouveau/drm/drm_connector.c:660-679`; `workbench/hidds/nouveau/include/drm/drm_encoder.h:284-287`; `workbench/hidds/nouveau/drm/nouveau/dispnv50/disp.c:658-664,1206-1215,2003-2009,2180-2190`; `workbench/hidds/nouveau/drm/nouveau/dispnv04/dac.c:552-560`; `workbench/hidds/nouveau/drm/nouveau/dispnv04/dfp.c:712-723`; `workbench/hidds/nouveau/drm/nouveau/dispnv04/tvnv17.c:818-831`.
 
 <a id="od11623-drm-blob-creation-masks-id-allocation-error"></a>
+<a id="od11623"></a>
 ## OD11623 — DRM blob creation masks object-ID allocation errors [resource exhaustion]
 
 After allocating the blob storage, `drm_property_create_blob()` asks `__drm_mode_object_add()` to allocate/register its object ID. If that step fails, it frees the blob but always returns `ERR_PTR(-EINVAL)` instead of the captured error (`workbench/hidds/nouveau/drm/drm_property.c:579-584`). The ID helper returns allocation errors from `idr_alloc()` unchanged (`drm_mode_object.c:43-60`), including `-ENOMEM`. Selected DRM callers propagate `PTR_ERR(blob)` from blob creation, including atomic CRTC state setup and gamma-LUT updates (`drm_atomic_uapi.c:81-89`; `drm_color_mgmt.c:303-314`), so this failure is exposed as invalid input rather than resource exhaustion.
@@ -43989,6 +44130,7 @@ After allocating the blob storage, `drm_property_create_blob()` asks `__drm_mode
 Sources: `workbench/hidds/nouveau/drm/drm_property.c:579-584`; `workbench/hidds/nouveau/drm/drm_mode_object.c:43-60`; `workbench/hidds/nouveau/drm/drm_atomic_uapi.c:81-89`; `workbench/hidds/nouveau/drm/drm_color_mgmt.c:303-314`.
 
 <a id="od11624-nouveau-ttm-kmap-failure-retains-vram-map"></a>
+<a id="od11624"></a>
 ## OD11624 — Failed Nouveau TTM kmap retains the VRAM I/O mapping [mapping allocation failure]
 
 `ttm_bo_kmap()` calls `ttm_mem_io_reserve()` and then directly returns the result of either `ttm_bo_kmap_ttm()` or `ttm_bo_ioremap()` (`workbench/hidds/nouveau/drm/ttm/ttm_bo_util.c:427-450`). The matching release, `ttm_mem_io_free()`, is called by `ttm_bo_kunmap()` only after a non-NULL virtual mapping exists (`:461-480`). Nouveau's selected I/O-reserve callback maps a NVIF handle for VRAM resources and stores the returned handle in `reg->bus.offset` (`nouveau/nouveau_bo.c:1288-1298,1300-1338`); `nouveau_ttm_io_mem_free()` unmaps it (`:1235-1253,1366-1374`).
@@ -43998,6 +44140,7 @@ Sources: `workbench/hidds/nouveau/drm/drm_property.c:579-584`; `workbench/hidds/
 Sources: `workbench/hidds/nouveau/drm/ttm/ttm_bo_util.c:49-76,427-452,461-480`; `workbench/hidds/nouveau/drm/nouveau/nouveau_bo.c:1235-1253,1257-1363,1366-1374`; `workbench/hidds/nouveau/drm/nouveau/nouveau_gem.c:696-703,901-910`.
 
 <a id="od11625-drm-mode-option-prefixes-accepted"></a>
+<a id="od11625"></a>
 ## OD11625 — DRM connector mode options accept ambiguous prefixes [kernel command-line typo conditional]
 
 `drm_mode_parse_cmdline_options()` compares each option name with `strncmp(option, "rotate", delim - option)` (and likewise for reflection, margins, panel orientation and TV mode) without first requiring the input name to have the full documented length (`workbench/hidds/nouveau/drm/drm_modes.c:2173-2242`). Because the comparison length is the input token length, any non-empty prefix of a recognized option is accepted: for example, `r=90` matches `rotate=90`, and `panel_o=normal` matches `panel_orientation=normal`. The panel-orientation value parser has the same issue: `strncmp(value, "normal", delim - value)` accepts a non-empty prefix such as `n` (`:2114-2138`).
@@ -44007,6 +44150,7 @@ Sources: `workbench/hidds/nouveau/drm/ttm/ttm_bo_util.c:49-76,427-452,461-480`; 
 Sources: `workbench/hidds/nouveau/drm/drm_modes.c:2114-2138,2165-2242,2361-2504`; `workbench/hidds/nouveau/drm/drm_connector.c:151-180`; `workbench/hidds/nouveau/drm/drm_probe_helper.c:158-179,528-550`.
 
 <a id="od11626-ahi-best-mode-ignores-attribute-query-failure"></a>
+<a id="od11626"></a>
 ## OD11626 — AHI mode scoring treats failed attribute queries as zero-valued capabilities [driver unavailable conditional]
 
 `DizzyTestAudioID()` initializes every queried capability to zero, calls `AHI_GetAudioAttrs()` to fill them, and ignores its Boolean return (`workbench/devs/AHI/Device/modeinfo.c:77-103`). The getter leaves the outputs untouched and returns FALSE when it cannot construct an audio control or open the mode's subdriver (`:424-446,556-561,575-581`). `TestAudioID()` then compares those zero defaults against the caller's requested tags and accepts a mode whose required values are all false (`:117-169,184-190`). `_AHI_BestAudioIDA()` uses that result to admit the mode to selection (`:709-723`); its subsequent preference score also ignores attribute-query failure.
@@ -44026,6 +44170,7 @@ Sources: `rom/usb/poseidon/poseidon.library.c:2125-2210,228-240,4315-4383,4641,4
 
 
 <a id="od4333-aros-libdrm-resources-leak-arrays"></a>
+<a id="od4333"></a>
 ## OD4333 — AROS libdrm resource cleanup leaks the resource-ID arrays [per display-selection query]
 
 `drmModeGetResources()` allocates separate copies for the returned `fbs`, `crtcs`, `connectors`, and `encoders` arrays (`workbench/hidds/nouveau/libdrm/arosdrmmode.c:113-190`; the VMware copy has the same implementation). `drmModeFreeResources()` only frees the outer `drmModeRes` structure (`:73-81`), so every successful query with nonzero counts retains each corresponding array after the caller frees the result.
@@ -44038,6 +44183,7 @@ Sources: `workbench/hidds/nouveau/libdrm/arosdrmmode.c:73-81,113-190`; `workbenc
 
 
 <a id="od11627-nouveau-object-payload-allocation-unchecked"></a>
+<a id="od11627"></a>
 ## OD11627 — Nouveau object creation copies through an unchecked allocation [memory pressure conditional]
 
 `nouveau_object_new()` allocates `obj->data` when `length` is nonzero, but does not test the `malloc()` result before copying `length` bytes into it (`workbench/hidds/nouveau/libdrm/nouveau/nouveau.c:176-189`). The selected HIDD calls this with nonzero, stack-backed FIFO payloads in `nouveau_copy_init()` for its copy engine channel (`xf86-video-nouveau/nouveau_copy.c:78-111,126-143`); that initializer is called by `HIDDNouveauAccelCommonInit()` (`xf86-video-nouveau/nv_accel_common.c:813-820`), which is called during Nouveau graphics-class construction (`nouveau_hiddclass.c:705-708`).
@@ -44047,6 +44193,7 @@ Sources: `workbench/hidds/nouveau/libdrm/arosdrmmode.c:73-81,113-190`; `workbenc
 Sources: `workbench/hidds/nouveau/libdrm/nouveau/nouveau.c:176-189`; `workbench/hidds/nouveau/xf86-video-nouveau/nouveau_copy.c:78-143`; `workbench/hidds/nouveau/xf86-video-nouveau/nv_accel_common.c:813-820`; `workbench/hidds/nouveau/nouveau_hiddclass.c:705-708`.
 
 <a id="od11628-nouveau-pushbuf-map-failure-leaks-bo-reference"></a>
+<a id="od11628"></a>
 ## OD11628 — Nouveau push-buffer map failure leaks the selected buffer reference [mapping failure conditional]
 
 When a new push-buffer BO is needed, `nouveau_pushbuf_space()` either takes an additional reference to a reusable BO or allocates a new BO (`workbench/hidds/nouveau/libdrm/nouveau/nouveau.c:1730-1740`). It then calls `nouveau_bo_map()` and returns immediately on error, before releasing that local reference (`:1761-1768`). The AROS mapping adapter returns NULL on map failure and the libdrm wrapper turns that into `-EINVAL` (`libdrm/nouveau/nouveau.c:762-774`; `libdrm/arosdrm.c:287-291`). The selected Nouveau HIDD uses this space helper for acceleration command emission, including its initial push-buffer setup and subsequent rendering operations (`xf86-video-nouveau/nv_accel_common.c:682-689`; `xf86-video-nouveau/nouveau_local.h:110-120`; `nouveau_bitmapclass.c:149-151`).
@@ -44056,6 +44203,7 @@ When a new push-buffer BO is needed, `nouveau_pushbuf_space()` either takes an a
 Sources: `workbench/hidds/nouveau/libdrm/nouveau/nouveau.c:1730-1740,1761-1768,949-961`; `workbench/hidds/nouveau/libdrm/arosdrm.c:287-291`; `workbench/hidds/nouveau/xf86-video-nouveau/nv_accel_common.c:682-689`; `workbench/hidds/nouveau/xf86-video-nouveau/nouveau_local.h:110-120`; `workbench/hidds/nouveau/nouveau_bitmapclass.c:149-151`.
 
 <a id="od11629-nouveau-pushbuf-submit-error-hidden"></a>
+<a id="od11629"></a>
 ## OD11629 — Nouveau push-buffer submission failure is discarded as success [GPU submission failure conditional]
 
 `pushbuf_submit()` returns a failed `DRM_NOUVEAU_GEM_PUSHBUF` result after logging and breaking out of its submission loop (`workbench/hidds/nouveau/libdrm/nouveau/nouveau.c:1170-1229`). `pushbuf_flush()` stores that result in `ret`, but replaces it with each successful `cli_kref_set()` while releasing the referenced BOs (`:1232-1264`). For the normal failed batch, those entries were already installed by `pushbuf_kref()`, so cleanup succeeds and the saved submission error becomes zero; the function also clears the batch's push/relocation/buffer counts. `nouveau_pushbuf_kick()` then ignores the flush result and returns only validation of the now-empty batch (`:1698-1703`). The selected HIDD invokes kick from BO waits and rendering paths (`:929`; `nouveau_bitmapclass.c:149-151`; `xf86-video-nouveau/nouveau_exa.c:409`) and does not reliably check its result.
@@ -44068,6 +44216,7 @@ Sources: `workbench/hidds/nouveau/libdrm/nouveau/nouveau.c:1170-1229,1232-1264,1
 
 
 <a id="od11630-nouveau-hdmi-scdc-write-failure-continues"></a>
+<a id="od11630"></a>
 ## OD11630 — Nouveau enables HDMI scrambling after the sink configuration write fails [conditional HDMI link failure]
 
 For an HDMI sink reporting SCDC scrambling support on hardware with SCDC support, `nv50_hdmi_enable()` reads `SCDC_TMDS_CONFIG`, sets the requested scrambling and (above 340 MHz) 1/40 clock-ratio bits, then writes the updated value back (`workbench/hidds/nouveau/drm/nouveau/dispnv50/disp.c:884-909`). A failed read returns from the helper, but the caller still continues TMDS output setup. A failed write is logged and execution continues into `nvif_outp_hdmi()` with the SCDC/scrambling capability flags enabled. `nv50_sor_atomic_enable()` does not check a result from the helper and proceeds to set the SOR's TMDS protocol and output state (`:1873-1894,1948-1959`).
@@ -44735,6 +44884,7 @@ For `PF_CHIP_8513`, the receive parser consumes a two-byte length prefix by adva
 **Trigger and consequence:** an ADM8513 receive completes with at least four bytes (the parser’s minimum-length guard) and reaches the common status check. The parser can use bytes beyond that transfer (which may belong to the adjacent slot) to decide whether the packet has an error, producing a wrong accept/drop decision; this read does not itself modify that adjacent buffer. **Affected configuration:** Pegasus class bound to a device identified as `PF_CHIP_8513`. **Confidence:** high for the pointer/length mismatch and actual-length caller; the effect of the adjacent-slot overlap depends on transfer timing and was not exercised. Reduce `len` when consuming the prefix, or index status relative to the remaining payload length. No device or transfer was used; source-only; see the [coverage ledger](AROS-other-drivers-coverage.md).
 
 <a id="od11643-ahi-warpup-elfloader-logs-unsupported-relocation-through-unbounded-table-index"></a>
+<a id="od11643"></a>
 ## OD11643 — AHI WarpUp ELF loader indexes past its relocation-name table [conditional]
 
 The loader's `reloc_name` array contains entries for relocation values 0 through 36 (`workbench/devs/AHI/Device/elfloader.c:307-345`). In `relocate()`, any relocation type not handled by the switch enters the diagnostic path and uses `ELF32_R_TYPE(r->r_info)` directly as an index into this array (`:260-261,785-850`). The extracted relocation type is an unsigned byte, and the default case has no range check before passing `reloc_name[index]` to `KPrintF` as `%s`. An unsupported type of 37 or greater therefore reads beyond the array; formatting that value can fault or emit invalid diagnostic text before the loader can return a clean relocation failure.
@@ -44933,6 +45083,7 @@ The selected NV50 atomic commit has fallible operations before its state swap: r
 
 
 <a id="od4074--eaudio-control-wrappers-share-one-unsynchronized-completion-task-slot"></a>
+<a id="od4074"></a>
 ## OD4074 — EAudio control wrappers share one unsynchronized completion-task slot
 
 The selected `eaudio` driver stores the caller task in the single global `ematsys->ts_calltask` field before queueing synchronous control commands. `audio_LOCK()`, `audio_START()`, `audio_STOP()`, `audio_FREE()`, and `audio_FLUSH()` each set this field, clear/wait on `STOLEN_SIG`, and enqueue their request (`workbench/devs/audio/audio_commands.c:1314-1334,1688-1699,1774-1786,1894-1915,1973-1984`; `audio_intern.h:93-103`). The worker later signals that shared field for the corresponding command (`audio_commands.c:563,1314,1679,1765,1964`). `BeginIO()` dispatches these methods directly and does not take the device semaphore; only Open/Close use `es_devsem` (`libfunctions.c:26-120,159-198,215-280`).
@@ -45584,6 +45735,7 @@ Both hosted SANA-II Open vectors save the caller's buffer-management tag-list po
 **Trigger and consequence:** allocate the per-open record successfully, then fail host setup (for example, hosted Ethernet cannot open the requested host interface, or TAP cannot open/configure `/dev/net/tun`), and retry `OpenDevice()` with the same `IOSana2Req`. The second Open interprets freed opener storage as a TagItem list, causing a use-after-free read and potentially invalid callback pointers or further invalid tag traversal. **Affected configuration:** explicitly built hosted `workbench-devs-eth-unix` and `workbench-devs-tap-unix`; the active Linux-hosted aggregate selects both when their aliases resolve (`arch/all-linux/mmakefile.src:8-15`). **Confidence:** high for field replacement, opener free, and absence of restoration; manifestation requires a caller to retry the same request after a later setup failure. Repository-wide selected SANA-II caller checks found no in-tree retry of the failed Open request. Restore the original tag-list pointer or clear the field before freeing the opener, and leave the request reusable after failed Open. No host setup failure, retry, request, or build was exercised; source-only.
 
 <a id="od11730-ata-scsi-identify-transfer-actual-count"></a>
+<a id="od11730"></a>
 ## OD11730 — ATA/SCSI 514-byte geometry compatibility requests leave `io_Actual` stale [conditional]
 
 Both ATA and SCSI `cmd_GetGeometry()` handlers have a nonstandard `io_Length == 514` branch that copies 512 bytes of drive-identify data to `io_Data` but does not set `io_Actual` (`rom/devs/ata/ata.c:440-480`; `rom/devs/scsi/scsi.c:437-477`). The normal `DriveGeometry` branch sets `io_Actual` to `sizeof(struct DriveGeometry)`. Their shared `HandleIO()` initializes `io_Error` but does not clear or otherwise update `io_Actual` before dispatch (`ata.c:707-748`; `scsi.c:698-739`), so the 514-byte branch returns success with the caller's old `io_Actual` value.
@@ -45593,6 +45745,7 @@ Both ATA and SCSI `cmd_GetGeometry()` handlers have a nonstandard `io_Length == 
 
 
 <a id="od11733-controller-sparse-touchpad-sensor-descriptors"></a>
+<a id="od11733"></a>
 ## OD11733 — sparse touchpad and sensor tables expose zeroed fake descriptors [conditional]
 
 `ctrl_ImportControls()` accepts out-of-order descriptors and updates each kind's count to `index + 1`, with its comment stating that gaps are filled with empty descriptors of the same kind (`workbench/hidds/controller/controller_controls.c:43-46,79-110`). It initializes default entries for buttons, axes, and hats (`:58-77`), but not for touchpads or sensors. OOP Root allocations are zero-filled (`rom/oop/rootclass.c:115-120`). Thus, if a touchpad or sensor descriptor uses index 1 while index 0 is omitted, the count includes index 0 but its descriptor remains all zero; zero is `vHidd_Controller_Ctl_Button`, not the requested kind. `GetControlInfo()` returns any descriptor below the count without checking that its kind/index match the requested slot (`workbench/hidds/controller/controllerclass.c:416-443`).
@@ -45601,6 +45754,7 @@ Both ATA and SCSI `cmd_GetGeometry()` handlers have a nonstandard `io_Length == 
 
 
 <a id="od11734-controller-axis-range-subtraction-overflow"></a>
+<a id="od11734"></a>
 ## OD11734 — controller axis range subtraction overflows for wide signed endpoints [conditional]
 
 The public control descriptor stores `min` and `max` as signed `LONG` values without a narrower documented limit (`workbench/hidds/controller/include/controller.h:154-169`). The importer accepts any ordered pair and `ctrl_AxisDefaults()` subtracts `min` from `max` in `LONG` (`controller_controls.c:17-40`); `ctrl_NormaliseAxis()` repeats the subtraction and uses the result for scaling (`:201-245`). When a valid ordered pair spans more than `LONG_MAX` (for example `min == LONG_MIN`, `max == 0`), the subtraction overflows signed 32-bit `LONG`, so subsequent center/range calculations invoke undefined behavior and can produce incorrect axis values.
@@ -45611,6 +45765,7 @@ The public control descriptor stores `min` and `max` as signed `LONG` values wit
 
 
 <a id="od11737-controller-mapping-ignores-specific-version-mismatch"></a>
+<a id="od11737"></a>
 ## OD11737 — controller mapping lookup ignores nonzero version mismatches [conditional]
 
 The public mapping contract says GUID version bytes 12–13 are wildcards only when the record bytes are zero (`workbench/hidds/controller/include/controller.h:445-448`). In `ctrl_MappingMatch()`, however, every mismatch at either version byte unconditionally continues without checking the record value (`workbench/hidds/controller/controller_mapping.c:505-527`). A record with a specific nonzero version therefore still matches a device with a different version; if the only GUID difference is version, it is returned as a non-exact match. `AddMapping()` inserts API/User records and calls `ctrl_RemapDevices()`, which reapplies the selected mapping to matching devices (`controllersubsystem.c:392-405,380-388`; `controller_mapping.c:674-727`).
@@ -45622,6 +45777,7 @@ The public mapping contract says GUID version bytes 12–13 are wildcards only w
 
 
 <a id="od11741-controller-event-coalescing-retains-stale-standard-metadata"></a>
+<a id="od11741"></a>
 ## OD11741 — coalesced controller motion keeps stale standard-control metadata [conditional]
 
 For a matching queued motion event, `ctrl_RingPush()` replaces only `value`, `sequence`, and `timestamp`; it leaves `std` and `flags` from the older event (`workbench/hidds/controller/controller_notify.c:24-43`). Axis motion events populate those fields from the device's current mapping and unipolar descriptor (`controller_reading.c:193-198`). Controller mappings can be changed and applied to registered devices while a signal consumer has older events queued (`controller_mapping.c:674-727`; `controllersubsystem.c:392-405`).
@@ -45631,6 +45787,7 @@ For a matching queued motion event, `ctrl_RingPush()` replaces only `value`, `se
 
 
 <a id="od11743-controller-sensor-read-drops-unreturned-samples"></a>
+<a id="od11743"></a>
 ## OD11743 — controller sensor reads discard samples beyond the caller's buffer [conditional]
 
 `GetSensorData()` copies at most `msg->max` samples from the oldest end of the sensor ring, then unconditionally clears `sensor_count` (`workbench/hidds/controller/controllerclass.c:506-525`). When the ring has more samples than the caller's buffer, samples that were not copied are no longer available. A zero-capacity read also clears the queue while returning zero.
@@ -45643,6 +45800,7 @@ For a matching queued motion event, `ctrl_RingPush()` replaces only `value`, `se
 The original entry incorrectly classified `((LONG)x << 16)` as undefined behavior for x values at or above 32768 (`workbench/hidds/controller/controllerclass.c:687`). Under the applicable C17 rule, a nonnegative signed left-shift result that fits the corresponding unsigned type is converted to the signed result type; if that value is out of range for the signed type, the conversion is implementation-defined (C17 6.5.7p4 and 6.3.1.3p3), not undefined behavior. Here the 16-bit coordinate shifted by 16 fits a 32-bit unsigned value. No supported compiler result or selected in-tree touchpad caller establishes an incorrect packed value, and the event field's decoding contract is not documented in this snapshot. OD11744 is withdrawn as a bug finding. No touch report or build was run; source-only.
 
 <a id="od11745-controller-sensor-event-keeps-zero-input-timestamp"></a>
+<a id="od11745"></a>
 ## OD11745 — sensor update events retain a zero timestamp after samples are timestamped [conditional]
 
 `PushSensor()` replaces a zero sample timestamp with `ctrl_Now()` before storing the sample in the ring (`workbench/hidds/controller/controllerclass.c:702-713`). It then builds the `SensorUpdate` event timestamp from the original caller buffer (`:715-728`), which remains zero. The public sensor sample timestamp is documented as EClock ticks (`include/controller.h:520-525`).
@@ -45651,6 +45809,7 @@ The original entry incorrectly classified `((LONG)x << 16)` as undefined behavio
 
 
 <a id="od11746-controller-hat8-flag-is-ignored"></a>
+<a id="od11746"></a>
 ## OD11746 — controller hat decoding ignores the four-way/eight-way descriptor flag [conditional]
 
 The public descriptor defines `vHidd_Controller_CF_Hat8` as marking an 8-way hat and says the default is 4-way (`workbench/hidds/controller/include/controller.h:126-135`). `ctrl_DecodeHat()` never checks that flag and always maps successive values through an eight-position table containing diagonal bitmasks (`controller_controls.c:249-270`). Both raw-report ingestion and single-hat updates call this helper for non-mask input (`controller_reading.c:203-209,260-265`).
@@ -45659,6 +45818,7 @@ The public descriptor defines `vHidd_Controller_CF_Hat8` as marking an 8-way hat
 
 
 <a id="od11748-controller-assign-slot-can-use-device-after-removal"></a>
+<a id="od11748"></a>
 ## OD11748 — controller device can be disposed while a lookup result is in use [conditional]
 
 `ControllerHW__HW_Controller__AssignSlot()` obtains a raw `ControllerDevice *` from `ctrl_FindDevice()` and passes it to `ctrl_SlotSet()` after the lookup's `Disable()` section has ended (`workbench/hidds/controller/controllersubsystem.c:79-95,440-454`). The slot setter then reads `dev->id`, updates `dev->legacy_port`, and may read `dev->flags` for event delivery (`:101-124`). Device-bound consumer construction has the same lifetime gap: `ctrl_ParseConsumerTags()` resolves `aHidd_Controller_DeviceFilter` through `ctrl_FindDevice()` or accepts the device object's instance pointer, then `Controller__Root__New()` allocates its event ring/message array before `ctrl_ConsumerAttach()` inserts the consumer through `con->dev->consumers` (`workbench/hidds/controller/controllerclass.c:116-157,239-270`; `controller_notify.c:194-201`). Concurrent `HW_RemoveDriver()` releases the generic driver-list semaphore before calling controller cleanup and disposing the driver object (`rom/hidds/hidd/hwclass.c:275-295`); cleanup unregisters the device and detaches only consumers already linked to it (`controllersubsystem.c:301-317`). No reference or common SMP-safe lock spans either lookup/use interval.
@@ -45666,6 +45826,7 @@ The public descriptor defines `vHidd_Controller_CF_Hat8` as marking an 8-way hat
 **Trigger and consequence:** on ExecSMP, an `AssignSlot()` call or device-bound consumer construction overlaps removal of the target device. If cleanup disposes the driver after lookup/tag parsing but before slot update or consumer attachment, the caller reads or writes freed device state; the consumer constructor may additionally insert into the freed `dev->consumers` list. **Affected configuration:** explicitly selected `workbench-hidds-controller` under ExecSMP, with concurrent external or alternate slot assignment or consumer construction and controller-driver removal; the aggregate edge is commented and no in-tree controller producer, `AssignSlot()` caller, or consumer client was found. **Confidence:** high for the raw-pointer handoff and immediate cleanup/disposal ordering; occurrence requires the cross-CPU overlap. Keep the device alive with a reference or serialize lookup, use, cleanup, and disposal using shared synchronization. No slot assignment, consumer, device removal, interleaving, or build was exercised; source-only.
 
 <a id="od11749-controller-bound-consumers-receive-device-removed-twice"></a>
+<a id="od11749"></a>
 ## OD11749 — device-bound controller consumers receive duplicate removal events
 
 `CleanUpDriver()` first calls `ctrl_SendDeviceEvent()` with both the subsystem and device (`workbench/hidds/controller/controllersubsystem.c:301-306`). `ctrl_SendDeviceEvent()` calls `ctrl_DeliverEvent()`, which traverses both `dev->consumers` and `hw->consumers` and delivers to every matching consumer (`controller_notify.c:148-175,178-193`). Cleanup then calls `ctrl_DetachDeviceConsumers()`, which removes each device-bound consumer and separately delivers another `DeviceRemoved` to it when its event mask selects that type (`controller_notify.c:248-280`). Consumers default to `EventMask_All` (`controllerclass.c:105-111`), and device-bound consumers are attached to `dev->consumers` (`controller_notify.c:194-201`).
@@ -45675,6 +45836,7 @@ The public descriptor defines `vHidd_Controller_CF_Hat8` as marking an 8-way hat
 
 
 <a id="od11752-controller-consumer-queues-race-across-cpus"></a>
+<a id="od11752"></a>
 ## OD11752 — Controller consumer queues are not serialized across ExecSMP CPUs [conditional]
 
 Signal-mode delivery mutates a consumer's shared ring (`head`, `tail`, `count`, overflow counters and event slots) inside `Disable()` (`workbench/hidds/controller/controller_notify.c:24-55,76-83`). Port-mode delivery scans and marks the shared message pool in `ctrl_MsgAlloc()` under the same local interrupt disable (`:57-73,93-127`). Exec documents that `Disable()` on ExecSMP affects only the calling processor and that shared data also needs a spinlock (`rom/exec/disable.c:15-75`). Neither delivery path takes a shared lock. The controller API permits subsystem-wide consumers (`controllerclass.c:42-47`) and invokes callbacks in producer context; driver-side Push methods deliver through `ctrl_DeliverEvent()` (`controller_reading.c:130-138`; `controllerclass.c:690-728`). Thus independent controller drivers can concurrently deliver to the same subsystem consumer on separate CPUs.
@@ -45682,6 +45844,7 @@ Signal-mode delivery mutates a consumer's shared ring (`head`, `tail`, `count`, 
 **Trigger and consequence:** with the controller target selected on ExecSMP, two driver contexts concurrently deliver events to one signal consumer or one port consumer. Signal producers can observe the same tail/count and overwrite the same ring slot or lose a count update, dropping or corrupting queue state. Port producers can both observe the same `NT_FREEMSG` entry before either marks it `NT_MESSAGE`, then write and enqueue the same embedded message twice, corrupting message ownership/list state. **Affected configuration:** explicitly built `workbench-hidds-controller` on ExecSMP with a subsystem-wide queued consumer and concurrent producers; the common aggregate edge is commented and this checkout has no in-tree controller driver or consumer proving such a schedule. **Confidence:** high that `Disable()` does not provide cross-CPU exclusion and the queue state has no other lock; occurrence depends on concurrent external or alternate driver producers. Protect each consumer queue/pool with SMP-safe synchronization, or serialize all producer delivery. No event, queue, device, interleaving, or build was exercised; source-only.
 
 <a id="od11753-ahirecord-small-max-record-buffer-divides-by-zero"></a>
+<a id="od11753"></a>
 ## OD11753 — AHIRecord divides by zero for a recording callback smaller than 512 frames [conditional]
 
 AHIRecord computes its level-meter divisor in both `AllocAHI()` and the command-line startup path: `LevelDivide = LevelDivide * (recfreq / 5512) / (MaxRecSmp / 512) * 2`, guarded only by `if (MaxRecSmp != 0)` (`workbench/tools/AHIRecord/AHIRecord.c:1350-1352,1665-1668`). `MaxRecSmp` is an `ULONG` filled from `AHIDB_MaxRecordSamples`. The AHI attribute contract defines that value as the number of sample frames delivered per `RecordFunc` callback, with no minimum frame count (`workbench/devs/AHI/Device/modeinfo.c:313-315`; `workbench/devs/AHI/Include/C/devices/ahi.h:220`).
@@ -45691,6 +45854,7 @@ For any recording-capable AHI driver that reports 1 through 511 frames, the guar
 **Trigger and consequence:** AHIRecord starts or the user selects a recording mode while the separately built legacy Toccata driver is installed, a Toccata device/library is available, and `ENV:AHItoccataRecordBufferSize` is set to 512 bytes (or another setting below 2,048 bytes, yielding fewer than 512 frames). The fault occurs when startup or mode selection calls `AllocAHI()` and executes this formula. Division by zero is undefined in C and commonly traps or terminates the AHIRecord task, preventing the recorder from setting up that mode. Other AHI drivers that return a contract-valid 1–511 frame count would reach the same arithmetic. **Affected configuration:** AHIRecord with the optional legacy Toccata driver separately built and installed, or another recording driver in that frame-count range; Toccata is not selected by the current AHI Drivers aggregate. **Confidence:** high for the source arithmetic and Toccata frame-count path; conditional on the optional driver and low-buffer preference. Compute the divisor with a minimum of one, or use a scale formula that handles sub-512 frame counts. No AHI device, callback, mode selection, or build was exercised; source-only.
 
 <a id="od11754-aura-claims-recording-without-calling-sampler"></a>
+<a id="od11754"></a>
 ## OD11754 — Legacy Aura driver advertises recording but never calls the sampler hook [conditional]
 
 Aura reports `TRUE` for `AHIDB_Record` (`workbench/devs/AHI/Drivers/Aura/aura.c:387-388`), which AHI documents as meaning the mode can record samples (`workbench/devs/AHI/Device/modeinfo.c:262-267`). AHIRecord requests only recording-capable modes in its `filtertags` (`workbench/tools/AHIRecord/AHIRecord.c:730-735`). When `AHISF_RECORD` is started, Aura allocates record buffers/message storage, sets only the message type, marks `STATUS_RECORD`, and installs the record interrupt table entry (`aura.c:271-294`). The mono/stereo record labels all resolve to the same assembly body, which only acknowledges the interrupt and reads CIA state before returning; it never fills the record message or calls `ahiac_SamplerFunc` (`workbench/devs/AHI/Drivers/Aura/asmfuncs.a:181-194`). The allocated `a_RecMessage` is never passed to a hook anywhere in the selected Aura C or assembly source.
