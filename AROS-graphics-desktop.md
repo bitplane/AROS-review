@@ -25236,6 +25236,9 @@ The built-in-or-module Numericbutton class provides another conditional route. O
 
 The Prop class has a similar gadget-update path. Its handler matches the gadget ID, scales `PGA_Top`, sets `MUIA_Prop_First` with its private OnlyTrigger flag, and returns zero (`workbench/libs/muimaster/classes/prop.c:237-302,1099-1140`). The setter still forwards the attribute to Notify synchronously. A client notification that disposes the containing window can therefore free the active Prop node before Window dispatch advances. Maintained Scrollgroup, List, NList/NListview and Wanderer IconListview subscribers update scroll positions or viewport offsets and do not dispose the window in the checked paths; the disposal callback remains client-conditional.
 
+
+Balance exposes a further callback-time route. After a changed drag, `Balance__MUIM_HandleEvent()` calls the parent Group’s Hide, Layout, then Show and redraw methods, and ultimately returns zero (`workbench/libs/muimaster/classes/balance.c:750-779`). If the parent uses a caller-supplied `MUIA_Group_LayoutHook`, `Group__MUIM_Layout()` invokes that hook synchronously (`group.c:2820-2840`). A hook that disposes the window frees the active Balance object during Layout; Balance then resumes and accesses the disposed object/parent for Show and redraw before returning to Window dispatch. No maintained Balance parent/layout-hook disposal caller was found in the checked census. This remains conditional on client hook behavior. In comparison, Cycle selection may synchronously set `MUIA_Cycle_Active` but returns Eat on changed-selection paths before Window advances its node pointer (`cycle.c:618-799`), so that route does not add to GD15352.
+
 <a id="gd15353--list-event-callback-can-resume-after-a-notification-disposes-its-listview"></a>
 ## GD15353 — List event callback can resume after a notification disposes its Listview [conditional]
 
