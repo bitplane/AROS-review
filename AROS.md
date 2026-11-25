@@ -17286,7 +17286,7 @@ USB class aggregate/package selection correction (OD USB class scope; 2026-11-06
 **[OD11521](AROS-other-drivers.md#od11521-rtl8029-worker-creation-failure-leaks-lifetime-port) — RTL8029 leaks its caller-owned lifetime port and signal when worker process creation fails after port allocation.** Repeated failed opens can exhaust signal bits and port memory in a long-lived caller; optional RTL8029 network-device target; source-only.
 
 
-**OD11523 — [BTCtrl silently succeeds when remote-name request allocation fails](AROS-other-drivers.md#od11523-btctrl-remote-name-allocation-failure-reports-success).**
+**OD11523 — withdrawn duplicate of [OD10335](AROS-other-drivers.md#od10335); see the canonical finding for details.**
 
 **OD11524 — [Nouveau `NvI2C=1` selects a transfer callback compiled as unavailable](AROS-other-drivers.md#od11524-nouveau-nvi2c-selects-unavailable-transfer-callback).**
 
@@ -18377,7 +18377,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[OD4343](AROS-other-drivers.md#od4343) — Printer command formatting reuses a buffer still owned by asynchronous I/O; source-only.**
 **[OD4345](AROS-other-drivers.md#od4345) — Printer CSI parsing writes beyond its four-byte parameter array; source-only.**
 **[OD9744](AROS-other-drivers.md#od9744) — ATA polling can report an incomplete PIO transfer as complete; source-only.**
-**[OD11523](AROS-other-drivers.md#od11523) — BTCtrl silently succeeds when remote-name request allocation fails; source-only.**
+**OD11523 — withdrawn duplicate of [OD10335](AROS-other-drivers.md#od10335); no separate finding.**
 **[OD2319](AROS-other-drivers.md#od2319) — RTL8139 failed-startup cleanup can signal a reclaimed worker task; source-only.**
 **[OD2435](AROS-other-drivers.md#od2435) — E1000's interrupt-safe millisecond delay helper is empty, so selected PHY setup and recovery calls skip required settling intervals.** Hardware effect depends on PHY timing; selected x86 PC E1000 paths. Source-only.
 
