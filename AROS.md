@@ -16530,7 +16530,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 15960:**OD11369 withdrawn — duplicate of [OD11350](AROS-other-drivers.md#od11350).** Both describe fabricated Vulkan memory-budget outputs; OD11350 is canonical.
 
-15961:**[OD11371](AROS-other-drivers.md#od11371) — No in-tree Vulkan GPU driver registers with the Vulkan HIDD.** Repository search finds the registration API and implementation but no driver caller; without an out-of-tree component the registry stays empty and instance creation fails. Candidate; optional Vulkan target. Source-only.
+15961:**[OD11371](AROS-other-drivers.md#od11371) — No in-tree Vulkan GPU driver registers with the Vulkan HIDD.** Repository search finds the registration API and implementation but no driver caller; without an out-of-tree component the registry stays empty and instance creation fails. Candidate integration gap in a target selected through the active `workbench-hidds` aggregate; no in-tree GPU registration caller was found, but out-of-tree providers and intended image composition remain unknown. Source-only.
 - [OD11372 — Raspberry Pi mailbox callers share cache lines with unrelated memory](AROS-other-drivers.md#od11372)
 - [OD11373 — Nouveau PWM can program a zero period from a zero PERF divisor or NV40 frequency division](AROS-other-drivers.md#od11373)
 - [OD11374 — Failed BWFM SDIO writes can leave a partial SDPCM transmit frame](AROS-other-drivers.md#od11374)
