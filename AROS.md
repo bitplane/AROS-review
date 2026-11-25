@@ -14237,6 +14237,414 @@ These existing coverage-ledger candidates now have detailed finding entries; thi
 
 **[OD9838](AROS-other-drivers.md#od9838)** — m68k LowLevel timer removal can overwrite a concurrently registered timer bit, leaving the new vector and Start/Stop hardware selection inconsistent. Requires a direct client and task preemption. Source-only.
 
+
+<a id="od-index-reconciliation-2026-11-25"></a>
+## Previously omitted active Other Drivers entries restored (2026-11-25)
+
+Reconciled the non-withdrawn detailed OD headings against this index. Added 201 entries that had detailed sections but no master-index link. Explicitly withdrawn sections and the OD9921 caller-recheck note are excluded; conditional and candidate findings retain their stated qualifications.
+**[OD888](AROS-other-drivers.md#od888) — — Hosted parallel HIDD repeats UnixIO cleanup after interrupt registration fails [non-Darwin conditional]** Source-only.
+
+**[OD1030](AROS-other-drivers.md#od1030) — — IPMI sensor linear conversion overflows signed 32-bit arithmetic [coefficient conditional]** Source-only.
+
+**[OD1031](AROS-other-drivers.md#od1031) — — IPMI sensor conversion truncates the offset before combining exponents [coefficient conditional]** Source-only.
+
+**[OD1642](AROS-other-drivers.md#od1642) — — Poseidon config loading trusts a FORM length smaller than its header [malformed config]** Source-only.
+
+**[OD1901](AROS-other-drivers.md#od1901) — — NetInfo `initgroups()` member query writes and reads one GID past its buffer [conditional]** Source-only.
+
+**[OD1909](AROS-other-drivers.md#od1909) — — NetInfo does not retry a failed database notification registration** Source-only.
+
+**[OD2150](AROS-other-drivers.md#od2150) — — IPMI SENSORS trusts short SDR reservation replies and can lose retry progress [BMC-response conditional]** Source-only.
+
+**[OD2151](AROS-other-drivers.md#od2151) — — IPMI SEL CLEAR reads reservation and erase status from unchecked short replies [BMC-response conditional]** Source-only.
+
+**[OD2327](AROS-other-drivers.md#od2327) — — USB configuration continues after descriptor reads fail [conditional]** Source-only.
+
+**[OD2373](AROS-other-drivers.md#od2373) — — CharMap scrollback frees a line still referenced by the active selection [history-cap conditional]** Source-only.
+
+**[OD2697](AROS-other-drivers.md#od2697) — — Serial and parallel shared opener counts wrap and free live units [conditional]** Source-only.
+
+**[OD2698](AROS-other-drivers.md#od2698) — — Concurrent serial and parallel closes can lose the last opener decrement [ExecSMP conditional]** Source-only.
+
+**[OD2804](AROS-other-drivers.md#od2804) — — IPMI SENSORS reads metadata from incomplete SDR records [malformed-record conditional]** Source-only.
+
+**[OD2883](AROS-other-drivers.md#od2883) — — Input and Controller HIDD fanout can race consumer disposal** Source-only.
+
+**[OD3064](AROS-other-drivers.md#od3064) — — PCNet32 never decrements its per-unit open count [conditional]** Source-only.
+
+**[OD3065](AROS-other-drivers.md#od3065) — — PCNet32 replaces and leaks its DMA rings on every shared Open [conditional]** Source-only.
+
+**[OD3066](AROS-other-drivers.md#od3066) — — PCNet32 stops the NIC on every Close [shared-open conditional]** Source-only.
+
+**[OD3423](AROS-other-drivers.md#od3423) — — USB printer class trusts short GET_DEVICE_ID responses [conditional]** Source-only.
+
+**[OD3424](AROS-other-drivers.md#od3424) — — USB printer query decodes port status without confirming that a byte arrived [conditional]** Source-only.
+
+**[OD3726](AROS-other-drivers.md#od3726) — — Bluetooth reuses an empty incoming RFCOMM service as an endpoint after allocation failure** Source-only.
+
+**[OD3741](AROS-other-drivers.md#od3741) — — IFFParse publishes a freed collection item after a chunk read error [conditional]** Source-only.
+
+**[OD4035](AROS-other-drivers.md#od4035) — — VMware IRQ teardown frees state used by queued threaded work [conditional]** Source-only.
+
+**[OD4070](AROS-other-drivers.md#od4070) — — eaudio can strand queued allocation requests after AbortIO counter wrap [optional target]** Source-only.
+
+**[OD4074](AROS-other-drivers.md#od4074) — — EAudio control wrappers share one unsynchronized completion-task slot** Source-only.
+
+**[OD4333](AROS-other-drivers.md#od4333) — — AROS libdrm resource cleanup leaks the resource-ID arrays [per display-selection query]** Source-only.
+
+**[OD4348](AROS-other-drivers.md#od4348) — — Parallel device leaves `CMD_START` and `CMD_STOP` requests unanswered [unadvertised-command caller conditional]** Source-only.
+
+**[OD4357](AROS-other-drivers.md#od4357) — — The Nouveau and VMware IRQ shims report success when PC kernel IRQ registration fails [conditional]** Source-only.
+
+**[OD9852](AROS-other-drivers.md#od9852) — — Controller axis normalization can overflow signed arithmetic** Source-only.
+
+**[OD9853](AROS-other-drivers.md#od9853) — — Unchanged controller reports omit the documented Frame event** Source-only.
+
+**[OD9854](AROS-other-drivers.md#od9854) — — Controller reading updates are not serialized and the reader retry uses an uninitialized value** Source-only.
+
+**[OD9855](AROS-other-drivers.md#od9855) — — Controller mapping ignores input inversion and half-axis flags** Source-only.
+
+**[OD9856](AROS-other-drivers.md#od9856) — — Controller device-list and ID state lack SMP-safe synchronization [conditional]** Source-only.
+
+**[OD9857](AROS-other-drivers.md#od9857) — — Controller device IDs are reused after the 16-bit counter wraps** Source-only.
+
+**[OD9858](AROS-other-drivers.md#od9858) — — Controller mapping updates skip devices after the 64th** Source-only.
+
+**[OD9860](AROS-other-drivers.md#od9860) — — Controller event fanout silently stops at 32 consumers** Source-only.
+
+**[OD9861](AROS-other-drivers.md#od9861) — — New controller consumers miss existing devices after the 64th** Source-only.
+
+**[OD9962](AROS-other-drivers.md#od9962) — — VUSBHCI does not enumerate host USB devices already connected at startup [conditional]** Source-only.
+
+**[OD9963](AROS-other-drivers.md#od9963) — — VUSBHCI skips claiming USB interfaces with no active host kernel driver [conditional]** Source-only.
+
+**[OD9966](AROS-other-drivers.md#od9966) — — VUSBHCI initialization failure leaves the host libusb library open [conditional]** Source-only.
+
+**[OD9967](AROS-other-drivers.md#od9967) — — VUSBHCI handler startup failure leaves the initializing task waiting [conditional]** Source-only.
+
+**[OD9968](AROS-other-drivers.md#od9968) — — VUSBHCI publishes a unit after an early handler signal even when worker setup fails [conditional]** Source-only.
+
+**[OD9989](AROS-other-drivers.md#od9989) — — VUSBHCI skips `libusb_exit()` when hotplug callback registration fails [conditional]** Source-only.
+
+**[OD10031](AROS-other-drivers.md#od10031) — — NVIF EDID failure skips runtime-PM release and leaves the previous EDID published [conditional]** Source-only.
+
+**[OD10036](AROS-other-drivers.md#od10036) — — Failed Nouveau ABI16 channel setup leaves its notifier GEM handle in the file table [conditional]** Source-only.
+
+**[OD10195](AROS-other-drivers.md#od10195) — — Hosted OSS driver shadows its library base with the AHI module base [conditional]** Source-only.
+
+**[OD10196](AROS-other-drivers.md#od10196) — — DAX classifies only the first non-compressed area [conditional]** Source-only.
+
+**[OD10197](AROS-other-drivers.md#od10197) — — DAX trusts the non-compressed-area count past its fixed table [conditional]** Source-only.
+
+**[OD10198](AROS-other-drivers.md#od10198) — — DAX reads an unchecked frame length into a smaller input buffer [conditional]** Source-only.
+
+**[OD10199](AROS-other-drivers.md#od10199) — — DAX copies the requested range after zlib produces fewer frame bytes [conditional]** Source-only.
+
+**[OD10421](AROS-other-drivers.md#od10421) — — DRM EDID-to-SAD helper returns descriptors from only the first audio block [external-caller conditional]** Source-only.
+
+**[OD10422](AROS-other-drivers.md#od10422) — — DiskImage Expat allocator can wrap the private-header size [large-request conditional]** Source-only.
+
+**[OD10423](AROS-other-drivers.md#od10423) — — MountHDF divides by zero for zero geometry parameters [conditional]** Source-only.
+
+**[OD10424](AROS-other-drivers.md#od10424) — — MountHDF leaks its allocated DOS node when a duplicate name is rejected [conditional]** Source-only.
+
+**[OD10425](AROS-other-drivers.md#od10425) — — DiskImage AROS fallback truncates 64-bit file offsets [large-file conditional]** Source-only.
+
+**[OD10426](AROS-other-drivers.md#od10426) — — DiskImage image-name allocation failure is reported as success [allocation conditional]** Source-only.
+
+**[OD10428](AROS-other-drivers.md#od10428) — — DiskImage reply port uses signal bit zero [caller-signal interference]** Source-only.
+
+**[OD10429](AROS-other-drivers.md#od10429) — — CUE CDDA byte swapping uses unaligned word accesses on PowerPC [alignment conditional]** Source-only.
+
+**[OD10430](AROS-other-drivers.md#od10430) — — DiskImage extraction replaces a pre-existing temporary-name collision [data preservation]** Source-only.
+
+**[OD10431](AROS-other-drivers.md#od10431) — — DiskImage reports successful abort for an in-progress request [race conditional]** Source-only.
+
+**[OD10433](AROS-other-drivers.md#od10433) — — USB HID report parser reads truncated item bytes past the descriptor [malformed-descriptor conditional]** Source-only.
+
+**[OD10434](AROS-other-drivers.md#od10434) — — CDFS buffer-cache teardown passes an IORequest pointer slot to CloseDevice [normal teardown]** Source-only.
+
+**[OD10435](AROS-other-drivers.md#od10435) — — ISO9660 volume creation date conversion subtracts the wrong digit base [media conditional]** Source-only.
+
+**[OD10436](AROS-other-drivers.md#od10436) — — Rock Ridge NM names and AS comments are mishandled [extension conditional]** Source-only.
+
+**[OD10437](AROS-other-drivers.md#od10437) — — ISO path lookup leaks its lock record for a non-directory intermediate component [path-shape conditional]** Source-only.
+
+**[OD10438](AROS-other-drivers.md#od10438) — — ISO9660 unmount leaks separately allocated path-table storage [path-table conditional]** Source-only.
+
+**[OD10439](AROS-other-drivers.md#od10439) — — ISO9660 directory lookup applies the full offset twice [multi-block directory]** Source-only.
+
+**[OD10440](AROS-other-drivers.md#od10440) — — ISO9660 path-table entry lengths and parent indexes are not validated [malformed-table conditional]** Source-only.
+
+**[OD10441](AROS-other-drivers.md#od10441) — — ISO9660 directory and Rock Ridge record lengths are not bounded [inconsistent-record conditional]** Source-only.
+
+**[OD10442](AROS-other-drivers.md#od10442) — — DiskImage READ CD paths do not bound audio output to `scsi_Length` [buffer-capacity conditional]** Source-only.
+
+**[OD10443](AROS-other-drivers.md#od10443) — — DiskImage INQUIRY overwrites the final byte of each identifier [every INQUIRY]** Source-only.
+
+**[OD10444](AROS-other-drivers.md#od10444) — — DiskImage reads the CDB opcode before checking its declared length [invalid-request conditional]** Source-only.
+
+**[OD10445](AROS-other-drivers.md#od10445) — — DiskImage retains a caller's error pointer after UnitControl returns [later-error conditional]** Source-only.
+
+**[OD10446](AROS-other-drivers.md#od10446) — — DiskImage READ CAPACITY underflows for a Generic image smaller than one block [image-size conditional]** Source-only.
+
+**[OD10447](AROS-other-drivers.md#od10447) — — DiskImage saves an unchecked path buffer when `NameFromFH()` fails [path-resolution conditional]** Source-only.
+
+**[OD10448](AROS-other-drivers.md#od10448) — — DRM mode validation can retain a mode without a compatible CRTC [topology conditional; in-tree trigger unconfirmed]** Source-only.
+
+**[OD10449](AROS-other-drivers.md#od10449) — — CDFS does not reject a negative `Read()` length [invalid-argument candidate; no in-tree negative caller found]** Source-only.
+
+**[OD10450](AROS-other-drivers.md#od10450) — — CDFS negates the minimum signed seek offset [32-bit; large-file conditional]** Source-only.
+
+**[OD10454](AROS-other-drivers.md#od10454) — — MountHDF underflows the high cylinder for images smaller than one cylinder [small-image conditional]** Source-only.
+
+**[OD10455](AROS-other-drivers.md#od10455) — — Unix hostdisk automount probes geometry through an uninitialized structure [hosted Unix; device conditional]** Source-only.
+
+**[OD10456](AROS-other-drivers.md#od10456) — — Hostdisk automount copies indeterminate DOS geometry words [hosted Unix; device conditional]** Source-only.
+
+**[OD10457](AROS-other-drivers.md#od10457) — — Hostdisk automount ignores a rejected boot node and leaks it [duplicate-name conditional]** Source-only.
+
+**[OD10458](AROS-other-drivers.md#od10458) — — Hostdisk leaks its per-unit message port when opening the host file fails [host-open failure conditional]** Source-only.
+
+**[OD10459](AROS-other-drivers.md#od10459) — — MinGW hostdisk treats a valid `0xFFFFFFFF` seek position as an error [MinGW32; exact offset conditional]** Source-only.
+
+**[OD10460](AROS-other-drivers.md#od10460) — — MinGW hostdisk rejects valid image sizes with low word `0xFFFFFFFF` [MinGW32; exact file size conditional]** Source-only.
+
+**[OD10462](AROS-other-drivers.md#od10462) — — DiskImage AbortIO callback can deadlock synchronous I/O on the same unit [AROS `PA_CALL` conditional]** Source-only.
+
+**[OD10464](AROS-other-drivers.md#od10464) — — DiskImage Zune GUI retains one leading space in the custom window title [cosmetic; exact tooltype conditional]** Source-only.
+
+**[OD10465](AROS-other-drivers.md#od10465) — — MountHDF accepts a nonnumeric `UNIT` tooltype as unit zero [Workbench icon conditional]** Source-only.
+
+**[OD10469](AROS-other-drivers.md#od10469) — — DiskImage persists an uninitialized path when `NameFromFH()` fails [allocation/error conditional]** Source-only.
+
+**[OD10470](AROS-other-drivers.md#od10470) — — CISO block-index allocation size can wrap [optional plugin; oversized header conditional]** Source-only.
+
+**[OD10471](AROS-other-drivers.md#od10471) — — DAA chunks crossing volume boundaries reuse the wrong file offset [optional multi-volume images]** Source-only.
+
+**[OD10472](AROS-other-drivers.md#od10472) — — IPF and DAX reads ignore the high half of 64-bit offsets [optional/legacy plugins]** Source-only.
+
+**[OD10473](AROS-other-drivers.md#od10473) — — eGalax GUI shifts by an invalid signal index when tracking-signal allocation fails [optional class; signal exhaustion conditional]** Source-only.
+
+**[OD10474](AROS-other-drivers.md#od10474) — — LAN78xx aliases the LAN7500 RX and TX FIFO end registers [LAN7500/7505; hardware effect conditional]** Source-only.
+
+**[OD10527](AROS-other-drivers.md#od10527) — — OpenSBI PCIDT reports initialization success when a bridge driver was not registered** Source-only.
+
+**[OD10528](AROS-other-drivers.md#od10528) — — PCI bus setup succeeds after a discovered device object failed to construct** Source-only.
+
+**[OD10991](AROS-other-drivers.md#od10991) — — AHI-Handler plays compressed AIFC payloads as raw PCM** Source-only.
+
+**[OD11094](AROS-other-drivers.md#od11094) — — Workbench USB HID report-count overflow leaves a one-byte input buffer** Source-only.
+
+**[OD11095](AROS-other-drivers.md#od11095) — — Serial and parallel devices report successful Open when unit-record allocation fails** Source-only.
+
+**[OD11096](AROS-other-drivers.md#od11096) — — Workbench USB HID mouse discards wheel-report magnitude** Source-only.
+
+**[OD11100](AROS-other-drivers.md#od11100) — — OpenSBI DesignWare UART receive drain can exceed its fixed stack buffer [conditional]** Source-only.
+
+**[OD11104](AROS-other-drivers.md#od11104) — — USB MassStorage reports the inclusive last LBA as the sector count [GPT writer consequence]** Source-only.
+
+**[OD11224](AROS-other-drivers.md#od11224) — — RTL8029 programs a board after its Prometheus ownership claim fails [conditional]** Source-only.
+
+**[OD11321](AROS-other-drivers.md#od11321) — — AUX startup tagging clears bit 30 from a valid fast-BPTR pointer [selected Workbench AUX DOSDriver; address-dependent]** Source-only.
+
+**[OD11387](AROS-other-drivers.md#od11387) — — Vulkan-Hpp dependency lookup decrements before the first version entry** Source-only.
+
+**[OD11446](AROS-other-drivers.md#od11446) — — Generic entropy backend reports cryptographic-quality success without a readiness signal [conditional]** Source-only.
+
+**[OD11483](AROS-other-drivers.md#od11483) — — Nouveau stderr override returns an incompatible `FILE` layout** Source-only.
+
+**[OD11484](AROS-other-drivers.md#od11484) — — Mesa `usleep()` returns without waiting** Source-only.
+
+**[OD11485](AROS-other-drivers.md#od11485) — — Mesa `gettimeofday()` can report success with an uninitialized timestamp** Source-only.
+
+**[OD11486](AROS-other-drivers.md#od11486) — — Mesa `calloc()` can underallocate after size arithmetic wraps** Source-only.
+
+**[OD11487](AROS-other-drivers.md#od11487) — — Mesa memstream flush reports success when buffer growth fails** Source-only.
+
+**[OD11488](AROS-other-drivers.md#od11488) — — Mesa context setup dereferences a failed RastPort clone** Source-only.
+
+**[OD11489](AROS-other-drivers.md#od11489) — — Mesa RastPort dimension underflow wraps to a large framebuffer size** Source-only.
+
+**[OD11490](AROS-other-drivers.md#od11490) — — Mesa context creation leaks a state-tracker context on framebuffer allocation failure** Source-only.
+
+**[OD11491](AROS-other-drivers.md#od11491) — — Mesa make-current resize path does not invalidate framebuffer resources** Source-only.
+
+**[OD11492](AROS-other-drivers.md#od11492) — — Mesa can request a depth/stencil attachment with `PIPE_FORMAT_NONE`** Source-only.
+
+**[OD11493](AROS-other-drivers.md#od11493) — — Mesa framebuffer validation reports success after resource allocation fails** Source-only.
+
+**[OD11494](AROS-other-drivers.md#od11494) — — Nouveau ignores cursor buffer allocation failure** Source-only.
+
+**[OD11495](AROS-other-drivers.md#od11495) — — Nouveau cursor shape update writes through a failed BO mapping** Source-only.
+
+**[OD11496](AROS-other-drivers.md#od11496) — — Mesa task-local storage creation dereferences a failed allocation** Source-only.
+
+**[OD11497](AROS-other-drivers.md#od11497) — — Mesa task-local storage insertion dereferences a failed node allocation** Source-only.
+
+**[OD11498](AROS-other-drivers.md#od11498) — — Mesa GLAPI aliases unregistered Exec tasks in its pthread TLS fallback** Source-only.
+
+**[OD11500](AROS-other-drivers.md#od11500) — — Nouveau selects the first CRTC without checking connector compatibility** Source-only.
+
+**[OD11501](AROS-other-drivers.md#od11501) — — Nouveau bitmap methods ignore failed buffer mappings** Source-only.
+
+**[OD11502](AROS-other-drivers.md#od11502) — — Nouveau alpha blending left-shifts negative channel deltas** Source-only.
+
+**[OD11503](AROS-other-drivers.md#od11503) — — Nouveau alpha upload left-shifts a byte into signed `int`** Source-only.
+
+**[OD11504](AROS-other-drivers.md#od11504) — — Nouveau solid horizontal and vertical lines omit their final pixel** Source-only.
+
+**[OD11505](AROS-other-drivers.md#od11505) — — Nouveau compositor dereferences a failed bitmap-stack allocation** Source-only.
+
+**[OD11506](AROS-other-drivers.md#od11506) — — Nouveau compositor passes a failed composite-bitmap creation to modeset** Source-only.
+
+**[OD11507](AROS-other-drivers.md#od11507) — — Nouveau acceleration setup failure is followed by a NULL pattern-object dereference** Source-only.
+
+**[OD11508](AROS-other-drivers.md#od11508) — — Nouveau NV50/NVC0 hostdata upload reads past odd-width 16-bit rows** Source-only.
+
+**[OD11509](AROS-other-drivers.md#od11509) — — Nouveau Blackwell small-image upload submits work to the removed 2D engine** Source-only.
+
+**[OD11510](AROS-other-drivers.md#od11510) — — Nouveau 3D uploads report success when draw reservation fails** Source-only.
+
+**[OD11511](AROS-other-drivers.md#od11511) — — Nouveau NV30/NV40 initialization ignores failed shader uploads** Source-only.
+
+**[OD11512](AROS-other-drivers.md#od11512) — — NVIDIA HIDD dereferences failed PCI BAR mappings** Source-only.
+
+**[OD11513](AROS-other-drivers.md#od11513) — — NVIDIA cross-depth bitmap copies ignore the GC draw mode** Source-only.
+
+**[OD11514](AROS-other-drivers.md#od11514) — — NVIDIA offscreen CPU clear ignores the bitmap row pitch** Source-only.
+
+**[OD11515](AROS-other-drivers.md#od11515) — — NVIDIA small offscreen clear underflows its word count** Source-only.
+
+**[OD11516](AROS-other-drivers.md#od11516) — — NVIDIA planar image operations skip later planes after a missing plane** Source-only.
+
+**[OD11517](AROS-other-drivers.md#od11517) — — NVIDIA planar color expansion dereferences special mask-plane values** Source-only.
+
+**[OD11518](AROS-other-drivers.md#od11518) — — NVIDIA planar color expansion uses signed counters for unsigned dimensions** Source-only.
+
+**[OD11519](AROS-other-drivers.md#od11519) — — Controller subscription can duplicate or stale a device-added event** Source-only.
+
+**[OD11520](AROS-other-drivers.md#od11520) — — RTL8029 worker startup failure leaves unit initialization waiting forever** Source-only.
+
+**[OD11521](AROS-other-drivers.md#od11521) — — RTL8029 leaks its lifetime message port when worker creation fails** Source-only.
+
+**[OD11527](AROS-other-drivers.md#od11527) — — CMI8738 non-AROS builds include a missing PCI backend** Source-only.
+
+**[OD11528](AROS-other-drivers.md#od11528) — — SB128 extra initialized cards have no shipped selectable mode** Source-only.
+
+**[OD11529](AROS-other-drivers.md#od11529) — — VIA-AC97 interrupt header selects the wrong AmigaOS 4 macro** Source-only.
+
+**[OD11530](AROS-other-drivers.md#od11530) — — PCIe extended-capability cycles hang HIDD queries** Source-only.
+
+**[OD11531](AROS-other-drivers.md#od11531) — — AHI close logging reads beyond a short V2 request [conditional]** Source-only.
+
+**[OD11532](AROS-other-drivers.md#od11532) — — Controller HIDD disposal frees queued port messages [conditional]** Source-only.
+
+**[OD11533](AROS-other-drivers.md#od11533) — — Nouveau PCI bridge initialization leaks attribute-base references on bus-object failure [optional target]** Source-only.
+
+**[OD11534](AROS-other-drivers.md#od11534) — — Threaded IRQ registration accepts a NULL primary handler, then calls through it [conditional]** Source-only.
+
+**[OD11535](AROS-other-drivers.md#od11535) — — DRM compatibility workqueue accesses its shared queue without SMP locking [conditional]** Source-only.
+
+**[OD11536](AROS-other-drivers.md#od11536) — — Nouveau and VMware loggers retain buffered messages if flusher creation fails [conditional]** Source-only.
+
+**[OD11538](AROS-other-drivers.md#od11538) — — VUSBHCI hotplug callback can run before its root unit is published [conditional startup race]** Source-only.
+
+**[OD11539](AROS-other-drivers.md#od11539) — — Nouveau loses DP IRQ events for external AUX connectors [optional target]** Source-only.
+
+**[OD11540](AROS-other-drivers.md#od11540) — — Nouveau display error handler dereferences an empty channel slot [conditional optional target]** Source-only.
+
+**[OD11541](AROS-other-drivers.md#od11541) — — GA102 GR firmware reference is released only on success [conditional optional target]** Source-only.
+
+**[OD11542](AROS-other-drivers.md#od11542) — — Freeing one Poseidon pipe tears down an endpoint context shared by sibling pipes [conditional]** Source-only.
+
+**[OD11543](AROS-other-drivers.md#od11543) — — IFFParse stores a freed property after a chunk read error [conditional]** Source-only.
+
+**[OD11544](AROS-other-drivers.md#od11544) — — IFFParse forward-only seek consumes a fixed 10,000 bytes [conditional]** Source-only.
+
+**[OD11545](AROS-other-drivers.md#od11545) — — `CloseIFF()` leaves a failed buffered stream pointed at freed storage [conditional]** Source-only.
+
+**[OD11546](AROS-other-drivers.md#od11546) — — handler registration leaks its item when PROP scope is unavailable [conditional]** Source-only.
+
+**[OD11547](AROS-other-drivers.md#od11547) — — `PushChunk()` writes an invalid first composite header before rejecting its type [conditional]** Source-only.
+
+**[OD11548](AROS-other-drivers.md#od11548) — — chunk record helpers divide by zero for a zero record width [conditional]** Source-only.
+
+**[OD11549](AROS-other-drivers.md#od11549) — — chunk record helpers overflow the signed byte-count product before clipping [conditional]** Source-only.
+
+**[OD11550](AROS-other-drivers.md#od11550) — — forward-only `SeekStream()` can mask a failed intermediate read [conditional]** Source-only.
+
+**[OD11551](AROS-other-drivers.md#od11551) — — little-endian chunk-header decoding left-shifts a signed byte into overflow [conditional]** Source-only.
+
+**[OD11552](AROS-other-drivers.md#od11552) — — `GetChunkHeader()` accepts negative chunk sizes into parser state [conditional]** Source-only.
+
+**[OD11553](AROS-other-drivers.md#od11553) — — IFFParse reads composite/child data before checking declared chunk boundaries [conditional]** Source-only.
+
+**[OD11613](AROS-other-drivers.md#od11613) — — TTM execbuf fence-allocation failure retains the current buffer reservation [no in-tree caller]** Source-only.
+
+**[OD11614](AROS-other-drivers.md#od11614) — — VMware dirtyfb copy annotations mark the source rectangle as damage** Source-only.
+
+**[OD11615](AROS-other-drivers.md#od11615) — — Nouveau legacy primary-plane updates silently drop fractional source origins [optional Nouveau target]** Source-only.
+
+**[OD11616](AROS-other-drivers.md#od11616) — — TTM DMA-map clearing can spin forever on a zero-reference LRU entry [no in-tree caller found]** Source-only.
+
+**[OD11617](AROS-other-drivers.md#od11617) — — Nouveau plane setup can succeed without advertising supported modifiers [allocation-failure conditional]** Source-only.
+
+**[OD11618](AROS-other-drivers.md#od11618) — — Nouveau NV50 cursor clipping overflows at the minimum CRTC coordinate [optional Nouveau target]** Source-only.
+
+**[OD11619](AROS-other-drivers.md#od11619) — — Zero DP AUX I²C speed parameter divides by zero [invalid configuration]** Source-only.
+
+**[OD11620](AROS-other-drivers.md#od11620) — — Nouveau silently ignores eDP backlight enable failures [optional backlight configuration]** Source-only.
+
+**[OD11621](AROS-other-drivers.md#od11621) — — CTA VIC 217 alternate pixel clock overflows [high pixel clock]** Source-only.
+
+**[OD11622](AROS-other-drivers.md#od11622) — — Nouveau attaches encoders after initialization fails [allocation failure]** Source-only.
+
+**[OD11623](AROS-other-drivers.md#od11623) — — DRM blob creation masks object-ID allocation errors [resource exhaustion]** Source-only.
+
+**[OD11624](AROS-other-drivers.md#od11624) — — Failed Nouveau TTM kmap retains the VRAM I/O mapping [mapping allocation failure]** Source-only.
+
+**[OD11625](AROS-other-drivers.md#od11625) — — DRM connector mode options accept ambiguous prefixes [kernel command-line typo conditional]** Source-only.
+
+**[OD11626](AROS-other-drivers.md#od11626) — — AHI mode scoring treats failed attribute queries as zero-valued capabilities [driver unavailable conditional]** Source-only.
+
+**[OD11627](AROS-other-drivers.md#od11627) — — Nouveau object creation copies through an unchecked allocation [memory pressure conditional]** Source-only.
+
+**[OD11628](AROS-other-drivers.md#od11628) — — Nouveau push-buffer map failure leaks the selected buffer reference [mapping failure conditional]** Source-only.
+
+**[OD11629](AROS-other-drivers.md#od11629) — — Nouveau push-buffer submission failure is discarded as success [GPU submission failure conditional]** Source-only.
+
+**[OD11630](AROS-other-drivers.md#od11630) — — Nouveau enables HDMI scrambling after the sink configuration write fails [conditional HDMI link failure]** Source-only.
+
+**[OD11643](AROS-other-drivers.md#od11643) — — AHI WarpUp ELF loader indexes past its relocation-name table [conditional]** Source-only.
+
+**[OD11730](AROS-other-drivers.md#od11730) — — ATA/SCSI 514-byte geometry compatibility requests leave `io_Actual` stale [conditional]** Source-only.
+
+**[OD11733](AROS-other-drivers.md#od11733) — — sparse touchpad and sensor tables expose zeroed fake descriptors [conditional]** Source-only.
+
+**[OD11734](AROS-other-drivers.md#od11734) — — controller axis range subtraction overflows for wide signed endpoints [conditional]** Source-only.
+
+**[OD11737](AROS-other-drivers.md#od11737) — — controller mapping lookup ignores nonzero version mismatches [conditional]** Source-only.
+
+**[OD11741](AROS-other-drivers.md#od11741) — — coalesced controller motion keeps stale standard-control metadata [conditional]** Source-only.
+
+**[OD11743](AROS-other-drivers.md#od11743) — — controller sensor reads discard samples beyond the caller's buffer [conditional]** Source-only.
+
+**[OD11745](AROS-other-drivers.md#od11745) — — sensor update events retain a zero timestamp after samples are timestamped [conditional]** Source-only.
+
+**[OD11746](AROS-other-drivers.md#od11746) — — controller hat decoding ignores the four-way/eight-way descriptor flag [conditional]** Source-only.
+
+**[OD11748](AROS-other-drivers.md#od11748) — — controller device can be disposed while a lookup result is in use [conditional]** Source-only.
+
+**[OD11749](AROS-other-drivers.md#od11749) — — device-bound controller consumers receive duplicate removal events** Source-only.
+
+**[OD11752](AROS-other-drivers.md#od11752) — — Controller consumer queues are not serialized across ExecSMP CPUs [conditional]** Source-only.
+
+**[OD11753](AROS-other-drivers.md#od11753) — — AHIRecord divides by zero for a recording callback smaller than 512 frames [conditional]** Source-only.
+
+**[OD11754](AROS-other-drivers.md#od11754) — — Legacy Aura driver advertises recording but never calls the sampler hook [conditional]** Source-only.
+
+
 ## Other Drivers findings reconciled into the index (2026-11-02)
 
 **[OD1390](AROS-other-drivers.md#od1390) — LinuxInput can free a worker task's stack before its failed startup returns.** Conditional on event-buffer allocation failure and the creator resuming before the worker returns; the concurrency case applies to ExecSMP Linux targets. Source-only.
