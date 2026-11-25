@@ -143,7 +143,7 @@ The public `KrnAllocPages()` wrapper currently returns NULL while `kb_PageSize` 
 <a id="ek17"></a>
 ### EK17 — RISC-V virtual IRQ count arithmetic can wrap [medium impact, high confidence; OpenSBI RISC-V64]
 
-`arch/riscv64-opensbi/kernel/allocirq.c:32-51` checks `(base + count) > HW_IRQ_COUNT` and loops on `(irq + count) <= HW_IRQ_COUNT` using unchecked unsigned addition. Trigger: a very large `count` supplied to `KrnAllocIRQ(IRQTYPE_MSI, count)`. Consequence: a wrapped count bypasses the range check and can run off the `__virq_used` array during scan/marking. The API is normally called with small vector counts; this is an argument-validation candidate.
+`arch/riscv64-opensbi/kernel/allocirq.c:31-57` checks `(base + count) > HW_IRQ_COUNT` and loops on `(irq + count) <= HW_IRQ_COUNT` using unchecked unsigned addition. A sufficiently large `count` supplied to the public `KrnAllocIRQ(IRQTYPE_MSI, count)` API can wrap these expressions and let scan/marking index beyond `__virq_used`. The only checked-in caller is the OpenSBI PCIDT MSI setup (`arch/riscv64-opensbi/hidd/pcidt/pcidt_driverclass.c:735-749`), which starts at fixed `PCIDT_MSI_VECTORS == 32` and halves the request until allocation succeeds; that maintained caller does not reach the wrap. The trigger therefore requires another caller to pass an out-of-range count; no such in-tree caller was found. Validate count against the remaining source span with subtraction-based bounds checks before scanning.
 
 <a id="ek18"></a>
 ### EK18 — AArch64 affinity mask functions index beyond their one-word allocation [medium impact, high confidence; AArch64 native]
