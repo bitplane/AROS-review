@@ -1,3 +1,5 @@
+**[EK11114](AROS-exec-kernel.md#ek11114) — OpenSBI continues boot without arming timer delivery when FDT timebase data is unavailable:** the zero frequency bypasses timer initialization and supervisor timer enable, while startup proceeds. Limited to missing/zero data or malformed firmware input; no matching in-tree DTB was found. Source-only.
+
 **[EK11113](AROS-exec-kernel.md#ek11113) — QuickPart compares a 512-byte block-size placeholder directly with block-number coordinates:** a short leading free range can be deleted from the scanned model, and a generated trailing spacer can skip 511 free blocks. The Create button is disabled; this is a UI model error in explicit QuickPart builds, with byte impact dependent on device geometry. Source-only.
 
 **[EK11112](AROS-exec-kernel.md#ek11112) — PC ACPI applies the MADT LAPIC address override after reading the bootstrap APIC ID:** if the legacy address does not identify the BSP, ACPI can misclassify it; a one-CPU table then writes past the one-slot APIC array. Conditional on PC firmware using an effective override different from the legacy base. Source-only.
