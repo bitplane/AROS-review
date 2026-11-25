@@ -19234,3 +19234,6 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[EK11117](AROS-exec-kernel.md#ek11117-smp-affinity-leaks-its-saved-cpu-mask-when-signal-allocation-fails)** — If the optional SMP-Affinity test cannot allocate a signal after successfully allocating its saved CPU mask, its early return leaks that independent mask. Conditional on signal exhaustion; source-only.
 
 **[GD15433](AROS-graphics-desktop.md#gd15433-say-wav-riff-size-wrap) — Say's WAV writer does not cap its cumulative sample count at RIFF's 32-bit size limit.** Very long streamed input can produce a large file with wrapped RIFF/data lengths while Say reports synthesis success. Conditional on multi-gigabyte output and filesystem support; source-only.
+
+
+**[GD15434](AROS-graphics-desktop.md#gd15434-scrollgroup-generated-class-omits-om-get) — The separately built, non-tiny Scrollgroup omits `OM_GET` from its generated dispatcher, so Contents/HorizBar/VertBar getter calls do not return the stored objects. The tiny built-in dispatcher handles them. Conditional on clients querying these attributes; source-only.
