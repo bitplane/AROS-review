@@ -17778,6 +17778,8 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **[OD4047](AROS-other-drivers.md#od4047) — Nouveau and VMware DRM timer commands are silently dropped when the caller cannot allocate a reply signal. Failed `timer_delete_sync()` can leave a vblank timer pending while teardown releases its owner. The active aggregate can select both DRM HIDDs on x86_64 PC when their aliases resolve, and Nouveau alone on OpenSBI RISC-V64; signal exhaustion with a pending timer is conditional. Source-only.**
 
+**[OD4177](AROS-other-drivers.md#od4177) — Nouveau and VMware DRM `del_timer_sync()`/`hrtimer_cancel()` can return while an expiry callback is still using or can rearm against vblank/VKMS state being disabled or released. Requires teardown to overlap an in-flight callback; ExecSMP permits cross-CPU overlap, and a higher-priority caller can preempt the timer process on a uniprocessor. Applies to explicitly buildable DRM HIDDs when their target aliases resolve. Source-only.**
+
 
 **[OD11586](AROS-other-drivers.md#od11586) — CAMD driver-data rollback dereferences partially initialized port/cluster pointers, and normal teardown leaks each per-port `DriverData` allocation.** Conditional on a CAMD per-port setup failure or library teardown; explicit CAMD module target. Source-only.
 
