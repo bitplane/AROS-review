@@ -19216,3 +19216,6 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 
 **[GD15429](AROS-graphics-desktop.md#gd15429-vulkan-raii-extension-enumeration-reads-uninitialized-count-after-error)** — In no-exception Vulkan-Hpp builds with result assertions disabled, RAII extension enumeration may read an uninitialized property count after an API error. Conditional on an error path leaving the output untouched; optional copied headers, with no maintained C++ caller found. Source-only.
+
+
+**[GD15430](AROS-graphics-desktop.md#gd15430-vulkan-raii-query-result-moves-uninitialized-value-on-not-ready)** — Vulkan-Hpp RAII `QueryPool::getResult()` moves an uninitialized payload into its return value when an unavailable query returns `VK_NOT_READY`. Conditional on downstream optional-header use and the query result remaining unavailable; source-only.
