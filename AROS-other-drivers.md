@@ -41440,11 +41440,9 @@ OD11522 described the same BTCtrl `SCAN WAIT` message-port/event-hook allocation
 
 <a id="od11523-btctrl-remote-name-allocation-failure-reports-success"></a>
 <a id="od11523"></a>
-## OD11523 — BTCtrl silently succeeds when remote-name request allocation fails
+## OD11523 — withdrawn duplicate of OD10335
 
-For `DEVICE ... REMOTENAME`, `main()` conditionally creates a message port and channel, but has no `else` path or return-code update when either allocation fails (`rom/bluetooth/bluetooth/shellcommands/BTCtrl.c:256-285`). The default command result remains `RETURN_OK` (`:161-164,362-371`), and no diagnostic is printed. The selected code does report channel I/O errors after a request is issued, so the missing result applies specifically to setup failures before `btDoChannel()`.
-
-**Trigger and consequence:** request a remote name while `CreateMsgPort()` or `btAllocChannel()` fails. BTCtrl exits as if the command succeeded, without issuing a request or notifying the caller; scripts can treat the missing name as a successful result. **Affected configuration:** selected Bluetooth library shell command. **Confidence:** high for the unchecked allocation branches and unchanged status; no allocation failure was induced. Report setup failure and return a non-success status when the requested operation cannot be started. Source-only.
+OD11523 described the same `DEVICE ... REMOTENAME` setup-allocation failure as canonical OD10335: `CreateMsgPort()` or `btAllocChannel()` can fail, the request is skipped, and BTCtrl leaves its result at `RETURN_OK` without a diagnostic. OD10335 already records the source paths, trigger, consequence, configuration, and confidence. No distinct defect remains under OD11523.
 
 
 <a id="od2319-rtl8139-failed-startup-can-signal-reclaimed-worker"></a>
