@@ -41098,3 +41098,17 @@ Re-read all 66 `cloc 2.06` C code lines in `workbench/devs/diskimage/plugins/cue
 | Explicit legacy AROS target source path | C/header code lines | Body status |
 |---|---:|---|
 | `workbench/devs/diskimage/plugins/cue/cue.h` | 74 | Full header read; callback and field-width contracts checked against CUE/audio callers; included by selected CUE source in x86/PPC AROS `all`/`dist`. |
+
+
+DiskImage CUE complete AROS target-scope and exact-source reconciliation (2026-11-25; no new finding): the x86 and PPC legacy Makefiles list `plugins/cue/CUE` in `PLUGINS`, include it in `all`, and define that executable from `CUE_OBJS`; `dist` depends on `all` (`Makefile.x86-aros:41,51,57,106,174`; `Makefile.ppc-aros:41,51,57,106,174`). The complete CUE object list selects eight previously body-read source paths that still had only optional/no-default-denominator coverage: `plugins/cue/flac.c` (167 code lines), `plugins/cue/wavpack.c` (257), `audio/aiff.c` (204), `audio/flac.c` (289), `audio/mp3_mpg123.c` (171), `audio/vorbis.c` (140), `audio/wave.c` (141), and `audio/wavpack.c` (230), totaling 1,599 C lines. Existing full-body caller/defect reviews remain authoritative, including OD10173, OD10174 and OD10175; no bodies are newly reread or findings duplicated here. This supersedes the earlier no-default-denominator wording for these eight explicit x86/PPC AROS selections; the separate MetaMake parent edge remains commented. Adding eight paths and 1,599 C lines advances Other Drivers from 5,331/5,510 to **5,339/5,518 represented paths (96.8%)** and from 2,208,052/2,239,284 to **2,209,651/2,240,883 C/header code lines (98.6%)**. The additive three-area line measure advances from 3,080,023/3,201,905 to **3,081,622/3,203,504 (96.2%)**. These remain ledger body/path measures; caller, configuration, platform, finding validation, and runtime closure remain incomplete. No decoder, image, build, or runtime operation was used; source-only.
+
+| Explicit legacy AROS target source path | C code lines | Body status |
+|---|---:|---|
+| `workbench/devs/diskimage/plugins/cue/flac.c` | 167 | Full body read; embedded FLAC cuesheet/index conversion and shared CUE consumers traced; OD10175 retained. |
+| `workbench/devs/diskimage/plugins/cue/wavpack.c` | 257 | Full body read; embedded tag parsing, ownership, cleanup and shared CUE consumers traced; no new finding. |
+| `workbench/devs/diskimage/audio/aiff.c` | 204 | Full body read; final partial-sector extent and CUE CDDA caller traced; OD10174 retained. |
+| `workbench/devs/diskimage/audio/flac.c` | 289 | Full body read; decoder lifetime, callbacks and stream-length arithmetic traced; OD10173 retained. |
+| `workbench/devs/diskimage/audio/mp3_mpg123.c` | 171 | Full body read; decoder callbacks, ownership and signed stream-length arithmetic traced; OD10173 retained. |
+| `workbench/devs/diskimage/audio/vorbis.c` | 140 | Full body read; chained-stream length and CUE caller traced; OD10173 retained. |
+| `workbench/devs/diskimage/audio/wave.c` | 141 | Full body read; RIFF/data extent and CUE CDDA caller traced; OD10174 retained. |
+| `workbench/devs/diskimage/audio/wavpack.c` | 230 | Full body read; callbacks, sample length and CUE consumers traced; OD10173 retained. |
