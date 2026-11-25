@@ -19646,6 +19646,8 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[GD15434](AROS-graphics-desktop.md#gd15434-scrollgroup-generated-class-omits-om-get) — The separately built, non-tiny Scrollgroup omits `OM_GET` from its generated dispatcher, so Contents/HorizBar/VertBar getter calls do not return the stored objects. The tiny built-in dispatcher handles them. Conditional on clients querying these attributes; source-only.
 
+**[GD15435](AROS-graphics-desktop.md#gd15435-ahi-preferences-calls-application-sleep-as-a-method) — AHI Preferences calls `MUIA_Application_Sleep` through `DoMethod()`, so the attribute setter is never reached and the application windows are not slept during Open/Save As requesters. Applies to the selected AHI_MUI Preferences executable; source-only.
+
 **[OD11807](AROS-other-drivers.md#od11807) — DMG’s Base64 decoder reads one byte before strings shorter than one quartet.** Nonempty XML `<data>` text that compacts to 0–3 characters reaches the read before the malformed image is rejected; no broader memory corruption consequence is established. Applies to the x86/PPC AROS DiskImage `all`/`dist` targets; the MetaMake plugin aggregate edge is commented out. Source-only.
 
 
