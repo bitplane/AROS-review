@@ -177,6 +177,9 @@ Reverse reconciliation found 191 active Exec/Kernel finding sections that were n
 | [EK8836](AROS-exec-kernel.md#ek8836) | Concurrent first use can reinitialize an already acquired statically initialized pthread mutex. |
 | [EK8851](AROS-exec-kernel.md#ek8851) | DynModule bootstrap leaks its console path and leaves its asynchronous console handle open. |
 | [EK8852](AROS-exec-kernel.md#ek8852) | A missed final bootstrap poll can leave a late DynModule child running without a tracked handle. |
+| [EK8887](AROS-exec-kernel.md#ek8887) | Concurrent x86-64 PC global mappings can lose newly published page-table branches (conditional mapping failure). |
+| [EK8888](AROS-exec-kernel.md#ek8888) | x86-64 PC `KrnMapGlobal()` retains page-table state when mapping allocation fails (conditional rollback gap). |
+| [EK8889](AROS-exec-kernel.md#ek8889) | x86-64 PC `KrnMapGlobal()` invalidates changed mappings only on the calling CPU (conditional stale-TLB view). |
 | [EK8900](AROS-exec-kernel.md#ek8900) | The shared write-locked initializer uses a bit that native ARM spinlocks do not recognize as a writer lock. |
 | [EK8904](AROS-exec-kernel.md#ek8904) | ARM secondary registration continues after bootstrap-task creation fails, then dereferences the missing task. |
 | [EK8906](AROS-exec-kernel.md#ek8906) | OpenSBI processor IDs from the boot hart are reported for every RISC-V core. |
