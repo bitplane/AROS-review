@@ -25233,6 +25233,9 @@ The built-in Boopsi class provides another conditional route. It registers for `
 
 The built-in-or-module Numericbutton class provides another conditional route. On popup `SELECTUP`, `Numericbutton__MUIM_HandleEvent()` closes its popup, sets `MUIA_Numeric_Value`, and returns zero (`workbench/libs/muimaster/classes/numericbutton.c:463-523`). Numeric clamps and stores the value, then forwards the set through its superclass notification path synchronously (`numeric.c:110-201`). A client notification that disposes the containing window can therefore free the active Numericbutton node before Window dispatch advances. Network Prefs is a maintained Numericbutton user; its value notification only marks the PrefsEditor changed (`workbench/prefs/network/netpeditor.c:1182,1878-1879`) and does not dispose the window. BetterString test construction is disabled pending class support. The class is either built into muimaster or emitted as a separate class module according to `MAKE_BUILTIN_NUMERICBUTTON`; this trigger remains conditional on a client disposal callback.
 
+
+The Prop class has a similar gadget-update path. Its handler matches the gadget ID, scales `PGA_Top`, sets `MUIA_Prop_First` with its private OnlyTrigger flag, and returns zero (`workbench/libs/muimaster/classes/prop.c:237-302,1099-1140`). The setter still forwards the attribute to Notify synchronously. A client notification that disposes the containing window can therefore free the active Prop node before Window dispatch advances. Maintained Scrollgroup, List, NList/NListview and Wanderer IconListview subscribers update scroll positions or viewport offsets and do not dispose the window in the checked paths; the disposal callback remains client-conditional.
+
 <a id="gd15353--list-event-callback-can-resume-after-a-notification-disposes-its-listview"></a>
 ## GD15353 — List event callback can resume after a notification disposes its Listview [conditional]
 
