@@ -19144,7 +19144,6 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[OD11804](AROS-other-drivers.md#od11804) — On non-m68k USB-MIDI class builds, the generated filename comes from the USB product name but the embedded CAMD `Name` remains `poseidonusb`. CAMD requires them to match, so it rejects the image before initialization for ordinary product names. Conditional on the optional class, a nonmatching product-derived short ID, and CAMD scanning the file; source-only.**
 
-**[OD11805](AROS-other-drivers.md#od11805)** — Speechcore retains mixed-voicing mode across a noise-only frame, advancing harmonic phase and potentially altering a later voiced frame; custom voices with nonzero low amplitude entries can also add a harmonic component directly. Conditional on a mixed-to-noise phoneme transition; source-only.
 
 **[GD15410](AROS-graphics-desktop.md#gd15410)** — The optional GL pass-through library reads its `SYS/GL` override only after a notification on `ENV:SYS/GL`; a persistent `ENVARC:SYS/GL` value without a volatile file receives no initial notification and is silently bypassed in favor of the default. Notification-registration failure has the same effect. Source-only.
 **[GD15411](AROS-graphics-desktop.md#gd15411)** — If the optional GL library cannot open `dos.library`, its initializer still calls DOS vectors through the NULL base and returns the GL base as initialized. Source-only; no failure was induced.
