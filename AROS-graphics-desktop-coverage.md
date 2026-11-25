@@ -24865,3 +24865,67 @@ GD15429 RAII output-size caller-family expansion (2026-11-25; no finding-ID, bod
 
 
 GD15429 physical-device-group enumeration output-size trace (2026-11-25; no new finding ID or body/path/LOC credit): inspected `Instance::enumeratePhysicalDeviceGroups()` (`workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp:16873-16903`) in the next RAII interval. Its uninitialized `physicalDeviceGroupCount` is used to resize and later adjust the output vector after `resultCheck()`; Vulkan permits initialization, host/device-memory, and other failure results for this query. Added this method to GD15429's same-root inventory and index summary. The adjacent count-based physical-device property wrappers use void Vulkan queries that provide their output counts, and no separate error-after-resultCheck candidate was established there. The RAII source remains interval-reviewed; this note adds no whole-body or LOC credit and does not close caller/platform/configuration review. No Vulkan query or build was run; source-only.
+
+
+<a id="gd15429-vulkan-raii-result-output-read-census"></a>
+## GD15429 Vulkan-Hpp RAII result-output read census (2026-11-25; targeted trace, no body/path/LOC credit)
+
+At source commit `282a0454356dc2b9554ab023997d7f7ca24fc03e`, scanned uninitialized local `uint32_t`, `uint64_t`, and `size_t` output variables in the manifest-copied `workbench/hidds/vulkan/include/vulkan/vulkan_raii.hpp`. Confirmed **51** methods where a `VkResult` query and `resultCheck()` are followed by a read of that output. For ordinary result-check methods the error continues when `VULKAN_HPP_NO_EXCEPTIONS` is set and `VULKAN_HPP_ASSERT_ON_RESULT` compiles to a no-op (by default, `VULKAN_HPP_ASSERT` is standard `assert`, disabled with `NDEBUG`). One additional present-timing method accepts `eErrorOutOfDateKHR` in its explicit result-code list when `VULKAN_HPP_HANDLE_ERROR_OUT_OF_DATE_AS_SUCCESS` is defined. These are instances of one unchecked-output root, not 51 independent findings; GD15429 groups them.
+
+The count-only `Instance::enumeratePhysicalDevices()` candidate at line 15112 was checked and excluded: it consumes the count only under `result == eSuccess` before the error check, and the later result conversion only uses the vector. Count-output methods backed by void Vulkan queries are also outside this result-after-error set. The table records each confirmed post-`resultCheck` read:
+
+| Source line | RAII method | Uninitialized output |
+|---:|---|---|
+| 15276 | `Context::enumerateInstanceExtensionProperties` | `propertyCount` |
+| 15306 | `PhysicalDevice::enumerateDeviceExtensionProperties` | `propertyCount` |
+| 15338 | `Context::enumerateInstanceLayerProperties` | `propertyCount` |
+| 15366 | `PhysicalDevice::enumerateDeviceLayerProperties` | `propertyCount` |
+| 16173 | `PipelineCache::getData` | `dataSize` |
+| 16882 | `Instance::enumeratePhysicalDeviceGroups` | `physicalDeviceGroupCount` |
+| 17437 | `Semaphore::getCounterValue` | `value` |
+| 17604 | `PhysicalDevice::getToolProperties` | `toolCount` |
+| 18402 | `PhysicalDevice::getSurfaceFormatsKHR` | `surfaceFormatCount` |
+| 18436 | `PhysicalDevice::getSurfacePresentModesKHR` | `presentModeCount` |
+| 18483 | `SwapchainKHR::getImages` | `swapchainImageCount` |
+| 18593 | `PhysicalDevice::getPresentRectanglesKHR` | `rectCount` |
+| 18650 | `PhysicalDevice::getDisplayPropertiesKHR` | `propertyCount` |
+| 18681 | `PhysicalDevice::getDisplayPlanePropertiesKHR` | `propertyCount` |
+| 18742 | `DisplayKHR::getModeProperties` | `propertyCount` |
+| 19156 | `PhysicalDevice::getVideoFormatPropertiesKHR` | `videoFormatPropertyCount` |
+| 19195 | `PhysicalDevice::getVideoFormatPropertiesKHR` | `videoFormatPropertyCount` |
+| 19256 | `VideoSessionKHR::getMemoryRequirements` | `memoryRequirementsCount` |
+| 19615 | `Pipeline::getShaderInfoAMD` | `infoSize` |
+| 20076 | `Instance::enumeratePhysicalDeviceGroupsKHR` | `physicalDeviceGroupCount` |
+| 20546 | `SwapchainKHR::getPastPresentationTimingGOOGLE` | `presentationTimingCount` |
+| 20800 | `PhysicalDevice::enumerateQueueFamilyPerformanceQueryCountersKHR` | `counterCount` |
+| 20926 | `PhysicalDevice::getSurfaceFormats2KHR` | `surfaceFormatCount` |
+| 20965 | `PhysicalDevice::getSurfaceFormats2KHR` | `surfaceFormatCount` |
+| 21012 | `PhysicalDevice::getDisplayProperties2KHR` | `propertyCount` |
+| 21043 | `PhysicalDevice::getDisplayPlaneProperties2KHR` | `propertyCount` |
+| 21073 | `DisplayKHR::getModeProperties2` | `propertyCount` |
+| 21108 | `DisplayKHR::getModeProperties2` | `propertyCount` |
+| 22320 | `ValidationCacheEXT::getData` | `dataSize` |
+| 22828 | `PhysicalDevice::getCalibrateableTimeDomainsEXT` | `timeDomainCount` |
+| 23023 | `Semaphore::getCounterValueKHR` | `value` |
+| 23294 | `PhysicalDevice::getFragmentShadingRatesKHR` | `fragmentShadingRateCount` |
+| 23382 | `PhysicalDevice::getToolPropertiesEXT` | `toolCount` |
+| 23437 | `PhysicalDevice::getCooperativeMatrixPropertiesNV` | `propertyCount` |
+| 23470 | `PhysicalDevice::getSupportedFramebufferMixedSamplesCombinationsNV` | `combinationCount` |
+| 23507 | `PhysicalDevice::getSurfacePresentModes2EXT` | `presentModeCount` |
+| 23879 | `Device::getPipelineExecutablePropertiesKHR` | `executableCount` |
+| 23913 | `Device::getPipelineExecutableStatisticsKHR` | `statisticCount` |
+| 23947 | `Device::getPipelineExecutableInternalRepresentationsKHR` | `internalRepresentationCount` |
+| 24448 | `CudaModuleNV::getCache` | `cacheSize` |
+| 26467 | `PhysicalDevice::getOpticalFlowImageFormatsNV` | `formatCount` |
+| 26726 | `ShaderEXT::getBinaryData` | `dataSize` |
+| 26904 | `Framebuffer::getTilePropertiesQCOM` | `propertiesCount` |
+| 26972 | `PhysicalDevice::getCooperativeVectorPropertiesNV` | `propertyCount` |
+| 27094 | `PhysicalDevice::getCooperativeMatrixPropertiesKHR` | `propertyCount` |
+| 27197 | `Device::getDataGraphPipelineSessionBindPointRequirementsARM` | `bindPointRequirementCount` |
+| 27296 | `Device::getDataGraphPipelineAvailablePropertiesARM` | `propertiesCount` |
+| 27346 | `PhysicalDevice::getQueueFamilyDataGraphPropertiesARM` | `queueFamilyDataGraphPropertyCount` |
+| 27472 | `PhysicalDevice::getCalibrateableTimeDomainsKHR` | `timeDomainCount` |
+| 27969 | `PhysicalDevice::getCooperativeMatrixFlexibleDimensionsPropertiesNV` | `propertyCount` |
+| 28046 | `PhysicalDevice::enumerateQueueFamilyPerformanceCountersByRegionARM` | `counterCount` |
+
+This targeted control-flow census does not complete the 28,139-line RAII header. Other declaration/definition intervals, all external C++ client behavior, exact driver error/output interactions, platform and macro configurations, and downstream header builds remain open. No Vulkan operation or C++ build was run; source-only.
