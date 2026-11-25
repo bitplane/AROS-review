@@ -19707,3 +19707,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD4287](AROS-other-drivers.md#od4287) — Printer startup reply-port allocation failure removes and frees the unit without stopping or joining its worker.** The child can remain stranded with stale task user data or run after the unit is freed. Applies to the standard complete Workbench device target and explicit printer-device builds; source-only.
 
 **[OD11812](AROS-other-drivers.md#od11812) — PC serial HIDD can route requested units 1–3 to COM1 if its attrbase acquisition fails but class initialization later succeeds.** Conditional on transient OOP interface-bucket allocation failure during HIDD initialization; source-only.
+
+**[OD4167](AROS-other-drivers.md#od4167) — AHI Preferences can save an input index equal to the count; selected drivers then index beyond their `InputBits` tables.** Reached by shared mode-change state handling, and directly by the optional ClassAct interface; source-only.
