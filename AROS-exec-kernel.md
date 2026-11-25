@@ -12323,3 +12323,13 @@ There is also a lower x86-64 trigger at exactly 2^32 bytes (4 GiB). If source an
 **Affected configuration:** explicitly selected `test-smp-affinity` on an ExecSMP configuration with more than 32 online CPUs and a caller affinity containing higher CPU IDs (`developer/debug/test/smp/mmakefile.src:50-52`). The target is not part of the default SMP test aggregate.
 
 **Confidence:** high for the cap, low-32 snapshot, and incomplete restoration path. No >32-CPU system or test run was available. Preserve the full mask independently of the test's 32-bit phase bitmap, or decline to run when the complete affinity cannot be saved. Source-only; no task affinity or build was exercised.
+
+## EK11117 — SMP-Affinity leaks its saved CPU mask when signal allocation fails
+
+`main()` allocates a signal bit and then independently allocates the caller's saved CPU mask. If either setup step fails, it returns `RETURN_FAIL` (`developer/debug/test/smp/smpaffinity.c:327-333`), but the failure branch does not free the resource from the successful step. In particular, when `AllocSignal(-1)` returns `-1` and `mask_of()` succeeds, the `KrnAllocCPUMask()` allocation is not released; the only `KrnFreeCPUMask(saved)` call is on the normal completion path (`:339-341`). The standalone mask is not part of the process task's signal allocation or task MemList.
+
+**Trigger and consequence:** run the optional test with no free task signal bit while CPU-mask allocation still succeeds. The test exits immediately and leaks one kernel CPU-mask allocation. The inverse partial-success case also leaves the signal allocated until process teardown, which is task-owned cleanup; this finding is limited to the independent mask leak.
+
+**Affected configuration:** explicitly selected `test-smp-affinity` on ExecSMP when signal allocation fails after mask allocation succeeds (`developer/debug/test/smp/mmakefile.src:50-52`). The test is not part of the default SMP test aggregate.
+
+**Confidence:** high for allocation order and missing release. No signal exhaustion, mask allocation, process, or build was exercised. Free each successful setup resource on the failure branch. Source-only.
