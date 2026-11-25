@@ -120,7 +120,7 @@ Reverse reconciliation found 191 active Exec/Kernel finding sections that were n
 | [EK15](AROS-exec-kernel.md#ek15) | `mm_Init()` writes before the map for a zero-page region; latent because no checked-in startup sets `kb_PageSize` nonzero [conditional; no maintained trigger] |
 | [EK16](AROS-exec-kernel.md#ek16) | Zero-page `mm_Allocate()` underflows the state-map writer; latent because no checked-in startup sets `kb_PageSize` nonzero [conditional; no maintained trigger] |
 | [EK17](AROS-exec-kernel.md#ek17) | RISC-V virtual IRQ count arithmetic can wrap [medium impact, high confidence; OpenSBI RISC-V64] |
-| [EK18](AROS-exec-kernel.md#ek18) | AArch64 affinity mask functions index beyond their one-word allocation [medium impact, high confidence; AArch64 native] |
+| [EK18](AROS-exec-kernel.md#ek18) | AArch64 CPU-mask APIs index beyond their one-word allocation for IDs >=32; selected platform callers are bounded below four, so no in-tree trigger is established [API-boundary condition; AArch64 native] |
 | [EK22](AROS-exec-kernel.md#ek22) | Unix kernel-base initialization leaks its allocation and continues after failure. |
 | [EK52](AROS-exec-kernel.md#ek52) | m68k Exec AVL insertion, removal, and key lookup vectors silently do nothing. |
 | [EK59](AROS-exec-kernel.md#ek59) | Reset callback traversal can follow a freed saved successor after concurrent removal. |
