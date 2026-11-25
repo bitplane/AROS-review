@@ -19248,3 +19248,9 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 
 **[OD11808](AROS-other-drivers.md#od11808) — If XPK FIB allocation fails during detection, the Generic fallback can mount the compressed container as raw disk bytes.** Conditional on the separate XPK target, the external XPK library, failed FIB allocation, and Generic allocation succeeding; source-only.
+
+
+**[OD11809](AROS-other-drivers.md#od11809) — DiskImage unit startup cleanup dereferences a null `DeathMsg` after an earlier allocation failure.** Affects both the MetaMake AROS initializer and the x86/PPC legacy AROS makefiles; conditional on low-memory partial unit initialization; source-only.
+
+
+**Active three-area body-coverage checkpoint (2026-11-25; DiskImage unit-init and startup-stub reconciliation):** the selected x86/PPC `device/init.c` body adds 342 reviewed C lines and three exact source paths are now accounted for (`init.c` plus the x86 device/plugin assembly entry stubs). Graphics/Desktop remains **546,957/585,714 C/header code lines (93.4%)**, with its aggregate file denominator unreconciled; Exec/Kernel remains **325,014/376,907 (86.2%)** and **2,156/2,156 represented paths**; Other Drivers is **2,207,044/2,238,276 lines (98.6%)** and **5,324/5,503 represented paths (96.7%)**. The additive three-area line measure is **3,079,015/3,200,897 (96.2%)**; shared paths may count in more than one area. These are body/path ledger measures, not subsystem or caller/configuration/platform/runtime completeness. None of the three regions is complete. Source-only.
