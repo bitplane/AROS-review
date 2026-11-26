@@ -21339,3 +21339,6 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 
 **[GD15464](AROS-graphics-desktop.md#gd15464) — Nouveau BO moves ignore GPU VMA remapping failures.** An NVIF mapping error is discarded and the move may complete with the destination VMA still unmapped or backed by stale contents; optional Nouveau path. Source-only.
+
+
+**[GD15465](AROS-graphics-desktop.md#gd15465) — Nouveau legacy tile cleanup uses an uninitialized fence after aggregation allocation fails.** On pre-Tesla tiled BO moves under memory pressure, the cleanup path waits but then stores an uninitialized fence pointer for later tile reuse. Optional Nouveau path; source-only.
