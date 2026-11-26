@@ -21336,3 +21336,6 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 
 **[GD15463](AROS-graphics-desktop.md#gd15463) — Nouveau cleanup can unmap a VMA after its GPU fence wait times out.** This can happen on handle close under allocation failure or during BO move/eviction after a 15-second wait; submitted work may still reference the mapping. Optional Nouveau target; source-only.
+
+
+**[GD15464](AROS-graphics-desktop.md#gd15464) — Nouveau BO moves ignore GPU VMA remapping failures.** An NVIF mapping error is discarded and the move may complete with the destination VMA still unmapped or backed by stale contents; optional Nouveau path. Source-only.
