@@ -18435,6 +18435,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD3990](AROS-other-drivers.md#od3990) — PC serial IRQ callbacks can use a unit after disposal.** On x86_64-PC ExecSMP, a remote UART interrupt can retain a unit pointer while final close clears its slot and frees the HIDD object; local `Disable()` does not serialize the other CPU. The callback can then access freed unit state. Conditional on overlapping close and IRQ execution; source-only, no device or interrupt was exercised.
 
+**[OD3991](AROS-other-drivers.md#od3991) — PC serial receive callback can race input-ring replacement.** On x86-64 PC ExecSMP, a UART receive interrupt can overlap `SDCMD_SETPARAMS` replacing and freeing the input ring because the producer ignores the change flag and local `Disable()` does not mask another CPU. The resize requires an explicitly included `serial.device` and a qualifying changed buffer size; source-only, no request or interrupt was exercised.
+
 **[OD3152](AROS-other-drivers.md#od3152) — LPe32002 unit creation can wait forever when worker startup fails.** Unchecked process/sync-port creation and worker timer/setup failures can leave the constructor waiting for a handshake that will never arrive. Explicit i386/x86-64 PCIPC target; source-only.
 
 **[OD2326](AROS-other-drivers.md#od2326) — LPe32002 worker continues after private-port allocation failure.** Failed reply/input port allocation is unchecked; the worker can fault after the constructor publishes the unit. Explicit i386/x86-64 PCIPC target; source-only.
