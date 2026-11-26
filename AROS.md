@@ -18204,7 +18204,7 @@ Datatype aggregate scope correction (2026-11-09; no source-body/LOC credit): con
 
 **OD11577 — HDAudio can skip requested waits when timer setup or I/O fails.** Port/request allocation and timer.device open failures return without delay; `DoIO()` request errors are also ignored. Controller reset, stream reset and response polling continue. Conditional on timer failure; source-only. See [OD11577](AROS-other-drivers.md#od11577).
 
-**OD11579 — Sonixcam can accept an incomplete frame marker using stale bytes from a reused capture buffer.** Conditional on a nonzero one-to-five-byte completion whose prefix matches the marker; optional Sonixcam target and RTIso-capable controller; source-only. See [OD11579](AROS-other-drivers.md#od11579).
+**OD11579 — Sonixcam can accept an incomplete frame marker using stale bytes from a reused capture buffer.** Conditional on a nonzero one-to-five-byte completion whose prefix matches the marker; applies when `kernel-usb-shellapps` selects SonixcamTool and an RTIso-capable controller is used. Active USB aggregate target inclusion is established, but no default boot-image installation is claimed; source-only. See [OD11579](AROS-other-drivers.md#od11579).
 
 **[OD11580](AROS-other-drivers.md#od11580) — HDAudio leaks playback state after failed or repeated Start.** Output-stream allocation/setup failure leaks the already allocated mix buffer; repeated `AHIC_Play=TRUE` overwrites the active buffer/stream pointers, potentially leaving an old DMA stream running. Combined playback/record setup can also retain an unstarted output setup after input failure. No maintained HDAudio repeated-start or combined-start caller was found; optional native-PCI HDAudio driver; source-only.
 
@@ -19847,3 +19847,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[OD11821](AROS-other-drivers.md#od11821)** — The Workbench IPMI command stores at most eight discovered interfaces and silently omits later ones from listing and selection. The code cap is confirmed; no checked-in firmware establishes a machine with more than eight. The cap may be intentional; source-only.
 **[OD11826](AROS-other-drivers.md#od11826-camd-midi-blob-copy-drops-partial-word)** — The non-m68k CAMD USB-MIDI class copies its embedded binary with `CopyMemQuick()` but writes the full byte length. If the generated blob length is not ULONG-aligned, its final one to three bytes are omitted from the copy. Optional target; actual generated size unverified; source-only.
+
+**[OD11827](AROS-other-drivers.md#od11827)** — Deneb's PIO and RTIso paths use longword accesses on caller USB buffers although the USBHardware contract permits unaligned addresses. An odd buffer can raise an address error on 68000/010 when a longword is copied. Conditional on an unaligned buffer reaching Deneb; source-only, no transfer or build was run.
