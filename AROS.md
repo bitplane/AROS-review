@@ -20516,7 +20516,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[GD6017](AROS-graphics-desktop.md#gd6017) — Low-color screen-theme remapping drops the only reference to each successfully loaded picture datatype object.**
 **[GD6018](AROS-graphics-desktop.md#gd6018) — A one-value Decoration title-bar setting produces a negative source-image offset.**
 **[GD6019](AROS-graphics-desktop.md#gd6019) — Decoration border shading dereferences an unchecked RastPort clone.**
-**[GD6020](AROS-graphics-desktop.md#gd6020) — A negative Decoration title-bar tile size makes the title renderer loop without progress.**
+**[GD6020](AROS-graphics-desktop.md#gd6020) — A negative Decoration title-bar tile size makes the title renderer loop without progress:** selecting the custom theme can stall Appearance Preferences’ synchronous preview, and decorated-window rendering can also hang. Checked-in themes contain no negative values; source-only.
 **[GD6021](AROS-graphics-desktop.md#gd6021) — AboutAROS dereferences failed pool allocations while formatting build labels.**
 **[GD6022](AROS-graphics-desktop.md#gd6022) — AboutAROS leaks its constructor pool if MUI application construction fails.**
 **[GD6023](AROS-graphics-desktop.md#gd6023) — FTManager dereferences a failed serialized-tag-buffer allocation.**
