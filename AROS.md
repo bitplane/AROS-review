@@ -19903,6 +19903,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[GD15457](AROS-graphics-desktop.md#gd15457) — OpenURL's mailto percent decoder can index before its translation table on signed-char targets. Conditional malformed input; optional explicit library target; source-only.**
 
 **[GD15458](AROS-graphics-desktop.md#gd15458) — OpenURL continues mail dispatch after failing to write the temporary mail-body file. Conditional; optional explicit library target; source-only.**
+**[GD15459](AROS-graphics-desktop.md#gd15459-find-malformed-pattern-stuck-start) — Find leaves Start disabled after rejecting malformed wildcard syntax until Stop is pressed. Conditional; optional explicit Find target; source-only.**
 
 ## Graphics/Desktop findings with explicit indexed summaries (2026-11-26)
 
