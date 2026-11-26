@@ -21300,4 +21300,4 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[OD11832](AROS-other-drivers.md#od11832-hid-lowlevel-zero-payload-reinitialize) — HID LowLevel hooks ignore zero-payload reinitialize:** a present VOID tag with zero payload leaves the analogue override enabled.
 
-**[EK11124 withdrawn](AROS-exec-kernel.md#ek11124-withdrawn--empty-family-still-traverses-the-pc-kobj-alias-chain) — the empty-FAMILY KOBJ alias still reaches the PC kernel/Exec overlays; no omission defect is counted.
+**EK11124 withdrawn:** the empty-FAMILY KOBJ alias still reaches the PC kernel/Exec overlays; no omission defect is counted. See the [withdrawal note](AROS-exec-kernel.md#ek11124-withdrawn--empty-family-still-traverses-the-pc-kobj-alias-chain).**

@@ -10800,7 +10800,7 @@ The numeric date parser accepts any value returned by `StrToLong()` for `month` 
 <a id="ek10902"></a>
 ### EK10902 — Duplicate identifier for EK9303; not a separate finding
 
-EK10902 and EK9303 describe the same NULL dereference in `arch/i386-pc/exec/debug_init.c:19-28` when `KRN_CmdLine` is absent. Keep EK9303 as the canonical finding; its trigger and default PC overlay reachability are documented there and in EK11124. EK10902 is retained as a redirect for historical references and is not counted as another defect.
+EK10902 and EK9303 describe the same NULL dereference in `arch/i386-pc/exec/debug_init.c:19-28` when `KRN_CmdLine` is absent. Keep EK9303 as the canonical finding; its trigger and native PC overlay reachability are documented there; EK11124 is withdrawn. EK10902 is retained as a redirect for historical references and is not counted as another defect.
 
 <a id="ek10903"></a>
 <a id="ek10904"></a>
