@@ -21272,4 +21272,3 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD9692](AROS-other-drivers.md#od9692-hid-lowlevel-rumbleoff-zero-payload) — HID LowLevel hooks ignore zero-payload rumble-off:** a documented VOID off tag with `ti_Data = 0` is reported successful but does not queue zero motor values.
 
 **[OD11832](AROS-other-drivers.md#od11832-hid-lowlevel-zero-payload-reinitialize) — HID LowLevel hooks ignore zero-payload reinitialize:** a present VOID tag with zero payload leaves the analogue override enabled.
-
