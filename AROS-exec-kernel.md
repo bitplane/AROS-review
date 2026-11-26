@@ -9844,6 +9844,30 @@ The selected SAS/C compatibility implementation writes the first alphabetic char
 **Trigger and consequence:** call `stpsym()` with an alphabetic input and a destination capacity of 0 or 1, causing a two-byte write into a smaller destination; or call it with a positive capacity smaller than the symbol and continue from its returned pointer, causing one symbol to be split into a copied prefix and remaining suffix. **Affected configuration:** builds selecting the stdc implementation; requires caller-provided capacity/input combination. **Confidence:** high for the write and return behavior against the function's documented contract; external caller impact is conditional. Check capacity before writing, and scan to the symbol end even when output truncates. No call or build was run; source-only; see the [SAS/C helper review](AROS-exec-kernel-coverage.md#sas-c-string-helper-review-ek10771).
 
 
+<a id="ek398"></a>
+### EK398 — `Break NAME` signals task pointers after releasing the task-list lock [conditional]
+
+When `task.resource` is available, `Break NAME` walks `LockTaskList(LTF_ALL)`, stores each matching `Task *` in a private list node, then calls `UnLockTaskList()` before it later signals those saved pointers (`workbench/c/Break.c:158-180,214-222`). The task-list lock protects enumeration bookkeeping; `NextTaskEntry()` returns a task pointer, not a lifetime reference. Task removal can therefore proceed after the unlock and reclaim the task before `Break` calls `Signal()`. The outer `Forbid()` is explicitly processor-local on ExecSMP (`rom/exec/forbid.c:58-60`); moreover the NAME branch calls `Permit()` before enumeration and does not forbid again until after `UnLockTaskList()` and `FreeVec(patternBuf)` (`Break.c:135,161-183`).
+
+**Trigger and consequence:** run `Break NAME=<pattern>` with `task.resource` available and at least one matching task, while a matched task exits after the iterator is unlocked and before the saved pointer is signaled. On ExecSMP, another CPU can perform that teardown despite the command's later local `Forbid()`; on a uniprocessor, task switching can occur in the unlock-to-Forbid interval. `Signal()` then dereferences a retired task pointer and may access freed or reused task storage. **Affected configuration:** selected `workbench-c` Break command; requires a matching task to terminate in the stated interval. **Confidence:** high that the iterator lock does not pin returned tasks and that the caller uses them after unlock; the resulting invalid access depends on timing and reclamation. Keep a task-lifetime reference through signaling or signal while holding an API-supported lifetime guard. No command, task exit, schedule, or build was run. Source-only; see the [Break command coverage row](AROS-exec-kernel-coverage.md#L1039).
+
+
+<a id="ek399"></a>
+### EK399 — `Break NAME` passes a failed task lookup to `Signal()` [conditional fallback]
+
+If `OpenResource("task.resource")` fails, `Break NAME` allocates a list node, assigns `FindTask(args[ARG_NAME])` to it without checking for NULL, and appends the node regardless of lookup success (`workbench/c/Break.c:183-189`). The nonempty-list branch then reaches `Signal(pr, mask)` (`:191-222`), so the ordinary “task does not exist” diagnostic is bypassed. Exec's `Signal()` implementation dereferences the supplied `Task *` without a NULL guard (`rom/exec/signal.c:262-280,296-300`).
+
+**Trigger and consequence:** run `Break NAME=<nonexistent-name>` when `task.resource` is unavailable and the temporary node allocation succeeds. `FindTask()` returns NULL, which is passed to `Signal()` and dereferenced; the command faults instead of reporting that no task matched. **Affected configuration:** builds selecting `workbench-c`, when `task.resource` is absent and the requested exact task name does not exist. **Confidence:** high for the unchecked lookup, unconditional list insertion, and direct Signal dereference; resource absence and the requested name determine reachability. Check the lookup before adding the node and use the normal not-found path. No resource removal, command, or build was run. Source-only; see the [Break command coverage row](AROS-exec-kernel-coverage.md#L1039).
+
+
+<a id="ek820"></a>
+### EK820 — `Break PORT` uses borrowed port and owner pointers across an ExecSMP lifetime gap [conditional]
+
+`Break PORT` calls `FindPort()`, reads `MyPort->mp_SigTask`, stores that owner in its temporary target list, and signals it later (`workbench/c/Break.c:135,146-154,214-222`). On ExecSMP, `FindPort()` releases `PortListSpinLock` before returning the raw `MsgPort *` (`rom/exec/findport.c:53-61`). The command's `Forbid()` only disables scheduling on the calling processor (`rom/exec/forbid.c:58-60`), so a different CPU may remove and free the port before the `mp_SigTask` read; `RemPort()` only serializes unlinking (`rom/exec/remport.c:49-65`), and `DeleteMsgPort()` frees the structure (`rom/exec/deletemsgport.c:48-56`). Even if the owner pointer is read first, its task may exit before the later `Signal()` call.
+
+**Trigger and consequence:** on an ExecSMP build, run `Break PORT=<name>` while another CPU removes and deletes that public port or its owner task after lookup. The command can read `mp_SigTask` from reclaimed port storage or pass a stale task pointer to `Signal()`, which dereferences the task fields. **Affected configuration:** selected `workbench-c` Break command on ExecSMP; a concurrent port/owner teardown is required. **Confidence:** high for the unpinned lookup-to-use interval and local-only Forbid contract; the invalid access requires the stated teardown overlap. Use a port/task lifetime reference or synchronize lookup, owner capture, and signal with the publisher's teardown protocol. No port, task, command, or build was exercised. Source-only; see the [Break command coverage row](AROS-exec-kernel-coverage.md#L1039).
+
+
 <a id="ek840"></a>
 ### EK840 — Selected DOS commands use a borrowed CLI process after its list lock is released [conditional; ExecSMP]
 
