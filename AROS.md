@@ -159,6 +159,7 @@ Reverse reconciliation found 191 active Exec/Kernel finding sections that were n
 | [EK71](AROS-exec-kernel.md#ek71) | Concurrent symbol-resolver updates can pair a callback with the wrong private pointer. |
 | [EK126](AROS-exec-kernel.md#ek126) | x86-64 task.resource register queries omit index zero and return incorrect vector data. |
 | [EK140](AROS-exec-kernel.md#ek140) | Framed kernel alerts split overlong header lines and misplace later fields. |
+| [EK179](AROS-exec-kernel.md#ek179) | i386 `debug=memory` initialization can dereference a failed logger allocation or leave its replacement RawIO vector without valid state. |
 | [EK193](AROS-exec-kernel.md#ek193) | SiFive U core startup symbol contains no RISC-V entry code |
 | [EK194](AROS-exec-kernel.md#ek194) | SiFive U BSS clearing skips a residual byte and writes past the range |
 | [EK195](AROS-exec-kernel.md#ek195) | Optional SiFive U image waits forever instead of handing off to the embedded kernel |
@@ -215,6 +216,7 @@ Reverse reconciliation found 191 active Exec/Kernel finding sections that were n
 | [EK8900](AROS-exec-kernel.md#ek8900) | The shared write-locked initializer uses a bit that native ARM spinlocks do not recognize as a writer lock. |
 | [EK8904](AROS-exec-kernel.md#ek8904) | ARM secondary registration continues after bootstrap-task creation fails, then dereferences the missing task. |
 | [EK8906](AROS-exec-kernel.md#ek8906) | OpenSBI processor IDs from the boot hart are reported for every RISC-V core. |
+| [EK8924](AROS-exec-kernel.md#ek8924) | i386 `debug=memory` can stop recording after the initial log block when its refill task fails to start. |
 | [EK8927](AROS-exec-kernel.md#ek8927) | `logRemEntry()` can remove an entry before its provider-list publication. |
 | [EK8942](AROS-exec-kernel.md#ek8942) | The i386-PC SAD debugger indexes its key translation table with unmapped keyboard scan codes. |
 | [EK8944](AROS-exec-kernel.md#ek8944) | ROM-map allocation failure is dereferenced during m68k-Amiga kernel startup. |
