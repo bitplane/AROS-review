@@ -19868,3 +19868,257 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[GD9939](AROS-graphics-desktop.md#gd9939)** — `OpenScreen()` underflows its UWORD sprite palette base for one- and two-plane screens; its pointer-color initialization then reaches the unchecked HIDD pixel-table write. The ScreenMode editor Test action permits depth 1 and directly opens the selected mode, grounding a maintained caller when mode maximum depth is at most eight. `scrbackfill` requests depth 2 but `SA_LikeWorkbench` replaces that with the configured Workbench depth. Applies to non-BINCOMPAT flavours; source-only, no screen was opened.
 
 **[GD15449](AROS-graphics-desktop.md#gd15449-animation-worker-startup-failure-hangs-construction)** — Animation object construction waits forever if either `CreateNewProcTags()` call fails, because it waits for a RUNNING flag only that worker can set. The second failure can also leave the already-started buffer worker running. Conditional on process creation failure; source-only.
+
+## Graphics/Desktop findings with explicit indexed summaries (2026-11-26)
+
+**[GD77](AROS-graphics-desktop.md#gd77) — `BitMapScale()` and `cgfx` `ScalePixelArray()` hide generic HIDD scaler scratch-allocation failures.** Source-only; see the detailed finding and coverage ledger.
+**[GD490](AROS-graphics-desktop.md#gd490) — MUIScreen leaks its preallocated task and stack when AddTask fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD2663](AROS-graphics-desktop.md#gd2663) — The public `ReadPixelArray8()` declaration truncates its pixel-count result.** Source-only; see the detailed finding and coverage ledger.
+**[GD2701](AROS-graphics-desktop.md#gd2701) — ASL multiselect can return success with a partial selected-file list after a name allocation fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD2709](AROS-graphics-desktop.md#gd2709) — Radeon initialization uses a null VRAM allocation bitmap after its allocation fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD2710](AROS-graphics-desktop.md#gd2710) — Radeon VRAM exhaustion can make the allocator read past its bitmap.** Source-only; see the detailed finding and coverage ledger.
+**[GD2711](AROS-graphics-desktop.md#gd2711) — Freeing a Radeon allocation at the exact VRAM end leaves its bitmap bits allocated.** Source-only; see the detailed finding and coverage ledger.
+**[GD2716](AROS-graphics-desktop.md#gd2716) — A 32,768-byte ASCII line can narrow to a negative `Text()` count and make fast-font rendering scan beyond the line buffer.** Source-only; see the detailed finding and coverage ledger.
+**[GD2719](AROS-graphics-desktop.md#gd2719) — Async datatype layout startup failure leaves MultiView’s busy pointer set while reporting success.** Source-only; see the detailed finding and coverage ledger.
+**[GD2726](AROS-graphics-desktop.md#gd2726) — An exact-size FTXT CHRS buffer ending in CR makes ASCII layout inspect one byte beyond the allocation while checking for CRLF.** Source-only; see the detailed finding and coverage ledger.
+**[GD2727](AROS-graphics-desktop.md#gd2727) — MultiView’s Word Wrap toggle requests a new ASCII datatype layout, but the line builder never splits text at the available domain width. Long logical lines remain horizontally over-wide.** Source-only; see the detailed finding and coverage ledger.
+**[GD2747](AROS-graphics-desktop.md#gd2747) — `NewDTObjectA()` does not release internally obtained datatype references, leaving their `OpenCount` elevated after construction failures or object disposal.** Source-only; see the detailed finding and coverage ledger.
+**[GD2749](AROS-graphics-desktop.md#gd2749) — `NewDTObjectA()` writes past its stack path buffer when `DTA_BaseName` exceeds 100 bytes.** Source-only; see the detailed finding and coverage ledger.
+**[GD2815](AROS-graphics-desktop.md#gd2815) — `ConvDiskFont()` can wrap its tag count and pass an unterminated allocation to tag-list consumers.** Source-only; see the detailed finding and coverage ledger.
+**[GD2816](AROS-graphics-desktop.md#gd2816) — `ReadFontDescr()` reads a `.font` filename until NUL without limiting the scan to its 256-byte field, so an unterminated field can make it read into later fields and beyond its stack buffer.** Source-only; see the detailed finding and coverage ledger.
+**[GD2817](AROS-graphics-desktop.md#gd2817) — `NewFontContents()` copies the caller’s font filename into a 32-byte stack array without a length check; the selected Font datatype passes a 108-byte DOS filename buffer.** Source-only; see the detailed finding and coverage ledger.
+**[GD2818](AROS-graphics-desktop.md#gd2818) — `NewFontContents()` packs embedded tags backward into its fixed temporary record without checking the available filename area; a long list overwrites its temporary node and can write before the allocation.** Source-only; see the detailed finding and coverage ledger.
+**[GD2819](AROS-graphics-desktop.md#gd2819) — `OTAG_GetFile()` scans and converts `.otag` tag pairs without checking the declared file end; a missing terminator or truncated pair makes it read past its allocation.** Source-only; see the detailed finding and coverage ledger.
+**[GD2820](AROS-graphics-desktop.md#gd2820) — `OTAG_GetFile()` relocates indirect `.otag` values without validating their offsets or payload lengths; selected consumers read an unchecked sizes array or string from the file buffer.** Source-only; see the detailed finding and coverage ledger.
+**[GD2822](AROS-graphics-desktop.md#gd2822) — FreeType custom metrics can produce a zero span and divide by zero in `SetInstance()`.** Source-only; see the detailed finding and coverage ledger.
+**[GD2823](AROS-graphics-desktop.md#gd2823) — FreeType pixel scaling can round a glyph divisor to zero for small sizes and custom metrics.** Source-only; see the detailed finding and coverage ledger.
+**[GD2839](AROS-graphics-desktop.md#gd2839) — FreeType `OT_WidthList` can overflow its signed loop counter at `INT_MAX`.** Source-only; see the detailed finding and coverage ledger.
+**[GD2849](AROS-graphics-desktop.md#gd2849) — Picture RGB-family `PDTM_READPIXELARRAY` ignores the requested row width for subrectangle reads.** Source-only; see the detailed finding and coverage ledger.
+**[GD3069](AROS-graphics-desktop.md#gd3069) — Wanderer Preferences wraps long background-spec offsets and overruns its Save buffer.** Source-only; see the detailed finding and coverage ledger.
+**[GD4000](AROS-graphics-desktop.md#gd4000) — Wanderer Preferences dereferences a failed view-object allocation while importing a new view name.** Source-only; see the detailed finding and coverage ledger.
+**[GD4009](AROS-graphics-desktop.md#gd4009) — Wanderer Preferences continues construction after its advanced-window state allocation fails, then dereferences NULL.** Source-only; see the detailed finding and coverage ledger.
+**[GD4010](AROS-graphics-desktop.md#gd4010) — Wanderer Preferences ignores toolbar-state write failure and can complete Save or Use with stale toolbar settings.** Source-only; see the detailed finding and coverage ledger.
+**[GD4011](AROS-graphics-desktop.md#gd4011) — Wanderer Preferences can dereference NULL after allocation failure while rebuilding image background controls.** Source-only; see the detailed finding and coverage ledger.
+**[GD4012](AROS-graphics-desktop.md#gd4012) — Wanderer Preferences silently omits built-in background controls when required view objects fail to build.** Source-only; see the detailed finding and coverage ledger.
+**[GD4028](AROS-graphics-desktop.md#gd4028) — `Draw()` advances patterned lines using the endpoint's bounding-box offset instead of the segment length.** Source-only; see the detailed finding and coverage ledger.
+**[GD4030](AROS-graphics-desktop.md#gd4030) — `ReadPixelArray8()` skips a clipped row exactly 32,768 pixels wide.** Source-only; see the detailed finding and coverage ledger.
+**[GD4222](AROS-graphics-desktop.md#gd4222) — Animation overrides generic `DTA_Immediate`/`DTA_Repeat` defaults; class-specific intent remains uncertain.** Source-only; see the detailed finding and coverage ledger.
+**[GD4535](AROS-graphics-desktop.md#gd4535) — MUIScreen expunge signals its worker but does not wait for it to finish before returning success.** Source-only; see the detailed finding and coverage ledger.
+**[GD4536](AROS-graphics-desktop.md#gd4536) — MUIScreen does not free its manually allocated task or stack when the auto-close worker exits.** Source-only; see the detailed finding and coverage ledger.
+**[GD4772](AROS-graphics-desktop.md#gd4772) — Picture scaling divides by zero for a zero requested width or height.** Source-only; see the detailed finding and coverage ledger.
+**[GD4846](AROS-graphics-desktop.md#gd4846) — WAV IMA ADPCM trusts a block-header step index outside the step table.** Source-only; see the detailed finding and coverage ledger.
+**[GD4853](AROS-graphics-desktop.md#gd4853) — G.72x MSB bit reader can left-shift an input byte beyond `ULONG` range at a nonzero bit offset.** Source-only; see the detailed finding and coverage ledger.
+**[GD4888](AROS-graphics-desktop.md#gd4888) — MUI List insertion rollback can pass a negative byte count to `memmove`.** Source-only; see the detailed finding and coverage ledger.
+**[GD5083](AROS-graphics-desktop.md#gd5083) — MUI's legacy Application Input method omits non-timer handler signals from its wait mask.** Source-only; see the detailed finding and coverage ledger.
+**[GD5085](AROS-graphics-desktop.md#gd5085) — MUI ARexx dispatch dereferences a failed argument allocation and calls hooks after parser setup allocation fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD5086](AROS-graphics-desktop.md#gd5086) — MUI Application Load/Save can pass an unterminated filename to DOS for long explicit paths** Source-only; see the detailed finding and coverage ledger.
+**[GD5144](AROS-graphics-desktop.md#gd5144) — MUI ChunkyImage setters leave the displayed bitmap and palette at their setup-time values.** Source-only; see the detailed finding and coverage ledger.
+**[GD5178](AROS-graphics-desktop.md#gd5178) — OpenWindow releases a public-screen visitor lock it never acquired when a named-screen lookup fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD5272](AROS-graphics-desktop.md#gd5272) — Cycle popup window failure leaks its per-entry text and background resources.** Source-only; see the detailed finding and coverage ledger.
+**[GD5273](AROS-graphics-desktop.md#gd5273) — Cycle OM_SET modifies the caller's TagItem when Active is unchanged or invalid.** Source-only; see the detailed finding and coverage ledger.
+**[GD5274](AROS-graphics-desktop.md#gd5274) — Cycle entry enumeration wraps its 16-bit index and can restart indefinitely.** Source-only; see the detailed finding and coverage ledger.
+**[GD5275](AROS-graphics-desktop.md#gd5275) — Cycle popup text indexing exceeds its signed 16-bit loop index for large entry lists.** Source-only; see the detailed finding and coverage ledger.
+**[GD5277](AROS-graphics-desktop.md#gd5277) — MUI can dereference a NULL command table while dispatching an ARexx message.** Source-only; see the detailed finding and coverage ledger.
+**[GD5278](AROS-graphics-desktop.md#gd5278) — MUI invokes templated ARexx command hooks when ReadArgs rejects the arguments.** Source-only; see the detailed finding and coverage ledger.
+**[GD5290](AROS-graphics-desktop.md#gd5290) — ILBM CMAP counts can overflow Picture’s fixed color arrays.** Source-only; see the detailed finding and coverage ledger.
+**[GD5291](AROS-graphics-desktop.md#gd5291) — ILBM uncompressed BODY rows are copied without validating the declared data length.** Source-only; see the detailed finding and coverage ledger.
+**[GD5292](AROS-graphics-desktop.md#gd5292) — ILBM ByteRun1 decoder has no input end pointer for truncated BODY data.** Source-only; see the detailed finding and coverage ledger.
+**[GD5293](AROS-graphics-desktop.md#gd5293) — ILBM HAM conversion indexes base colors without checking CMAP length.** Source-only; see the detailed finding and coverage ledger.
+**[GD5294](AROS-graphics-desktop.md#gd5294) — ILBM accepts HAM depths 1–5 and uses negative shift counts.** Source-only; see the detailed finding and coverage ledger.
+**[GD5298](AROS-graphics-desktop.md#gd5298) — ILBM reads a short BMHD property as a complete header.** Source-only; see the detailed finding and coverage ledger.
+**[GD5302](AROS-graphics-desktop.md#gd5302) — ILBM RGB/HAM conversion advances past color planes but not the per-row mask plane.** Source-only; see the detailed finding and coverage ledger.
+**[GD5422](AROS-graphics-desktop.md#gd5422) — ExecSMP callers can race VBlank while enqueuing DBufInfo swap completions, losing a pending reply or leaving an already completed buffer record linked.** Source-only; see the detailed finding and coverage ledger.
+**[GD5474](AROS-graphics-desktop.md#gd5474) — layer creation, shape changes, and showing can keep an unclipped shape when parent intersection allocation fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD5511](AROS-graphics-desktop.md#gd5511) — NVIDIA offscreen bitmap dimensions can wrap the backing-store size and leave valid rows outside the allocation.** Source-only; see the detailed finding and coverage ledger.
+**[GD5590](AROS-graphics-desktop.md#gd5590) — MUI Window declares `MUIA_Window_FancyDrawing` but does not implement the attribute.** Source-only; see the detailed finding and coverage ledger.
+**[GD5591](AROS-graphics-desktop.md#gd5591) — Hosted X11 24-bit uploads ignore the selected visual's channel mask ordering** Source-only; see the detailed finding and coverage ledger.
+**[GD5610](AROS-graphics-desktop.md#gd5610) — Replacing an owned PlanarBM bitmap with the same pointer frees it and retains a dangling pointer.** Source-only; see the detailed finding and coverage ledger.
+**[GD5611](AROS-graphics-desktop.md#gd5611) — PlanarBM accepts depths beyond the eight plane slots in `struct BitMap` and writes past the structure.** Source-only; see the detailed finding and coverage ledger.
+**[GD5616](AROS-graphics-desktop.md#gd5616) — Concurrent Picture rendering can leak the object semaphore after a failed resize allocation.** Source-only; see the detailed finding and coverage ledger.
+**[GD5618](AROS-graphics-desktop.md#gd5618) — AmigaGuide macro allocation failures can publish a NULL body or leak an unlinked body.** Source-only; see the detailed finding and coverage ledger.
+**[GD5619](AROS-graphics-desktop.md#gd5619) — AmigaGuide scans an unterminated node name beyond its fixed line buffer.** Source-only; see the detailed finding and coverage ledger.
+**[GD5620](AROS-graphics-desktop.md#gd5620) — AmigaGuide macro calls beyond the documented ten-argument limit write past local arrays.** Source-only; see the detailed finding and coverage ledger.
+**[GD5621](AROS-graphics-desktop.md#gd5621) — AmigaGuide font directives can overflow the fixed font-name buffer.** Source-only; see the detailed finding and coverage ledger.
+**[GD5623](AROS-graphics-desktop.md#gd5623) — AmigaGuide secure mode does not suppress SYSTEM commands.** Source-only; see the detailed finding and coverage ledger.
+**[GD5624](AROS-graphics-desktop.md#gd5624) — AmigaGuide navigator rendering can clear an existing clip region after allocation failure.** Source-only; see the detailed finding and coverage ledger.
+**[GD5625](AROS-graphics-desktop.md#gd5625) — AmigaGuide navigator release can leave the pressed button selected if release arrives outside it.** Source-only; see the detailed finding and coverage ledger.
+**[GD5628](AROS-graphics-desktop.md#gd5628) — Failed AmigaGuide internal-node loading can leave a temporary file in `T:`.** Source-only; see the detailed finding and coverage ledger.
+**[GD5630](AROS-graphics-desktop.md#gd5630) — A long AmigaGuide ARexx port stem can make port-name allocation spin forever.** Source-only; see the detailed finding and coverage ledger.
+**[GD5631](AROS-graphics-desktop.md#gd5631) — An AmigaGuide `@ONOPEN` hook prevents object construction before its ARexx port is started.** Source-only; see the detailed finding and coverage ledger.
+**[GD5632](AROS-graphics-desktop.md#gd5632) — AmigaGuide never runs the documented `@ONCLOSE` script.** Source-only; see the detailed finding and coverage ledger.
+**[GD5633](AROS-graphics-desktop.md#gd5633) — An oversized AmigaGuide tab width can wrap to zero and divide by zero during layout.** Source-only; see the detailed finding and coverage ledger.
+**[GD5635](AROS-graphics-desktop.md#gd5635) — `AllocBitMap()` narrows the row stride of an oversized plain bitmap to two bytes, so row addressing and freeing no longer match the allocated plane storage.** Source-only; see the detailed finding and coverage ledger.
+**[GD5636](AROS-graphics-desktop.md#gd5636) — MUI can change which application windows are open after a configuration change when allocating the saved reopen-state list or one of its entries fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD5637](AROS-graphics-desktop.md#gd5637) — MUI leaves windows closed and leaks their saved reopen-state list when allocation of the deferred reopen message fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD5670](AROS-graphics-desktop.md#gd5670) — BoingIconBar can indefinitely defer preference reload if its optional focus timer is unavailable.** Source-only; see the detailed finding and coverage ledger.
+**[GD5672](AROS-graphics-desktop.md#gd5672) — Picture's lazily generated source bitmap goes stale after a pixel-array update.** Source-only; see the detailed finding and coverage ledger.
+**[GD5673](AROS-graphics-desktop.md#gd5673) — BoingIconBar static mode can remain without its toolbar after an open-window failure.** Source-only; see the detailed finding and coverage ledger.
+**[GD5675](AROS-graphics-desktop.md#gd5675) — BoingIconBar Preferences can overwrite adjacent state when adding a long dock name.** Source-only; see the detailed finding and coverage ledger.
+**[GD5676](AROS-graphics-desktop.md#gd5676) — BoingIconBar Preferences imports do not enforce fixed record bounds.** Source-only; see the detailed finding and coverage ledger.
+**[GD5678](AROS-graphics-desktop.md#gd5678) — BoingIconBar leaves its preferences file open when the public-screen lock fails during reload.** Source-only; see the detailed finding and coverage ledger.
+**[GD5679](AROS-graphics-desktop.md#gd5679) — BoingIconBar can collapse later menu-page ranges when an icon is wider than the usable screen span.** Source-only; see the detailed finding and coverage ledger.
+**[GD5681](AROS-graphics-desktop.md#gd5681) — NList fails to clear its parent NListview as the window default after an outside click.** Source-only; see the detailed finding and coverage ledger.
+**[GD5682](AROS-graphics-desktop.md#gd5682) — MUI does not reply to `IDCMP_GADGETUP` messages, retaining Intuition message-pool entries.** Source-only; see the detailed finding and coverage ledger.
+**[GD5683](AROS-graphics-desktop.md#gd5683) — Text datatype can write past a later CHRS allocation after a buffer-growth allocation fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD5684](AROS-graphics-desktop.md#gd5684) — Text datatype treats short or failed CHRS reads as successful IFF loads.** Source-only; see the detailed finding and coverage ledger.
+**[GD5687](AROS-graphics-desktop.md#gd5687) — Generic gfx.hidd buffered bitmap operations allocate a full-width, multi-row scratch buffer from a 16 KiB pixel-count constant, producing multi-megabyte allocations for ordinary large rectangles.** Source-only; see the detailed finding and coverage ledger.
+**[GD5690](AROS-graphics-desktop.md#gd5690) — Zune Preferences Save As can overflow its filename buffer when appending `.prefs` to a near-maximum selected path.** Source-only; see the detailed finding and coverage ledger.
+**[GD5692](AROS-graphics-desktop.md#gd5692) — BoingIconBar can discard remapped icon images when its first screen lock fails but window creation succeeds (conditional placeholder icons after a screen transition; medium source confidence).** Source-only; see the detailed finding and coverage ledger.
+**[GD5695](AROS-graphics-desktop.md#gd5695) — StartDragSelect can miss an asynchronous-layout startup and report success while the layout process is active.** Source-only; see the detailed finding and coverage ledger.
+**[GD5712](AROS-graphics-desktop.md#gd5712) — A `.font` descriptor with two bitmap entries and 65,535 outline-size records can wrap diskfont.library’s combined `UWORD` entry count to zero; directory enumeration then exposes a cleared zero-size outline entry and omits the declared sizes.** Source-only; see the detailed finding and coverage ledger.
+**[GD5713](AROS-graphics-desktop.md#gd5713) — FreeType’s glyph bitmap allocation failure is treated as a missing glyph, and diskfont continues building a proportional font with zero metrics and no character data for that glyph.** Source-only; see the detailed finding and coverage ledger.
+**[GD5791](AROS-graphics-desktop.md#gd5791) — DoGadgetMethodA truncates 64-bit method results to ULONG.** Source-only; see the detailed finding and coverage ledger.
+**[GD5885](AROS-graphics-desktop.md#gd5885) — Backfill setup returns unchecked per-window state allocation to callers.** Source-only; see the detailed finding and coverage ledger.
+**[GD6147](AROS-graphics-desktop.md#gd6147) — WiFi Preferences ignores a timed-out supplicant stop and continues with radio disassociation.** Source-only; see the detailed finding and coverage ledger.
+**[GD6148](AROS-graphics-desktop.md#gd6148) — `SavePrefs()` does not distinguish a missing settings file from an existing file it could not read; rollback may therefore delete the existing file.** Source-only; see the detailed finding and coverage ledger.
+**[GD6149](AROS-graphics-desktop.md#gd6149) — `MergePrefs()` ignores DOS write results after opening the preferences file in replace mode, then returns TRUE.** Source-only; see the detailed finding and coverage ledger.
+**[GD6150](AROS-graphics-desktop.md#gd6150) — Closing WiFi Preferences while a worker command is in flight disposes the MUI objects, then calls `HandleReply()` on the reply and updates those objects.** Source-only; see the detailed finding and coverage ledger.
+**[GD6151](AROS-graphics-desktop.md#gd6151) — `MountServers()` acquires `ENV:SMB`'s lock but only passes it to an asynchronous Mount process when the server count is nonzero; the zero-server return leaks it.** Source-only; see the detailed finding and coverage ledger.
+**[GD6152](AROS-graphics-desktop.md#gd6152) — `RecursiveCreateDir()` dereferences `tmpdirpath` immediately after an unchecked `AllocVec()` for that buffer.** Source-only; see the detailed finding and coverage ledger.
+**[GD6153](AROS-graphics-desktop.md#gd6153) — If a settings file opens but the 8 KiB tokenizer-buffer allocation fails, its caller still enters the read loop and dereferences the NULL buffer.** Source-only; see the detailed finding and coverage ledger.
+**[GD6154](AROS-graphics-desktop.md#gd6154) — `GetNextToken()` ignores `fgets()`'s result and does not set `fend` when a persistent read error occurs without EOF.** Source-only; see the detailed finding and coverage ledger.
+**[GD6155](AROS-graphics-desktop.md#gd6155) — `CopyFile()` rejects only `Write() == -1`, not a result shorter than the chunk read, then returns TRUE.** Source-only; see the detailed finding and coverage ledger.
+**[GD6156](AROS-graphics-desktop.md#gd6156) — The wireless-settings parser assumes every `ssid` is inside an opened network entry and that quoted SSID/key values have closing quotes.** Source-only; see the detailed finding and coverage ledger.
+**[GD6188](AROS-graphics-desktop.md#gd6188) — the create-behind wrappers use the upfront default placement for equal-priority siblings.** Source-only; see the detailed finding and coverage ledger.
+**[GD6189](AROS-graphics-desktop.md#gd6189) — a failed `FattenLayerInfo()` allocation makes retries succeed without allocating the extension.** Source-only; see the detailed finding and coverage ledger.
+**[GD6192](AROS-graphics-desktop.md#gd6192) — scaled RGBA Picture data is resampled as ARGB and its channels rotate.** Source-only; see the detailed finding and coverage ledger.
+**[GD6193](AROS-graphics-desktop.md#gd6193) — `PDTA_SparseTable` copies an unchecked count into a fixed 256-byte field.** Source-only; see the detailed finding and coverage ledger.
+**[GD6194](AROS-graphics-desktop.md#gd6194) — truecolor remapping lets `MAXPENS` overrun its fixed color tables.** Source-only; see the detailed finding and coverage ledger.
+**[GD6195](AROS-graphics-desktop.md#gd6195) — compositor disposal leaks per-instance library references and its graphics context.** Source-only; see the detailed finding and coverage ledger.
+**[GD6196](AROS-graphics-desktop.md#gd6196) — compositor construction succeeds without the Intuition base required by bitmap-stack handling.** Source-only; see the detailed finding and coverage ledger.
+**[GD6197](AROS-graphics-desktop.md#gd6197) — Sound datatype playback cursor time truncates after 71 minutes.** Source-only; see the detailed finding and coverage ledger.
+**[GD6199](AROS-graphics-desktop.md#gd6199) — Sound datatype DTM_DRAW underflows small waveform dimensions.** Source-only; see the detailed finding and coverage ledger.
+**[GD6200](AROS-graphics-desktop.md#gd6200) — WAV Microsoft ADPCM setup trusts a coefficient count beyond the allocated format chunk.** Source-only; see the detailed finding and coverage ledger.
+**[GD6202](AROS-graphics-desktop.md#gd6202) — WAV float and A-law accept zero or undersized block alignment, causing division by zero or input overread.** Source-only; see the detailed finding and coverage ledger.
+**[GD6203](AROS-graphics-desktop.md#gd6203) — WAV G.72x setup initializes per-channel state before validating the channel count.** Source-only; see the detailed finding and coverage ledger.
+**[GD6204](AROS-graphics-desktop.md#gd6204) — WAV GSM610 sizes its sample workspace from an unchecked samples-per-block value.** Source-only; see the detailed finding and coverage ledger.
+**[GD6205](AROS-graphics-desktop.md#gd6205) — TIFF load reports success after a scanline, tile, or pixel-array failure.** Source-only; see the detailed finding and coverage ledger.
+**[GD6206](AROS-graphics-desktop.md#gd6206) — TIFF raw save reports success without writing any data.** Source-only; see the detailed finding and coverage ledger.
+**[GD6207](AROS-graphics-desktop.md#gd6207) — TIFF grayscale conversion allocation failure passes a short source row as RGB.** Source-only; see the detailed finding and coverage ledger.
+**[GD6208](AROS-graphics-desktop.md#gd6208) — TIFF direct decoding ignores the image orientation tag.** Source-only; see the detailed finding and coverage ledger.
+**[GD6209](AROS-graphics-desktop.md#gd6209) — TIFF 8-bit planar-separate allocation failure is mistaken for contiguous pixel data.** Source-only; see the detailed finding and coverage ledger.
+**[GD6210](AROS-graphics-desktop.md#gd6210) — TIFF 8-bit YCbCr scratch-buffer failure skips color conversion.** Source-only; see the detailed finding and coverage ledger.
+**[GD6211](AROS-graphics-desktop.md#gd6211) — JPEG input advertises a failed DOS read as a huge buffer.** Source-only; see the detailed finding and coverage ledger.
+**[GD6212](AROS-graphics-desktop.md#gd6212) — JPEG early failure paths skip libjpeg object destruction.** Source-only; see the detailed finding and coverage ledger.
+**[GD6213](AROS-graphics-desktop.md#gd6213) — PNG write treats a successful DOS flush as an error.** Source-only; see the detailed finding and coverage ledger.
+**[GD6214](AROS-graphics-desktop.md#gd6214) — PNG indexed-image save dereferences an unchecked palette allocation.** Source-only; see the detailed finding and coverage ledger.
+**[GD6215](AROS-graphics-desktop.md#gd6215) — PNG memory decoding can read past the supplied buffer because its bounds check is bypassed.** Source-only; see the detailed finding and coverage ledger.
+**[GD6216](AROS-graphics-desktop.md#gd6216) — PNG save early returns leak libpng write state.** Source-only; see the detailed finding and coverage ledger.
+**[GD6217](AROS-graphics-desktop.md#gd6217) — Native icon PNG scanning reads chunk headers beyond the retained file buffer.** Source-only; see the detailed finding and coverage ledger.
+**[GD6218](AROS-graphics-desktop.md#gd6218) — `DDRV_ReserveIDs` overflow can admit and publish overlapping monitor-ID ranges.** Source-only; see the detailed finding and coverage ledger.
+**[GD6224](AROS-graphics-desktop.md#gd6224) — Appearance Preferences does not safely split theme description files.** Source-only; see the detailed finding and coverage ledger.
+**[GD6225](AROS-graphics-desktop.md#gd6225) — Appearance Preferences dereferences its unchecked theme-description buffer allocation.** Source-only; see the detailed finding and coverage ledger.
+**[GD6226](AROS-graphics-desktop.md#gd6226) — Appearance Preferences leaks each successful `timer.device` open during preference backup naming.** Source-only; see the detailed finding and coverage ledger.
+**[GD6227](AROS-graphics-desktop.md#gd6227) — Appearance Preferences can report a successful export after failing to write the requested preferences.** Source-only; see the detailed finding and coverage ledger.
+**[GD6228](AROS-graphics-desktop.md#gd6228) — Appearance Preferences dereferences failed theme-list allocations.** Source-only; see the detailed finding and coverage ledger.
+**[GD6239](AROS-graphics-desktop.md#gd6239) — AmigaVideo reports oversized blits as successful after skipping the hardware command.** Source-only; see the detailed finding and coverage ledger.
+**[GD6240](AROS-graphics-desktop.md#gd6240) — `SizeLayer()` accepts a resize that leaves zero or negative dimensions and publishes inverted bounds.** Source-only; see the detailed finding and coverage ledger.
+**[GD6243](AROS-graphics-desktop.md#gd6243) — Wanderer IconList writes long AppIcon labels past its fixed multiline display buffer.** Source-only; see the detailed finding and coverage ledger.
+**[GD6246](AROS-graphics-desktop.md#gd6246) — Wanderer continues after AppObjects reply-port creation fails, then calls `GetMsg()` with a null port.** Source-only; see the detailed finding and coverage ledger.
+**[GD6248](AROS-graphics-desktop.md#gd6248) — Wanderer allocates too little space for its MUI drag-image structure on 64-bit builds.** Source-only; see the detailed finding and coverage ledger.
+**[GD6250](AROS-graphics-desktop.md#gd6250) — Info leaks detached MUI Text objects when refreshing the Version and Size fields.** Source-only; see the detailed finding and coverage ledger.
+**[GD6252](AROS-graphics-desktop.md#gd6252) — VideoCore graphics leaves its firmware cursor allocation reserved when cursor setup fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD6253](AROS-graphics-desktop.md#gd6253) — VideoCore graphics dereferences failed pixel-format allocations while constructing its HIDD.** Source-only; see the detailed finding and coverage ledger.
+**[GD6254](AROS-graphics-desktop.md#gd6254) — VideoCore DMA can leave a vertical framebuffer scroll partially copied after a transfer error.** Source-only; see the detailed finding and coverage ledger.
+**[GD6255](AROS-graphics-desktop.md#gd6255) — VideoCore graphics leaks temporary mode and pixel-format tables after every HIDD construction.** Source-only; see the detailed finding and coverage ledger.
+**[GD6258](AROS-graphics-desktop.md#gd6258) — BMP loading drops packed tail pixels in 1-bit and 4-bit rows.** Source-only; see the detailed finding and coverage ledger.
+**[GD6259](AROS-graphics-desktop.md#gd6259) — BMP loading reports success after truncated pixel data.** Source-only; see the detailed finding and coverage ledger.
+**[GD6260](AROS-graphics-desktop.md#gd6260) — BMP raw saving emits no usable rows or palette for 1-bit and 4-bit images.** Source-only; see the detailed finding and coverage ledger.
+**[GD6261](AROS-graphics-desktop.md#gd6261) — Degas parser uses uninitialized dimensions after rejecting an unsupported mode.** Source-only; see the detailed finding and coverage ledger.
+**[GD6277](AROS-graphics-desktop.md#gd6277) — GIF raw save proceeds after encoder errors and reports failed output as success.** Source-only; see the detailed finding and coverage ledger.
+**[GD6278](AROS-graphics-desktop.md#gd6278) — HTML construction can dereference a NULL page during failure cleanup.** Source-only; see the detailed finding and coverage ledger.
+**[GD6279](AROS-graphics-desktop.md#gd6279) — Overlong HTML tags or entities write a terminator past a stack buffer.** Source-only; see the detailed finding and coverage ledger.
+**[GD6280](AROS-graphics-desktop.md#gd6280) — HTML layout dereferences a missing line node after allocation failure.** Source-only; see the detailed finding and coverage ledger.
+**[GD6281](AROS-graphics-desktop.md#gd6281) — HTML parser treats string-pool allocation failure as end of input.** Source-only; see the detailed finding and coverage ledger.
+**[GD6283](AROS-graphics-desktop.md#gd6283) — AmigaGuide queued triggers dereference a NULL `dtt_GInfo` from MultiView.** Source-only; see the detailed finding and coverage ledger.
+**[GD6284](AROS-graphics-desktop.md#gd6284) — AmigaGuide macro parsing scans past a line-buffer terminator.** Source-only; see the detailed finding and coverage ledger.
+**[GD6285](AROS-graphics-desktop.md#gd6285) — JPEG XL construction accepts a failed Picture pixel write as a successful decode.** Source-only; see the detailed finding and coverage ledger.
+**[GD6286](AROS-graphics-desktop.md#gd6286) — Animation startup dereferences its private state after allocation failure.** Source-only; see the detailed finding and coverage ledger.
+**[GD6287](AROS-graphics-desktop.md#gd6287) — Animation startup waits forever when a worker fails before its startup flag is observed.** Source-only; see the detailed finding and coverage ledger.
+**[GD6288](AROS-graphics-desktop.md#gd6288) — Animation direct-render frames self-copy their cache and never become ready.** Source-only; see the detailed finding and coverage ledger.
+**[GD6289](AROS-graphics-desktop.md#gd6289) — Animation remapping dereferences an unchecked high-color output allocation.** Source-only; see the detailed finding and coverage ledger.
+**[GD6290](AROS-graphics-desktop.md#gd6290) — Animation marks a frame ready even when remapping did no work.** Source-only; see the detailed finding and coverage ledger.
+**[GD6291](AROS-graphics-desktop.md#gd6291) — Animation preferences ignore the documented `MATCHCLASS` filter.** Source-only; see the detailed finding and coverage ledger.
+**[GD6292](AROS-graphics-desktop.md#gd6292) — Animation shuttle handling divides by zero for an accepted zero tick interval.** Source-only; see the detailed finding and coverage ledger.
+**[GD6293](AROS-graphics-desktop.md#gd6293) — Animation construction dereferences process state when `ADTA_NumPrefetchFrames` is supplied.** Source-only; see the detailed finding and coverage ledger.
+**[GD6294](AROS-graphics-desktop.md#gd6294) — Animation color-table allocation failures are published and later dereferenced.** Source-only; see the detailed finding and coverage ledger.
+**[GD6295](AROS-graphics-desktop.md#gd6295) — Animation key-frame setup dereferences a failed allocation.** Source-only; see the detailed finding and coverage ledger.
+**[GD6296](AROS-graphics-desktop.md#gd6296) — Animation start and removal signal worker pointers after signal setup fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD6297](AROS-graphics-desktop.md#gd6297) — Animation startup uses a failed realtime-player creation as if it succeeded.** Source-only; see the detailed finding and coverage ledger.
+**[GD6298](AROS-graphics-desktop.md#gd6298) — WebP construction accepts a failed Picture pixel write as a successful decode.** Source-only; see the detailed finding and coverage ledger.
+**[GD6299](AROS-graphics-desktop.md#gd6299) — WebP save encodes uninitialized pixel data after a Picture read failure.** Source-only; see the detailed finding and coverage ledger.
+**[GD6300](AROS-graphics-desktop.md#gd6300) — WebP save reports success after a failed or short DOS write.** Source-only; see the detailed finding and coverage ledger.
+**[GD6301](AROS-graphics-desktop.md#gd6301) — WebP save leaks its pixel buffer when encoding fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD6302](AROS-graphics-desktop.md#gd6302) — WebP decode stores pointers as datatype error values.** Source-only; see the detailed finding and coverage ledger.
+**[GD6303](AROS-graphics-desktop.md#gd6303) — HTML parsing drops style-stack frames after its fixed nesting limit.** Source-only; see the detailed finding and coverage ledger.
+**[GD6311](AROS-graphics-desktop.md#gd6311) — TapeDeck uses a child gadget after its allocation fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD6314](AROS-graphics-desktop.md#gd6314) — IconList MakeEntryVisible uses content dimensions as the viewport.** Source-only; see the detailed finding and coverage ledger.
+**[GD6315](AROS-graphics-desktop.md#gd6315) — IconList list-view lasso coordinates wrap past 32,767 pixels.** Source-only; see the detailed finding and coverage ledger.
+**[GD6318](AROS-graphics-desktop.md#gd6318) — G.72x WAV treats the auxiliary-block byte count as signed and decodes from before the input block.** Source-only; see the detailed finding and coverage ledger.
+**[GD6319](AROS-graphics-desktop.md#gd6319) — Wanderer Preferences truncates 64-bit AvailMem values in screen-title memory fields.** Source-only; see the detailed finding and coverage ledger.
+**[GD6320](AROS-graphics-desktop.md#gd6320) — Intuition signed queue fields reject high message-queue limits.** Source-only; see the detailed finding and coverage ledger.
+**[GD6322](AROS-graphics-desktop.md#gd6322) — VMM partition paging cleanup calls `CloseDevice()` with a NULL request after setup allocation failure.** Source-only; see the detailed finding and coverage ledger.
+**[GD6323](AROS-graphics-desktop.md#gd6323) — VMM timer initialization can wait forever after an I/O-request allocation fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD6325](AROS-graphics-desktop.md#gd6325) — VMM debug memory-list checker writes past its fixed free-chunk snapshot.** Source-only; see the detailed finding and coverage ledger.
+**[GD6326](AROS-graphics-desktop.md#gd6326) — VMM error-reporting failure can leave virtual-memory allocation disabled.** Source-only; see the detailed finding and coverage ledger.
+**[GD6327](AROS-graphics-desktop.md#gd6327) — VMM statistics dereferences a failed default public-screen lock.** Source-only; see the detailed finding and coverage ledger.
+**[GD6328](AROS-graphics-desktop.md#gd6328) — VMM statistics leaks its public-screen visitor lock when window creation fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD6329](AROS-graphics-desktop.md#gd6329) — VMM cache initialization uses a wrapped allocation size with an unwrapped slot count.** Source-only; see the detailed finding and coverage ledger.
+**[GD6330](AROS-graphics-desktop.md#gd6330) — VMM pseudo-partition creation continues after a failed FFS block transfer.** Source-only; see the detailed finding and coverage ledger.
+**[GD6331](AROS-graphics-desktop.md#gd6331) — VMM rejects documented MEMTYPE values and falls through to WRITEBUFFER.** Source-only; see the detailed finding and coverage ledger.
+**[GD6332](AROS-graphics-desktop.md#gd6332) — VMM ARexx token extraction overruns fixed-size stack buffers.** Source-only; see the detailed finding and coverage ledger.
+**[GD6333](AROS-graphics-desktop.md#gd6333) — VMM startup dereferences absent commodity parameters on its library-start path.** Source-only; see the detailed finding and coverage ledger.
+**[GD6334](AROS-graphics-desktop.md#gd6334) — VMM memory usage can dereference a missing tracked task name.** Source-only; see the detailed finding and coverage ledger.
+**[GD6335](AROS-graphics-desktop.md#gd6335) — VMM memory usage can leave clients waiting after result-list allocation failure.** Source-only; see the detailed finding and coverage ledger.
+**[GD6337](AROS-graphics-desktop.md#gd6337) — WAV GSM610 is linked without the WAV49 decoder branch.** Source-only; see the detailed finding and coverage ledger.
+**[GD6338](AROS-graphics-desktop.md#gd6338) — Diskfont can unload a font after its 16-bit accessor count wraps to zero.** Source-only; see the detailed finding and coverage ledger.
+**[GD6339](AROS-graphics-desktop.md#gd6339) — Transparent Wanderer drag rendering reads an uninitialized height for classic icons.** Source-only; see the detailed finding and coverage ledger.
+**[GD6340](AROS-graphics-desktop.md#gd6340) — ScreenMode Preferences accepts incomplete or failed SCRM reads as successful imports.** Source-only; see the detailed finding and coverage ledger.
+**[GD6341](AROS-graphics-desktop.md#gd6341) — ScreenMode Preferences reports export success after chunk writes fail.** Source-only; see the detailed finding and coverage ledger.
+**[GD6347](AROS-graphics-desktop.md#gd6347) — Serial Preferences' “1.5” stop-bit choice is applied as two stop bits.** Source-only; see the detailed finding and coverage ledger.
+**[GD6348](AROS-graphics-desktop.md#gd6348) — Boot Preferences crashes importing a GRUB entry truncated before its closing brace.** Source-only; see the detailed finding and coverage ledger.
+**[GD6349](AROS-graphics-desktop.md#gd6349) — Boot Preferences continues saving when either GRUB file open fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD6350](AROS-graphics-desktop.md#gd6350) — Boot Preferences can delete its active GRUB configuration before a failed replacement rename.** Source-only; see the detailed finding and coverage ledger.
+**[GD9404](AROS-graphics-desktop.md#gd9404) — SAGA can ignore its boot-time Shift override on m68k CPU variants.** Source-only; see the detailed finding and coverage ledger.
+**[GD9408](AROS-graphics-desktop.md#gd9408) — Generic graphics drawing drops updates to obscured portions of SuperBitMap layers.** Source-only; see the detailed finding and coverage ledger.
+**[GD9409](AROS-graphics-desktop.md#gd9409) — MoveRaster passes NULL cliprect bitmaps for hidden SuperBitMap regions.** Source-only; see the detailed finding and coverage ledger.
+**[GD9491](AROS-graphics-desktop.md#gd9491) — Palette Preferences trusts imported pen-map values as color-entry indexes.** Source-only; see the detailed finding and coverage ledger.
+**[GD9492](AROS-graphics-desktop.md#gd9492) — Generic indexed-color mapping overflows signed `int` while measuring palette distance.** Source-only; see the detailed finding and coverage ledger.
+**[GD9494](AROS-graphics-desktop.md#gd9494) — Generic HIDD bitmap row-size rounding wraps to zero for valid maximum-width bitmaps.** Source-only; see the detailed finding and coverage ledger.
+**[GD9495](AROS-graphics-desktop.md#gd9495) — AROS Mutual Exclude dereferences a missing DrawInfo before its constructor can reject the object.** Source-only; see the detailed finding and coverage ledger.
+**[GD9497](AROS-graphics-desktop.md#gd9497) — Wanderer can dereference a missing icon during drag/drop after icon restoration fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD9530](AROS-graphics-desktop.md#gd9530) — LaunchToolA closes or leaks its shell-output handle on the wrong SystemTagList paths.** Source-only; see the detailed finding and coverage ledger.
+**[GD9718](AROS-graphics-desktop.md#gd9718) — NListview never attaches its configured initial scrollbars during setup.** Source-only; see the detailed finding and coverage ledger.
+**[GD9719](AROS-graphics-desktop.md#gd9719) — NListview converts an explicit `None` scrollbar setting to `Always` on AROS.** Source-only; see the detailed finding and coverage ledger.
+**[GD9720](AROS-graphics-desktop.md#gd9720) — NList leaks precreated child objects when its Group superclass construction fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD9721](AROS-graphics-desktop.md#gd9721) — NList wrap-line insertion leaves the entry array changed when its entry allocation fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD9722](AROS-graphics-desktop.md#gd9722) — NList insertion loops forever when allocating an entry object fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD9723](AROS-graphics-desktop.md#gd9723) — NList leaks its allocated entry record when a construct method rejects an inserted item.** Source-only; see the detailed finding and coverage ledger.
+**[GD9724](AROS-graphics-desktop.md#gd9724) — NList import reads past a truncated dataspace record.** Source-only; see the detailed finding and coverage ledger.
+**[GD9725](AROS-graphics-desktop.md#gd9725) — NList copies every parsed formatting position from the first record when its formatting-info buffer grows.** Source-only; see the detailed finding and coverage ledger.
+**[GD9726](AROS-graphics-desktop.md#gd9726) — NList publishes the row height as its insert-position notification value instead of the affected row index.** Source-only; see the detailed finding and coverage ledger.
+**[GD9727](AROS-graphics-desktop.md#gd9727) — NList reports the wrong first selected row in `MUIM_NList_GetSelectInfo` line-selection mode.** Source-only; see the detailed finding and coverage ledger.
+**[GD9728](AROS-graphics-desktop.md#gd9728) — NList's custom copy hooks lose the final character of every returned string.** Source-only; see the detailed finding and coverage ledger.
+**[GD9729](AROS-graphics-desktop.md#gd9729) — `MUIM_NList_CopyTo` dereferences a NULL copy buffer for an empty selection when returning a string.** Source-only; see the detailed finding and coverage ledger.
+**[GD9730](AROS-graphics-desktop.md#gd9730) — NList leaks owned bitmap image resources on cleanup.** Source-only; see the detailed finding and coverage ledger.
+**[GD9732](AROS-graphics-desktop.md#gd9732) — The NList demo dereferences its custom class result without checking creation failure.** Source-only; see the detailed finding and coverage ledger.
+**[GD9733](AROS-graphics-desktop.md#gd9733) — NList library initialization leaks its auxiliary Group class when a later initialization step fails.** Source-only; see the detailed finding and coverage ledger.
+**[GD9734](AROS-graphics-desktop.md#gd9734) — NListtree's full-table removal loop reads one pointer past the allocation; that value is immediately discarded.** Source-only; see the detailed finding and coverage ledger.
+**[GD9735](AROS-graphics-desktop.md#gd9735) — NListtree marks nodes selected even when its selected-node table cannot grow.** Source-only; see the detailed finding and coverage ledger.
+**[GD9736](AROS-graphics-desktop.md#gd9736) — NListtree records a larger table capacity before allocation succeeds, so a failed growth can make the next insertion write past the old table.** Source-only; see the detailed finding and coverage ledger.
+**[GD9737](AROS-graphics-desktop.md#gd9737) — NListtree's AutoVisible Expand mode jumps to the old active row instead of the newly activated hidden node.** Source-only; see the detailed finding and coverage ledger.
+**[GD9739](AROS-graphics-desktop.md#gd9739) — NListtree dereferences missing search-hook allocations during construction and attribute updates.** Source-only; see the detailed finding and coverage ledger.
+**[GD9740](AROS-graphics-desktop.md#gd9740) — NListtree ignores internal construct/destruct hook allocation failures and can pair a borrowed user pointer with the freeing destruct hook.** Source-only; see the detailed finding and coverage ledger.
+**[GD9741](AROS-graphics-desktop.md#gd9741) — NListtree uses its display scratch buffer without checking whether allocation succeeded.** Source-only; see the detailed finding and coverage ledger.
+**[GD9742](AROS-graphics-desktop.md#gd9742) — NListtree has invalid or missing rollback on `OM_NEW` failure.** Source-only; see the detailed finding and coverage ledger.
+**[GD9743](AROS-graphics-desktop.md#gd9743) — NListtree leaks image objects when NList fails to build their bitmap-image wrapper.** Source-only; see the detailed finding and coverage ledger.
+**[GD9744](AROS-graphics-desktop.md#gd9744) — NListtree's default clipboard copy mutates node names while trying to strip display escape sequences.** Source-only; see the detailed finding and coverage ledger.
+**[GD9745](AROS-graphics-desktop.md#gd9745) — NListtree accepts an out-of-range tree column and indexes beyond NList's fixed display arrays.** Source-only; see the detailed finding and coverage ledger.
+**[GD9746](AROS-graphics-desktop.md#gd9746) — NListtree's documented “copy active entry” sentinel is dereferenced as a node pointer.** Source-only; see the detailed finding and coverage ledger.
+**[GD9748](AROS-graphics-desktop.md#gd9748) — NListtree inserts entries even when the construct method returns NULL, contrary to its documented failure contract.** Source-only; see the detailed finding and coverage ledger.
+**[GD9749](AROS-graphics-desktop.md#gd9749) — NListtree preferences MCP leaks its locale.library reference when AmigaOS 4 interface acquisition fails during class initialization.** Source-only; see the detailed finding and coverage ledger.
+**[GD9751](AROS-graphics-desktop.md#gd9751) — Legacy Listtree continues construction after its per-object pool allocation fails, then calls AllocPooled with a NULL pool.** Source-only; see the detailed finding and coverage ledger.
+**[GD9752](AROS-graphics-desktop.md#gd9752) — Legacy Listtree dereferences a failed pool allocation while wrapping an NList image.** Source-only; see the detailed finding and coverage ledger.
+**[GD9753](AROS-graphics-desktop.md#gd9753) — SysExplorer formats a support-module path into an unchecked allocation result.** Source-only; see the detailed finding and coverage ledger.
+**[GD9754](AROS-graphics-desktop.md#gd9754) — SysExplorer's registration library dereferences failed allocations while recording modules, bases, and skipped classes.** Source-only; see the detailed finding and coverage ledger.
+**[GD9758](AROS-graphics-desktop.md#gd9758) — SysExplorer ATA/AHCI support modules continue startup and call Storage-module APIs after detecting that the required module is absent.** Source-only; see the detailed finding and coverage ledger.
