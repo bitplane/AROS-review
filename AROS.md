@@ -21319,3 +21319,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **EK11124 withdrawn:** the empty-FAMILY KOBJ alias still reaches the PC kernel/Exec overlays; no omission defect is counted. See the [withdrawal note](AROS-exec-kernel.md#ek11124-withdrawn--empty-family-still-traverses-the-pc-kobj-alias-chain).**
 
 **[OD11836](AROS-other-drivers.md#od11836) — GATT discovery accepts truncated trailing entries.** A malformed ATT response with a valid row followed by an incomplete row is accepted as complete or partial results; conditional BTCore GATT peer-response path. Source-only.
+
+**[GD15461](AROS-graphics-desktop.md#gd15461) — OpenURL Workbench startup may pass an unterminated icon name.** A basename filling the fixed `strncpy` count leaves the local buffer unterminated before icon lookup; conditional maximum-length Workbench input. Source-only.
+
+**[GD15462](AROS-graphics-desktop.md#gd15462) — OpenURL Workbench startup does not free loaded DiskObjects.** Successfully loaded icon objects remain allocated after tooltype parsing; optional command Workbench path. Source-only.
