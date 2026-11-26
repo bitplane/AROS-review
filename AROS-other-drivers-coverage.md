@@ -41470,3 +41470,13 @@ Pegasus USB Ethernet header exact-path pass (four newly represented headers, 150
 | `rom/usb/classes/pegasuseth/dev.h` | Full 50-code-line header read | Device vectors, SANA helpers, error packing and query result matched against `dev.c`. |
 
 Pegasus coverage-count reconciliation (accounting only): Other Drivers advances from 5,407/5,586 to **5,411/5,590 represented paths (96.8%)**, and from 2,217,938/2,249,170 to **2,218,088/2,249,320 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,089,909/3,211,791 to **3,090,059/3,211,941 (96.2%)**. Other USB class header and subsystem audit gaps remain open.
+
+RawWrap USB class header exact-path pass (three newly represented headers, 87 `cloc 2.06` C/header code lines; 2026-11-26): verified the module recipe selects class/device/debug and the class target is in the USB complete-class graph; read the three headers and matched class binding/config/worker prototypes, shared macros and debug policy against full class/device bodies. Existing OD3431/OD3432 and the other RawWrap lifecycle findings remain unchanged; no additional ownership or declaration mismatch was established. No USB interface, RawWrap client, request, debug build or runtime behavior was used; source-only.
+
+| File | Status | Notes |
+|---|---|---|
+| `rom/usb/classes/rawwrap/rawwrap.class.h` | Full 23-code-line header read | Binding, lifecycle, config and worker declarations matched against `rawwrap.class.c`. |
+| `rom/usb/classes/rawwrap/common.h` | Full 45-code-line header read | Shared includes and macros checked against class/device use. |
+| `rom/usb/classes/rawwrap/debug.h` | Full 19-code-line header read | DEBUG helper declarations and macro gating checked against selected module. |
+
+RawWrap coverage-count reconciliation (accounting only): Other Drivers advances from 5,411/5,590 to **5,414/5,593 represented paths (96.8%)**, and from 2,218,088/2,249,320 to **2,218,175/2,249,407 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,090,059/3,211,941 to **3,090,146/3,212,028 (96.2%)**. Other exact-path USB header gaps remain open.
