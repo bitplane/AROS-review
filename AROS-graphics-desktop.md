@@ -9132,17 +9132,18 @@ Withdrawn as a duplicate of GD5859. GD5859 now includes the exact-size AppIcon l
 
 **Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L2666`](AROS-graphics-desktop-coverage.md#L2666), [`AROS-graphics-desktop-coverage.md:L2670`](AROS-graphics-desktop-coverage.md#L2670). Recheck the cited note and its scope before treating this candidate as confirmed.
 
-## GD9405
+## GD9405 (withdrawn; no supported defect established)
 
-**Indexed summary:** VideoCore's GPU MemHeader omits the managed-memory signature, so AvailMem ignores its free-memory callback.
+The VideoCore GPU header does omit mhe_Magic, so IsManagedMem() does not dispatch its callbacks from Exec's allocator/query paths. However, this does not establish the earlier reported free-memory-query bug: mh_Avail() returns exactly mh_Free, and InitMem() initializes mh_Free to the firmware-reported region length. Ordinary AvailMem() free-byte queries on the fallback path read that same field. The HIDD's tHidd_Gfx_MemFree query calls mhe_Avail directly and is unaffected by the magic check (vcgfx_hiddclass.c:249-250). The remaining observable difference for MEMF_LARGEST follows from the deliberately empty mh_First, while the managed allocator callback mh_Alloc() itself always returns NULL; the local source does not establish that Exec should report this opaque firmware pool as allocatable. Withdraw GD9405 rather than treating the missing signature alone as a correctness bug. InitMem() is selected by the optional hidd-vcgfx module; no build or memory query was run. Source-only; see the coverage ledger (AROS-graphics-desktop-coverage.md).
 
-**Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L5`](AROS-graphics-desktop-coverage.md#L5), [`AROS-graphics-desktop-coverage.md:L2161`](AROS-graphics-desktop-coverage.md#L2161). Recheck the cited note and its scope before treating this candidate as confirmed.
+<a id="gd9406"></a>
+## GD9406 — Failed VideoCore initialization leaves a freed MemHeader linked in Exec's memory list
 
-## GD9406
+InitMem() embeds vcsd_GPUMemManage in the VCGfx library base, initializes it, and appends that node to SysBase->MemList (arch/arm-native/soc/broadcom/2708/hidd/vcgfx/vcgfx_memory.c:215-248). It returns success immediately after publication. The initializer can then still fail: OpenLibrary("graphics.library", 41) may return NULL, or AddDisplayDriver() may return anything other than DD_OK (vcgfx_init.c:166-181). Both leave retval false and enter failure, which frees the mailbox buffer and attribute bases but does not unlink the GPU MemHeader (vcgfx_init.c:183-190).
 
-**Indexed summary:** Failed VideoCore graphics initialization can leave a freed GPU MemHeader linked in Exec's memory list.
+The generated module init wrapper handles a failed InitLib by freeing LIBBASE and returning NULL (tools/genmodule/writestart.c:1158-1178; compiler/autoinit/functions.c:54-76). The MemList therefore retains a node whose storage, including its list links, belongs to the freed base. A later Exec memory-list traversal can follow that stale node. The module's noexpunge option does not prevent this failed-init base cleanup; it does not provide a MemList unlink operation either (vcgfx.conf).
 
-**Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L5`](AROS-graphics-desktop-coverage.md#L5), [`AROS-graphics-desktop-coverage.md:L2158`](AROS-graphics-desktop-coverage.md#L2158), [`AROS-graphics-desktop-coverage.md:L2161`](AROS-graphics-desktop-coverage.md#L2161). Recheck the cited note and its scope before treating this candidate as confirmed.
+**Trigger and scope:** the explicitly buildable hidd-vcgfx module (arch/arm-native/soc/broadcom/2708/hidd/vcgfx/mmakefile.src:4-23) on supported BCM283x/BCM2710-class hardware, after GPU memory registration succeeds but opening graphics.library or registering the display driver fails. The AArch64 Raspberry Pi package includes VCGfx as a HIDD (arch/aarch64-raspi/boot/mmakefile.src:220-226); BCM2711/2712 are rejected before this setup. **Consequence:** SysBase->MemList retains a node in freed module storage, making later memory-list walks unsafe. **Confidence:** high for the publication, later failure branches, and generated base free; occurrence depends on one of those init failures. This is separate from GD6256's retained IRQ/DMA/cursor resources after failed initialization. No module load, registration failure, memory-list traversal, or build was exercised. Source-only; see the coverage ledger (AROS-graphics-desktop-coverage.md).
 
 <a id="gd9407"></a>
 ## GD9407 — DoCDrawMethodTagList truncates chunky bitmap row strides in its public hook message
