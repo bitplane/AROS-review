@@ -28763,7 +28763,7 @@ Etherlink III AROS vector-wrapper callback and data-cookie pass (2026-11-02; no 
 
 
 <a id="od9921-short-sana2-open-request-and-arostcp-caller-recheck"></a>
-## OD9921 short SANA-II Open request and AROSTCP caller recheck (2026-11-02)
+## Etherlink III short SANA-II Open request and AROSTCP caller recheck (2026-11-02; OD9921 scope reconciliation)
 
 Re-read Etherlink III `DevOpen()` against the AROS vector wrapper, Exec `OpenDevice()`, `IOSana2Req` field layout, and the selected AROSTCP request constructor (`workbench/devs/networks/etherlink3/device.c:226-246`; `aros_device.c:142-179`; `compiler/include/devices/sana2.h:128-139`; `rom/exec/opendevice.c:96-119`; `workbench/network/stacks/AROSTCP/bsdsocket/net/sana2request.h:38-60`; `if_sana.c:321-335`). The wrapper itself does not read the SANA-II tail before forwarding Open. `DevOpen()` does read and clear `ios2_BufferManagement` before comparing `mn_Length` with `sizeof(struct IOSana2Req)`, so an allocation sized only to a shorter declared request can be accessed and written past its end. Exec dispatches the device Open vector without validating this device-specific length. The selected AROSTCP caller uses `CreateIORequest(port, sizeof(*req))`, so it does not establish the short-allocation trigger. Confirmed OD9921's existing eight-driver scope and exact trigger; no new finding. Added the missing OD9921 link to `AROS.md`. No OpenDevice call or short request was used; source-only.
 
