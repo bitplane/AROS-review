@@ -21366,6 +21366,8 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[OD11838](AROS-other-drivers.md#od11838) — Rejected duplicate GATT connect replaces the active completion callback.** A duplicate call returns an error after overwriting the pending callback; the accepted first operation later invokes the replacement callback. BTCore API path; no maintained duplicate caller established; source-only.
 
+**[OD11841](AROS-other-drivers.md#od11841) — Envy24HT can lose a playback half-buffer when its soft interrupt is delayed.** A later DMA completion overwrites the pending half pointer while Exec will queue the embedded soft interrupt only once; conditional native AHI Envy24HT playback path. Source-only.
+
 ## Coverage status refresh — 2026-11-26
 
 The latest corrected extraction of the three coverage ledgers finds **6,589 of 7,073 `cloc`-classified paths (93.2%)** and **1,490,905 of 1,678,402 code lines (88.8%)** with an explicit `Full` or `Complete` body-review status. The ledgers name 7,240 paths total; 167 are not classified by `cloc`. Status parsing skips all leading numeric count columns before reading the status cell; these counts include the generic graphics manifest status reconciliation and supersede earlier refreshes.
