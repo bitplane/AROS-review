@@ -21335,4 +21335,4 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD11840](AROS-other-drivers.md#od11840) — Prism2 accepts a truncated firmware S3 record.** An address-only record underflows the parsed length and makes the firmware loader read past its 50-byte scratch buffer; conditional on a malformed local firmware image.
 
 
-**[GD15463](AROS-graphics-desktop.md#gd15463) — Nouveau GEM close releases a mapping after its GPU fence wait times out.** Under allocation failure and a fence delayed beyond two seconds, handle-close cleanup removes the VMA while submitted work may still reference it; optional Nouveau target. Source-only.
+**[GD15463](AROS-graphics-desktop.md#gd15463) — Nouveau cleanup can unmap a VMA after its GPU fence wait times out.** This can happen on handle close under allocation failure or during BO move/eviction after a 15-second wait; submitted work may still reference the mapping. Optional Nouveau target; source-only.
