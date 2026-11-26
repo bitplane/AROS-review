@@ -21264,3 +21264,11 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[EK11122](AROS-exec-kernel.md#ek11122-realtime-delete-current-player-from-hook) — A realtime player hook can free the player node Pulse is still traversing:** `DeletePlayer()` can recursively acquire `RT_CONDUCTORS` from the Pulse callback, free the current node, then Pulse resumes and reads it. Conditional on a public hook deleting its callback player while realtime.library's timer is active; no default-package inclusion is claimed. Source-only.
 
 **[OD11831](AROS-other-drivers.md#od11831-hid-lowlevel-invalid-controller-type) — HID LowLevel hooks accept invalid controller types:** for ports 0–3, USB HID and Bluetooth HID clear the analogue override and return TRUE for any unrecognized `SJA_Type` value. Conditional on an external caller and installed HID hook; no default package inclusion is inferred. Source-only.
+
+**[OD9696](AROS-other-drivers.md#od9696-lowlevel-setjoyportattrs-unimplemented) — LowLevel fallback ignores documented joystick-port controls:** generic and Amiga m68k implementations do not apply `SJA_Type` or `SJA_Reinitialize`; the documented NULL-list success also returns FALSE. HID overlays are separately qualified.
+
+**[OD4401](AROS-other-drivers.md#od4401-hid-lowlevel-reinitialize-reports-failure) — HID LowLevel reinitialize changes override state but reports failure:** with the USB/Bluetooth HID vector hook installed, true `SJA_Reinitialize` clears its analogue override but retains the saved LowLevel FALSE result.
+
+**[OD9692](AROS-other-drivers.md#od9692-hid-lowlevel-rumbleoff-zero-payload) — HID LowLevel hooks ignore zero-payload rumble-off:** a documented VOID off tag with `ti_Data = 0` is reported successful but does not queue zero motor values.
+
+**[OD11832](AROS-other-drivers.md#od11832-hid-lowlevel-zero-payload-reinitialize) — HID LowLevel hooks ignore zero-payload reinitialize:** a present VOID tag with zero payload leaves the analogue override enabled.
