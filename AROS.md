@@ -21371,3 +21371,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 - **Other Drivers:** the latest standalone ledger checkpoint is 5,509/5,688 represented paths (**96.8%**) and 2,227,726/2,258,958 C/header code lines (**98.6%**). Broader selected-source, caller, configuration, platform and integration work remains open.
 
 These body/path measures are coverage proxies only. No combined three-area percentage is refreshed here because the latest Other Drivers additions have not been reconciled into the additive cross-area denominator, and shared paths can appear in multiple ledgers. All three areas remain incomplete; see their coverage ledgers for the tracked scope and unresolved work. Source-only; no build or runtime operation was performed.
+
+**[GD15472](AROS-graphics-desktop.md#gd15472) — Nouveau DP IRQ work dereferences a missing encoder before its NULL check.** A DP event can queue work after connector event registration but before NV50+ output-encoder attachment; the worker dereferences the missing encoder first. Optional Nouveau setup race; source-only.
