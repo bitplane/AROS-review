@@ -21375,7 +21375,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 ## Coverage status refresh — 2026-11-26
 
-The latest corrected extraction of the three coverage ledgers finds **6,589 of 7,073 `cloc`-classified paths (93.2%)** and **1,490,905 of 1,678,402 code lines (88.8%)** with an explicit `Full` or `Complete` body-review status. The ledgers name 7,240 paths total; 167 are not classified by `cloc`. Status parsing skips all leading numeric count columns before reading the status cell; these counts include the generic graphics manifest status reconciliation and supersede earlier refreshes.
+The latest corrected extraction of the three coverage ledgers finds **6,591 of 7,075 `cloc`-classified paths (93.2%)** and **1,491,157 of 1,678,654 code lines (88.8%)** with an explicit `Full` or `Complete` body-review status. The ledgers name 7,242 paths total; 167 are not classified by `cloc`. Status parsing skips all leading numeric count columns before reading the status cell; these counts include the generic graphics manifest status reconciliation and two fully reviewed Efika ATA sources added on 2026-11-26, and supersede earlier refreshes.
 
 These are tracker-status/body-reading proxies, not whole-subsystem completeness percentages. They do not measure paths missing from the ledgers, caller/configuration/platform closure, or entries whose wording does not explicitly say Full/Complete. All three areas remain incomplete; see each coverage ledger for tracked scope and open gaps. Source-only; no build or runtime operation was performed.
 
