@@ -41427,3 +41427,13 @@ USB mass-storage private-header exact-path pass (three newly represented headers
 | `rom/usb/classes/massstorage/dev.h` | Full 37-code-line header read | USB SCSI device vectors and query result declaration checked against `dev.c`; no signature/layout mismatch established. |
 
 Mass-storage and CDC ACM coverage-count reconciliation (accounting only): after adding the CDC ACM and mass-storage paths, Other Drivers advances from 5,388/5,567 to **5,396/5,575 represented paths (96.8%)** and from 2,217,217/2,248,449 to **2,217,512/2,248,744 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,089,188/3,211,070 to **3,089,483/3,211,365 (96.2%)**; shared paths may be counted in multiple area ledgers. These are ledger measures and do not close other untracked USB headers or broader caller/configuration/platform audit gaps.
+
+LAN78xx USB Ethernet header exact-path pass (three newly represented headers, 104 `cloc 2.06` C/header code lines; 2026-11-26): verified the LAN78xx module recipe and active class-common aggregate selection; read the local common, debug and device headers, matched debug policy with `DEBUG=0`, and checked all device vectors, request argument types, SANA helpers, error packing and query-result layout against the complete device implementation. Common definitions and debug helper declaration match the selected class/device/helper uses; no independent header mismatch was established. The existing LAN78xx class/device body findings are unchanged. No device, request, debug build or build system was run; source-only.
+
+| File | Status | Notes |
+|---|---|---|
+| `rom/usb/classes/lan78xx/common.h` | Full 36-code-line header read | Common includes and macros matched against class/device use. |
+| `rom/usb/classes/lan78xx/debug.h` | Full 31-code-line header read | DEBUG gating and KPrintF/dump helper declaration matched; recipe defines `DEBUG=0`. |
+| `rom/usb/classes/lan78xx/dev.h` | Full 37-code-line header read | Device ABI and SANA helper declarations matched against `dev.c`. |
+
+LAN78xx coverage-count reconciliation (accounting only): Other Drivers advances from 5,396/5,575 to **5,399/5,578 represented paths (96.8%)**, and from 2,217,512/2,248,744 to **2,217,616/2,248,848 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,089,483/3,211,365 to **3,089,587/3,211,469 (96.2%)**. This only credits these header bodies; other untracked USB class headers and broader caller/configuration/platform scope remain open.
