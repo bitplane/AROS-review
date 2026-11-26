@@ -1,3 +1,9 @@
+**[OD3338](AROS-other-drivers.md#od3338) — m68k-Amiga expansion startup publishes only the first eligible RAM board:** the loop breaks immediately after queuing a board, before marking it processed; subsequent eligible board memory is omitted, and another call selects the same board again. Conditional on multiple eligible RAM boards; source-only.**
+
+**[OD1732](AROS-other-drivers.md#od1732) — m68k-Amiga motherboard RAM discovery stops after the first contiguous run in each ROM-separated scan segment:** separate usable RAM beyond a hole in the same segment is not added to Exec's memory list. Conditional on that memory map; source-only.**
+
+**[OD3337](AROS-other-drivers.md#od3337) — m68k-Amiga expansion memory merging retains only the lower adjacent chunk's size, leaving contiguous motherboard RAM above 128 MiB out of Exec's memory list. Conditional on detected RAM spanning the 128 MiB boundary; no overwrite is claimed. Source-only.**
+
 **[EK11115](AROS-exec-kernel.md#ek11115) — A long task name can overrun Exec’s fixed alert-text buffer:** common Exec alert formatting writes unrestricted `TASKTAG_NAME` text into 2,048-byte or 4,096-byte buffers without a capacity check. Conditional on a sufficiently long task name and a subsequent alert; source-only.
 
 **[EK11114](AROS-exec-kernel.md#ek11114) — OpenSBI continues boot without arming timer delivery when FDT timebase data is unavailable:** the zero frequency bypasses timer initialization and supervisor timer enable, while startup proceeds. Limited to missing/zero data or malformed firmware input; no matching in-tree DTB was found. Source-only.
@@ -383,6 +389,12 @@ Reverse reconciliation found 191 active Exec/Kernel finding sections that were n
 **[GD3075](AROS-graphics-desktop.md#gd3075) — Wanderer leaks toolbar and status-bar per-window records because extension cleanup never frees them; toolbar and status-bar records also leak if nested MUI construction fails.** See the [construction-failure and teardown recheck](AROS-graphics-desktop-coverage.md#L3071). Source-only; no allocation failure or window lifecycle was run.
 
 **[GD9463](AROS-graphics-desktop.md#gd9463) — MUI Application disposal dereferences its unset preferences pointer when Configdata construction fails after a valid application base is retained.** This prevents clean constructor rollback under that resource failure. The later duplicate entry GD9906 was reconciled into GD9463. Source-only; no allocation failure was induced.
+
+**[GD9460](AROS-graphics-desktop.md#gd9460) — Menu title and enabled changes suppress registered MUI notifications because the shared setter discards their tags before superclass notification handling.** Values still update and menus rebuild; dependent clients receive no callback. Source-only.
+
+**[GD9461](AROS-graphics-desktop.md#gd9461) — The public `MUIA_Menustrip_Enabled` set/get attribute has no implementation handling.** Clients cannot change or query Menustrip enabled state through the advertised attribute. Conditional on API use; source-only.
+
+**[GD9462](AROS-graphics-desktop.md#gd9462) — A self-removing notification callback frees its node while dispatch still uses it.** The return path writes through the freed node and list traversal reads its link; conditional on a public `MUIM_KillNotify` self-destination callback. Source-only.
 
 
 **[GD9615](AROS-graphics-desktop.md#gd9615) — `BltBitMap()` does not clip negative destination coordinates before generic software, chunky-memory and selected driver paths consume them; packaged Raspberry Pi VCGfx also writes through an unchecked destination pointer, while selected graphics backends can pass the origin to CPU or hardware copy paths. VGAGfx additionally writes through its unclipped destination pointer in AND/XOR/Clear/Invert modes.** Maintained scroll and optional layer-test callers can supply the negative origin. Nouveau NV50/pre-Blackwell NVC0 program bitmap-bounded clip windows; NV04 device clipping remains unresolved, and its signed-Y shift is tracked separately under GD14369. See the detailed backend and trigger distinctions in the [finding](AROS-graphics-desktop.md#gd9615). Source-only; no blit was run.
@@ -14444,7 +14456,7 @@ Reconciled the non-withdrawn detailed OD headings against this index. Added 201 
 
 **[OD11096](AROS-other-drivers.md#od11096) — — Workbench USB HID mouse discards wheel-report magnitude** Source-only.
 
-**[OD11100](AROS-other-drivers.md#od11100) — — OpenSBI DesignWare UART receive drain can exceed its fixed stack buffer [conditional]** Source-only.
+**[OD11100](AROS-other-drivers.md#od11100) — Serial HIDD receive drain can exceed its fixed stack buffer [conditional].** See the expanded backend scope and hardware-reachability qualification below.
 
 **[OD11104](AROS-other-drivers.md#od11104) — — USB MassStorage reports the inclusive last LBA as the sector count [GPT writer consequence]** Source-only.
 
@@ -15043,7 +15055,7 @@ Reconciled the non-withdrawn detailed OD headings against this index. Added 201 
 
 **[OD11099](AROS-other-drivers.md#od11099-radeon-8-bit-offscreen-bitmaps-use-the-wrong-destination-datatype) — Radeon 8-bit offscreen bitmaps retain datatype zero instead of the indexed 8-bit register encoding, so accelerated copies can use the wrong pixel format.** Applies to explicitly built Radeon HIDD bitmap operations; no default-image inclusion is claimed. See the [datatype trace](AROS-other-drivers-coverage.md#radeon-8bit-datatype-od11099).
 
-**[OD11100](AROS-other-drivers.md#od11100-designware-uart-receive-interrupt-can-overrun-its-stack-buffer) — The OpenSBI DesignWare UART receive callback can overrun its 513-byte stack buffer if it drains at least 514 bytes in one invocation.** The missing bound is clear in source, but the selected hardware path has not been shown to refill the buffer to that threshold; this remains a low-confidence candidate. See the [receive-bound trace](AROS-other-drivers-coverage.md#dwuart-rx-buffer-bound-od11100).
+**[OD11100](AROS-other-drivers.md#od11100-designware-uart-receive-interrupt-can-overrun-its-stack-buffer) — OpenSBI, PC, and Sam440 serial receive callbacks write into a 513-byte stack buffer without a bound; 514 reads while data-ready can overrun it. Hardware reachability remains low-confidence; Sam440 also has compile blockers and is not in the checked default package.** See the [receive-bound trace](AROS-other-drivers-coverage.md#dwuart-rx-buffer-bound-od11100).
 
 
 
@@ -16592,7 +16604,7 @@ Vulkan-Hpp function wrapper interval `23101-23700` (GD10223/GD10264 rechecked; n
 
 **[EK10770](AROS-exec-kernel.md#ek10770) — DOSBoot formats device rows into a fixed 96-byte label without bounding the device and startup-device names. Conditional on a valid-media row whose formatted text exceeds the allocation. Applies to the optional Boot Options menu. See the [format-capacity trace](AROS-exec-kernel-coverage.md#dosboot-device-row-format-capacity-ek10770). Source-only.
 
-**GD14811 — Vulkan GPU re-registration can replace callbacks and driver data behind live handles.** Conditional on a provider registering the same PCI device with a different backend after creating Vulkan objects, with that entry remaining preferred; later calls can reach the replacement callbacks with old handles. No in-tree provider caller was found. See [GD14811](AROS-graphics-desktop.md#gd14811) and the [registry/dispatch trace](AROS-graphics-desktop-coverage.md#vulkan-registry-live-handle-reregistration-gd14811). Source-only.
+**GD14811 — Vulkan GPU re-registration can replace callbacks behind live handles and race unlocked dispatch.** Conditional on an external provider re-registering the same PCI device with live handles or while a HIDD method dispatches; calls can reach a replacement backend or observe mismatched callback/data state. No in-tree provider caller was found. See [GD14811](AROS-graphics-desktop.md#gd14811) and the [registry/dispatch trace](AROS-graphics-desktop-coverage.md#vulkan-registry-live-handle-reregistration-gd14811). Source-only.
 
 **[GD14812](AROS-graphics-desktop.md#gd14812) — MUIScreen can open an AutoClose public screen before its worker publishes the message port, silently omitting task/signal setup and AutoClose tracking. Conditional on the first screen open racing worker startup. See the [startup-readiness trace](AROS-graphics-desktop-coverage.md#muiscreen-autoclose-worker-startup-readiness-gd14812). Source-only.
 
@@ -17101,7 +17113,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 
 **[OD11414](AROS-other-drivers.md#od11414) — FLAC encoder accepts metadata types above the format limit.** Codes above 126 pass validation and are truncated to seven bits when written, producing a different block type. Conditional on a direct encoder API client; source-only.
 
-**[OD11415](AROS-other-drivers.md#od11415) — Serial reads larger than 65,535 bytes wrap their receive offset.** The interrupt callback uses a 16-bit destination index for a full-width request length, so a sufficiently large read can overwrite the start of its buffer and remain pending. Conditional on the explicitly buildable serial.device and a read above 65,535 bytes; source-only.
+**[OD11415](AROS-other-drivers.md#od11415) — Serial reads larger than 65,535 bytes wrap their receive offset.** The interrupt callback uses a 16-bit destination index for a full-width request length, so a sufficiently large read can overwrite the start of its buffer and remain pending. The full `AROS` Workbench target selects both the serial device and `port-handler`; when mounted with its default serial backend, `PORT:` forwards DOS read lengths unchanged. A request above 65,535 bytes and enough input are still required. Source-only.
 
 **[OD11416](AROS-other-drivers.md#od11416) — Hosted Ethernet and TAP can free their shutdown messages before dequeue.** Both I/O tasks post the exit message then free it; a lower/equal-priority Close task may consume the freed queue node. Conditional on receiver scheduling during shutdown; source-only.
 
@@ -17131,7 +17143,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 **[EK10872](AROS-exec-kernel.md#ek10872) — `AssignAdd()` returns failure for `BNULL` without setting its documented `IoErr()`.** The C:Assign caller reports that stale value if reached. Source-only.
 
 
-**[EK10873](AROS-exec-kernel.md#ek10873) — DOS `CheckSignal()` can erase a concurrently delivered signal on ExecSMP.** Local `Disable()` does not serialize a remote CPU's atomic signal delivery with the ordinary clear. Source-only; no task or signal was run.
+**[EK10873](AROS-exec-kernel.md#ek10873) — DOS `CheckSignal()` can erase a concurrently delivered signal on ExecSMP.** Local `Disable()` does not serialize a remote CPU's atomic signal delivery with the ordinary clear; the standard Workbench `Delete` caller can then continue deleting current and later matches after Ctrl-C. Source-only; no task or signal was run.
 
 
 **[EK10874](AROS-exec-kernel.md#ek10874) — DOS packet wrappers can return failure without updating `IoErr()` if packet or reply-port allocation fails.** POSIXC `F_SETFL`, `remove()`, and `readdir()` can then misreport the failure or treat it as end-of-directory. Source-only; no allocation failure was induced.
@@ -19408,7 +19420,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 **[GD15436](AROS-graphics-desktop.md#gd15436-string-enter-handler-uses-buffer-after-synchronous-acknowledgement-callback)** — Standard String Enter handling uses its contents after synchronous acknowledgement callbacks; optional BetterString Enter handling also resumes through instance data after acknowledgement. Conditional on callback-time disposal. Source-only.
 **[GD15437](AROS-graphics-desktop.md#gd15437-nlist-pushed-trigger-can-outlive-disposed-object)** — NList, NListview and MUI popup classes queue methods with object pointers; a later message in the same application batch can dispose a destination or embedded hook storage before the queue is drained. Conditional on a selected queueing class and event ordering. Source-only.
 **[GD15438](AROS-graphics-desktop.md#gd15438-application-dispose-leaks-pending-pushed-methods)** — MUI Application disposal leaves separately allocated pushed-method nodes queued and unfreed. Conditional on disposal before the next queue drain. Source-only.
-**[GD15439](AROS-graphics-desktop.md#gd15439-mui-pushed-method-allocation-failure-drops-deferred-operations)** — MUI queue-node allocation failure drops deferred operations after callers commit UI state: ExecuteCommand loses a run; Wanderer can suppress window close; Find can retain stale rows; FTManager font windows can remain open; SysExplorer can leak detached windows; PSI can drop edit-window close/save actions; Palette Preferences can leave its controls unattached; Zune Preferences can drop its Test action; Aboutbox can ignore a close request; Popasl can remain marked active; Popobject/Poplist can stay open with stale selections; config reload can leak state or leave windows closed. Conditional on allocation failure; target and class selection varies. Source-only.
+**[GD15439](AROS-graphics-desktop.md#gd15439-mui-pushed-method-allocation-failure-drops-deferred-operations)** — MUI queue-node allocation failure drops deferred operations after callers commit UI state: ExecuteCommand can lose a run; Wanderer can suppress window close; Find can retain stale rows; FTManager font windows can remain open; SysExplorer and the optional Zune debug harness can leak detached windows; PSI can drop edit-window close/save actions; Palette Preferences can leave controls unattached; Zune Preferences can drop its Test action; Aboutbox can ignore a close request; Popasl can remain marked active; Popobject/Poplist can stay open with stale selections; NList can suppress later notifications; MiamiPanel can leave its main window closed or scrollbar visibility stale; config reload can leak state or leave windows closed. Conditional on allocation failure; target and class selection varies. Source-only.
 **[GD15440](AROS-graphics-desktop.md#gd15440-find-zero-queue-id-wildcards-unpush-and-drops-search-work)** — Find passes zero queue IDs to wildcard `UnpushMethod`, which can cancel a pending clear or queued results and leak their entry records. Conditional on queued methods remaining when the worker exits; explicitly built Find target. Source-only.
 
 **[GD15353](AROS-graphics-desktop.md#gd15353--list-event-callback-can-resume-after-a-notification-disposes-its-listview)** — A List mouse event publishes `MUIA_Listview_ClickColumn` synchronously; a client notification can dispose the enclosing Listview, after which the callback continues through freed List state. Conditional on a notification method disposing its Listview during mouse-down. Source-only.
@@ -19717,3 +19729,87 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD11812](AROS-other-drivers.md#od11812) — PC serial HIDD can route requested units 1–3 to COM1 if first-time `IID_Hidd_SerialUnit` string allocation fails, returns attrbase zero, and class initialization later succeeds.** The separate OOP bucket-structure allocation failure is OD2398; source-only.
 
 **[OD4167](AROS-other-drivers.md#od4167) — AHI Preferences can save an input index equal to the count; selected drivers then index beyond their `InputBits` tables.** Reached by shared mode-change state handling, and directly by the optional ClassAct interface; source-only.
+
+<a id="od11814"></a>
+**[OD11814](AROS-other-drivers.md#od11814) — Trident queues information-window close methods with raw list-entry pointers; deleting a hardware row or removing a USB device before queue drain can free the argument first. Conditional on the event ordering in the explicit Trident target.**
+
+
+**[OD11815](AROS-other-drivers.md#od11815) — PORT accepts oversized `UNIT=` decimal values after unchecked signed `SIPTR` arithmetic; on 32-bit builds this can select an unintended device unit or fail startup. Conditional on malformed mount configuration; source-only.**
+
+
+**[OD11816](AROS-other-drivers.md#od11816) — PORT maps every failed write to `ERROR_READ_PROTECTED`, misreporting a write failure to DOS callers. Conditional on a device write error; source-only.**
+
+
+**[OD11817](AROS-other-drivers.md#od11817) — PORT replies with startup failure but stays blocked in its packet loop; DOS `RunHandler()` abandons the failed handler without sending `ACTION_DIE`, leaking the process. Conditional on invalid startup data or utility.library open failure; source-only.**
+
+**[OD11818](AROS-other-drivers.md#od11818) — PC 16550 and OpenSBI DesignWare receive interrupts can call `RBF_InterruptHandler()` before Open publishes the unit or after last Close withdraws it while the HIDD interrupt remains active, causing a null dereference. Conditional on incoming data in either lifecycle window; source-only.**
+
+
+**[GD15441](AROS-graphics-desktop.md#gd15441-popasl-dispose-frees-active-request-state) — Disposing an application with an active Popasl requester can free its ASL requester and UI object while the separate worker is still using them and before its deferred callback. Conditional teardown race; source-only.**
+
+
+**[GD15442](AROS-graphics-desktop.md#gd15442-popasl-startup-failure-leaks-initial-path-buffer) — Popasl leaks its allocated initial path/font buffer if message-port, startup-record, or worker-process creation fails. Conditional low-memory path; source-only.**
+
+
+**[GD15443](AROS-graphics-desktop.md#gd15443-popasl-superclass-construction-failure-leaks-asl-request) — Popasl leaks the ASL requester and registered request node if superclass object construction fails after requester allocation. Conditional allocation failure; source-only.**
+
+
+**[GD15444](AROS-graphics-desktop.md#gd15444-popinterface-construction-failure-leaks-child-gadgets) — Network Preferences PopInterface leaks prebuilt child gadgets if superclass construction fails. Conditional allocation failure; source-only.**
+
+
+**[GD15445](AROS-graphics-desktop.md#gd15445-locale-language-construction-double-disposes-popup-content) — Locale Preferences' partial Language page cleanup separately disposes descendants and the owning charset Listview/Popobject, repeating nested object disposal. Conditional allocation failure; source-only.**
+
+**[GD15446](AROS-graphics-desktop.md#gd15446-vulkan-additional-null-string-hash-dereferences) — Additional Vulkan string hashers dereference null defaults in eight fields across seven wrapper types, beyond GD10231, GD15407 and GD15419. Conditional public-header client paths; source-only.**
+## Graphics/Desktop findings restored from the existing detailed report (2026-11-26)
+
+**[GD9500](AROS-graphics-desktop.md#gd9500) — SystemPrefsWindow reports Export with Icon success when writing the exported icon fails.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9501](AROS-graphics-desktop.md#gd9501) — SystemPrefsWindow marks the editor changed after an import that failed before changing preferences.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9503](AROS-graphics-desktop.md#gd9503) — MUI Coloradjust loses hue and saturation when a gradient slider exists without a color wheel.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9504](AROS-graphics-desktop.md#gd9504) — An empty vertical MUI PanelTitle divides by zero while drawing.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9505](AROS-graphics-desktop.md#gd9505) — MUI PanelTitle allocates arrow specs for its old position when Position changes.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9506](AROS-graphics-desktop.md#gd9506) — Collapsible MUI PanelTitle leaks arrow specs on each window reopen.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9507](AROS-graphics-desktop.md#gd9507) — MUI Panel declares a Panel_Draggable attribute that the class never handles.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9508](AROS-graphics-desktop.md#gd9508) — MUI Panel's constructor creates a drag handle for false and can choose its orientation from tag order.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9509](AROS-graphics-desktop.md#gd9509) — PanelGroup draws the drag marker after a panel even when the drop slot is before it.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9510](AROS-graphics-desktop.md#gd9510) — PanelGroup single-panel mode does not enforce one expanded panel at initialization or on title clicks.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9511](AROS-graphics-desktop.md#gd9511) — PanelGroup collapse/expand methods can update cached state before the Panel is set up, without changing the Panel itself.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9512](AROS-graphics-desktop.md#gd9512) — Frameadjust dereferences a failed preview-object allocation.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9515](AROS-graphics-desktop.md#gd9515) — Popscreen retains public-screen name pointers after releasing the screen-list lock.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9516](AROS-graphics-desktop.md#gd9516) — Dirlist drops every entry when a custom filter hook accepts it.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9517](AROS-graphics-desktop.md#gd9517) — Dirlist never maintains its NumBytes attribute.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9518](AROS-graphics-desktop.md#gd9518) — Bitmap cleanup can release palette pen 255 even though color allocation failed.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9519](AROS-graphics-desktop.md#gd9519) — Bitmap ignores replacement source bitmaps while an indexed remap is active.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9520](AROS-graphics-desktop.md#gd9520) — A new async layout can start during worker shutdown and have its live-process flag cleared by the previous worker.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9521](AROS-graphics-desktop.md#gd9521) — G.72x WAV decoders left-shift negative signed PCM values.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9522](AROS-graphics-desktop.md#gd9522) — WAV IEEE-float decoding converts unbounded samples to signed bytes.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9524](AROS-graphics-desktop.md#gd9524) — Text datatype treats a short FTXT CHRS read as complete.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9525](AROS-graphics-desktop.md#gd9525) — Graphics `Text()` leaves the pen unchanged on renderer prerequisite failure.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9526](AROS-graphics-desktop.md#gd9526) — DataTypes dereferences a NULL name when a file handle is supplied without a name.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9527](AROS-graphics-desktop.md#gd9527) — DataTypes library expunge does not close its message catalog.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9528](AROS-graphics-desktop.md#gd9528) — DataTypes print-start failures leave the object permanently marked as printing.** Source-only; see the detailed finding and coverage ledger.
+
+**[GD9529](AROS-graphics-desktop.md#gd9529) — DataTypes method-table copy underallocates when an existing excluded method is repeated.** Source-only; see the detailed finding and coverage ledger.

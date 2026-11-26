@@ -346,12 +346,13 @@ Counts are the number of findings primarily attributed to each area; a finding c
 - **Consequence:** The handler reads an unrelated or out-of-bounds length, then `GetDirEntry` may scan beyond the allocated bitmap or enumerate an incorrect set of index blocks.
 - **Confidence/limits:** High source confidence; requires a directory whose `$BITMAP` is nonresident. Exact neighboring memory contents determine the observed length.
 
-### FS-047 — PFS3 can enter its packet loop without a notification port
+### FS-047 — PFS3 does not check its internal message-port allocations
 
-- **Source:** `rom/filesys/pfs3/fs/init.c:188–198`; `rom/filesys/pfs3/fs/boot.c:300–305, 445–451`; `rom/filesys/pfs3/fs/dd_support.c:190–199`.
-- **Trigger/trace:** `Initialize` assigns `g->notifyport = CreateMsgPort()` and does not check for NULL before continuing. The main packet loop derives a signal mask from `g->notifyport->mp_SigBit`, and notification sending sets it as a reply port.
-- **Consequence:** Memory pressure during handler startup can crash PFS3 rather than failing the mount cleanly.
-- **Confidence/limits:** High source confidence; applies to active PFS3 variants, requiring `CreateMsgPort` failure.
+- **Source:** `rom/filesys/pfs3/fs/init.c:188–198,312–315`; `rom/filesys/pfs3/fs/boot.c:288–305,445–451`; `rom/filesys/pfs3/fs/dd_support.c:190–199`.
+- **Trigger/trace:** `Initialize()` assigns `g->notifyport = CreateMsgPort()` without checking for NULL and continues. With `EXTRAPACKETS=1`, it later similarly assigns `g->sleepport = CreateMsgPort()` without checking. Both PFS3 and PFS3DS build flags enable `EXTRAPACKETS` (`rom/filesys/pfs3/fs/mmakefile.src:20–28,41–49`). After `Initialize()` returns true, `EntryPoint()` replies success to the startup packet before deriving `notifysig` from `g->notifyport->mp_SigBit` and `sleepsig` from `g->sleepport->mp_SigBit` (`boot.c:288–305`). Failure of either port allocation therefore dereferences NULL after DOS has been told startup succeeded; the notify port is also passed as a reply port by notification delivery (`dd_support.c:190–199`). `CreateMsgPort()` can return NULL when either its message-port allocation or signal allocation fails (`rom/exec/createmsgport.c:47–74`).
+- **Consequence:** Under memory or signal exhaustion, the handler faults immediately after publishing successful startup. DOS can retain the handler as mounted while its process has exited, so later requests can remain unanswered. Either allocation failure suffices; if the notify-port allocation fails, execution faults while computing `notifysig`, before reaching the sleep-port access.
+- **Scope:** Built PFS3 and PFS3DS handler variants with the makefile's `EXTRAPACKETS=1`, when DOS starts one of those handlers and either internal port creation fails. The checked default boot manifests do not establish automatic PFS3 mounting.
+- **Confidence/limits:** High source confidence for the unchecked allocations, startup reply order, and NULL dereferences. No allocation failure or mount was induced; source-only.
 
 ### FS-048 — FAT filename handling reads before a short name while testing `.info`
 
