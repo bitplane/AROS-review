@@ -1,3 +1,15 @@
+**[GD9391](AROS-graphics-desktop.md#gd9391) — ScreenPosition() accepts LONG coordinates but stores them in signed-WORD viewport fields before HIDD clipping; out-of-range moves can produce a different offset than the documented clipping behavior. Conditional on a caller supplying a coordinate outside signed-WORD range; source-only.**
+
+**[GD9392](AROS-graphics-desktop.md#gd9392) — AArch64 Raspberry Pi fbgfx cleanup removes its reset callback after nested display construction fails, although that path never registered the callback. The unlinked node has NULL neighbors and Exec Remove() dereferences them. Conditional on fallback-display construction failure; source-only.**
+
+**[GD9398](AROS-graphics-desktop.md#gd9398) — MoveRaster() continues pixel movement and returns success after ScrollRegion() or damage-list union failures, leaving refresh damage incomplete. Conditional on allocation failure during a simple-layer scroll; stale pixels may remain after reveal; source-only.**
+
+**[GD9399](AROS-graphics-desktop.md#gd9399) — graphics.library driver initialization does not release already obtained OOP attribute bases or its gfx.hidd open when later setup fails. Conditional on a failure after acquisition; repeated failed initialization can retain resources; source-only.**
+
+**[GD9401](AROS-graphics-desktop.md#gd9401) — RastPort drawing wrappers narrow mathematical bounds to signed WORD before shared clipping. An edge-crossing request can lose its still-visible part on targets where the conversion produces an inverted rectangle; conditional on endpoint overflow; source-only.**
+
+**[GD9403](AROS-graphics-desktop.md#gd9403) — Animation GenTaskName() retries an occupied task name without incrementing the suffix, so constructing a second object with the same basename can loop forever. Conditional on an active exact-name collision; source-only.**
+
 **[GD9407](AROS-graphics-desktop.md#gd9407) — `DoCDrawMethodTagList()` narrows chunky bitmap byte stride to `UWORD`; for 16,384-pixel ARGB32 rows it becomes zero, so a hook such as PopupMenu's row-step consumer can process the wrong pixels. Conditional on a sufficiently wide bitmap and a hook using the field; source-only.**
 
 **[OD3338](AROS-other-drivers.md#od3338) — m68k-Amiga expansion startup publishes only the first eligible RAM board:** the loop breaks immediately after queuing a board, before marking it processed; subsequent eligible board memory is omitted, and another call selects the same board again. Conditional on multiple eligible RAM boards; source-only.**

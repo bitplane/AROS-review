@@ -9033,6 +9033,7 @@ The optional VMM handler has a separate AROS startup defect: `AllocAddressRange(
 
 **Affected configuration and trigger:** optional AROS VMM handler reaches page-table invalidation during the period when its page handler is active; a `PT_TABLE` frame must be selected by replacement or explicit removal. **Consequence:** `MarkPage()` receives an indeterminate table address and accesses descriptors derived from it. **Confidence:** high for the uninitialized use; uncertain for an active trigger because the AROS address-range setup is broken and no runtime behavior was tested. Active Workbench:System edges select the VMM app and handler. No VMM build, handler startup, page fault, eviction, or frame-removal request was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9391"></a>
 ## GD9391
 
 **`ScreenPosition()` narrows LONG offsets before display-driver clipping.** The public vector accepts signed `LONG` coordinates, and its documentation says out-of-bounds moves are clipped. For absolute movement it assigns `x1`/`y1` directly into the `ViewPort`'s signed `WORD` `DxOffset`/`DyOffset`; relative movement adds the `LONG` deltas to `LeftEdge`/`TopEdge` and stores the results in those same `WORD` fields (`rom/intuition/screenposition.c:15-21,72-84`; `compiler/include/graphics/view.h`). `ScrollVPort()` then widens the already narrowed values to `IPTR` and forwards them to the bitmap HIDD (`rom/graphics/scrollvport.c:64-71`). The selected generic bitmap and native VGAGfx bitmap setters clamp the received `WORD` value to the bitmap/display bounds only after `ScreenPosition()` has converted it (`rom/hidds/gfx/gfx_bitmapclass.c:4510-4526`; `arch/all-native/hidd/vgagfx/vgagfx_bitmapclass.c:291-302`).
@@ -9041,6 +9042,7 @@ The exact result of converting an out-of-range `LONG` to `WORD` depends on the t
 
 **Affected configuration and trigger:** graphics/Intuition builds using a display bitmap whose HIDD validates and clips offsets, when a caller supplies an absolute or relative coordinate outside the signed-WORD range. **Consequence:** screen positioning may clamp to the wrong edge or otherwise produce a different final offset than the documented clipping behavior. **Confidence:** high for narrowing before HIDD validation; caller prevalence is unestablished. The fix is to validate/clamp in LONG width before storing to the `WORD` viewport fields. No screen movement or display operation was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9392"></a>
 ## GD9392
 
 **Raspberry Pi fbgfx cleanup removes an unregistered reset callback when display construction fails.** `FBGfx__Root__New()` first obtains its base HIDD object through the superclass, then attempts to construct the framebuffer display. It initializes the instance's `ResetInterrupt` and calls `AddResetCallback()` only when that display construction succeeds (`arch/aarch64-raspi/hidd/fbgfx/fbgfx_hiddclass.c:49-88`). If display construction returns NULL, the failure branch immediately coerces the partially constructed HIDD through its Dispose method (`:89-94`). `FBGfx__Root__Dispose()` unconditionally calls `RemResetCallback()` before superclass disposal (`:98-104`), even though this instance never reached `AddResetCallback()`.
@@ -9081,6 +9083,7 @@ The failure has a maintained consumer consequence. `AllocBitMap()` allocates an 
 
 **Trigger and consequence:** an `FBIOPUTCMAP` write fails while a pseudocolor framebuffer bitmap receives a palette update. The software color map has already changed, but the hardware palette may not; the method reports success, so later display copies can leave the visible colors inconsistent with the bitmap's palette. **Confidence:** high for update-before-ioctl ordering and discarded return values; the host ioctl failure is conditional. Propagate the ioctl failure and define how to reconcile software palette state after a partial update. No palette operation, ioctl, or build was run; source-only; see the [LinuxFB pseudocolor palette caller pass](AROS-graphics-desktop-coverage.md#linuxfb-pseudocolor-palette-update-caller-pass-gd9397).
 
+<a id="gd9398"></a>
 ## GD9398
 
 **`MoveRaster()` reports success and moves pixels even when damage-list updates fail.** For a simple layer with `UpdateDamageList`, `MoveRaster()` first calls `ScrollRegion()` on the existing damage list but ignores its Boolean result (`rom/graphics/gfxfuncsupport.c:859-862`). `ScrollRegion()` builds temporary intersection and replacement regions and swaps the result into the input only after all required allocations and the final union succeed (`rom/graphics/scrollregion.c:58-92`). If an allocation fails, it returns FALSE and leaves the old damage list at its pre-scroll coordinates. `MoveRaster()` continues with pixel blits and returns TRUE (`gfxfuncsupport.c:878-1031`).
@@ -9089,6 +9092,7 @@ The same damage-update block builds a new `Damage` region for newly exposed/non-
 
 **Affected configuration and trigger:** graphics.library builds selecting `gfxfuncsupport`, `scrollregion`, `scrollraster`, and `scrollrasterbf` (`rom/graphics/mmakefile.src:24,164-166`), when a simple layer scroll with `UpdateDamageList` encounters an allocation failure during the old-list scroll or any required new-damage construction/union, while pixel movement proceeds. **Consequence:** stale or newly exposed layer contents can be missing from the refresh region; the scroll APIs still appear successful and may clear/erase the vacated area. **Confidence:** high for the ignored/absorbed failure paths, transactional region behavior and later `DamageList` consumption; conditional for visible stale pixels because the relevant dirty-region shape and allocation-failure timing are required. No region allocation failure, raster scroll, or refresh was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9399"></a>
 ## GD9399
 
 **graphics.library initialization failure does not unwind resources acquired by its graphics-driver setup.** `GfxInit()` creates `GfxRoot` and then calls `driver_init()` (`rom/graphics/graphics_init.c:101-119`). `driver_init()` first opens `gfx.hidd`, then obtains eight OOP attribute bases in sequence (`rom/graphics/graphics_driver.c:87-101`). OOP increments each attribute bucket's reference count on successful obtain (`rom/oop/obtainattrbase.c:127-136`); the library must pair those references with `OOP_ReleaseAttrBase()` (`rom/oop/releaseattrbase.c:39-58`; `oop/support.c:181-204`). If a later attribute obtain returns zero, or any subsequent class lookup, driver registration, display creation, or cache construction fails, `driver_init()` returns FALSE without releasing the already obtained attribute bases or closing the `gfx.hidd` reference (`graphics_driver.c:103-151`).
@@ -9101,6 +9105,7 @@ The failed `GfxInit()` is run through genmodule's init set. Its rollback calls r
 
 **Disposition: withdrawn as a duplicate of GD6336.** Both entries describe the selected m68k VMM target omitting the three assembly trap-entry definitions referenced by `traphandler_m68k.c`; the detailed evidence and Workbench aggregate scope are consolidated under GD6336.
 
+<a id="gd9401"></a>
 ## GD9401
 
 **RastPort draw wrappers narrow bounding endpoints before clipping and can drop the visible part of an edge-crossing request.** `BltBitMapRastPort()`, `BltMaskBitMapRastPort()`, and `BltTemplate()` form the inclusive far endpoint as `origin + size - 1`; `DrawEllipse()` forms its bounding endpoints as `center ± radius`. Each stores the result in a signed-`WORD` `Rectangle` before the shared rendering helper can clip it (`rom/graphics/bltbitmaprastport.c:118-136`; `bltmaskbitmaprastport.c:116-138`; `blttemplate.c:96-112`; `drawellipse.c:99-105`). If the mathematical endpoint exceeds `WORD_MAX`, conversion to signed `WORD` is implementation-defined; on the usual wraparound representation it becomes negative. `do_render_with_gc()` rejects an inverted rectangle before clipping it to the RastPort (`rom/graphics/gfxfuncsupport.c:113-129,165-205`). A request crossing the representable boundary can therefore lose its still-visible portion instead of drawing the in-bounds part. `BltTemplate()` explicitly documents clipping beyond the RastPort; `DrawEllipse()` uses the same shared clipping path and accepts center/radius values whose mathematical bound exceeds `WORD_MAX`.
@@ -9114,6 +9119,7 @@ The failed `GfxInit()` is run through genmodule's init set. Its rollback calls r
 
 Withdrawn as a duplicate of GD5859. GD5859 now includes the exact-size AppIcon label caller and the proportional-font `TextLength()` condition originally traced here, alongside the broader leading-space/short-suffix trigger. Keep GD5859 as the sole active splitter-overread finding; the earlier AppIcon-specific note is retained in the coverage ledger.
 
+<a id="gd9403"></a>
 ## GD9403
 
 **Animation object construction can loop forever when a worker task name is already in use.** `GenTaskName()` initializes `id` to zero, formats the unsuffixed `"<basename> <taskname>"` candidate, and checks it with `FindTask()` (`workbench/classes/datatypes/animation/animationclass.c:113-129`). When the name exists, control repeats the loop without incrementing `id`; the `.1`, `.2`, … formatting branch is therefore unreachable. `FindTask()` performs exact name lookup on active task lists, including running/waiting tasks (`rom/exec/findtask.c:64-99`; `findname.c:68-82`).

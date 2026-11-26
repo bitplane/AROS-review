@@ -25454,3 +25454,6 @@ HDToolBox GD14952-GD14957 master-index link reconciliation (2026-11-26; no sourc
 
 
 GD9407 master-index restoration (2026-11-26; no source-body/path/LOC credit): rechecked the detailed finding and its two source-level follow-ups against the current index. The row-stride narrowing, 65,536-byte ARGB32 example, ChunkyBM direct-access selection, and PopupMenu row-step caller are supported by the existing full-body/caller review. GD9407 was present only in dated coverage notes, not as an active `AROS.md` finding. Added a direct index link with the existing conditional scope; no new source review or finding was added. Source-only.
+
+
+Graphics/Desktop GD9391/GD9392/GD9398/GD9399/GD9401/GD9403 index reconciliation (2026-11-26; no body/path/LOC credit): checked the existing source-backed detailed sections and their later caller/configuration follow-ups against `AROS.md`. These six active findings were present in the detailed candidate file but lacked master-index links; their surrounding range already contains separately indexed or explicitly withdrawn entries. Added direct links and stable anchors for the six detailed findings, preserving each existing conditional trigger and confidence. This is report/index reconciliation, not a new source finding or coverage increment. Source-only.
