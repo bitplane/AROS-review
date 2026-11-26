@@ -21274,3 +21274,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD9692](AROS-other-drivers.md#od9692-hid-lowlevel-rumbleoff-zero-payload) — HID LowLevel hooks ignore zero-payload rumble-off:** a documented VOID off tag with `ti_Data = 0` is reported successful but does not queue zero motor values.
 
 **[OD11832](AROS-other-drivers.md#od11832-hid-lowlevel-zero-payload-reinitialize) — HID LowLevel hooks ignore zero-payload reinitialize:** a present VOID tag with zero payload leaves the analogue override enabled.
+
+**[EK11124](AROS-exec-kernel.md#ek11124) — Native PC boot KOBJ graphs do not reach the PC kernel/Exec overlays when configure leaves `FAMILY` empty:** the i386-PC and x86-64-PC boot targets request generic kernel and Exec KOBJ targets, whose generated CPU alias chain needs a PC family edge. The checked-in PC configure branch leaves it unset; without an external `FAMILY=pc` override, PC startup and interrupt objects are not scheduled. Conditional on using the generated PC config as written; source-only, no build or boot was run.
