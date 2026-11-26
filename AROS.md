@@ -16767,6 +16767,12 @@ UserGroup `ioerr2errno()` caller pass (2026-11-04; no new EK): checked both sele
 
 **[EK840](AROS-exec-kernel.md#ek840) — On ExecSMP, selected `Break PROCESS`, `ChangeTaskPri PROCESS` and `Status PROCESS` can use a CLI `Process *` after `FindCliProc()` releases the list lock; local `Forbid()` does not protect it from another CPU exiting the target. Status formats the borrowed process after releasing `rn_RootLock`. See the [FindCliProc caller-lifetime review](AROS-exec-kernel-coverage.md#findcliproc-borrowed-process-lifetime-ek840). Source-only.**
 
+**[EK398](AROS-exec-kernel.md#ek398) — `Break NAME` can signal a task pointer after releasing the task.resource iterator lock; concurrent task exit can invalidate it. Conditional on a matching task exiting in the unlock-to-signal interval. Source-only.**
+
+**[EK399](AROS-exec-kernel.md#ek399) — If `task.resource` is absent and `FindTask()` misses a `Break NAME` target, the command inserts NULL into its target list and passes it to `Signal()`. Conditional fallback path. Source-only.**
+
+**[EK820](AROS-exec-kernel.md#ek820) — On ExecSMP, `Break PORT` can use the borrowed `FindPort()` result or owner task after concurrent port/task teardown. Conditional on overlap. Source-only.**
+
 **[EK843](AROS-exec-kernel.md#ek843) — `Break` dereferences an unchecked target-list allocation when a requested process, port, or task matches and `AllocVec()` fails. The command is selected in `workbench-c`; source-only.**
 
 
