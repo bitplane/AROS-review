@@ -21331,3 +21331,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD3696](AROS-other-drivers.md#od3696) — Prism2 scan allocation errors poison later queued results.** With overlapping SANA-II clients, an allocation error persists into a later queued scan and beacon matching can dereference unpopulated tag lists; conditional Prism2 path.
 
 **[OD11839](AROS-other-drivers.md#od11839) — Prism2 scan allocation failure can fault during beacon matching.** A failed result/tag/BSSID allocation is followed by beacon correlation through incomplete entries; conditional Lucent raw-beacon scan path.
+
+**[OD11840](AROS-other-drivers.md#od11840) — Prism2 accepts a truncated firmware S3 record.** An address-only record underflows the parsed length and makes the firmware loader read past its 50-byte scratch buffer; conditional on a malformed local firmware image.
