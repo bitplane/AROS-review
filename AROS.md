@@ -16767,6 +16767,8 @@ UserGroup `ioerr2errno()` caller pass (2026-11-04; no new EK): checked both sele
 
 **[EK840](AROS-exec-kernel.md#ek840) — On ExecSMP, selected `Break PROCESS`, `ChangeTaskPri PROCESS` and `Status PROCESS` can use a CLI `Process *` after `FindCliProc()` releases the list lock; local `Forbid()` does not protect it from another CPU exiting the target. Status formats the borrowed process after releasing `rn_RootLock`. See the [FindCliProc caller-lifetime review](AROS-exec-kernel-coverage.md#findcliproc-borrowed-process-lifetime-ek840). Source-only.**
 
+**[EK843](AROS-exec-kernel.md#ek843) — `Break` dereferences an unchecked target-list allocation when a requested process, port, or task matches and `AllocVec()` fails. The command is selected in `workbench-c`; source-only.**
+
 
 **[EK10772](AROS-exec-kernel.md#ek10772) — `Resident REMOVE` leaves one `Forbid()` level outstanding whenever the requested segment exists, and Exec preserves the task's forbid nesting across waits. Subsequent code in that task can run without task switching until it balances the count. See the [Resident command review](AROS-exec-kernel-coverage.md#resident-command-full-body-forbid-balance-ek10772). Source-only.**
 
