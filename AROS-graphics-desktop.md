@@ -359,6 +359,7 @@ Both selected consumers treat the result as a terminated list: `ReadDiskFont()` 
 
 **Review evidence:** [`AROS-graphics-desktop-coverage.md:L3491`](AROS-graphics-desktop-coverage.md#L3491).
 
+<a id="gd2821"></a>
 ## GD2821
 
 **Indexed summary:** FreeType `GetGlyph()` dereferences its NULL glyph-map allocation; selected `ObtainInfoA()` glyph-map requests reach that helper.
@@ -1491,6 +1492,7 @@ There is an additional stale-state path in repeated swaps. `MakeVPort()` saves `
 
 **Affected configuration and trigger:** AmigaVideo on m68k-Amiga, with a visible double-buffered viewport; at least one successful buffer change followed by a later viewport-build failure (for example, AmigaVideo's `CopList` allocation failure). **Consequence:** callers can be told that a buffer is safe and a screen-buffer change succeeded even though the rebuild failed; after repeated swaps, the restored HIDD bitmap can also differ from the previously displayed buffer. **Confidence:** high that the failure is ignored and messages are queued; high that `PreviousBitmap` can remain stale across successful swaps; medium for the resulting displayed image because backend reload behavior after failure is not runtime-verified. No allocation failure, swap, VBlank or display operation was run; source-only.
 
+<a id="gd4764"></a>
 ## GD4764
 
 **Popasl can free an ASL requester while its worker is using it and queue completion against disposed objects.** The open hook starts a separate process with raw pointers to the ASL requester, tag array, application, and Popasl object (`workbench/libs/muimaster/classes/popasl.c:176-191`). `MUIM_Cleanup` calls `AbortAslRequest()` when `asl_proc` is non-NULL, but does not join or otherwise wait for that process (`:384-390`). There are two teardown windows. First, `AslRequest()` finds and retains the request node/internal structure before allocating common state and opening the window (`workbench/libs/asl/aslrequest.c:77-85,112-121`); it publishes `rn_ReqWindow` only after `OpenWindowTagList()` succeeds (`:207-223`). If cleanup runs during this setup interval, `AbortAslRequest()` sees a NULL `rn_ReqWindow` and returns without cancelling (`workbench/libs/asl/abortaslrequest.c:53-58,103-107`), after which Popasl disposal immediately frees the requester, pool, internal structure and request node (`popasl.c:339-345`; `workbench/libs/asl/freeaslrequest.c:55-68`). The still-running `AslRequest()` can then continue through those freed objects. Second, after a window is published, `AbortAslRequest()` sends a close message and waits only for its reply (`abortaslrequest.c:65-101`); the ASL event loop replies before `AslRequest()` performs requester-specific cleanup, clears `rn_ReqWindow`, frees common state, and returns (`basicfuncs.c:819-825`; `aslrequest.c:302-331`). In either case the worker can continue to queue `MUIM_Popstring_Close` against its saved application and Popasl pointers (`popasl.c:64-72`). When that deferred close runs, `Popstring__MUIM_Popstring_Close()` itself queues a second `MUIM_CallHook` method with the Popasl object as destination and `data->close_hook` as the hook pointer, then updates the button (`workbench/libs/muimaster/classes/popstring.c:163-173`). Popasl initializes `data->close_hook` inside its instance data and sets its hook data to that same instance (`popasl.c:322-334`); therefore disposal before either queued stage can leave the destination and, for the second stage, the hook storage freed. The application queue processes newly pushed methods after the current method returns, so a synchronous disposal notification from the button update can also invalidate the second-stage entry.
@@ -3336,6 +3338,7 @@ There is also a producer-versus-producer ordering with the same missing queue lo
 
 **Confidence:** Medium. The unchecked failure and retained membership are explicit, and selected child classes have source-supported false-return paths, but no maintained in-tree live-Group add caller was found for those classes. The practical effect also depends on the child class's setup-failure cleanup contract. Source-only; no setup failure was induced.
 
+<a id="gd5439"></a>
 ## GD5439
 
 **MUI Dataspace Clear frees entries without unlinking them from its list.** `Dataspace__MUIM_Clear()` saves each node's next pointer and frees the node from the pool, but never calls `Remove()` and never reinitializes `data->list` (`workbench/libs/muimaster/classes/dataspace.c:129-145`). The MinList head and neighboring links therefore continue to refer to freed pool storage after the method returns. Subsequent `Find`, `Add`, or `WriteIFF` traversals follow those stale links; `Add` first walks the list looking for a replacement ID before appending its new node (`:93-126,147-164,246-276`).
@@ -5014,6 +5017,7 @@ The same format/word mismatch also affects `ProcessPixelArrayBrightnessFunc()` o
 
 **Affected configuration and consequence:** This path requires a HIDD bitmap whose `ObtainDirectAccess()` method returns FALSE and a rendered rectangle taller than `PIXELBUF_SIZE / bytesperrow`; the generic bitmap implementation returns FALSE (`rom/hidds/gfx/gfx_bitmapclass.c:4831-4835`), and the planar bitmap class inherits the generic bitmap methods. ChunkyBM's own direct-access method returns TRUE, so this fallback is not its normal path. `DoCDrawMethodTagList()` has a popup-shadow caller (`workbench/libs/popupmenu/pmdrawshadow.c:383`); no selected evidence establishes that caller uses a bitmap/rectangle combination meeting the trigger. The source-level consequence is an overrun of the shared CGFX pixel buffer, followed by hook processing and image writeback using dimensions larger than the buffer capacity. **Confidence:** high for the unchecked height and capacity mismatch; no runtime operation was run.
 
+<a id="gd5755"></a>
 ## GD5755
 
 **Finding:** `int_bltbitmap()` does not restore the cached GC draw mode after its generic HIDD blit, leaving that mode attached to the GC for reuse.
@@ -5839,6 +5843,7 @@ The work buffer is either the application's `StringInfo.Buffer` or a separate `S
 
 **Affected configuration and trigger:** 64-bit builds using IconList drag-image creation. **Consequence:** the returned object is four bytes smaller than the structure being populated and consumed; writing `flags` extends beyond the allocation, and callers may access the full drag-image structure. **Confidence:** high from the public structure layouts and allocation expression; exact ABI size follows the target's standard pointer and structure alignment. No build or drag operation was run. Source-only.
 
+<a id="gd5866"></a>
 ## GD5866
 
 **IconList leaks its drop-event record on same-list reposition, unhandled desktop drops, and target-path setup failures.** `IconList__MUIM_DragDrop()` allocates `dragDropEvent` before resolving the target path (`workbench/system/Wanderer/Classes/iconlist.c:6858-6888`). A same-list drag into blank space sets `iconMove = TRUE` and updates the selected entries' positions (`:7000-7046`); a cross-window drop onto the desktop with no drawer path also sets `iconMove = TRUE` as an unhandled case (`:7038-7054`). Both paths skip source-list construction and the `!iconMove` cleanup branch. The event also leaks when target-path allocation fails in any of the target-entry or destination-drawer branches (`:6964-7011`): those paths jump to `dragdropdone`, whose common exit only calls the superclass (`:7157`). In each case the event is neither published nor freed. This is distinct from GD5858's unchecked per-source-node allocation and GD5899's separate failed copy-drain cleanup.
@@ -6863,6 +6868,7 @@ GD6036-GD6041 concern the build-selected WBRename program. Its active `#MM-` vir
 
 **Withdrawn as a duplicate of GD6080.** The Czech task-summary buffer overflow is consolidated into GD6080 with the source trace from this entry. No additional defect was established.
 
+<a id="gd6051"></a>
 ## GD6051
 
 **Info frees the AnchorPath buffer without calling MatchEnd for retained MatchFirst chains.** Info allocates `ap`, calls `MatchFirst(file, ap)` (or retries with the `.info` name), and reaches `funcmain_exit` without calling `MatchEnd()`; cleanup only calls `FreeVec(ap)` (`workbench/system/Wanderer/Tools/Info/main.c:782-814,1440-1444`). This leaks the chain on the ordinary successful-match path. There is an additional failure-path leak: `MatchFirst()` resets `ap_Base` and `ap_Current`, builds and publishes the AChain, then returns `MatchNext()`'s result (`rom/dos/matchfirst.c:55-72`). `MatchNext()`'s error exit restores `CurrentDir()` and returns the error but does not free the published chain (`rom/dos/matchnext.c:424-442`). If that first `MatchFirst(file, ap)` fails at this stage, Info retries with `file.info`; the second `MatchFirst()` resets `ap_Base` to NULL, losing the first chain before it can be released. Pattern-building errors are a separate case: `Match_BuildAChainList()` frees any partial chain before returning failure (`rom/dos/match_misc.c:270-318`). The selected DOS `MatchEnd()` contract explicitly frees memory and file locks allocated by `MatchFirst()`/`MatchNext()`, and its implementation walks and releases the `ap_Base` AChain (`rom/dos/matchend.c:23-86`). Call `MatchEnd()` for a retained chain before retrying or freeing the AnchorPath. **Affected configuration and trigger:** Info opens a matched file/icon and reaches common cleanup; additionally, the first lookup's chain builds successfully but its initial `MatchNext()` fails before the `.info` fallback. **Consequence:** retained chain allocations/locks survive each ordinary Info invocation, while the retry case loses the first chain and retains its resources even if the fallback later succeeds. **Confidence:** high for both source-level ownership paths; no DOS match operation or error was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
@@ -8525,6 +8531,7 @@ Regardless of these outcomes, the loader sends the full descriptor width and hei
 
 **Consequence and scope:** A memory-pressure failure can make HTML construction succeed with silently truncated document content rather than report an incomplete parse. Applies to the optional HTML target when its text pool needs to grow and allocation fails. High confidence from return-value handling; no allocation failure or document parse was induced.
 
+<a id="gd6282"></a>
 ## GD6282
 
 **Indexed summary:** AmigaGuide node layout reads before empty text spans.
@@ -9549,6 +9556,7 @@ The maintained BetterString implementation updates its display offset and reques
 
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md), MUI Scrollgroup full-body, layout-constraint and caller pass dated 2026-10-24.
 
+<a id="gd9460"></a>
 ## GD9460
 
 **Menu title and enabled changes suppress their own MUI notifications (high source confidence).** `Menuitem__OM_SET()` handles `MUIA_Menu_Enabled`/`MUIA_Menuitem_Enabled` and `MUIA_Menu_Title`/`MUIA_Menuitem_Title` by updating the instance, then changes each matching input tag's `ti_Tag` to `TAG_IGNORE` before calling `DoSuperMethodA()` (`workbench/libs/muimaster/classes/menuitem.c:323-350,359-369`). The attributes are declared `isg` in the public class header (`classes/menuitem.h:48-55`). The superclass Notify implementation scans only the tags it receives and calls registered notifications for matches (`classes/notify.c:435-453`); consequently these two attribute changes are not delivered to observers. Menu rebuilding and the application menu update still happen, so the defect is specifically missing attribute notification, not a failed value update.
@@ -9557,6 +9565,7 @@ The maintained BetterString implementation updates its display offset and reques
 
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#L2992), Menuitem and Notify full-body/API pass.
 
+<a id="gd9461"></a>
 ## GD9461
 
 **The public `MUIA_Menustrip_Enabled` attribute is declared but has no Menustrip behavior (high source confidence).** `classes/menuitem.h:17` declares `MUIA_Menustrip_Enabled` as a public `isg BOOL` attribute. The shared Menuitem/Menu/Menustrip constructor and `Menuitem__OM_SET()`/`OM_GET()` contain no case for this tag; `Menustrip__OM_NEW()` delegates to the shared constructor and only marks the instance as a Menustrip (`classes/menuitem.c:185-217,323-369,394-414,431-469`). Thus setting the advertised attribute does not update an enabled flag, and getting it does not return Menustrip state. The class descriptor uses those shared methods, so there is no alternate Menustrip-specific implementation in this module.
@@ -9565,6 +9574,7 @@ The maintained BetterString implementation updates its display offset and reques
 
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md#L2992), Menuitem/Menu/Menustrip full-body pass.
 
+<a id="gd9462"></a>
 ## GD9462
 
 **A notification callback can free the node that its active dispatch still uses (high source confidence).** `Notify__OM_SET()` walks the object's notification list and synchronously calls `check_notify()` for matching tags (`workbench/libs/muimaster/classes/notify.c:435-453`). `check_notify()` marks the current node active, calls the registered method with `DoMethodA()`, then clears `nn_Active` after the callback returns (`:341-390`). `MUIM_KillNotify` removes the matching list node and immediately frees it through `DeleteNNode()` (`:579-600`); it does not defer deletion for an active dispatch.
@@ -9811,75 +9821,88 @@ Zune's `PopPublicScreenStrObjFunc()` also reads these allocated descriptors into
 
 **Affected configuration and trigger:** Wanderer windows where the optional toolbar and/or status bar is enabled and its extension setup replaces the initial spacer. **Consequence:** the detached HSpace object is no longer in the group tree or tracked by the panel data and is never disposed; enabling both features leaks one object for each spacer. Explicitly dispose the removed spacer after detaching it, or transfer ownership to a tracked field for later disposal. **Confidence:** high for both spacers' construction, pointer clearing, and Group removal semantics. No Wanderer window or panel was created. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9500"></a>
 ## GD9500
 
 **SystemPrefsWindow reports Export with Icon success when writing the exported icon fails.** The Export method first stores the result of MUIM_PrefsEditor_Export in result. If that succeeds and withIcon is true, it loads the default preference DiskObject, changes its tool and tool types, and calls PutDiskObject(prefname, dobj) without checking the BOOL return; it then restores and frees the DiskObject and returns the earlier preferences-export result (workbench/classes/zune/systemprefswindow/systemprefswindow.c:455-519). PutDiskObject documents FALSE on error (workbench/libs/icon/putdiskobject.c:12-53).
 
 **Affected configuration and trigger:** Zune SystemPrefsWindow's Export with Icon action when preferences export succeeds, the default preference icon can be loaded, and writing the exported icon fails. **Consequence:** the preferences file is exported but its icon may be absent or stale, while the method still reports success. Fold the icon write result into the returned result and report which part failed. **Confidence:** high for the unchecked BOOL and returned earlier success value; no icon write was attempted. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9501"></a>
 ## GD9501
 
 **SystemPrefsWindow marks the editor changed after an import that failed before changing preferences.** After a selected filename is assembled, the Import method stores the result of MUIM_PrefsEditor_Import in result, then unconditionally sets MUIA_PrefsEditor_Changed to TRUE without checking result (workbench/classes/zune/systemprefswindow/systemprefswindow.c:428-446). The selected Palette editor returns Prefs_ImportFH()'s result and refreshes its gadgets only on success (workbench/prefs/palette/paleditor.c:307-321). For example, an invalid or wrong-sized PALT chunk makes Prefs_ImportFH() return FALSE before copying any values into paletteprefs (workbench/prefs/palette/prefs.c:106-123,156-159).
 
 **Affected configuration and trigger:** Zune SystemPrefsWindow with the Palette editor when a selected, opened file fails validation before preference mutation, such as a PALT chunk of the wrong size. **Consequence:** the editor is marked dirty and Save/Use controls can become enabled even though the failed import did not change its settings. Only set Changed after a successful import, or explicitly preserve dirty state when an importer reports partial changes. **Confidence:** high for the unconditional flag update and the stated no-mutation failure path; other importers may partially mutate before returning FALSE, so this report does not claim every failed import is side-effect-free. No import or GUI operation was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9502"></a>
 ## GD9502
 
 **MUI Colorfield mishandles resetting its Pen attribute to automatic.** Colorfield's `OM_SET` releases an owned pen, assigns the supplied Pen value, and sets `FLAG_FIXED_PEN` for a concrete value, but never clears that flag when the value is the automatic sentinel `(UBYTE)-1` (`workbench/libs/muimaster/classes/colorfield.c:215-227`). If a previously fixed pen is reset, a later Setup sees the stale flag and calls `SetRGB32()` for the stored pen rather than `ObtainPen()` (`:296-324`). There is also a live-object path: if the Colorfield had allocated its pen automatically, resetting it to the sentinel releases that pen and stores 255, then the already-set-up setter path immediately calls `SetRGB32()` with pen 255 and redraws without obtaining a replacement (`:216-226,243-254`). `MUIM_Draw` subsequently uses `data->pen` unless `FLAG_NO_PEN` is set (`:376-403`). The attribute documentation says the pen is obtained automatically when it was not explicitly set (`:38-52`), and the class header marks it settable/gettable (`classes/colorfield.h:15`).
 
 **Affected configuration and trigger:** callers of the tiny built-in or explicitly buildable Colorfield class change `MUIA_Colorfield_Pen` to `(ULONG)-1`, either after assigning a fixed pen or while an automatically allocated pen is active. **Consequence:** a live swatch can draw with pen 255 instead of an automatically allocated pen; depending on screen depth and color-map use, this can show the wrong color or overwrite another palette entry. A later setup after a fixed-to-auto change can still take the fixed-pen path. Clear `FLAG_FIXED_PEN` for the sentinel and, when already set up, obtain or otherwise refresh the automatic pen before drawing. **Confidence:** high for the stale flag, release, and pen-255 calls; visible effect depends on the screen and other users of that pen. No maintained caller was found that changes this attribute after construction, so caller impact is conditional on public API use. No pen operation or gadget lifecycle was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9503"></a>
 ## GD9503
 
 **MUI Coloradjust loses hue and saturation when a gradient slider exists without a color wheel.** Coloradjust__OM_NEW() opens the colorwheel and gradientslider gadget libraries independently and creates each child only if its library is available; it permits a gradient child without a wheel child (workbench/libs/muimaster/classes/coloradjust.c:215-290). On AROS, support_aros.h defines EXEC_INTERFACE_GET_MAIN as constant 1, so the later check does not reject the object when the colorwheel library is absent (support_aros.h:17; coloradjust.c:301-309). Setup registers GradFunc() for GRAD_CurVal whenever the gradient exists, without requiring a wheel (coloradjust.c:393-407). GradFunc() reads hue and saturation using XGET(data->wheel, ...), then converts the new brightness to RGB (coloradjust.c:178-205). XGET uses GetAttr(), and Intuition GetAttr() returns FALSE immediately for a NULL object (muimaster/macros.h:355-360; rom/intuition/getattr.c:62-80), leaving the initialized storage values at zero rather than dereferencing NULL.
 
 **Affected configuration and trigger:** AROS muimaster Coloradjust when gadgets/colorwheel.gadget is unavailable but gadgets/gradientslider.gadget loads, followed by a gradient value change. **Consequence:** the callback converts brightness with zero hue and saturation, so changing the gradient produces grayscale output instead of preserving the selected color's hue and saturation. Avoid constructing/registering this partial combination or retain and use the last valid hue/saturation when the wheel is unavailable. **Confidence:** high for the zero-value callback inputs and resulting loss of hue/saturation; the prior crash claim is withdrawn because GetAttr() safely rejects a NULL object. The selected Palette caller constructs Coloradjust without requiring the optional wheel (workbench/prefs/palette/palette.c:326-327). No gadget library failure or GUI event was induced. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9504"></a>
 ## GD9504
 
 **An empty vertical MUI PanelTitle divides by zero while drawing.** PanelTitle_Draw() draws only when data->text is non-NULL, then in its vertical-left-title branch computes char_height as data->text_height / strlen(data->text) (workbench/libs/muimaster/classes/panel.c:666-735). PanelTitle_CalculateTextSize() treats a non-NULL empty string as valid text and sets vertical text_height to character height multiplied by its zero length (panel.c:286-304). Thus a PanelTitle configured with Vertical=TRUE, Position=Left, and Text="" reaches integer division by zero during object drawing.
 
 **Affected configuration and trigger:** muimaster's built-in PanelTitle class when an application supplies an empty but non-NULL title and requests vertical left positioning, then the object is drawn. **Consequence:** the draw method traps or raises undefined behavior at division by zero instead of rendering an empty title. Return early for an empty string or avoid dividing by its length. **Confidence:** high; the guard distinguishes NULL from empty text, and the selected drawing branch divides by the exact zero length. No panel was drawn. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9505"></a>
 ## GD9505
 
 **MUI PanelTitle allocates arrow specs for its old position when Position changes.** In PanelTitle__OM_SET(), the Position case frees existing vector specs, calls PanelTitle_AllocateVectorSpecs(), and only then stores the new position (workbench/libs/muimaster/classes/panel.c:498-505). The allocator chooses right/up specs for Left and right/down specs for Top based on data->position at call time (panel.c:410-421). After changing Top to Left, the title therefore has no up-arrow spec; after changing Left to Top, it has no down-arrow spec. PanelTitle_DrawArrow() silently skips a direction whose spec is NULL (panel.c:333-377), so the corresponding collapsed/expanded state indicator is not drawn.
 
 **Affected configuration and trigger:** muimaster PanelTitle with Collapsible and DrawStateIndicator enabled, after changing MUIA_PanelTitle_Position between Top and Left and drawing the new state arrow. **Consequence:** one arrow direction is missing because the title retains specs for the previous orientation. Store the new position before allocating orientation-dependent specs. **Confidence:** high for the ordering and missing-spec path; no PanelTitle was repositioned or drawn. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9506"></a>
 ## GD9506
 
 **Collapsible MUI PanelTitle leaks arrow specs on each window reopen.** PanelTitle__MUIM_Setup() allocates orientation-specific vector image specs whenever the title is collapsible (workbench/libs/muimaster/classes/panel.c:582-606; allocation helper at :398-422). PanelTitle__MUIM_Cleanup() only removes the event handler and delegates to its superclass; it does not call PanelTitle_FreeVectorSpecs() (panel.c:609-616). A later Setup overwrites the stored spec pointers with newly allocated specs, while disposal can clean only the latest pointers (panel.c:468-478).
 
 **Affected configuration and trigger:** a collapsible PanelTitle whose window is cleaned up and set up again, such as closing and reopening the window, before the title object is disposed. **Consequence:** each setup/cleanup cycle leaves the previous arrow specs allocated; repeated reopen cycles accumulate resources until object disposal. Free the specs on Cleanup and recreate them on Setup, or retain them across Setup without overwriting. **Confidence:** high for the unpaired setup/cleanup allocation; zune_imspec_cleanup() is the documented release routine (workbench/libs/muimaster/imspec.h:31-39). No window lifecycle was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9507"></a>
 ## GD9507
 
 **MUI Panel declares a Panel_Draggable attribute that the class never handles.** The public Panel header defines MUIA_Panel_Draggable (workbench/libs/muimaster/classes/panel.h:21-32), but a full class search finds no use of that tag in panel.c. Panel construction, setting, and getting instead recognize the generic MUIA_Draggable attribute (panel.c:924-944,1124-1142,1208-1218).
 
 **Affected configuration and trigger:** a client using the public MUIA_Panel_Draggable tag to enable or disable a Panel drag handle. **Consequence:** the requested Panel-specific setting is ignored; the generic MUIA_Draggable path remains separately available. Implement and document the declared tag or remove it if it is not part of the intended API. **Confidence:** medium; the header declaration and lack of implementation are explicit, but the header alone does not establish whether this unused tag was intended as a supported public contract, and no maintained caller uses it. No Panel object was created. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9508"></a>
 ## GD9508
 
 **MUI Panel's constructor creates a drag handle for false and can choose its orientation from tag order.** Panel__OM_NEW() handles MUIA_Draggable by unconditionally creating and adding a DragHandle; it never checks tag->ti_Data (workbench/libs/muimaster/classes/panel.c:924-944). It also passes title_position accumulated from tags already visited. If MUIA_Draggable appears before MUIA_Panel_TitlePosition, the handle is created with the default None position and therefore horizontal orientation; the later title tag does not reorient the already-created handle. Panel_CreateDragHandle() derives vertical orientation only from a Left position (panel.c:270-279).
 
 **Affected configuration and trigger:** constructing a Panel with MUIA_Draggable set FALSE still creates a handle; constructing a draggable Panel with MUIA_Draggable before a Left title-position tag creates a horizontal handle. **Consequence:** false does not disable dragging at construction, and tag order can make the handle orientation disagree with the title. Check the Boolean and parse title position before creating the handle. **Confidence:** high for both constructor paths; no Panel object was created. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9509"></a>
 ## GD9509
 
 **PanelGroup draws the drag marker after a panel even when the drop slot is before it.** CalculateDropPosition() counts only accepted Panel/DragHandle children and returns the current index when the pointer is above a panel's midpoint, meaning insertion before that panel (workbench/libs/muimaster/classes/panelgroup.c:703-730). DragReport then finds the marker position by incrementing panel_index for each child and, when it reaches new_position, sets drop_mark_y to that child's bottom plus one (panelgroup.c:765-799). The marker is therefore drawn below the target while the requested slot is before it. DragDrop uses that slot to reorder children (panelgroup.c:802-879).
 
 **Affected configuration and trigger:** built-in PanelGroup with DragReordering enabled when a drag is reported above the midpoint of a target panel. **Consequence:** the visual marker indicates a position after the target although dropping inserts at the calculated before-target slot, which can mislead the user during reordering. For simple groups containing only Panels this off-by-side error is explicit; mixed-child groups can additionally misalign because position calculation filters children while marker placement does not. Draw before the target at its top edge when the slot is before it. **Confidence:** high for marker placement mismatch in the all-Panel case; custom mixed-child layouts add an independently identified index mismatch. No drag operation was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
+<a id="gd9510"></a>
 ## GD9510
 
 **PanelGroup single-panel mode does not enforce one expanded panel at initialization or on title clicks.** OM_NEW() parses AllowMultiple and ExpandedPanel, then scans the initial Panel children; the scan records each child's current Collapsed state but does not collapse other expanded panels when AllowMultiple is FALSE (workbench/libs/muimaster/classes/panelgroup.c:175-235,411-441). At runtime, PanelTitle_Toggle() writes MUIA_Panel_Collapsed directly to its parent Panel (workbench/libs/muimaster/classes/panel.c:840-850), bypassing PanelGroup's ExpandPanel method, which is where the old expanded panel is collapsed and expanded_panel is updated (panelgroup.c:567-599).
 
 **Affected configuration and trigger:** PanelGroup with AllowMultiple=FALSE and at least two initially expanded collapsible children, or a single-panel group in which the user expands another panel by clicking its title. **Consequence:** multiple panels can remain expanded, and title clicks can leave PanelGroup's expanded_panel and cached PanelNode state out of sync with the actual Panel attributes. Route title toggles through PanelGroup or observe each child's collapsed changes; enforce the invariant after initial scan. **Confidence:** high for the missing initialization enforcement and direct setter bypass; exact GUI result depends on initial child configuration. No PanelGroup was instantiated or clicked. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
+<a id="gd9511"></a>
 ## GD9511
 
 **PanelGroup collapse/expand methods can update cached state before the Panel is set up, without changing the Panel itself.** SetPanelCollapsed() calls the Panel setter only when MADF_SETUP is set (workbench/libs/muimaster/classes/panelgroup.c:149-156). CollapsePanel() and ExpandPanel() nevertheless update the corresponding PanelNode collapsed field, mark states_current TRUE, and complete a group change when the tracked node is collapsible (panelgroup.c:515-559,567-623). Before Setup, the method can therefore report a new cached state while the Panel's MUIA_Panel_Collapsed attribute remains unchanged; the refresh path is suppressed because the cache is marked current.
 
 **Affected configuration and trigger:** calling CollapsePanel(panel) or ExpandPanel(panel) on a tracked collapsible child before the child is set up. **Consequence:** PanelGroup state queries can report collapsed/expanded contrary to the actual Panel attribute, and later layout/setup can preserve the mismatch. Queue the requested state until Setup or update the Panel attribute even before Setup, then keep the cache synchronized. **Confidence:** high for the setup guard and unconditional cache writes; no pre-setup method call or object was run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
+<a id="gd9512"></a>
 ## GD9512
 
 **Frameadjust dereferences a failed preview-object allocation.** MakeFrameDisplay() returns the result of MUI_NewObject() without checking for NULL, then calls set() and returns that pointer (workbench/libs/muimaster/classes/frameadjust.c:139-161). SetAttrsA() rejects a NULL object, so that first helper call returns safely; however, each preview loop immediately passes the result to DoMethod(obj, MUIM_Notify, ...) before OM_ADDMEMBER (frameadjust.c:257-315). The selected DoMethod macro reads OCLASS(obj) after an assertion macro that is compiled out in muimaster (`compiler/include/clib/boopsistubs.h:231-240`; `workbench/libs/muimaster/debug.h:32`), so a failed preview allocation reaches an invalid object dereference there. It does not normally reach Group insertion; Group__MUIM_AddObject() also assumes a non-NULL child, but that is a separate generic contract and not the Frameadjust failure's first crash site (group.c:250-299). Popframe creates Frameadjust as its popup editor child, making this a maintained caller path (workbench/libs/muimaster/classes/popframe.c:103-123).
@@ -9889,36 +9912,42 @@ Zune's `PopPublicScreenStrObjFunc()` also reads these allocated descriptors into
 ## GD9513 (withdrawn; 2026-10-26)
 
 **Disposition: withdrawn after caller-path recheck.** The earlier candidate said that disposing an open Popframe or Popimage through normal application teardown leaves its popup Window registered in the Application family. That path was incomplete. `Application__OM_DISPOSE()` first removes each main Window with `OM_REMMEMBER` before disposing it (`workbench/libs/muimaster/classes/application.c:862-870`). Family removal invokes `MUIM_DisconnectParent` before unlinking the child (`family.c:274-287`); Window disconnect propagates to its root Group, which recursively disconnects its children (`window.c:3595-3620`; `group.c:832-849`). Both popup classes handle that notification by calling their CloseWindow method, which removes the popup from the Application family before disposing it (`popframe.c:156-185`; `popimage.c:180-211`). Thus the selected normal application/window teardown path clears the popup before either owner's `OM_DISPOSE` runs. The stale-registration case requires direct disposal while the owner remains connected, which is outside the established MUI parent-removal lifecycle; no selected in-tree caller establishing that sequence was found. Removed GD9513 from the active index. No window lifecycle was run; source-only.
+<a id="gd9515"></a>
 ## GD9515
 
 **Popscreen retains public-screen name pointers after releasing the screen-list lock.** `PopscreenStrObjFunc()` locks the public-screen list, iterates its `PubScreenNode`s, and inserts each node's `ln_Name` pointer directly into the MUI List (workbench/libs/muimaster/classes/popscreen.c:34-43). The List has no construct hook, so `List__MUIM_Construct()` stores that same pointer unchanged (`workbench/libs/muimaster/classes/list.c:3066-3072`). This violates the List API's explicit lifetime contract: without a construct hook, string entries must continue to exist for the lifetime of the List (`list.c:318-320`). Popscreen releases the public-screen-list lock and then compares the retained names with the string gadget contents (popscreen.c:43-62); the List remains available for later popup display and selection. `CloseScreen()` obtains the same list lock before its synchronous removal path and frees the screen's `ln_Name` before releasing it (`rom/intuition/closescreen.c:147-155,341-346`). Thus the list lock protects enumeration and removal, but does not extend the stored string's lifetime after Popscreen unlocks it. Another task closing a listed screen in that interval can leave an entry that later comparison, display, or selection reads after free. The maintained PSI Preferences caller uses Popscreen as its screen chooser (workbench/prefs/PSI/screenpanel_class.c:320-326).
 
 **Affected configuration and trigger:** the optional muimaster Popscreen class while a public screen is closed after the list is populated and before the List is cleared or rebuilt; the race is possible when screen management and chooser use occur concurrently. **Consequence:** later string comparison, display, or selection can use a freed screen-name string. Copy names into List-owned storage while holding the list lock, and release those copies with the List's destruct hook. **Confidence:** high for the borrowed-pointer lifetime mismatch and CloseScreen free; the concurrent interleaving was not run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9516"></a>
 ## GD9516
 
 **Dirlist drops every entry when a custom filter hook accepts it.** In `ReadDirectory()`, the `data->filterhook` branch builds an `ExAllData` view of each `FileInfoBlock` and calls the hook. A false return skips the entry, as expected for a rejection; a true return falls out of the branch and reaches the end of the enumeration body without incrementing file/drawer counts or calling `MUIM_List_InsertSingle` (workbench/libs/muimaster/classes/dirlist.c:209-225, 261-277). The common insertion code exists only in the `else` branch used when no hook is installed.
 
 **Affected configuration and trigger:** built-in or module Dirlist when `MUIA_Dirlist_FilterHook` is set and the hook accepts one or more entries. **Consequence:** accepted entries are absent from the displayed list and the entry counters are not updated; a hook that accepts all entries yields an empty list. Move the common acceptance/count/insertion path after the hook decision. **Confidence:** high for the control flow. The maintained Printer Preferences caller does not set FilterHook; no in-tree caller was found. The hook API's external use was not exercised. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9517"></a>
 ## GD9517
 
 **Dirlist never maintains its NumBytes attribute.** `ReadDirectory()` attempts to set `MUIA_Dirlist_NumBytes` for each accepted file to `data->numbytes + fib->fib_Size` (workbench/libs/muimaster/classes/dirlist.c:266-272), but the instance field `data->numbytes` is never assigned or incremented anywhere in the class. `Dirlist__OM_SET()` has no `MUIA_Dirlist_NumBytes` case, while the public tag is declared getter-only (`..g`) (classes/dirlist.c:292-359; classes/dirlist.h:39-40). `Dirlist__OM_GET()` returns the untouched field (dirlist.c:422-424). The directory-change and reread paths attempt to reset this attribute to zero, but do not update the field either (dirlist.c:361-370, 497-510). Thus the getter does not return a directory byte total; additionally, each per-file set uses the same unchanged base instead of accumulating, so any consumer reacting to those set notifications receives individual file sizes rather than a running total.
 
 **Affected configuration and trigger:** built-in or module Dirlist when a client reads `MUIA_Dirlist_NumBytes` or observes its updates while files are enumerated. **Consequence:** clients cannot obtain the documented byte total (the stored getter remains at its untouched initial value, ordinarily zero), and update notifications do not provide a cumulative total. Maintain the instance field by resetting it on directory changes and adding each accepted file size before publishing the attribute. **Confidence:** high for missing field updates and getter behavior; notification behavior was inferred from the SetAttrs path and not observed at runtime. The maintained Printer Preferences caller does not read NumBytes. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9518"></a>
 ## GD9518
 
 **Bitmap cleanup can release palette pen 255 even though color allocation failed.** During indexed-color remapping, `ObtainBestPenA()` may return -1 when no matching or free pen is available. The result is stored after bit 8 is set as a cache marker (`workbench/libs/muimaster/classes/bitmap.c:179-193`), making the cache entry nonzero. Cleanup interprets every nonzero entry as an acquired pen and calls `ReleasePen()` with its low byte (`bitmap.c:473-484`), which is 255 for the failed result. `ObtainBestPenA()`'s failure return is -1 (`rom/graphics/obtainbestpena.c:119-148`); ReleasePen then acts on the supplied color-map index (`rom/graphics/releasepen.c:57-80,147-155`).
 
 **Affected configuration and trigger:** Bitmap palette remapping on a screen whose ColorMap cannot supply a best pen for a source color, followed by Cleanup, with pen index 255 in range for that ColorMap. **Consequence:** cleanup can release or decrement ownership of pen 255 despite never acquiring it for this bitmap, potentially affecting another user's pen allocation. Preserve a distinct failure sentinel in the cache and release only successful acquisitions. **Confidence:** high for the -1 encoding and unmatched release; the effect on another owner's allocation depends on ColorMap state. Palette exhaustion and cleanup were not run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9519"></a>
 ## GD9519
 
 **Bitmap ignores replacement source bitmaps while an indexed remap is active.** `MUIA_Bitmap_Bitmap` is declared settable/gettable (`isg`; workbench/libs/muimaster/classes/bitmap.h:17-18), but `Bitmap__OM_SET()` assigns the new bitmap only when `data->remapped_bm` is NULL (classes/bitmap.c:347-352). While setup has produced a remapped bitmap, setting the public source attribute is silently ignored; `OM_GET` continues returning the old `data->bm` (bitmap.c:399-401). Cleanup frees the remapped output, but does not apply or retain a deferred replacement (bitmap.c:467-471), so a subsequent setup remaps the old source again. The maintained Bodychunk and ChunkyImage subclasses set or clear the inherited source around their own setup/cleanup paths, so this report scopes the defect to direct callers updating the public Bitmap source while remapping is active (bodychunk.c:336-371; chunkyimage.c:244-290).
 
 **Affected configuration and trigger:** muimaster Bitmap when indexed remapping has created `remapped_bm` and a client calls `SetAttrs()` with a replacement `MUIA_Bitmap_Bitmap` before Cleanup. **Consequence:** the new source is discarded without notification or deferred application, leaving the old image visible after later setup. Accept the new pointer and invalidate/rebuild the remapped output safely, or explicitly document the attribute as immutable while setup. **Confidence:** high for the guarded assignment and lost update; no direct in-tree live-update caller was found. No object was set up or changed. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd9520"></a>
 ## GD9520
 
 **Indexed summary:** A new async layout can start during worker shutdown and have its live-process flag cleared by the previous worker.
@@ -9937,6 +9966,7 @@ The flag publication for B is protected by `SEM_ASYNC`, but A clears the complet
 
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md:L3191`](AROS-graphics-desktop-coverage.md#L3191), [`AROS-graphics-desktop-coverage.md:L3196`](AROS-graphics-desktop-coverage.md#L3196).
 
+<a id="gd9521"></a>
 ## GD9521
 
 **Indexed summary:** G.72x WAV decoders left-shift negative signed PCM values.
@@ -9947,6 +9977,7 @@ The flag publication for B is protected by `SEM_ASYNC`, but A clears the complet
 
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md:L1939`](AROS-graphics-desktop-coverage.md#L1939).
 
+<a id="gd9522"></a>
 ## GD9522
 
 **Indexed summary:** WAV IEEE-float decoding converts unbounded samples to signed bytes.
@@ -9962,6 +9993,7 @@ The flag publication for B is protected by `SEM_ASYNC`, but A clears the complet
 
 **Disposition:** Withdrawn as a duplicate of [GD2876](#gd2876). Both entries describe the same root cause and trigger: `_OM_NEW()` ignores `InitText()` failure and dereferences `td->font` when font initialization fails. GD2876 is the canonical finding and retains the more detailed selected-target and font-failure trace. No separate defect was established for GD9523.
 
+<a id="gd9524"></a>
 ## GD9524
 
 **Indexed summary:** Text datatype treats a short FTXT CHRS read as complete.
@@ -9972,6 +10004,7 @@ The flag publication for B is protected by `SEM_ASYNC`, but A clears the complet
 
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md), Text datatype full-body pass dated 2026-10-24.
 
+<a id="gd9525"></a>
 ## GD9525
 
 **Indexed summary:** Graphics `Text()` leaves the pen unchanged on renderer prerequisite failure.
@@ -9983,6 +10016,7 @@ The flag publication for B is protected by `SEM_ASYNC`, but A clears the complet
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md), Graphics `Text()` full-body pass dated 2026-10-24.
 
 
+<a id="gd9526"></a>
 ## GD9526
 
 **Indexed summary:** DataTypes dereferences a NULL name when a file handle is supplied without a name.
@@ -9994,6 +10028,7 @@ The flag publication for B is protected by `SEM_ASYNC`, but A clears the complet
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md), DataTypes `newdtobjecta.c` and `class.c` full-body passes dated 2026-10-24.
 
 
+<a id="gd9527"></a>
 ## GD9527
 
 **Indexed summary:** DataTypes library expunge does not close its message catalog.
@@ -10005,6 +10040,7 @@ The flag publication for B is protected by `SEM_ASYNC`, but A clears the complet
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md), DataTypes library initialization/expunge lifecycle pass dated 2026-10-24.
 
 
+<a id="gd9528"></a>
 ## GD9528
 
 **Indexed summary:** DataTypes print-start failures leave the object permanently marked as printing.
@@ -10016,6 +10052,7 @@ The flag publication for B is protected by `SEM_ASYNC`, but A clears the complet
 **Coverage evidence:** [`AROS-graphics-desktop-coverage.md`](AROS-graphics-desktop-coverage.md), PrintDTObjectA full-body and DisposeDTObject caller pass dated 2026-10-24.
 
 
+<a id="gd9529"></a>
 ## GD9529
 
 **Indexed summary:** DataTypes method-table copy underallocates when an existing excluded method is repeated.
@@ -10584,10 +10621,12 @@ This pending-read queue race is consolidated into OD2389, which already tracked 
 **NList, NListtree, BetterString, and TextEditor clipboard shutdown can unload module code while the worker is still executing it.** Each `ShutdownClipboardServer()` sends `SERVER_SHUTDOWN` and waits only until the worker replies to the message; none waits for the worker to exit (`workbench/classes/zune/nlist/nlist_mcc/ClipboardServer.c:332-347`; the NListtree copy has the same shutdown sequence; `workbench/classes/zune/betterstring/mcc/ClipboardServer.c:491-505`; `workbench/classes/zune/texteditor/mcc/ClipboardServer.c:970-985`). On that command, each `ClipboardServer()` sets `running = FALSE` and replies inside the message loop, then still deletes its port, drops/closes IFFParse resources, logs shutdown, and returns from code in the MCC module (NList/NListtree `ClipboardServer.c:202-230,233-250`; BetterString `ClipboardServer.c:355-404`; TextEditor `ClipboardServer.c:819-879,882-884`). All four classes call `ShutdownClipboardServer()` from `ClassExpunge()` (`nlist_mcc/library.c:176-180`; `nlisttree_mcc/library.c:94-97`; `betterstring/mcc/library.c:143-147`; `texteditor/mcc/library.c:160-165`). Their included MCC startup code proceeds from `ClassExpunge()` through module cleanup and `LibDelete()`, which returns `lh_Segment` for unload after freeing the library base (NList `workbench/classes/zune/nlist/include/mccinit.c:825-855,1022-1054`; BetterString `workbench/classes/zune/betterstring/include/mccinit.c:821-847,1018-1050`; TextEditor uses byte-identical `mccinit.c` logic in `workbench/classes/zune/texteditor/include/mccinit.c:825-855,1022-1054`). If the expunging task resumes after the reply and unloads the module before the worker finishes its tail, the worker continues executing from unloaded module code. **Affected configuration and trigger:** AROS builds of the explicitly selected `classes-zune-nlist-class`, `classes-zune-nlisttree-class`, `workbench-classes-zune-betterstring-class`, or `workbench-classes-zune-texteditor-class` module targets when final close/expunge overlaps the worker's post-reply shutdown tail; SMP makes the overlap possible across CPUs, and scheduler handoff after the reply can also let the caller run first. **Consequence:** the clipboard worker can fetch/execute module code after its segment has been released, risking a task fault or system failure. Join the worker before returning from `ClassExpunge()`, or keep the module loaded until the worker reports that it has exited. **Confidence:** high for the missing exit handshake and post-reply module-code path; the exact unload/interleaving was not run. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
 
+<a id="gd9613"></a>
 ## GD9613
 
 GD9613. **ScrollRaster and ScrollRasterBF expand negative screen-raster upper bounds to the bitmap's far edge (conditional unintended raster operation; high source confidence).** For a RastPort without a Layer, both functions compare the signed `WORD` upper coordinates after converting them to `ULONG` (`rom/graphics/scrollraster.c:105-108`; `scrollrasterbf.c:103-107`). A negative `xMax` or `yMax` therefore converts to a large unsigned value and is replaced by `width - 1` or `height - 1`. When the other endpoint is also negative but `xMin <= xMax` / `yMin <= yMax`, the caller's rectangle lies wholly outside the bitmap on that axis, yet the range check expands it across the raster. For example, on a 320-pixel-wide screen, `xMin=-2, xMax=-1, yMin=0, yMax=10, dx=1` is expanded to an affected rectangle from x=-2 through x=319. `ScrollRaster()` then fills the far-edge strip and `ScrollRasterBF()` erases it, despite the caller's interval having no bitmap intersection. For this example, `MoveRaster()` passes `destX=-1`, `srcX=-2`, and width 321 to `BltBitMap()` (`gfxfuncsupport.c:838-852`). `BltBitMap()` clips the negative source by advancing the destination to X=1 and reducing the width to 319 (`bltbitmap.c:244-255`), so this example does not exercise GD9615's negative-destination path. On the generic planar path, if the overlapping-row scratch allocation succeeds, it copies source X 0–318 to destination X 1–319; `ScrollRaster()` then fills X=319, while `ScrollRasterBF()` erases it. Thus a wholly off-screen input can still shift visible pixels and overwrite the far edge. If scratch allocation fails, `MoveRaster()` ignores the failed copy and the far-edge fill/erase still occurs (GD9614). HIDD copy effects remain backend-dependent and unverified. Clamp upper bounds without unsigned conversion and reject or clip a rectangle that has no bitmap intersection. **Affected configuration and trigger:** builds selecting graphics.library when an external caller uses either public scroll vector on a screen RastPort (no Layer), supplies a negative right or bottom endpoint with ordered endpoints and a displacement smaller than the erroneously expanded extent. The reviewed checked-in console and datatype calls use ordinary nonnegative bounds; no in-tree caller demonstrating this trigger was found. No scroll or raster operation was run. **Confidence:** high for the signed-to-unsigned comparison, expansion, and subsequent fill/erase call; actual retained-pixel movement depends on the selected blit backend. Source-only.
 
+<a id="gd9614"></a>
 ## GD9614
 
 GD9614. **Raster scrolling clears part of the bitmap after an overlapping-copy allocation failure (conditional; high source confidence).** In the no-Layer path, `MoveRaster()` calls `BltBitMap()` for the overlapping source/destination rectangle and ignores its return value (`rom/graphics/gfxfuncsupport.c:838-853`). The Layer path also ignores each blit result: after intersecting source and destination clip rectangles, it calls `BltBitMap()` without checking the result (`gfxfuncsupport.c:951-1019`). With an ordinary visible clip rectangle whose source and destination both use `rp->BitMap`, an overlapping scroll produces the same overlap case in the generic blitter. The generic software `BltBitMap()` implementation allocates a temporary scanline buffer for overlapping copies and returns zero immediately if `AllocMem()` fails (`rom/graphics/bltbitmap.c:299-310`). `MoveRaster()` nevertheless returns `TRUE` (`gfxfuncsupport.c:1031`), so `ScrollRaster()` proceeds to fill the vacated strip with the background pen (`rom/graphics/scrollraster.c:127-140,142-170`), and `ScrollRasterBF()` proceeds to erase it (`rom/graphics/scrollrasterbf.c:124-130,132-165`). A concrete no-Layer example is a 100×100, one-plane generic software bitmap with `ScrollRaster(rp, 1, 0, 0, 0, 99, 99)`: `MoveRaster()` submits `destX=1`, `srcX=0`, width 99, and the same-row pointers overlap. With its `tempA` argument NULL, `BltBitMap()` attempts one scanline allocation before copying the first selected plane; if that allocation fails, it returns zero with the bitmap unchanged. `MoveRaster()` still returns TRUE, and `ScrollRaster()` fills column 99 with the background pen; `ScrollRasterBF()` erases the same exposed column. More generally, horizontal overlapping-scroll allocation failure leaves the old image in place but overwrites the exposed edge; vertical or diagonal scrolls can likewise fill/erase exposed rows or columns without moving the retained image. In the Layer path, `MoveRaster()` issues separate blits for clip intersections and ignores each result, so an earlier successful clip copy may also remain if a later clip blit fails. **Affected configuration and trigger:** builds selecting the generic software `BltBitMap()` path for a RastPort with or without a Layer, when its overlapping source/destination copy needs a temporary scanline buffer and that `AllocMem()` fails. The Layer case requires a visible clip rectangle whose copy uses the same bitmap for source and destination. HIDD-specific blit implementations may have different failure behavior; no claim is made for them. **Consequence:** partial scroll state and loss of pixels in the strip that should have been vacated by a successful move. Propagate copy failure from `MoveRaster()` before reporting success so callers do not clear the strip. **Confidence:** high for both ignored-result paths and the generic allocation failure; Layer-path reachability follows the selected same-bitmap visible clip rectangle case. No allocation failure or scroll was induced. Source-only.
@@ -11276,6 +11315,7 @@ Reconciled all 1,757 physical lines / 1,415 `cloc 2.06` C code lines of `NList_m
 
 **Review state:** Full optional test-source body read; traced the custom-class constructor's failure return and the demo's startup/cleanup ordering. No demo was run.
 
+<a id="gd9731"></a>
 ## GD9731
 
 **Indexed summary:** Four Zune MCCs can wait forever during initialization when clipboard-server setup fails.
@@ -12557,6 +12597,7 @@ There are also two sequential collision cases. The loop tests only suffixes 1 th
 **NListtree GetEntry dereferences a missing active list.** `_NListtree_GetEntry()` maps `MUIV_NListtree_GetEntry_ListNode_Active` to `data->ActiveList`, then the Head and Tail cases immediately read `ln->ln_Flags` without checking whether `ln` is NULL (`workbench/classes/zune/nlist/nlisttree_mcc/NListtree.c:9092-9093,9105-9116`). `_New()` zero-initializes the instance data and does not initialize `ActiveList` before creating the superclass (`:5122-5163`); the active-state handler only assigns it on a non-initial active-state update (`:4437-4447`). Thus an early public GetEntry request using the Active list selector with Head or Tail can dereference NULL before any active-state update. The method documentation describes the Active selector as the list with the active entry and says the result is NULL when the requested node is unavailable (`workbench/classes/zune/nlist/docs/MCC_NListtree.doc:1892-1948`). **Affected configuration and trigger:** the explicitly buildable AROS `classes-zune-nlisttree-class` target when a public-method caller asks for the Head or Tail of the Active list while `data->ActiveList` is NULL. A repository-wide direct `MUIM_NListtree_GetEntry` call search finds no in-tree caller using the Active selector. The separately explicitly buildable compatibility `Listtree.mcc` adapter maps its public Active sentinel to this same selector and forwards Head/Tail unchanged (`workbench/classes/zune/listtree/listtree.c:527-545`; `listtree.conf:22`; `mmakefile.src:8-18`); no checked-in call to that wrapper method was found, so an actual trigger still requires a client. The public method contract still requires NULL for an unavailable list. **Consequence:** the public query crashes instead of returning NULL for an unavailable active list. Check `ln` before reading its flags and return NULL when it is absent. **Confidence:** high for the nullable zero-initialized field and unchecked dereference; the caller must use this selector while no active list is available. No method call or GUI operation was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
 
+<a id="gd9936"></a>
 ## GD9936
 
 **Radeon continues initialization after PCIPC fails to map its framebuffer or MMIO BAR.** The enumerator stores the framebuffer `MapPCI()` result in `sd->Card.FrameBuffer`, immediately casts it to `struct MemChunk *`, and stores the separate MMIO and VBIOS mapping results without checking them (`workbench/hidds/radeon/ati_init.c:129-160`). It then unconditionally calls the matched card's `sup->Init(sd)` (`:162`). `RADEONInit()` accesses MMIO registers through `sd->Card.MMIO` (the conditional R300 read is at `workbench/hidds/radeon/radeon_driver.c:2342`, the RS100/RS200/RS300 read at `:2358`, and the general-path read at `:2370`). If that returns successfully despite a failed framebuffer map, the enumerator also dereferences the framebuffer-derived `mc` to initialize its memory chunk (`ati_init.c:166-174`). The x86-64 PC PCIPC method returns NULL when `KrnMapGlobal()` fails to map a valid BAR above its 128-GiB identity window (`arch/all-pc/hidds/pcipc/pcipc_driverclass.c:225-258`; `arch/x86_64-pc/kernel/mapglobal.c:88-126,148-166`). No result is checked and no early rejection occurs. **Affected configuration and trigger:** an explicitly selected Radeon HIDD build on x86-64 PC with PCIPC, when the Radeon framebuffer or MMIO BAR lies outside the identity window and global mapping fails. Radeon is a buildable target, but the default Workbench and PC graphics aggregate edges are commented in this snapshot (`workbench/mmakefile.src:35-40`; `arch/all-pc/drivers/mmakefile.src:9-14`), so it is not claimed as a default inclusion. **Consequence:** initialization can access chip registers through a null-derived address or dereference a null framebuffer chunk instead of rejecting the card, causing a fault or memory corruption. Validate all required mappings before chip initialization and unwind any successful mappings on failure. **Confidence:** high for unchecked results and the cited immediate consumers; occurrence requires the stated optional target and BAR mapping failure. No BAR mapping, build, allocation failure, or hardware operation was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
@@ -13334,10 +13375,12 @@ BetterString's `mShow()` similarly stores `MUIG_AllocBitMap()` directly in its p
 
 **TapeDeck's fixed-height setter changes the tag only after the superclass has applied it.** `TapeDeck__OM_SET()` first calls `DoSuperMethodA()` with the caller's tag list, then handles `GA_Height` by changing `tag->ti_Data` to 20 (`workbench/classes/gadgets/tapedeck/tapedeckclass.c:122-132,167-170`). The superclass therefore receives the original requested height; meanwhile `OM_GET(GA_Height)` always reports 20 (`:108-110`). The in-tree animation datatype creates the gadget with `GA_Height=15` and later uses `GetAttr(GA_Height)` to reserve/add the control-panel height (`workbench/classes/datatypes/animation/animationclass.c:1202-1204,1510-1523`). **Trigger and consequence:** create the gadget with a non-20 height (including the checked-in animation caller); the stored/layout height can remain the requested value while queries and animation layout treat it as 20, causing inconsistent control-panel sizing. Normalize the tag before superclass processing or consistently honor the caller's height. **Affected configuration:** explicitly selected TapeDeck gadget with the animation datatype caller; the parent module dependency is commented in this snapshot. **Confidence:** high for ordering and the mismatched getter; exact visible layout effect depends on subsequent layout negotiation. No gadget layout was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd10067"></a>
 ## GD10067
 
 **AROS Mutual Exclude leaves the gadget's final row and column outside its disabled pattern.** `AROSMX__GM_RENDER()` passes `Gadget.Width-1` and `Gadget.Height-1` to `drawdisabledpattern()` (`workbench/classes/gadgets/arosmutualexclude/mxclass.c:336-341`), while the helper treats those values as extents and subtracts one again for `RectFill()`'s inclusive endpoint (`support.c:25-34`). The resulting pattern stops one pixel before the gadget's right and bottom edges. **Trigger and consequence:** render this gadget disabled; the last row and column remain undithered, so the disabled overlay does not cover the full gadget. Pass full extents or make the helper accept inclusive endpoints consistently. **Affected configuration:** explicitly buildable `workbench-gadgets-arosmutualexclude`, also used by the GadTools MX wrapper (`workbench/libs/gadtools/gadgets.c:150-180`); no default inclusion is claimed. **Confidence:** high for the off-by-one extents; no disabled gadget was rendered. Source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
+<a id="gd10068"></a>
 ## GD10068
 
 **Disabled-pattern rendering does not preserve the caller RastPort's area pattern.** The AROS Mutual Exclude helper directly assigns `AreaPtrn = disabledpattern` and `AreaPtSz = 1`, then returns without restoring or clearing either field (`workbench/classes/gadgets/arosmutualexclude/support.c:25-34`); its disabled-gadget render path invokes that helper on the supplied `gpr_RPort` (`mxclass.c:336-341`). A later `RectFill()` on the same RastPort therefore uses the disabled stipple, because graphics.library selects `BltPattern()` whenever `AreaPtrn` is non-NULL (`rom/graphics/rectfill.c:35-37`).
@@ -13566,6 +13609,7 @@ The resize ends by calling `CheckLayers()`, which routes flagged layers through 
 **Trigger and consequence:** a connected display-server peer sends a matching ACK with more payload words than the command permits (zero for `Show`, four for `Query`); the extra words are copied beyond the request object. The checked-in Android companion does not produce this reply shape: its `Query` response has four words, its `Show` and successful `Hello` responses have none, and a wrong-version `Hello` gets a one-word NAK that the client handles without copying an ACK payload (`AROSBootstrap.java:175-179,181-255,276-289`; `DisplayServer.java:44-61`). No in-tree trigger was established; this remains a malformed or incompatible-peer robustness candidate. **Affected configuration:** optional Android graphics HIDD with a custom or incompatible companion; the HIDD parent edge is commented in this snapshot (`arch/all-android/hidd/androidgfx/mmakefile.src:4`), so it is not a default packaged path. **Confidence:** high for the unchecked copy if an overlong ACK is supplied, low for reachability with the checked-in peer. No Android HIDD or pipe exchange was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
 
+<a id="gd15423"></a>
 ## GD15423
 
 **Android graphics consumes one extra pipe word after a NAK and desynchronizes the display protocol.** In `agfxInt()`, the `cmd_Nak` case reads the NAK payload word into `header.cmd` but leaves `header.len` unchanged (`arch/all-android/hidd/androidgfx/android_server.c:70-78`). The normal NAK packet has `len == 1`; after the payload is consumed, the switch sees the original command in `header.cmd` and falls through to `default`, which drains `header.len` additional words (`:133-142`). Thus it consumes the first word of the next packet (or blocks waiting for one), losing framing. The checked-in Java companion sends exactly this one-word NAK for a `cmd_Hello` protocol-version mismatch and for unknown commands (`arch/all-android/bootstrap/app/src/org/aros/bootstrap/AROSBootstrap.java:276-289`; `DisplayServer.java:44-61`).
@@ -13905,6 +13949,7 @@ For selected gadget-backfill images, `LayoutIconA()` creates a bitmap with a one
 **Trigger and consequence:** convert a multi-digit hexadecimal token whose final digit is the only value retained; for example, `1A` becomes decimal `10`, and `FF` becomes decimal `15`, then `Overwrite()` replaces the token with that incorrect value. **Affected configuration:** the explicitly buildable `workbench-classes-zune-betterstring-class` MCC target; the parent Zune aggregate edge is commented out in `workbench/classes/zune/betterstring/mmakefile.src`, so this is not asserted to be present in every default image. **Confidence:** high; the accumulator and its delayed Boolean assignment are directly visible, and both method and shortcut call paths are selected in the class source. Accumulate into `res` with a four-bit shift. No conversion or GUI operation was run; source-only; see the [coverage ledger](AROS-graphics-desktop-coverage.md).
 
 
+<a id="gd10149--betterstring-reverts-to-a-truncated-activation-snapshot"></a>
 ## GD10149 — BetterString reverts to a truncated activation snapshot
 
 `mGoActive()` allocates `Original` with space for the current string and then copies it with `strlcpy(data->Original, data->Contents, strlen(data->Contents+1))` (`workbench/classes/zune/betterstring/mcc/Dispatcher.c:513-515`). The size is the length starting one character into the source, so for an original length of *n* the copy can retain at most *n−2* characters. `RevertToOriginal()` swaps `Contents` and `Original` and sets the cursor from the copied string's length (`workbench/classes/zune/betterstring/mcc/HandleInput.c:372-385`); both the `MUIM_BetterString_DoAction_Revert` action and the `Amiga+q` shortcut reach it (`HandleInput.c:671-677,1162-1166`). The documentation says the shortcut reverts to the original string and can be pressed again to return to the modified string (`doc/MCC_BetterString.doc:132-136`).
@@ -24859,6 +24904,7 @@ The initial clock read stores both seconds and microseconds in `oldtimeval` (`de
 
 **Source-only evidence:** `workbench/classes/zune/prefseditor/prefseditor.c:145-155,200-203`; `prefseditor.conf:15-30`; maintained caller examples above. No Preferences application or allocation behavior was run.
 
+<a id="gd15310--snoopy-cancel-leaves-the-application-controls-disabled-when-removal-is-declined"></a>
 ## GD15310 — Snoopy Cancel leaves the application controls disabled when removal is declined
 
 After the first Cancel confirmation returns Yes, `cancel_function()` disables Save, Open, Use, Undo, Reset and Cancel, resets the patches, and asks a second confirmation before quitting (`workbench/system/Snoopy/gui.c:121-133`). If the user answers No to the second prompt, the hook returns without re-enabling those controls or requesting application quit. The window's close gadget is also disabled (`gui.c:157-160`). The app therefore remains open with no enabled control to leave or restore its patch state.
@@ -24867,6 +24913,7 @@ After the first Cancel confirmation returns Yes, `cancel_function()` disables Sa
 
 **Source-only evidence:** `workbench/system/Snoopy/gui.c:111-134,157-160`; no GUI interaction or patch operation was run.
 
+<a id="gd15311--snoopys-match-name-pattern-is-omitted-from-preference-load-and-save"></a>
 ## GD15311 — Snoopy's Match name pattern is omitted from preference load and save
 
 The GUI reads the Match name string into `setup.pattern` (`workbench/system/Snoopy/gui.c:386-388`), and the save hook calls `gui_get()` followed by `setup_save()` (`:40-45`). But `setup_save()` explicitly leaves pattern serialization as a TODO, and `setup_open()` likewise leaves pattern parsing as a TODO (`workbench/system/Snoopy/setup.c:176-177,234-237`). The Snoopy README describes this control as a pattern filter and lists “Load/Save match pattern” (`workbench/system/Snoopy/README:24,34`). The filter works during the current session, but its value is lost after Save/restart and is never restored from a preferences file.
@@ -24875,6 +24922,7 @@ The GUI reads the Match name string into `setup.pattern` (`workbench/system/Snoo
 
 **Source-only evidence:** `workbench/system/Snoopy/gui.c:40-45,386-388`; `workbench/system/Snoopy/setup.c:176-177,234-237`; `workbench/system/Snoopy/README:24,34`. No preferences file or GUI action was run.
 
+<a id="gd15312--snoopy-reports-preference-save-success-after-fputs-fails"></a>
 ## GD15312 — Snoopy reports preference save success after FPuts fails
 
 `setup_write_parameter()` discards the result of `FPuts()` and returns no status (`workbench/system/Snoopy/setup.c:98-103`). `setup_save()` checks only whether `Open(PREFFILE, MODE_NEWFILE)` succeeded, writes every setting through that helper, closes the file, and then unconditionally sets `retvalue = TRUE` (`:157-210`). DOS `FPuts()` returns EOF on a write error (`rom/dos/fputs.c:41-48`). Since MODE_NEWFILE has already created or truncated the preferences file, a later write error can leave only a prefix of the settings while Save is reported successful.
@@ -24883,6 +24931,7 @@ The GUI reads the Match name string into `setup.pattern` (`workbench/system/Snoo
 
 **Source-only evidence:** `workbench/system/Snoopy/setup.c:98-103,157-210`; `rom/dos/fputs.c:41-48`; no write failure or preferences operation was run.
 
+<a id="gd15313--snoopys-localized-openlibrary-version-text-can-exceed-its-buffer"></a>
 ## GD15313 — Snoopy's localized OpenLibrary version text can exceed its buffer
 
 `New_OpenLibrary()` formats the requested `ULONG version` with the translated `MSG_VERSION` format into `TEXT verstr[20]` (`workbench/system/Snoopy/patches.c:883-887`). The Basque and Italian catalog strings are each 12 bytes before substitution (`catalogs/basque.ct:175-176`; `catalogs/italian.ct:180-181`). The request is an unsigned `ULONG`, but AROS `__sprintf` routes `%ld` through `InternalRawDoFmt()`, whose `%ld` path fetches a signed 32-bit `LONG` (`compiler/alib/sprintf.c:46-58`; `rom/exec/rawdofmt.c:118-121,300-306`). Thus `0x80000000` formats as `-2147483648` on the AROS formatter paths, producing 20 text bytes plus the terminator in the 20-byte buffer. `OpenLibrary()` takes an `ULONG` version; its m68k implementation only truncates the value inside the original routine, while the patch logs its original argument. The resulting local string is passed to `main_output()`.
@@ -24891,6 +24940,7 @@ The GUI reads the Match name string into `setup.pattern` (`workbench/system/Snoo
 
 **Confidence:** high for the formatting width and buffer overrun across AROS formatter paths; the trigger requires a large requested library version and a specific localization. No OpenLibrary call or build was run.
 
+<a id="gd15314--snoopy-prints-pointer-valued-opendevice-units-as-integers"></a>
 ## GD15314 — Snoopy prints pointer-valued OpenDevice units as integers
 
 `New_OpenDevice()` accepts `unitNumber` as `IPTR`, and the source explicitly notes that it can be a pointer, but formats it with plain `%d` as `Unit %d` (`workbench/system/Snoopy/patches.c:838-865`). In AROS `RawDoFmt`, the default integer size is `WORD` (`rawdofmt.c:189-193`); `%d` fetches that signed word (`:118-121,300-306`). The `IPTR` argument is therefore narrowed to 16 bits before logging on both narrow and wide pointer targets. A pointer-valued unit or numeric unit outside the signed 16-bit range is misreported.
@@ -24899,6 +24949,7 @@ The GUI reads the Match name string into `setup.pattern` (`workbench/system/Snoo
 
 **Confidence:** high for the `%d`-to-`WORD` truncation; practical reachability depends on a selected device call with a wider unit value. No device was opened.
 
+<a id="gd15315--find-exits-successfully-after-command-line-or-startup-errors"></a>
 ## GD15315 — Find exits successfully after command-line or startup errors
 
 The CLI path calls `cleanup_exit(MSG_ERR_READARGS)` when `ReadArgs()` fails, and application-construction failure calls `cleanup_exit(MSG_ERR_NO_APPLICATION)` (`workbench/system/find/main.c:47-53,78-79`). `cleanup_exit()` displays the supplied error, releases any available objects, and always calls `exit(0)` (`:102-119`). The failed-window-open path likewise displays an error and then reaches `cleanup_exit(NULL)` (`:87-97`). Thus the user sees an error, but command-line automation receives a successful process status for these failures.
@@ -24908,6 +24959,7 @@ The CLI path calls `cleanup_exit(MSG_ERR_READARGS)` when `ReadArgs()` fails, and
 **Source-only evidence:** `workbench/system/find/main.c:47-53,78-119`; the file is selected by `workbench/system/find/mmakefile.src:5-18`. No Find invocation or build was run.
 
 
+<a id="gd15316--shadowborder-passes-an-uninitialized-screen-after-lock-failure"></a>
 ## GD15316 — ShadowBorder passes an uninitialized screen after lock failure
 
 `main()` declares `screen` without initialization, assigns it only inside `if ((screen = LockPubScreen(NULL)))`, and does not stop when that call fails (`developer/demos/shadowborder.c:78,90-104`). Both the AROS and non-AROS branches then pass `screen` as `WA_PubScreen` (`:110-124`). The selected `OpenWindow()` implementation stores that value as `nw.Screen`, then calls `GetPrivScreen(nw.Screen)->pubScrNode` while acquiring the public-screen visitor count (`rom/intuition/openwindow.c:373-375,604-616`). A failed public-screen lock can therefore feed an indeterminate pointer into the window-open path instead of returning cleanly.
@@ -24916,6 +24968,7 @@ The CLI path calls `cleanup_exit(MSG_ERR_READARGS)` when `ReadArgs()` fails, and
 
 **Source-only evidence:** `developer/demos/shadowborder.c:78,90-124`; `rom/intuition/openwindow.c:373-375,604-616`; `rom/intuition/lockpubscreen.c:46-49`. The program is listed in `developer/demos/mmakefile.src:12-73`; its parent aggregate edge is commented. No build or GUI operation was run.
 
+<a id="gd15317--shadowborder-exits-successfully-when-startup-fails"></a>
 ## GD15317 — ShadowBorder exits successfully when startup fails
 
 `main()` only enters its startup and display path when `OpenLibrary("intuition.library", 37)` succeeds; if it fails, execution falls through to `return 0` (`developer/demos/shadowborder.c:87-88,163-165`). Likewise, if `OpenWindowTags()` returns NULL, the drawing/wait/close block is skipped, the library is closed, and the program still returns zero (`:110-126,161-165`). The selected demo therefore tells callers that it succeeded even though it displayed no window.
@@ -24946,6 +24999,7 @@ When `GfxBase->gb_LayersBase` is NULL, `EraseRect()` saves `FgPen`, selects `BgP
 **Trigger and consequence:** call `EraseRect()` while `gb_LayersBase` is NULL and either (a) no area pattern is active and `rp->DrawMode` includes `COMPLEMENT`, (b) no area pattern is active and `rp->DrawMode` has `INVERSVID` without `JAM2`, or (c) a non-solid `AreaPtrn` is active. The fallback then inverts pixels, leaves them unchanged, or fills only pattern-selected pixels rather than uniformly writing `BgPen`. A `ScrollRasterBF()` caller with the same state can likewise leave the exposed area inverted or patterned instead of erased. Graphics' GELS cleanup is a maintained internal caller: `_ClearBobAndFollowClearPath()` calls `EraseRect()` when a bob has no saved background (`rom/graphics/gels_internal.c:214-240`); `DrawGList()` only sets `BACKSAVED` for bobs carrying `SAVEBACK` (`rom/graphics/drawglist.c:102-114`). A GELS client can provide the RastPort through `DrawGList()`, so a no-`SAVEBACK` bob on a `COMPLEMENT` port can reach this fallback before layers initialize. `InitGels()` and `DrawGList()` are graphics.library entries; `layers.library` sets `gb_LayersBase` only from its own `LayersInit()` (`rom/graphics/initgels.c:14-22`; `rom/graphics/drawglist.c:14-25`; `rom/hyperlayers/layers_init.c:16-38`). Thus graphics-only clients can reach the no-LayersBase API state without opening layers.library. **Affected configuration:** graphics.library use before `layers.library` initialization populates `gb_LayersBase`, or a target without that LayersBase; no checked-in caller establishes the combined no-SAVEBACK and fill-state trigger. **Confidence:** high for the state-dependent fill mismatch; reachability is conditional on the no-LayersBase state and caller RastPort state. Temporarily clear `AreaPtrn` and select a background-writing mode for the fallback, then restore both caller settings. No raster operation or build was run; source-only.
 
 
+<a id="gd15321--gtdemo-frees-its-gadget-list-twice-after-creation-failure"></a>
 ## GD15321 — GTDemo frees its gadget list twice after creation failure
 
 `makegadgets()` calls `FreeGadgets(glist)` when the final `CreateGadget()` result is NULL, but leaves the global `glist` pointer unchanged (`developer/demos/gtdemo.c:388-392`). `main()` then sets the failure status and unconditionally calls `gt_end()` (`:528-541`); `gt_end()` calls `FreeGadgets(glist)` again (`:220-230`). This path is reachable if any gadget construction fails after `CreateContext()` has populated `glist`. `FreeGadgets()` frees the context gadget allocation and any successfully created GadTools gadgets (`workbench/libs/gadtools/freegadgets.c:42-51,75-119`), so the second call traverses freed storage and can fault or corrupt memory.
@@ -24955,6 +25009,7 @@ When `GfxBase->gb_LayersBase` is NULL, `EraseRect()` saves `FgPen`, selects `BgP
 **Source-only evidence:** `developer/demos/gtdemo.c:388-392,528-541`; `workbench/libs/gadtools/freegadgets.c:42-51,75-119`. No build or runtime operation was performed.
 
 
+<a id="gd15322--iconscale-clamps-valid-dimensions-above-the-signed-word-range"></a>
 ## GD15322 — IconScale clamps valid dimensions above the signed WORD range
 
 The CLI parses each requested dimension with `strtol()` into a signed `WORD` before applying the 20-pixel minimum (`developer/demos/iconscale.c:19,27-31`). The scale-box API encodes each dimension in 16 bits (`compiler/include/workbench/icon.h:174-177`), and `LayoutIconA()` unpacks the fields and passes them to `scaleToBounds()` as `UWORD` (`workbench/libs/icon/layouticon.c:198-201,488-501`). Therefore values from 32,768 through 65,535 are representable by the API, but on AROS toolchains that narrow to a 16-bit signed value by retaining the low bits they become negative in `maxw`/`maxh` and are clamped to 20 before packing. The command reports success after setting this unintended box (`iconscale.c:33-37`).
@@ -24964,6 +25019,7 @@ The CLI parses each requested dimension with `strtol()` into a signed `WORD` bef
 **Source-only evidence:** `developer/demos/iconscale.c:19,27-37`; `compiler/include/workbench/icon.h:174-177`; `workbench/libs/icon/layouticon.c:198-201,488-501`. The demo is explicitly listed in `developer/demos/mmakefile.src:12-41`; the parent aggregate edge is disabled.
 
 
+<a id="gd15323--filereq-exits-successfully-when-setup-or-requester-allocation-fails"></a>
 ## GD15323 — FileReq exits successfully when setup or requester allocation fails
 
 `main()` prints an error when opening `asl.library` fails, then returns zero (`developer/demos/filereq.c:178-193`). When the library opens, each `showrequester()` prints an allocation error if `AllocAslRequest()` returns NULL but provides no failure result to `main()`; the program continues and still returns zero (`:141-174,180-193`). A run where every requester allocation fails is therefore indistinguishable from a successful demo run by exit status.
@@ -25390,6 +25446,7 @@ Both `developer/debug/test/graphics/showvisregion.c` and `showvisshape.c` assign
 **Trigger and consequence:** run the optional pen test when a required library open fails, or run it normally and let the process return. The failure path can fault; the normal path retains both library references and can prevent library expunge. **Affected configuration:** `test-graphics`, which selects `obtainpentest` (`developer/debug/test/graphics/mmakefile.src:5-29`); no default-image inclusion is claimed. **Confidence:** high for unchecked results and missing close calls; the lifetime consequence follows the explicit OpenLibrary/CloseLibrary ownership contract. Check each open, unwind partial success, and close both libraries after releasing the pens. No library failure, pen operation or build was induced; source-only.
 
 
+<a id="gd15372--bcm2711-mailbox-cursor-coordinates-wrap-when-the-hotspot-extends-past-the-top-or-left-edge"></a>
 ### GD15372 — BCM2711 mailbox cursor coordinates wrap when the hotspot extends past the top or left edge
 
 `MonitorClass__MM_SetPointerPos()` forwards the current pointer coordinates to `HIDD_Display_SetCursorPos()` (`rom/intuition/monitorclass.c:1895-1902,81-103`); the HIDD method takes signed `WORD` coordinates (`rom/hidds/gfx/gfx.conf:462`). Intuition passes the pointer's signed `xoffset`/`yoffset` when setting its shape (`monitorclass.c:1954`; `intuition_intern.h:651`). The VideoCore driver stores those offsets, then calculates the sprite's top-left position by adding them to the pointer position (`arch/arm-native/soc/broadcom/2708/hidd/vcgfx/vcgfx_hiddclass.c:428-431,469-480`).
@@ -25398,12 +25455,14 @@ When HVS takeover is unavailable, the driver serializes this signed position as 
 
 **Trigger and consequence:** use the VideoCore HIDD on a mode where HVS takeover is unavailable, place the pointer at the top or left edge, and use a pointer whose hotspot offset is negative on that axis. For example, pointer x=0 with hotspot x=-16 produces `vcsd_CurX == -16`, which the mailbox message encodes as `0xfffffff0`. If firmware follows the documented unsigned coordinate representation, it treats the cursor as outside the display (or rejects the request), so the cursor disappears instead of being clipped at the edge; it reappears after moving far enough inward. **Affected configuration:** Raspberry Pi BCM2711 when the selected HVS5 takeover fails or cannot latch, and BCM283x when HVS4 takeover remains inactive. Successful BCM2711 HVS5 takeover uses the clipping cursor-plane path and is excluded. **Confidence:** medium. The signed HIDD input, hotspot addition, unsigned serialization, and conditional mailbox fallback are source-established. The documented firmware interface does not specify signed coordinates, but its implementation's handling of high-bit coordinate values is not available in the reviewed tree. Clamp and clip the cursor image at the display boundary, or otherwise encode negative placement using a firmware-supported signed convention. No cursor, firmware request, display, or build was exercised; source-only.
 
+<a id="gd15373--cocoa-hidd-drops-modifier-keys-because-it-does-not-handle-flagschanged-events"></a>
 ### GD15373 — Cocoa HIDD drops modifier keys because it does not handle `flagsChanged` events
 
 The Cocoa input class translates macOS virtual key codes for Shift, Caps Lock, Option, Control, and Command (`arch/all-darwin/hidd/cocoa/cocoagfx_inputclass.c:86-100`). Its consumer calls the mouse/keyboard callbacks only for queued mouse events and `COCOA_EVENT_KEY_PRESS`/`COCOA_EVENT_KEY_RELEASE` entries (`:193-229`). The selected host event producer queues key events only from `AROSView`'s `keyDown:` and `keyUp:` methods (`arch/all-darwin/bootstrap/cocoa_display.m:114-119`); it defines no `flagsChanged:` handler. Apple's Cocoa event reference specifies `NSFlagsChanged` for pressing or releasing modifier keys and toggling Caps Lock ([Apple Event Objects and Types](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/EventOverview/EventObjectsTypes/EventObjectsTypes.html)). Such transitions therefore do not enter the ring buffer that the HIDD polls.
 
 **Trigger and consequence:** use the Cocoa input HIDD and press or release a modifier key, or toggle Caps Lock. Cocoa sends a flags-changed event, but the view does not enqueue it and the HIDD emits no corresponding Amiga raw-key transition. Shift/Control/Alt/Command state is consequently unavailable to AROS applications; Caps Lock state cannot be toggled through this input path. **Affected configuration:** the explicitly buildable Darwin Cocoa graphics/input HIDD when used with the selected Cocoa bootstrap event producer; its parent module edge is commented, so no default-package reachability is claimed. **Confidence:** high for the missing event method and documented Cocoa event type; no macOS event stream or runtime was exercised. Handle `flagsChanged:` and translate the modifier's new state into the matching raw-key press/release event. No key, modifier, build, or Cocoa runtime was used; source-only.
 
+<a id="gd15374--cocoa-input-drops-tertiary-mouse-button-press-and-release-events"></a>
 ### GD15374 — Cocoa input drops tertiary mouse-button press and release events
 
 The Cocoa host view enqueues left-button transitions from `mouseDown:`/`mouseUp:` with button 1, and right-button transitions from `rightMouseDown:`/`rightMouseUp:` with button 2 (`arch/all-darwin/bootstrap/cocoa_display.m:97-112`). It does not implement `otherMouseDown:` or `otherMouseUp:`. AppKit defines `otherMouseDown` and `otherMouseUp` for a tertiary mouse button ([Apple `NSEvent.EventType`](https://developer.apple.com/documentation/appkit/nsevent/eventtype)). The HIDD consumer already maps a queued mouse event with a button value other than 1 or 2 to `vHidd_Mouse_Button3` (`arch/all-darwin/hidd/cocoa/cocoagfx_inputclass.c:196-214`), but the host producer never queues a tertiary press or release. Its `otherMouseDragged:` implementation forwards only pointer motion (`cocoa_display.m:89-95`), so dragging can move the pointer without delivering the held-button state.
