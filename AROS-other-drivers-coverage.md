@@ -41437,3 +41437,14 @@ LAN78xx USB Ethernet header exact-path pass (three newly represented headers, 10
 | `rom/usb/classes/lan78xx/dev.h` | Full 37-code-line header read | Device ABI and SANA helper declarations matched against `dev.c`. |
 
 LAN78xx coverage-count reconciliation (accounting only): Other Drivers advances from 5,396/5,575 to **5,399/5,578 represented paths (96.8%)**, and from 2,217,512/2,248,744 to **2,217,616/2,248,848 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,089,483/3,211,365 to **3,089,587/3,211,469 (96.2%)**. This only credits these header bodies; other untracked USB class headers and broader caller/configuration/platform scope remain open.
+
+EgalaxTouch USB HID class header exact-path pass (four newly represented headers, 192 `cloc 2.06` C/header code lines; 2026-11-26): confirmed the class recipe and complete USB class target graph; read the private HID/configuration structures, class declarations, shared includes/macros and debug gating. Matched the packed `ClsDevCfg` fields and serialized chunk length/copy paths, touchscreen timer/request fields, input/tablet event state, and class lifecycle prototypes against the full selected implementation. No additional layout, declaration, or ownership mismatch was established; existing touch coordinate/configuration findings remain unchanged. No touchscreen, event, config file, GUI, or build was used; source-only.
+
+| File | Status | Notes |
+|---|---|---|
+| `rom/usb/classes/egalaxtouch/egalaxtouch.class.h` | Full 21-code-line header read | Binding, allocation, config and worker declarations matched against class body. |
+| `rom/usb/classes/egalaxtouch/egalaxtouch.h` | Full 107-code-line header read | Packed config and HID/input/timer/GUI state structures checked against complete field consumers and config serialization. |
+| `rom/usb/classes/egalaxtouch/common.h` | Full 45-code-line header read | Shared includes and macros checked against selected class/helper use. |
+| `rom/usb/classes/egalaxtouch/debug.h` | Full 19-code-line header read | DEBUG wrapper and dump declaration checked against recipe and active call sites. |
+
+EgalaxTouch coverage-count reconciliation (accounting only): Other Drivers advances from 5,399/5,578 to **5,403/5,582 represented paths (96.8%)**, and from 2,217,616/2,248,848 to **2,217,808/2,249,040 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,089,587/3,211,469 to **3,089,779/3,211,661 (96.2%)**. Other untracked USB class headers and wider audit scope remain open.
