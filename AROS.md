@@ -21327,3 +21327,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD11837](AROS-other-drivers.md#od11837) — RFCOMM credit-bearing data can exceed the negotiated MTU by one byte.** An exact-MTU send that piggybacks credits violates the N1−1 limit; conditional credit-flow Bluetooth RFCOMM path. Source-only.
 
 **[OD11838](AROS-other-drivers.md#od11838) — BWFM key installation disables the other negotiated cipher.** Separate pairwise/group key installs leave only the last cipher enabled; conditional Raspberry Pi BWFM mixed-cipher association. Source-only.
+
+**[OD3696](AROS-other-drivers.md#od3696) — Prism2 scan allocation errors poison later queued results.** With overlapping SANA-II clients, an allocation error persists into a later queued scan and beacon matching can dereference unpopulated tag lists; conditional Prism2 path.
+
+**[OD11839](AROS-other-drivers.md#od11839) — Prism2 scan allocation failure can fault during beacon matching.** A failed result/tag/BSSID allocation is followed by beacon correlation through incomplete entries; conditional Lucent raw-beacon scan path.
