@@ -21381,4 +21381,4 @@ These are tracker-status/body-reading proxies, not whole-subsystem completeness 
 
 **[GD15472](AROS-graphics-desktop.md#gd15472) — Nouveau DP IRQ work dereferences a missing encoder before its NULL check.** A DP event can queue work after connector event registration but before NV50+ output-encoder attachment; the worker dereferences the missing encoder first. Optional Nouveau setup race; source-only.
 
-**[EK11128](AROS-exec-kernel.md#ek11128) — Sam440 disk and USB DMA omit required cache maintenance.** The selected Exec KOBJ uses generic no-op DMA cache routines instead of Sam440 cache operations; selected ATA and OHCI clients can read stale TX data or leave RX data stale on cacheable buffers. Sam440 PPC path; source-only.
+**[EK11128](AROS-exec-kernel.md#ek11128) — Sam440 and Efika DMA omit required cache maintenance.** Their selected Exec KOBJ uses generic no-op routines despite board cache implementations; Sam440 ATA/OHCI and Efika OHCI callers can see stale DMA data on cacheable buffers. Efika runtime remains conditional on its separate ATA build blocker; source-only.
