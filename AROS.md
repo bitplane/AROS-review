@@ -20123,3 +20123,1129 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[GD9753](AROS-graphics-desktop.md#gd9753) — SysExplorer formats a support-module path into an unchecked allocation result.** Source-only; see the detailed finding and coverage ledger.
 **[GD9754](AROS-graphics-desktop.md#gd9754) — SysExplorer's registration library dereferences failed allocations while recording modules, bases, and skipped classes.** Source-only; see the detailed finding and coverage ledger.
 **[GD9758](AROS-graphics-desktop.md#gd9758) — SysExplorer ATA/AHCI support modules continue startup and call Storage-module APIs after detecting that the required module is absent.** Source-only; see the detailed finding and coverage ledger.
+
+## Additional active Graphics/Desktop findings (2026-11-26)
+
+**[GD1174](AROS-graphics-desktop.md#gd1174) — IconList leaks the DiskObject when entry construction fails after allocating its entry (high source confidence).**
+**[GD1731](AROS-graphics-desktop.md#gd1731) — Plain interleaved bitmap allocation under-sizes the plane block, and FreeBitMap over-frees it (high source confidence; public API trigger).**
+**[GD2620](AROS-graphics-desktop.md#gd2620) — SDL startup cleanup removes the event task but leaves its stack-local VBlank interrupt registered.**
+**[GD2675](AROS-graphics-desktop.md#gd2675) — Diskfont publication race can leave a loaded font detached and permanently unreclaimable.**
+**[GD2884](AROS-graphics-desktop.md#gd2884) — A failed graphics.library initialization leaks allocations made before the failure.**
+**[GD2953](AROS-graphics-desktop.md#gd2953) — MUI Group construction can leak children that callers created before the parent Group fails.**
+**[GD2969](AROS-graphics-desktop.md#gd2969) — SysMon leaks its `oop.library` reference when the final graphics attribute-base lookup fails.**
+**[GD3076](AROS-graphics-desktop.md#gd3076) — The toolbar and status-bar preference setup each register a static `NotifyRequest` with `StartNotify()` using Wanderer's application filesystem-notification port and `NRF_SEND_MESSAGE`….**
+**[GD4002](AROS-graphics-desktop.md#gd4002) — Wanderer Preferences Import leaks one allocated chunk-type string per parsed header (conditional repeated-import memory leak; high source confidence).**
+**[GD4003](AROS-graphics-desktop.md#gd4003) — Wanderer Preferences Import leaks its toolbar-state buffer when IFF-handle allocation fails (conditional one-buffer leak; high source confidence).**
+**[GD4020](AROS-graphics-desktop.md#gd4020) — Concurrent ConClip startup can publish duplicate rendezvous port names on ExecSMP.**
+**[GD4129](AROS-graphics-desktop.md#gd4129) — Generic masked-bitmap copies can reuse already-overwritten source pixels during a downward in-place copy.**
+**[GD4130](AROS-graphics-desktop.md#gd4130) — The generic masked-bitmap copy silently ignores draw modes outside its three implemented modes, then reports success.**
+**[GD4133](AROS-graphics-desktop.md#gd4133) — `AreaEnd()` can step a polygon boundary outside the bounds-sized TmpRas mask when the Bresenham error exceeds the signed-word range.**
+**[GD4135](AROS-graphics-desktop.md#gd4135) — The generic HIDD bitmap `FillRect` loop does not terminate when its final row is 32,767.**
+**[GD4139](AROS-graphics-desktop.md#gd4139) — `DoCDrawMethodTagList()` drops HIDD direct-access ownership before its callback writes through the returned bitmap pointer.**
+**[GD4144](AROS-graphics-desktop.md#gd4144) — Generic indexed HIDD `MapColor()` and `UnmapPixel()` dereference a NULL palette for non-displayable LUT8 bitmaps.**
+**[GD4179](AROS-graphics-desktop.md#gd4179) — IntelGMA writes through address 0x40 if its hardware-status-page allocation fails.**
+**[GD4180](AROS-graphics-desktop.md#gd4180) — IntelGMA uses the failed initial bitmap sentinel as a framebuffer-relative pointer and surface offset.**
+**[GD4181](AROS-graphics-desktop.md#gd4181) — IntelGMA passes a failed initial mode-state allocation into state-building and mode-loading code without checking it.**
+**[GD4183](AROS-graphics-desktop.md#gd4183) — IntelGMA uses a failed hardware-cursor allocation as a framebuffer-relative image pointer.**
+**[GD4184](AROS-graphics-desktop.md#gd4184) — IntelGMA programs and enables its command ring without checking whether the ring backing allocation succeeded.**
+**[GD4185](AROS-graphics-desktop.md#gd4185) — IntelGMA can remove and free a dynamic graphics-memory header while another allocation still uses that header during list traversal.**
+**[GD4197](AROS-graphics-desktop.md#gd4197) — IntelGMA and Nouveau compositors dereference failed viewport-stack node allocations while rebuilding the visible bitmap stack.**
+**[GD4200](AROS-graphics-desktop.md#gd4200) — Plain interleaved bitmap allocation size can wrap to a small raster on 32-bit targets.**
+**[GD4221](AROS-graphics-desktop.md#gd4221) — Animation ignores `DTA_ControlPanel=FALSE` when embedding and using its tapedeck child.**
+**[GD4227](AROS-graphics-desktop.md#gd4227) — Animation leaks its color-table arrays when `ADTA_NumColors` is set repeatedly to the same positive value.**
+**[GD4228](AROS-graphics-desktop.md#gd4228) — Animation HAM remapping computes planar source rows using pixel width instead of `BytesPerRow`.**
+**[GD4229](AROS-graphics-desktop.md#gd4229) — Animation tapedeck frame stepping can leave the current frame outside the animation range.**
+**[GD4292](AROS-graphics-desktop.md#gd4292) — Picture, Animation, icon.library, MUI Bitmap, Blanker, Levelmeter, and NBitmap dithering can use failed pen allocation as pixel/pen 255.**
+**[GD4303](AROS-graphics-desktop.md#gd4303) — `GetExtSpriteA()` ignores standard tag-list control items when selecting a sprite number.**
+**[GD4307](AROS-graphics-desktop.md#gd4307) — AddAnimOb() leaves the first object's system list links uninitialized.**
+**[GD4390](AROS-graphics-desktop.md#gd4390) — Concurrent AmigaGuide startup can publish duplicate ARexx port names on ExecSMP.**
+**[GD4434](AROS-graphics-desktop.md#gd4434) — Popasl leaks the temporary initial-path buffer when later worker setup fails.**
+**[GD4435](AROS-graphics-desktop.md#gd4435) — Popasl leaks the allocated ASL requester when superclass construction fails.**
+**[GD4655](AROS-graphics-desktop.md#gd4655) — `CoerceMode()` is exported but unconditionally reports that no mode can be selected (documented public API gap; high source confidence, in-tree caller impact unverified).**
+**[GD4658](AROS-graphics-desktop.md#gd4658) — Explicit `GetSprite(0)` or `GetExtSpriteA(..., GSTAG_SPRITE_NUM, 0)` can hand the cursor sprite to a caller as if it were an independent hardware sprite.**
+**[GD4666](AROS-graphics-desktop.md#gd4666) — `XorRectRegionND()` dereferences a failed result-region allocation on its empty-rectangle path (conditional null dereference; high source confidence).**
+**[GD4682](AROS-graphics-desktop.md#gd4682) — ColorMap construction accepts an oversized entry count whose byte-size multiplication wraps on 32-bit builds (conditional undersized allocation and later out-of-bounds access; high source confidence).**
+**[GD4696](AROS-graphics-desktop.md#gd4696) — Radeon DrawLine, DrawRect, and DrawPolygon overwrite the GC line pattern instead of testing it (conditional graphics-state corruption and incorrect line rendering; high source confidence).**
+**[GD4700](AROS-graphics-desktop.md#gd4700) — Radeon expunge leaves its managed-memory header linked in Exec's MemList while freeing the driver base that contains it (conditional stale memory-header/callback reference; high source confidence).**
+**[GD4728](AROS-graphics-desktop.md#gd4728) — BarMasking titlebar-shape generation ignores rectangle-insertion failures and can pass a NULL region into `CopyRegion()`.**
+**[GD4735](AROS-graphics-desktop.md#gd4735) — Concurrent sprite allocation can return the same hardware sprite to two callers on ExecSMP.**
+**[GD4763](AROS-graphics-desktop.md#gd4763) — `ChangeVPBitMap()` can report screen buffers safe after a failed viewport rebuild, while the display state remains on an older buffer.**
+**[GD4806](AROS-graphics-desktop.md#gd4806) — P96 graphics enumerates `.card` libraries without holding references across task switches.**
+**[GD5087](AROS-graphics-desktop.md#gd5087) — MUI Application Save truncates the old file and hides later IFF write failures.**
+**[GD5088](AROS-graphics-desktop.md#gd5088) — Configdata Save can accept a failed PRHD write and discards later IFF errors after truncating the preferences file.**
+**[GD5089](AROS-graphics-desktop.md#gd5089) — Zune Preferences applies partial, default, or fallback settings after Configdata loading fails.**
+**[GD5090](AROS-graphics-desktop.md#gd5090) — MUIS_AllocPubScreenDesc dereferences its result when descriptor allocation fails.**
+**[GD5091](AROS-graphics-desktop.md#gd5091) — Configdata dereferences a failed list-node allocation while loading public-screen preferences.**
+**[GD5092](AROS-graphics-desktop.md#gd5092) — MUIS_OpenPubFile leaks acquired IFF/DOS resources on setup failure.**
+**[GD5093](AROS-graphics-desktop.md#gd5093) — PSI can report public-screen preferences saved after IFF finalization fails.**
+**[GD5096](AROS-graphics-desktop.md#gd5096) — PSI's public-screen list display treats the fixed-width Name field as an unbounded C string.**
+**[GD5098](AROS-graphics-desktop.md#gd5098) — MUIS_ClosePubScreen uses a PubScreenNode after releasing the list lock that protects it.**
+**[GD5179](AROS-graphics-desktop.md#gd5179) — OpenScreen leaves a freed screen published when MakeVPort fails.**
+**[GD5191](AROS-graphics-desktop.md#gd5191) — MUI Area cleanup can dereference a freed timer request after rearm allocation fails.**
+**[GD5227](AROS-graphics-desktop.md#gd5227) — Graph records a timer handler as installed when its allocation fails.**
+**[GD5229](AROS-graphics-desktop.md#gd5229) — IntelGMA treats failed graphics display registration as successful initialization.**
+**[GD5305](AROS-graphics-desktop.md#gd5305) — GD5305 (unverified candidate) — HAM scanline initialization may differ from the required initial color.**
+**[GD5366](AROS-graphics-desktop.md#gd5366) — IntelGMA `PutImageLUT` dereferences an optional missing lookup table on framebuffer bitmaps.**
+**[GD5367](AROS-graphics-desktop.md#gd5367) — `WritePixelArray8()` cannot represent a clipped 32,768-pixel row width in its HIDD call.**
+**[GD5438](AROS-graphics-desktop.md#gd5438) — MUI Group reports success when a dynamically added child fails setup.**
+**[GD5440](AROS-graphics-desktop.md#gd5440) — MUI Gauge repeatedly scales its stored current value on every OM_SET.**
+**[GD5449](AROS-graphics-desktop.md#gd5449) — MUI Levelmeter ignores its public Label attribute.**
+**[GD5472](AROS-graphics-desktop.md#gd5472) — PanelGroup does not reconcile tracking after Group membership changes.**
+**[GD5521](AROS-graphics-desktop.md#gd5521) — `GetGBuffers()` does not check the size multiplication used for a Bob's save buffer.**
+**[GD5522](AROS-graphics-desktop.md#gd5522) — VMM can leave its main preferences window asleep when the task-selector window fails to open.**
+**[GD5523](AROS-graphics-desktop.md#gd5523) — Changing `BUTTON_Transparent` after the first render leaves the button bevel's cached transparency stale.**
+**[GD5524](AROS-graphics-desktop.md#gd5524) — Reaction `button.gadget` accepts `BUTTON_AutoButton` but does not render the selected built-in glyph.**
+**[GD5525](AROS-graphics-desktop.md#gd5525) — Reaction `button.gadget` disposes `BUTTON_Glyph` as a BOOPSI object even though the public tag accepts a plain `struct Image *`. The public declaration describes `BUTTON_Glyph` as a single-plane….**
+**[GD5526](AROS-graphics-desktop.md#gd5526) — Picture layout frees the source even when it cannot create the transparency mask.**
+**[GD5527](AROS-graphics-desktop.md#gd5527) — Picture datatype rendering drops alpha on destinations shallower than 15 bits.**
+**[GD5528](AROS-graphics-desktop.md#gd5528) — PNG palette import treats the sole partially transparent palette entry as fully transparent.**
+**[GD5529](AROS-graphics-desktop.md#gd5529) — PNG direct-access retains all unknown chunks when the caller requests selected chunk types.**
+**[GD5532](AROS-graphics-desktop.md#gd5532) — Workbench WindowDecor dereferences a NULL per-window buffer for standalone directional system images.**
+**[GD5534](AROS-graphics-desktop.md#gd5534) — Reaction button.gadget mishandles the documented `BUTTON_TextPen` sentinel and cannot select pen 0.**
+**[GD5535](AROS-graphics-desktop.md#gd5535) — Reaction button.gadget accepts text style, fill/background pen, and text-padding tags without applying them.**
+**[GD5536](AROS-graphics-desktop.md#gd5536) — Reaction button.gadget declares integer, bitmap, and animation attributes that the class does not implement.**
+**[GD5538](AROS-graphics-desktop.md#gd5538) — MUI Window render info leaves `MPEN_MARK` at pen 0, so mark-pattern presets use the wrong foreground.**
+**[GD5539](AROS-graphics-desktop.md#gd5539) — MUIMaster can leave its preference-created custom screen open when the Application is disposed.**
+**[GD5580](AROS-graphics-desktop.md#gd5580) — failed Group setup leaves its Area event handler linked for a retry.**
+**[GD5589](AROS-graphics-desktop.md#gd5589) — MUI retains a replied AppMessage pointer in a get-only attribute.**
+**[GD5638](AROS-graphics-desktop.md#gd5638) — `PanelGroup__MUIM_PanelGroup_ScanPanels()` reports success after a panel tracking-node allocation fails, leaving that child absent from the list used by PanelGroup operations.**
+**[GD5639](AROS-graphics-desktop.md#gd5639) — picture.datatype writes DTM_FRAMEBOX results to the input dtf_ContentsInfo record and leaves the declared output dtf_FrameInfo record untouched.**
+**[GD5641](AROS-graphics-desktop.md#gd5641) — and GD5642 — reclassified to Exec/Kernel findings.**
+**[GD5643](AROS-graphics-desktop.md#gd5643) — Intuition skips menu-decorator exit and buffer cleanup when a temporary menu window fails to open.**
+**[GD5644](AROS-graphics-desktop.md#gd5644) — Intuition and MUI set the public read-only MIDRAWN flag even when the temporary menu window failed to open, and their cleanup leaves it set.**
+**[GD5645](AROS-graphics-desktop.md#gd5645) — MUI can queue a stale submenu selection after the pointer returns to the same parent row.**
+**[GD5646](AROS-graphics-desktop.md#gd5646) — MUI mouse clicks pass index zero to MutualExclude handling for every checked menu item.**
+**[GD5647](AROS-graphics-desktop.md#gd5647) — MUI context-menu construction leaks GadTools VisualInfo when CreateMenusA fails.**
+**[GD5649](AROS-graphics-desktop.md#gd5649) — Popasl and Popscreen hooks dereference the optional Popstring string child without checking it.**
+**[GD5650](AROS-graphics-desktop.md#gd5650) — The Zune Cycles Preferences speed setting is persisted but never used by the cycle-menu implementation.**
+**[GD5651](AROS-graphics-desktop.md#gd5651) — Zune's Listviews Leading preference affects list size negotiation but does not add spacing between rendered rows.**
+**[GD5652](AROS-graphics-desktop.md#gd5652) — Zune Navigation Preferences saves drag-trigger/appearance and active-object-color settings into MUI preferences, but the selected drag and active-object code does not consume them.**
+**[GD5654](AROS-graphics-desktop.md#gd5654) — MUI Application timer-scale flags are ignored, so scaled input-handler intervals run at the unscaled millisecond duration.**
+**[GD5657](AROS-graphics-desktop.md#gd5657) — BoingIconBar deletes its focus timer request without closing timer.device after a successful open.**
+**[GD5658](AROS-graphics-desktop.md#gd5658) — BoingIconBar copies optional font-name settings through unchecked allocations.**
+**[GD5659](AROS-graphics-desktop.md#gd5659) — BoingIconBar drops the final character of its last preferences entry when the file ends without a newline.**
+**[GD5660](AROS-graphics-desktop.md#gd5660) — BoingIconBar retains its public-screen lock when toolbar bitmap allocation fails.**
+**[GD5661](AROS-graphics-desktop.md#gd5661) — BoingIconBar reports successful buffer setup after its second public-screen lock fails.**
+**[GD5662](AROS-graphics-desktop.md#gd5662) — BoingIconBar uses the exclusive icon-range end as an array index when the user clicks empty toolbar space.**
+**[GD5663](AROS-graphics-desktop.md#gd5663) — BoingIconBar leaks its wallpaper bitmap on each successful Workbench screen reset.**
+**[GD5664](AROS-graphics-desktop.md#gd5664) — BoingIconBar resumes its idle loop after Workbench screen restoration fails, then dereferences a NULL public-screen pointer.**
+**[GD5666](AROS-graphics-desktop.md#gd5666) — BoingIconBar accepts an out-of-window menu Y coordinate and uses it as an unchecked submenu index.**
+**[GD5667](AROS-graphics-desktop.md#gd5667) — BoingIconBar scans the public screen's window list without Intuition's list lock.**
+**[GD5668](AROS-graphics-desktop.md#gd5668) — BoingIconBar can discard a queued synchronous screen notification during shutdown without replying to it.**
+**[GD5669](AROS-graphics-desktop.md#gd5669) — BoingIconBar can select a different submenu from the row displayed in an already-open menu after preferences reload.**
+**[GD5714](AROS-graphics-desktop.md#gd5714) — SDL reports graphics-driver startup success when its display object cannot be created.**
+**[GD5715](AROS-graphics-desktop.md#gd5715) — SDL graphics HIDD construction dereferences unchecked pool allocations.**
+**[GD5716](AROS-graphics-desktop.md#gd5716) — SDL color expansion uses a four-byte destination stride for 24-bit pixels.**
+**[GD5717](AROS-graphics-desktop.md#gd5717) — Opaque SDL color expansion uses the source Y coordinate as its X coordinate on 16-bit surfaces.**
+**[GD5718](AROS-graphics-desktop.md#gd5718) — Source and trigger.**
+**[GD5719](AROS-graphics-desktop.md#gd5719) — Source and trigger.**
+**[GD5720](AROS-graphics-desktop.md#gd5720) — Source and trigger.**
+**[GD5721](AROS-graphics-desktop.md#gd5721) — SDL startup failure after input registration leaves drivers linked to disposed classes.**
+**[GD5722](AROS-graphics-desktop.md#gd5722) — SDL startup leaks a graphics.library reference when input setup fails.**
+**[GD5723](AROS-graphics-desktop.md#gd5723) — SDL startup failure cleanup omits the display HIDD class.**
+**[GD5724](AROS-graphics-desktop.md#gd5724) — Unmapped SDL key symbols retain a release-bit sentinel (currently masked by GD10087).**
+**[GD5725](AROS-graphics-desktop.md#gd5725) — SDL mouse wheel button events are emitted as button transitions with no button code.**
+**[GD5726](AROS-graphics-desktop.md#gd5726) — VESA graphics construction failure removes an unregistered reset callback.**
+**[GD5727](AROS-graphics-desktop.md#gd5727) — EFI framebuffer construction failure removes an unregistered reset callback.**
+**[GD5728](AROS-graphics-desktop.md#gd5728) — When the generic GFX histogram class is constructed for a bitmap, its fast-method cache requests `PutPixel` as the bitmap's `UnmapPixel` method and requests `PutPixel` as both histogram methods.….**
+**[GD5729](AROS-graphics-desktop.md#gd5729) — `Sync__Root__Get()` attempts to return `PixelTime` in picoseconds, but its `aoHidd_Sync_PixelTime` case falls through into `aoHidd_Sync_PixelClock` and overwrites the result with the raw clock in….**
+**[GD5731](AROS-graphics-desktop.md#gd5731) — CursorFB's `CFB_REMOVE_ALL` helper uses the fixed rectangle `[-16384, 16383]` on both axes when deciding whether to hide the software pointer before an operation with unknown bounds….**
+**[GD5732](AROS-graphics-desktop.md#gd5732) — The generic bitmap HIDD's `DoBufferedOperation()` allocates a scratch buffer sized for up to 16 KB of pixels. If that allocation fails and more than one line was requested, it retries with a….**
+**[GD5734](AROS-graphics-desktop.md#gd5734) — PlanarBM's Copy-mode `FillRect` fast path writes every non-null bitplane and never consults `GC_COLMASK(msg->gc)` (`rom/hidds/gfx/gfx_planarbitmapclass.c:443-502`). The graphics.library adapter….**
+**[GD5735](AROS-graphics-desktop.md#gd5735) — `create_std_pixfmts()` initializes the standard-format pointer table to NULL, then records each newly created format in `csd->std_pixfmts[]` before linking it into `pflist`. If creation of a later….**
+**[GD5738](AROS-graphics-desktop.md#gd5738) — The generic GFX `CopyBox` wrapper protects at most one display. It selects the destination display whenever the destination is a CursorFB-wrapped bitmap, otherwise it selects the source display;….**
+**[GD5740](AROS-graphics-desktop.md#gd5740) — The extended `AllocBitMap()` tag parser handles `BMATags_Friend`, `BMATags_Depth`, `BMATags_Clear`, `BMATags_NoMemory`, and `BMATags_DisplayID`, but has no case for the documented….**
+**[GD5741](AROS-graphics-desktop.md#gd5741) — `AllocRaster()` accepts `ULONG width` and `ULONG height`, then allocates `RASSIZE(width, height)` bytes (`rom/graphics/allocraster.c:16-23,54`). `FreeRaster()` accepts the same dimensions as….**
+**[GD5742](AROS-graphics-desktop.md#gd5742) — `ScaleLayer()` reports failure even when its layer-shape callback completes.**
+**[GD5743](AROS-graphics-desktop.md#gd5743) — `AllocSpriteDataA()` returns a cleared pointer bitmap when generic HIDD scaling cannot allocate its scratch buffers.**
+**[GD5745](AROS-graphics-desktop.md#gd5745) — `MovePixelArray()` documents its result as the number of pixels moved, but calls the `void` `ClipBlit()` and unconditionally returns `SizeX * SizeY`….**
+**[GD5746](AROS-graphics-desktop.md#gd5746) — `MovePixelArray()` returns `SizeX * SizeY` where both parameters are `UWORD`, but no operand is widened before multiplication (`workbench/libs/cgfx/movepixelarray.c:20-26,58-61`). On AROS targets,….**
+**[GD5747](AROS-graphics-desktop.md#gd5747) — `AllocCModeListTagList()` documents that it returns a list of matching modes, or NULL if there are none (`workbench/libs/cgfx/alloccmodelisttaglist.c:33-57`). It allocates and initializes the….**
+**[GD5748](AROS-graphics-desktop.md#gd5748) — `extcol_render()` sets `pixbuf` once to the shared `CyberGfxBase->pixel_buf`, then advances that local pointer across each processed row….**
+**[GD5750](AROS-graphics-desktop.md#gd5750) — The ExtractColor callback only sets destination bits for matching pixels (`workbench/libs/cgfx/extractcolor_renderfunc.c:83-103`); it never clears bits for nonmatches, and `ExtractColor()` does….**
+**[GD5751](AROS-graphics-desktop.md#gd5751) — `ExtractColor()` documents that `SingleMap` needs pixel dimensions at least as large as the rectangle being analysed, but the render callback writes matching bits at source coordinates rather than….**
+**[GD5752](AROS-graphics-desktop.md#gd5752) — `ProcessPixelArrayTintFunc()` reads and writes `RECTFMT_ARGB` rows as `ULONG` words, extracting `a` from bits 24–31, `r` from 16–23, `g` from 8–15, and `b` from 0–7, then applies separate….**
+**[GD5753](AROS-graphics-desktop.md#gd5753) — `ProcessPixelArrayAlphaFunc()` preserves the upper 24 bits and replaces the low byte of each `ULONG` (`workbench/libs/cgfx/processpixelarray_opsetalpha.c:42-50`). For `RECTFMT_ARGB`, the byte….**
+**[GD5754](AROS-graphics-desktop.md#gd5754) — `DoCDrawMethodTagList()`'s no-direct-access fallback transfers the remaining rectangle height into a scratch buffer sized for only one chunk.**
+**[GD5756](AROS-graphics-desktop.md#gd5756) — `ClipBlit()` performs same-RastPort overlapping blits with a Copy-only `MoveRaster()` path for a subset of overlap geometries, ignoring the requested minterm.**
+**[GD5757](AROS-graphics-desktop.md#gd5757) — `ScrollWindowRasterNoFill()` can move the visible overlap twice by calling `ClipBlit()` and then `ScrollRaster()` for the same scroll.**
+**[GD5758](AROS-graphics-desktop.md#gd5758) — The convex-quadrilateral scan-conversion fast path can overflow signed `LONG` while converting a valid edge slope to 16.16 fixed point.**
+**[GD5759](AROS-graphics-desktop.md#gd5759) — `AreaEnd()` leaves the RastPort cursor changed when a TmpRas capacity check fails.**
+**[GD5760](AROS-graphics-desktop.md#gd5760) — Ellipse midpoint rasterizers overflow signed 32-bit intermediates for valid radii, producing unreliable outline or fill pixels.**
+**[GD5761](AROS-graphics-desktop.md#gd5761) — `Flood()`'s area-pattern helper misclassifies zero-exponent monochrome patterns and decodes every multicolor pattern as pen zero.**
+**[GD5763](AROS-graphics-desktop.md#gd5763) — `DoCollision()` can read the second word of a one-word-per-row collision mask when comparing horizontally shifted VSprites.**
+**[GD5764](AROS-graphics-desktop.md#gd5764) — `AddVSprite()` links a VSprite before allocating its required internal record and leaves the list entry linked if that allocation fails.**
+**[GD5765](AROS-graphics-desktop.md#gd5765) — `_ValidateIntVSprite()` frees old backing bitmaps, ignores failed replacement allocations, and continues into blits with NULL bitmap pointers.**
+**[GD5766](AROS-graphics-desktop.md#gd5766) — `GetBitMapAttr(BMA_WIDTH)` reports `BytesPerRow * 8` for chunky HIDD bitmaps, treating bytes as planar one-bit pixels and inflating the pixel width.**
+**[GD5767](AROS-graphics-desktop.md#gd5767) — `GetDisplayInfoData(DTAG_NAME)` performs a name-terminator write using `size - 1` even when the caller supplies a zero-length buffer.**
+**[GD5768](AROS-graphics-desktop.md#gd5768) — `GetRGB4()` rejects indices above the colormap count but not negative indices, then reads before `ColorTable`.**
+**[GD5769](AROS-graphics-desktop.md#gd5769) — VGAGfx displayable-bitmap construction frees its pixel buffer twice when the subsequent VGA register-state allocation fails.**
+**[GD5770](AROS-graphics-desktop.md#gd5770) — VGAGfx's system-reset callback erases the visible bitmap's logical dimensions without limiting the write to the 64-KiB VGA plane aperture.**
+**[GD5771](AROS-graphics-desktop.md#gd5771) — `ScreenPosition()` does not implement the documented `SPOS_MAKEVISIBLE` mode; it treats the rectangle origin as a relative screen offset and ignores the rectangle's lower-right corner.**
+**[GD5772](AROS-graphics-desktop.md#gd5772) — `InitIIH()` leaks `InputEventMemPool` when creation of the following `ActionsMemPool` fails.**
+**[GD5773](AROS-graphics-desktop.md#gd5773) — MorphOS Intuition clears its graphics.library base without closing it after a ViewExtra allocation failure, then can dereference the cleared base on retry.**
+**[GD5774](AROS-graphics-desktop.md#gd5774) — A failed temporary-port allocation leaves synchronous gadget API results uninitialized.**
+**[GD5775](AROS-graphics-desktop.md#gd5775) — Refresh callers end an update after `BeginUpdate()` has already unwound its failed setup.**
+**[GD5776](AROS-graphics-desktop.md#gd5776) — The first requester-button allocation failure dereferences a NULL gadget list during cleanup.**
+**[GD5777](AROS-graphics-desktop.md#gd5777) — A failed vertical prop allocation leaves long EasyRequest text clipped with no way to scroll it.**
+**[GD5778](AROS-graphics-desktop.md#gd5778) — A later button allocation failure leaks the acquired screen DrawInfo.**
+**[GD5779](AROS-graphics-desktop.md#gd5779) — DisplayBeep and the input-handler timer access beep state under unrelated locks.**
+**[GD5780](AROS-graphics-desktop.md#gd5780) — `ClearDMRequest()` cannot detach a window's requester because its delegate rejects NULL.**
+**[GD5783](AROS-graphics-desktop.md#gd5783) — `CloseWorkBench()` sends an “after open” notification when no Workbench screen exists.**
+**[GD5784](AROS-graphics-desktop.md#gd5784) — `SetMouseQueue()` accepts limits that the signed queue state cannot represent.**
+**[GD5785](AROS-graphics-desktop.md#gd5785) — A nonmatching named-screen subscriber suppresses every later subscriber for the same screen event.**
+**[GD5786](AROS-graphics-desktop.md#gd5786) — MorphOS `HideWindow()` returns from a BOOL function without a value for backdrop windows.**
+**[GD5787](AROS-graphics-desktop.md#gd5787) — `DrawImageState()` narrows large planar image strides to signed WORD and points later planes before `ImageData`.**
+**[GD5788](AROS-graphics-desktop.md#gd5788) — Conventional `EraseImage()` erases one extra column and row beyond the image bounds.**
+**[GD5789](AROS-graphics-desktop.md#gd5789) — GetDrawInfoAttr truncates pointer-valued attributes on 64-bit AROS.**
+**[GD5790](AROS-graphics-desktop.md#gd5790) — DoNotify leaks cloned IDCMP update tags when IntuiMessage allocation fails.**
+**[GD5792](AROS-graphics-desktop.md#gd5792) — GetScreenData copies beyond the public Screen structure when `size` exceeds its size.**
+**[GD5793](AROS-graphics-desktop.md#gd5793) — LendMenus leaves inbound lending pointers stale when the target window closes.**
+**[GD5794](AROS-graphics-desktop.md#gd5794) — PointInImage treats one pixel beyond conventional images' right and bottom edges as inside.**
+**[GD5795](AROS-graphics-desktop.md#gd5795) — ModifyIDCMP deletes a caller-owned UserPort when IDCMP flags are cleared.**
+**[GD5796](AROS-graphics-desktop.md#gd5796) — ScreenDepth's family-to-back traversals stop at child screens because of operator precedence.**
+**[GD5798](AROS-graphics-desktop.md#gd5798) — SetPrefs reads past caller-supplied partial preference buffers while comparing pointer and color fields.**
+**[GD5799](AROS-graphics-desktop.md#gd5799) — SetIPrefs dereferences ScreenModePrefs after its allocation fails.**
+**[GD5801](AROS-graphics-desktop.md#gd5801) — SetMenuStrip attaches empty menus despite its documented rejection behavior.**
+**[GD5802](AROS-graphics-desktop.md#gd5802) — WindowAction calls an input-handler-only helper directly from its caller.**
+**[GD5803](AROS-graphics-desktop.md#gd5803) — FrButtonClass overwrites an explicitly supplied gadget dimension when the other dimension is omitted.**
+**[GD5804](AROS-graphics-desktop.md#gd5804) — FrButtonClass does not recalculate frame-box dimensions when `GA_Image` changes.**
+**[GD5805](AROS-graphics-desktop.md#gd5805) — Auto-knobs can render outside a tiny proportional gadget's track.**
+**[GD5806](AROS-graphics-desktop.md#gd5806) — Ctrl-W writes before a string gadget's work buffer when the cursor is in the first word.**
+**[GD5807](AROS-graphics-desktop.md#gd5807) — Ctrl-H deletes with overlapping `memcpy()` ranges in non-fixed-field string gadgets.**
+**[GD5808](AROS-graphics-desktop.md#gd5808) — STRINGA_Justification accumulates alignment flags instead of replacing them.**
+**[GD5809](AROS-graphics-desktop.md#gd5809) — StringGClass uses an 80-character implicit maximum despite the public 128-character default.**
+**[GD5810](AROS-graphics-desktop.md#gd5810) — StringGClass copies STRINGA_TextVal without respecting STRINGA_MaxChars.**
+**[GD5811](AROS-graphics-desktop.md#gd5811) — StringGClass invokes signed overflow when formatting the minimum LONG value.**
+**[GD5812](AROS-graphics-desktop.md#gd5812) — Failed window drag/resize activation leaks its cloned RastPort.**
+**[GD5813](AROS-graphics-desktop.md#gd5813) — `DoSyncAction()` silently drops synchronous operations when its wakeup-port allocation fails.**
+**[GD5815](AROS-graphics-desktop.md#gd5815) — A window has a menu strip and `IDCMP_MENUPICK`, and its user presses right-command plus a key matching a `COMMSEQ` on a menu item or subitem whose menu/item is disabled. `FindMenuShortCut()` tests….**
+**[GD5816](AROS-graphics-desktop.md#gd5816) — A GroupGClass member returns `GMR_NEXTACTIVE` or `GMR_PREVACTIVE`, and traversal reaches the wraparound branch. The non-wrap scans require both `GFLG_TABCYCLE` and absence of `GFLG_DISABLED`; the….**
+**[GD5817](AROS-graphics-desktop.md#gd5817) — A caller invokes `GetAttr()` on an ICClass or ModelClass object with an attribute other than `ICA_MAP` or `ICA_TARGET` and valid storage. `ICClass__OM_GET()` writes storage only for those two….**
+**[GD5818](AROS-graphics-desktop.md#gd5818) — Allocation of `MenuHandlerData` succeeds but `CreateMsgPort()` fails in `DefaultMenuHandler()`. The task sets `success = TRUE` without testing `port`, publishes the null port in `taskparams`, and….**
+**[GD5819](AROS-graphics-desktop.md#gd5819) — In a custom menu-decoration configuration, `MDA_UserBuffer` is nonzero and an `MDM_INITMENU` call succeeds far enough to establish decorator state, but the subsequent `OpenWindowTagList()` for the….**
+**[GD5820](AROS-graphics-desktop.md#gd5820) — A screen has a non-RELRIGHT gadget extending the computed title-area `left` beyond `BarHBorder`, and its title is long enough to reach that gadget's horizontal range. `findtitlearea()` computes….**
+**[GD5821](AROS-graphics-desktop.md#gd5821) — A caller invokes the private `MM_GetCompositionFlags` method for a mode on a monitor whose driver `mask` is nonzero. `MonitorClass__MM_GetCompositionFlags()` passes `msg->ModeID &….**
+**[GD5822](AROS-graphics-desktop.md#gd5822) — A caller invokes `MM_Query3DSupport` with an unsupported pixel-format code of 14 or greater. The method immediately evaluates `data->pfobjects[msg->PixelFormat]` before checking whether the index….**
+**[GD5825](AROS-graphics-desktop.md#gd5825) — The shutdown callback opens its final screen, then `MakePointerFromData()` fails to construct the 1x1 empty pointer object. `pmsg.pointer` is initialized to NULL; `GetAttr()` on the null object….**
+**[GD5826](AROS-graphics-desktop.md#gd5826) — A caller opens or updates a custom screen with `SA_ShowPointer` set to FALSE or TRUE. `OpenScreen()` stores the value in `screen->ShowPointer` but initializes `screen->Pointer` unconditionally:….**
+**[GD5827](AROS-graphics-desktop.md#gd5827) — `WBOpen()` obtains a CLI with a nonempty `cli_CommandDir`, successfully duplicates its search path into `WorkbenchBase->wb_SearchPath`, then `CreateNewProc(tags)` returns NULL. The failure branch….**
+**[GD5828](AROS-graphics-desktop.md#gd5828) — A Workbench Tool or Project launch passes through `WB_LaunchProgram()` with the stack-size and priority tags. Its callers construct both `NP_StackSize` and `NP_Priority` tags, so the allocation….**
+**[GD5829](AROS-graphics-desktop.md#gd5829) — `OpenWorkbenchObjectA()` obtains a non-NULL `DiskObject` from `GetIconTags()` and then takes the `j_uae_running() && is_68k(name, ...)` forwarding branch. That branch calls `forward_to_uae()` and….**
+**[GD5830](AROS-graphics-desktop.md#gd5830) — UAE integration is active and `OpenWorkbenchObjectA()` forwards a 68k executable. `forward_to_uae()` successfully creates a pool, then `AllocVecPooled()` fails to allocate `JUAE_Launch_Message`.….**
+**[GD5831](AROS-graphics-desktop.md#gd5831) — A launch message reaches `__HandleLaunch_WB()`, `LoadSeg()` succeeds, `DupLock(lock)` for `NP_HomeDir` succeeds, and `CreateNewProc(tags)` returns NULL. The handler's explicit `error` cleanup is….**
+**[GD5832](AROS-graphics-desktop.md#gd5832) — `CreateNewProc()` creates and returns the handler process, but one of the three `CreateMsgPort()` calls in `__Initialize_WB()` fails before the handler is ready. The handler deinitializes, resets….**
+**[GD5833](AROS-graphics-desktop.md#gd5833) — The handler receives `IDCMP_WBENCHMESSAGE` with `WBENCHOPEN` or `WBENCHCLOSE`, `CreateIWBHM()` succeeds, and `WorkbenchBase->wb_WorkbenchPort` is NULL. The message is forwarded only inside the….**
+**[GD5834](AROS-graphics-desktop.md#gd5834) — `OpenWorkbenchObjectA()` opens a drawer while `wb_WorkbenchPort` is NULL. It packages a named `WBHM_TYPE_OPEN` message in a `WBCM_TYPE_RELAY`; the handler stores the nested relay on….**
+**[GD5835](AROS-graphics-desktop.md#gd5835) — A caller passes a non-NULL `WBAPPICONA_RenderHook` while creating an AppIcon. `AddAppIconA()` allocates `struct AppIcon` with `MEMF_CLEAR`, so `appIcon->ai_RenderHook` is initially NULL. The tag….**
+**[GD5836](AROS-graphics-desktop.md#gd5836) — A caller passes `WBAPPICONA_SupportsOpen = FALSE`. `AddAppIconA()` initializes `appIcon->ai_Flags` with `WBAPPICONF_SupportsOpen`, then the tag case only ORs that flag when the value is true; the….**
+**[GD5837](AROS-graphics-desktop.md#gd5837) — One task calls `GetNextAppIcon()` while another calls `AddAppIconA()` or `RemoveAppIcon()`. The writer paths mutate the shared `wb_AppIcons` list under `wb_BaseSemaphore`; `GetNextAppIcon()` reads….**
+**[GD5838](AROS-graphics-desktop.md#gd5838) — For a file with a directory component, `allocPath()` fails to allocate the path prefix. `SendAppWindowMessage()` has already stored only `FilePart(files[i])` in `wa_Name`; because `path` is NULL,….**
+**[GD5839](AROS-graphics-desktop.md#gd5839) — The list already contains an AppMenuItem created without `WBAPPMENUA_CommandKeyString`, leaving its cleared `ami_CommandKey` NULL. A later `AddAppMenuItemA()` call supplies a command-key tag. Its….**
+**[GD5840](AROS-graphics-desktop.md#gd5840) — Two tasks concurrently call `AddAppMenuItemA()` with the same nonempty command-key string when no current item uses it. Each call invokes `keyUsed()`, which acquires `wb_BaseSemaphore`, scans, and….**
+**[GD5841](AROS-graphics-desktop.md#gd5841) — An icon is successfully added/changed through `PutIconTagList()` or deleted through `DeleteDiskObject()` while a Workbench application is expected to reflect disk-object changes. The icon library….**
+**[GD5842](AROS-graphics-desktop.md#gd5842) — UAE argument cloning consumes caller-owned ArgLocks.**
+**[GD5843](AROS-graphics-desktop.md#gd5843) — OpenWorkbenchObjectA reports success when UAE forwarding cannot queue a launch request.**
+**[GD5844](AROS-graphics-desktop.md#gd5844) — DisplayIOError appends text to an uninitialized buffer.**
+**[GD5845](AROS-graphics-desktop.md#gd5845) — IsDirectoryEmpty can call Examine with a NULL FileInfoBlock.**
+**[GD5846](AROS-graphics-desktop.md#gd5846) — CopyContent treats a negative DOS Read result as successful EOF.**
+**[GD5847](AROS-graphics-desktop.md#gd5847) — Top-level sidecar setup failures are overwritten before the copy proceeds.**
+**[GD5848](AROS-graphics-desktop.md#gd5848) — Overwrite-query allocation failure dereferences a NULL request record.**
+**[GD5850](AROS-graphics-desktop.md#gd5850) — Workbook cleanup closes GadTools twice and leaves Intuition open.**
+**[GD5852](AROS-graphics-desktop.md#gd5852) — WBIcon construction leaks the loaded DiskObject when label duplication fails.**
+**[GD5854](AROS-graphics-desktop.md#gd5854) — The standalone Wanderer Icon.mui target's constructor uses an incompatible message type and an undeclared variable.**
+**[GD5856](AROS-graphics-desktop.md#gd5856) — Disabling IconList buffering frees the display bitmap instead of the off-screen bitmap.**
+**[GD5857](AROS-graphics-desktop.md#gd5857) — IconList can retain an entry with a NULL FileInfoBlock and dereference it in Comment rendering.**
+**[GD5858](AROS-graphics-desktop.md#gd5858) — IconList drag-and-drop dereferences a failed source-entry allocation.**
+**[GD5860](AROS-graphics-desktop.md#gd5860) — IconList partial auto-layout dereferences a failed Region allocation.**
+**[GD5861](AROS-graphics-desktop.md#gd5861) — IconList continues construction after list-view state allocation fails, then dereferences the absent state.**
+**[GD5862](AROS-graphics-desktop.md#gd5862) — Hiding a buffered IconList deletes its Layer but abandons the off-screen RastPort, bitmap, and Layer_Info.**
+**[GD5863](AROS-graphics-desktop.md#gd5863) — IconList Up/Down navigation dereferences NULL when the list has no visible entries.**
+**[GD5864](AROS-graphics-desktop.md#gd5864) — IconList MakeEntryVisible assigns the entry's X coordinate to the vertical scroll position.**
+**[GD5865](AROS-graphics-desktop.md#gd5865) — IconList allocates too little space for its drag-image result on 64-bit targets.**
+**[GD5867](AROS-graphics-desktop.md#gd5867) — IconList sorting detaches hidden entries when no sort-order bit is set.**
+**[GD5868](AROS-graphics-desktop.md#gd5868) — Keyboard selection changes can bypass the SelectionChanged notification used by Wanderer.**
+**[GD5869](AROS-graphics-desktop.md#gd5869) — Unshifted Space cannot deselect the focused IconList entry.**
+**[GD5870](AROS-graphics-desktop.md#gd5870) — Right Shift clears IconList selection during arrow-key navigation.**
+**[GD5871](AROS-graphics-desktop.md#gd5871) — Disposing an IconList leaks its separately allocated list-view attributes.**
+**[GD5872](AROS-graphics-desktop.md#gd5872) — IconList leaks the temporary RastPort when buffered-layer setup fails.**
+**[GD5873](AROS-graphics-desktop.md#gd5873) — Wanderer leaks a completed IconList drop payload when the copy worker cannot start.**
+**[GD5874](AROS-graphics-desktop.md#gd5874) — IconList Show continues after its display RastPort clone fails.**
+**[GD5875](AROS-graphics-desktop.md#gd5875) — IconList can underestimate appended size/date width and underflow its text-area calculation.**
+**[GD5876](AROS-graphics-desktop.md#gd5876) — Resizing or rebuilding a buffered IconList loses its old off-screen bitmap and RastPort.**
+**[GD5877](AROS-graphics-desktop.md#gd5877) — Right Shift fails to commit an active IconList lasso on movement-key handling.**
+**[GD5878](AROS-graphics-desktop.md#gd5878) — IconList detail-mode hit testing treats the first row's top pixel as part of the header.**
+**[GD5880](AROS-graphics-desktop.md#gd5880) — Multiline label splitting can probe beyond the terminator of an ordinary filename.**
+**[GD5881](AROS-graphics-desktop.md#gd5881) — Wanderer preference notification setup dereferences failed allocations.**
+**[GD5882](AROS-graphics-desktop.md#gd5882) — IconDrawerList can overrun its local pathname buffer while enumerating a long drawer path.**
+**[GD5883](AROS-graphics-desktop.md#gd5883) — IconWindow background-mode settings sent to IconListview are not applied to its child IconList.**
+**[GD5884](AROS-graphics-desktop.md#gd5884) — Clipped image-background tiling skips the final source row and column.**
+**[GD5886](AROS-graphics-desktop.md#gd5886) — ImageBackFill dereferences a failed cache-buffer record allocation.**
+**[GD5887](AROS-graphics-desktop.md#gd5887) — ImageBackFill leaks partially constructed cache buffers when later setup steps fail.**
+**[GD5888](AROS-graphics-desktop.md#gd5888) — Repeated root-volume refreshes append duplicate User Files entries.**
+**[GD5890](AROS-graphics-desktop.md#gd5890) — Drawer settings save can mark an icon as initialized without DrawerData, causing the next open to dereference NULL.**
+**[GD5891](AROS-graphics-desktop.md#gd5891) — Screen-title expansion can overflow the fixed formatter buffers.**
+**[GD5892](AROS-graphics-desktop.md#gd5892) — Importing a new view-settings preference chunk dereferences unchecked allocations.**
+**[GD5893](AROS-graphics-desktop.md#gd5893) — Wanderer preference reload leaks an IFF handle when the global file cannot be opened.**
+**[GD5894](AROS-graphics-desktop.md#gd5894) — A multi-item move classifies every source using only the first item's device.**
+**[GD5895](AROS-graphics-desktop.md#gd5895) — Put Away `.backdrop` parsing frees an AllocMem node with FreeVec on name-allocation failure.**
+**[GD5896](AROS-graphics-desktop.md#gd5896) — Opening a selected icon dereferences a failed window-title allocation.**
+**[GD5897](AROS-graphics-desktop.md#gd5897) — Launching a selected program with arguments dereferences a failed tag-list allocation.**
+**[GD5898](AROS-graphics-desktop.md#gd5898) — Icon open actions leak the allocated title string.**
+**[GD5899](AROS-graphics-desktop.md#gd5899) — The copy worker abandons queued drop entries when display setup or a copy stops/fails.**
+**[GD5900](AROS-graphics-desktop.md#gd5900) — Wanderer fails to dispose its superclass object when the first command-port allocation fails.**
+**[GD5901](AROS-graphics-desktop.md#gd5901) — Status-bar total file size wraps when visible files sum beyond ULONG range.**
+**[GD5902](AROS-graphics-desktop.md#gd5902) — Status-bar cleanup checks the toolbar private-data slot and can leave its notifier registered.**
+**[GD5903](AROS-graphics-desktop.md#gd5903) — Status-bar setup passes a NULL preference notifier to DoMethod after buffer allocation failure.**
+**[GD5904](AROS-graphics-desktop.md#gd5904) — ExpandEnvName copies into a NULL fallback buffer when allocation fails.**
+**[GD5906](AROS-graphics-desktop.md#gd5906) — graphics.library treats a displayless HIDD as a successful driver setup.**
+**[GD5907](AROS-graphics-desktop.md#gd5907) — Display-driver removal omits the callback's registered userdata argument.**
+**[GD5910](AROS-graphics-desktop.md#gd5910) — `SetRGB32()` writes past the fixed HIDD pixel translation table for an out-of-range color index.**
+**[GD5911](AROS-graphics-desktop.md#gd5911) — `ExtendFont()` leaks an unlinked hash node when building an extension fails.**
+**[GD5912](AROS-graphics-desktop.md#gd5912) — `AndRectRegion()` can leave the list head inside a rectangle chunk, so cleanup leaks the head chunk.**
+**[GD5913](AROS-graphics-desktop.md#gd5913) — Opposite-direction `ClipBlit()` calls can deadlock while locking layers from different screens.**
+**[GD5914](AROS-graphics-desktop.md#gd5914) — `TextFit()` applies numeric bounds that its contract says to ignore when an extent is supplied.**
+**[GD5915](AROS-graphics-desktop.md#gd5915) — `BltClear()` leaves the final byte unchanged for odd contiguous byte counts.**
+**[GD5916](AROS-graphics-desktop.md#gd5916) — Color-font conversion narrows row geometry and can either skip reads or overrun its chunky buffer.**
+**[GD5917](AROS-graphics-desktop.md#gd5917) — Compositor registration accepts an unregistered method interface when a class advertises the compositor class ID.**
+**[GD5918](AROS-graphics-desktop.md#gd5918) — Hardware ranges ending at the CPU address-space boundary are treated as non-overlapping.**
+**[GD5920](AROS-graphics-desktop.md#gd5920) — `VideoControl()` returns success when given no tag items, contrary to its documented result.**
+**[GD5921](AROS-graphics-desktop.md#gd5921) — `VideoControl()` dereferences a NULL ColorMap instead of returning its documented error.**
+**[GD5922](AROS-graphics-desktop.md#gd5922) — `OwnBlitter()` does not serialize shared owner state across CPUs on ExecSMP.**
+**[GD5924](AROS-graphics-desktop.md#gd5924) — Selected caller/reachability recheck (expanded 2026-10-24).**
+**[GD5925](AROS-graphics-desktop.md#gd5925) — The public `CalcIVG()` vector always returns the documented error value and never calculates a valid blank-line count.**
+**[GD5926](AROS-graphics-desktop.md#gd5926) — `WeighTAMatch()` computes font-size distance after converting unsigned sizes to signed words.**
+**[GD5927](AROS-graphics-desktop.md#gd5927) — `WeighTAMatch()` can make a large size mismatch outrank closer in-memory fonts.**
+**[GD5928](AROS-graphics-desktop.md#gd5928) — Reinitializing a user copper list leaves its count at capacity and may leave the active cursor on an old extension list.**
+**[GD5929](AROS-graphics-desktop.md#gd5929) — Copper-list growth allocation failure leaves the void macros able to write beyond the full instruction buffer.**
+**[GD5931](AROS-graphics-desktop.md#gd5931) — Icon-view single-entry redraw writes `ie_Flags` through the list tail sentinel.**
+**[GD5932](AROS-graphics-desktop.md#gd5932) — SM502 HIDD startup leaks its eight OOP attribute-base references after later initialization failure.**
+**[GD5933](AROS-graphics-desktop.md#gd5933) — Radeon initialization passes an unchecked pool allocation to `SaveState()`, which writes through it.**
+**[GD5934](AROS-graphics-desktop.md#gd5934) — Radeon monitor probing dispatches through a failed I²C object allocation.**
+**[GD5935](AROS-graphics-desktop.md#gd5935) — Radeon monitor detection classifies from EDID even when the I²C transfer fails.**
+**[GD5936](AROS-graphics-desktop.md#gd5936) — Radeon bitmap construction writes row addresses through an unchecked allocation result.**
+**[GD5937](AROS-graphics-desktop.md#gd5937) — Radeon 15-bit alpha blits store fully opaque source pixels as black.**
+**[GD5938](AROS-graphics-desktop.md#gd5938) — `AvailFonts()` dereferences its private buffer state when `BufferInfo` allocation fails.**
+**[GD5939](AROS-graphics-desktop.md#gd5939) — Workbench `CLI` returns success when it cannot open its configured shell window.**
+**[GD5940](AROS-graphics-desktop.md#gd5940) — Find's search worker dereferences a NULL parsed pattern after allocation failure.**
+**[GD5941](AROS-graphics-desktop.md#gd5941) — Find queues a result whose filename is NULL when `StrDup()` fails.**
+**[GD5942](AROS-graphics-desktop.md#gd5942) — Find's list constructor returns a row with no filename after its pooled copy fails.**
+**[GD5943](AROS-graphics-desktop.md#gd5943) — Find silently truncates long result paths in the View command.**
+**[GD5944](AROS-graphics-desktop.md#gd5944) — Find exits with success after its startup error paths.**
+**[GD5945](AROS-graphics-desktop.md#gd5945) — Format can proceed after CLI confirmation input reaches EOF or fails.**
+**[GD5946](AROS-graphics-desktop.md#gd5946) — Snoopy leaves shared library vectors patched when its MUI event loop exits without the Reset action.**
+**[GD5947](AROS-graphics-desktop.md#gd5947) — LogView's detail formatter can write beyond its fixed event-details buffer.**
+**[GD5948](AROS-graphics-desktop.md#gd5948) — LogView retains raw log-entry pointers after Logger removes and frees the entries.**
+**[GD5949](AROS-graphics-desktop.md#gd5949) — LogView's Clear Log action displays choices but performs no save or clear operation.**
+**[GD5950](AROS-graphics-desktop.md#gd5950) — LogView's Save Log menu item and Save button have no action handler.**
+**[GD5951](AROS-graphics-desktop.md#gd5951) — LogView's Event ID filter accepts input but never filters entries by ID.**
+**[GD5954](AROS-graphics-desktop.md#gd5954) — Hook-based ScreenDepth notifications leave `snm_Code` uninitialized.**
+**[GD5955](AROS-graphics-desktop.md#gd5955) — DisplayAlert can perform an unaligned word load on m68k for a valid multi-line message.**
+**[GD5956](AROS-graphics-desktop.md#gd5956) — OpenScreen can dispatch `GetAttr()` on a NULL screen-decoration object after construction fails.**
+**[GD5957](AROS-graphics-desktop.md#gd5957) — The X11 cursor-shape method dereferences a failed host cursor-image allocation.**
+**[GD5958](AROS-graphics-desktop.md#gd5958) — X11 display initialization dereferences a failed visual-info allocation.**
+**[GD5959](AROS-graphics-desktop.md#gd5959) — X11 host-library rollback closes the X11 handle twice when libc loading fails.**
+**[GD5961](AROS-graphics-desktop.md#gd5961) — X11 framebuffer setup dereferences a failed class-hint allocation.**
+**[GD5962](AROS-graphics-desktop.md#gd5962) — X11 framebuffer setup never frees the allocated class-hint structure.**
+**[GD5963](AROS-graphics-desktop.md#gd5963) — X11 framebuffer disposal loses the icon pixmap without freeing it.**
+**[GD5964](AROS-graphics-desktop.md#gd5964) — X11 PseudoColor icon drawing never releases allocated colormap cells.**
+**[GD5965](AROS-graphics-desktop.md#gd5965) — X11 initialization rollback can leave the host-clipboard port published after its event task exits.**
+**[GD5966](AROS-graphics-desktop.md#gd5966) — X11 clipboard selection writes omit INCR transfers and acknowledge property writes without checking their outcome.**
+**[GD5967](AROS-graphics-desktop.md#gd5967) — X11 shared-memory initialization accepts the `shmat()` failure sentinel as a valid mapping.**
+**[GD5968](AROS-graphics-desktop.md#gd5968) — X11 shared-memory image reads call `XShmGetImage()` twice for every chunk.**
+**[GD5969](AROS-graphics-desktop.md#gd5969) — X11 HIDD startup calls `HW_AddDriver()` on objects that do not implement the `HW` interface, so startup fails before registering input drivers.**
+**[GD5970](AROS-graphics-desktop.md#gd5970) — The X11 keymap generator changes the host's auto-repeat mode and does not reliably restore it.**
+**[GD5971](AROS-graphics-desktop.md#gd5971) — The X11 keymap generator ignores a failed final flush and can report a bad table as successfully written.**
+**[GD5972](AROS-graphics-desktop.md#gd5972) — WinGDI host-library expunge leaves the acquired User32 interface and library handle open.**
+**[GD5973](AROS-graphics-desktop.md#gd5973) — Cocoa's keyboard poller passes a key value where the input API requires an event pointer.**
+**[GD5974](AROS-graphics-desktop.md#gd5974) — Cocoa startup reports success when its input poller cannot be launched.**
+**[GD5975](AROS-graphics-desktop.md#gd5975) — Cocoa's input poller busy-spins if it cannot open DOS.**
+**[GD5976](AROS-graphics-desktop.md#gd5976) — LinuxFB leaks its graphics HIDD object when nested display construction fails.**
+**[GD5977](AROS-graphics-desktop.md#gd5977) — LinuxFB builds zero gamma-table steps for DirectColor channels wider than eight bits.**
+**[GD5978](AROS-graphics-desktop.md#gd5978) — LinuxFB fails to restore and close the host console after framebuffer setup failure or removal.**
+**[GD5979](AROS-graphics-desktop.md#gd5979) — IntelGMA can accept an unsuccessful EDID read and misclassify the display path.**
+**[GD5980](AROS-graphics-desktop.md#gd5980) — IntelGMA's solid-line rasterizer narrows valid line spans and slope terms to signed 16-bit values.**
+**[GD5981](AROS-graphics-desktop.md#gd5981) — IntelGMA reports a displayable bitmap as successfully created after both backing allocations fail.**
+**[GD5982](AROS-graphics-desktop.md#gd5982) — IntelGMA leaks its temporary DDC device and loses the I2C bus on graphics-object construction failure.**
+**[GD5983](AROS-graphics-desktop.md#gd5983) — IntelGMA dereferences failed allocations while building its display-mode tag list.**
+**[GD5984](AROS-graphics-desktop.md#gd5984) — IntelGMA registers its graphics driver even when creation of the display HIDD meta-class failed.**
+**[GD5985](AROS-graphics-desktop.md#gd5985) — IntelGMA startup leaks its display meta-class when later initialization fails.**
+**[GD5986](AROS-graphics-desktop.md#gd5986) — IntelGMA's 3D CopyBox path checks the source bitmap's graphics-memory flag twice and can send a system-memory destination address to the GPU.**
+**[GD5987](AROS-graphics-desktop.md#gd5987) — IntelGMA's Gallium batch-buffer destroy callback passes a winsys pointer read from its freed batch object.**
+**[GD5988](AROS-graphics-desktop.md#gd5988) — IntelGMA's Gallium batch-buffer constructor mishandles both CPU-map and graphics-memory allocation failures.**
+**[GD5989](AROS-graphics-desktop.md#gd5989) — AmigaVideo native-mode enumeration dereferences a failed mode-node allocation.**
+**[GD5990](AROS-graphics-desktop.md#gd5990) — AmigaVideo can orphan its display service task when shutdown and redraw signals arrive together.**
+**[GD5991](AROS-graphics-desktop.md#gd5991) — AmigaVideo uses an uninitialized overlap adjustment when revealing same-mode hidden screens.**
+**[GD5992](AROS-graphics-desktop.md#gd5992) — AmigaVideo writes a null-derived startup copper list when its chip-memory allocation fails.**
+**[GD5994](AROS-graphics-desktop.md#gd5994) — AmigaVideo copies a dummy interlace copper list through an unchecked allocation.**
+**[GD5995](AROS-graphics-desktop.md#gd5995) — P96Gfx crashes while disposing an 8-bit bitmap whose palette allocation failed.**
+**[GD5996](AROS-graphics-desktop.md#gd5996) — P96Gfx dereferences unchecked allocations while constructing a card HIDD.**
+**[GD5997](AROS-graphics-desktop.md#gd5997) — P96Gfx dereferences a failed mode-node allocation while registering display modes.**
+**[GD5998](AROS-graphics-desktop.md#gd5998) — P96Gfx dereferences a failed VRAM allocator-header allocation during initialization.**
+**[GD5999](AROS-graphics-desktop.md#gd5999) — P96Gfx keeps operating after its cursor color-map object failed to construct.**
+**[GD6000](AROS-graphics-desktop.md#gd6000) — P96Gfx abandons discovered card records and mode lists without freeing them on initialization failure.**
+**[GD6001](AROS-graphics-desktop.md#gd6001) — A later Decoration theme reload can read the freed initial decorator record.**
+**[GD6002](AROS-graphics-desktop.md#gd6002) — Deleting a Decoration theme record leaks its three tag arrays.**
+**[GD6003](AROS-graphics-desktop.md#gd6003) — Decoration dereferences failed tag-array allocations while loading a theme.**
+**[GD6004](AROS-graphics-desktop.md#gd6004) — Decoration startup leaks its private port and loaded theme record when class construction fails.**
+**[GD6005](AROS-graphics-desktop.md#gd6005) — A tiled Decoration menu dereferences a failed tile-info allocation.**
+**[GD6006](AROS-graphics-desktop.md#gd6006) — Each successful highlighted menu background render leaks its temporary image container.**
+**[GD6007](AROS-graphics-desktop.md#gd6007) — Per-screen decoration image remapping dereferences unchecked allocation results.**
+**[GD6008](AROS-graphics-desktop.md#gd6008) — A zero Decoration theme `BarHeight` causes division by zero while Intuition sizes a title gadget.**
+**[GD6009](AROS-graphics-desktop.md#gd6009) — Decoration title-cache allocation failure is passed to `strncpy()`.**
+**[GD6010](AROS-graphics-desktop.md#gd6010) — Decoration's bar-masking shape path dereferences a failed scaled titlebar image.**
+**[GD6011](AROS-graphics-desktop.md#gd6011) — Truecolor frame rendering can read a failed gradient-column allocation.**
+**[GD6012](AROS-graphics-desktop.md#gd6012) — Decoration theme loading dereferences failed config allocations before its caller can handle failure.**
+**[GD6013](AROS-graphics-desktop.md#gd6013) — Malformed Decoration theme settings can pass a null-derived pointer to numeric parsers.**
+**[GD6014](AROS-graphics-desktop.md#gd6014) — A zero-width menu source tile can trap Decoration in an endless render loop.**
+**[GD6015](AROS-graphics-desktop.md#gd6015) — Theme image loading dereferences unchecked path and filename allocations.**
+**[GD6016](AROS-graphics-desktop.md#gd6016) — Image scaling dereferences failed output and sample-table allocations.**
+**[GD6017](AROS-graphics-desktop.md#gd6017) — Low-color screen-theme remapping drops the only reference to each successfully loaded picture datatype object.**
+**[GD6018](AROS-graphics-desktop.md#gd6018) — A one-value Decoration title-bar setting produces a negative source-image offset.**
+**[GD6019](AROS-graphics-desktop.md#gd6019) — Decoration border shading dereferences an unchecked RastPort clone.**
+**[GD6020](AROS-graphics-desktop.md#gd6020) — A negative Decoration title-bar tile size makes the title renderer loop without progress.**
+**[GD6021](AROS-graphics-desktop.md#gd6021) — AboutAROS dereferences failed pool allocations while formatting build labels.**
+**[GD6022](AROS-graphics-desktop.md#gd6022) — AboutAROS leaks its constructor pool if MUI application construction fails.**
+**[GD6023](AROS-graphics-desktop.md#gd6023) — FTManager dereferences a failed serialized-tag-buffer allocation.**
+**[GD6024](AROS-graphics-desktop.md#gd6024) — FTManager reports successful font installation after output files fail to open or write completely.**
+**[GD6025](AROS-graphics-desktop.md#gd6025) — Long FTManager path or output-name arguments leave stack strings unterminated, then pass them to string and path routines.**
+**[GD6027](AROS-graphics-desktop.md#gd6027) — VMM Preferences overflows its menu path buffer with a long selected drawer and uses an incomplete path when composition fails.**
+**[GD6028](AROS-graphics-desktop.md#gd6028) — VMM paging-device names can overflow the 80-byte saved-config field.**
+**[GD6029](AROS-graphics-desktop.md#gd6029) — VMM Preferences cleanup removes and drains an unregistered, partially initialized commodity port after signal allocation fails.**
+**[GD6030](AROS-graphics-desktop.md#gd6030) — VMM Preferences overflows a task-picker stack buffer with a long CLI command name.**
+**[GD6031](AROS-graphics-desktop.md#gd6031) — VMM task-name config records can omit the required NUL terminator.**
+**[GD6032](AROS-graphics-desktop.md#gd6032) — VMM Preferences discards the current task name before allocating its replacement.**
+**[GD6033](AROS-graphics-desktop.md#gd6033) — VMM Preferences continues with an invalid show-window signal after `AllocSignal()` fails.**
+**[GD6034](AROS-graphics-desktop.md#gd6034) — VMM's config reader returns an uninitialized result for a valid config with no added task entries.**
+**[GD6035](AROS-graphics-desktop.md#gd6035) — VMM closes the same locale catalog explicitly and again through its registered exit hook.**
+**[GD6036](AROS-graphics-desktop.md#gd6036) — WBRename reads before short names while checking for an `.info` suffix.**
+**[GD6037](AROS-graphics-desktop.md#gd6037) — WBRename uses an unchecked FileInfoBlock when identifying a volume root.**
+**[GD6038](AROS-graphics-desktop.md#gd6038) — WBRename does not roll back a file rename when moving its `.info` sidecar fails.**
+**[GD6039](AROS-graphics-desktop.md#gd6039) — WBRename does not preserve DOS-list entries or the device-name pointer while resolving a relabel target.**
+**[GD6040](AROS-graphics-desktop.md#gd6040) — WBRename gives no error feedback when a volume relabel fails.**
+**[GD6041](AROS-graphics-desktop.md#gd6041) — WBRename dereferences unchecked volume-name allocations during startup.**
+**[GD6042](AROS-graphics-desktop.md#gd6042) — WBNewDrawer closes successfully even when the requested drawer icon cannot be created or saved.**
+**[GD6043](AROS-graphics-desktop.md#gd6043) — Info can erase existing tooltypes when rebuilding the edited list fails.**
+**[GD6044](AROS-graphics-desktop.md#gd6044) — Info closes after an icon write fails without reporting that the icon was not saved.**
+**[GD6045](AROS-graphics-desktop.md#gd6045) — Info clears its dirty state and closes even when comment or protection updates fail.**
+**[GD6046](AROS-graphics-desktop.md#gd6046) — Info leaks a path buffer for every subdirectory visited during a directory-size scan.**
+**[GD6047](AROS-graphics-desktop.md#gd6047) — Info formats directory-size text through an unchecked worker allocation.**
+**[GD6048](AROS-graphics-desktop.md#gd6048) — Workbook opens Info with no lock, so Info displays `SYS:` as the selected object's location.**
+**[GD6049](AROS-graphics-desktop.md#gd6049) — Info can overwrite a completed scan's NULL process marker with a stale process pointer and spin forever on exit.**
+**[GD6050](AROS-graphics-desktop.md#gd6050) — Info passes a failed directory lock to ExAll, whose selected implementation dereferences it before DOS packet handling.**
+**[GD6052](AROS-graphics-desktop.md#gd6052) — Info's scan worker replaces a live Zune text object's render state while the GUI can draw it.**
+**[GD6054](AROS-graphics-desktop.md#gd6054) — DiskInfo retains DOS-list node and name pointers after releasing the list lock.**
+**[GD6055](AROS-graphics-desktop.md#gd6055) — DiskInfo passes uninitialized size strings to MUI when DOS Info() fails.**
+**[GD6056](AROS-graphics-desktop.md#gd6056) — DiskInfo dereferences a missing device-name result after treating the device row as optional.**
+**[GD6057](AROS-graphics-desktop.md#gd6057) — DiskInfo writes through unchecked filesystem/device label allocations.**
+**[GD6058](AROS-graphics-desktop.md#gd6058) — DiskInfo detects removed media but discards the state instead of closing or refreshing the window.**
+**[GD6060](AROS-graphics-desktop.md#gd6060) — DiskInfo's later unknown-filesystem fallback does not terminate its copied string.**
+**[GD6061](AROS-graphics-desktop.md#gd6061) — IconImage does not release the DiskObject it loads for a file-backed image.**
+**[GD6062](AROS-graphics-desktop.md#gd6062) — DiskInfo never frees its temporary volume-icon path after passing it to IconImage.**
+**[GD6063](AROS-graphics-desktop.md#gd6063) — DiskInfo refreshes used/free values for a replacement medium but keeps capacity and block size from the old one.**
+**[GD6064](AROS-graphics-desktop.md#gd6064) — DiskInfo leaks its prebuilt filesystem/device labels when application construction fails.**
+**[GD6065](AROS-graphics-desktop.md#gd6065) — Info leaves the directory-size result blank if it cannot start the scan process.**
+**[GD6067](AROS-graphics-desktop.md#gd6067) — ExecuteCommand can start its child shell with an incomplete Workbench search path.**
+**[GD6081](AROS-graphics-desktop.md#gd6081) — CLI exits successfully when it cannot open its console, without starting a shell.**
+**[GD6082](AROS-graphics-desktop.md#gd6082) — FixFonts accepts a short positive write as a complete `.font` cache file.**
+**[GD6083](AROS-graphics-desktop.md#gd6083) — FixFonts reports success when it cannot mark a rewritten `.font` file non-executable.**
+**[GD6084](AROS-graphics-desktop.md#gd6084) — FixFonts skips font directories whose names are prefixes of `TrueType`.**
+**[GD6085](AROS-graphics-desktop.md#gd6085) — Snoopy reports its preferences save as successful after a write failure.**
+**[GD6086](AROS-graphics-desktop.md#gd6086) — Resident HeadlessGfx initialization leaks its acquired OOP attribute-base references on later failure.**
+**[GD6087](AROS-graphics-desktop.md#gd6087) — Consolidated into GD5906 (2026-11-15).**
+**[GD6090](AROS-graphics-desktop.md#gd6090) — Decoration installs an incomplete rounded window region when a rectangle union fails.**
+**[GD6091](AROS-graphics-desktop.md#gd6091) — KeyShow leaves a physical modifier highlighted after the key is released.**
+**[GD6092](AROS-graphics-desktop.md#gd6092) — KeyShow's keyboard-group constructor dereferences a failed keymap allocation.**
+**[GD6093](AROS-graphics-desktop.md#gd6093) — KeyShow continues into GUI event handling after application construction fails.**
+**[GD6094](AROS-graphics-desktop.md#gd6094) — C:Unpack asks Intuition to close the Workbench screen on every cleanup path.**
+**[GD6095](AROS-graphics-desktop.md#gd6095) — C:Unpack divides progress by zero when its input does not support seeking.**
+**[GD6096](AROS-graphics-desktop.md#gd6096) — C:Unpack retries forever when a destination write returns zero bytes.**
+**[GD6097](AROS-graphics-desktop.md#gd6097) — WBRun dereferences a failed tag-list allocation when arguments are supplied.**
+**[GD6098](AROS-graphics-desktop.md#gd6098) — ScreenGrabber keeps public-screen node pointers after releasing Intuition's list lock.**
+**[GD6099](AROS-graphics-desktop.md#gd6099) — ScreenGrabber leaves Save enabled after disposing its image and failing to create a replacement.**
+**[GD6100](AROS-graphics-desktop.md#gd6100) — CPUInfo's verbose x86 probe executes CPUID without checking that the processor supports it.**
+**[GD6102](AROS-graphics-desktop.md#gd6102) — The AMD CPUInfo parser leaks its temporary buffer when the extended CPUID range is absent.**
+**[GD6103](AROS-graphics-desktop.md#gd6103) — The Cyrix CPUInfo parser leaks its temporary buffer when extended CPUID is absent.**
+**[GD6104](AROS-graphics-desktop.md#gd6104) — Cyrix CPUInfo indexes past its feature tables when standard CPUID bit 31 is set.**
+**[GD6105](AROS-graphics-desktop.md#gd6105) — CPUInfo prints a serial-number field without checking the CPUID PSN capability bit.**
+**[GD6106](AROS-graphics-desktop.md#gd6106) — CPUInfo labels the executing CPU's CPUID data as each listed processor's data.**
+**[GD6107](AROS-graphics-desktop.md#gd6107) — X11 initialization can close its shared display before the event task has stopped.**
+**[GD6108](AROS-graphics-desktop.md#gd6108) — CPUInfo depends on the removed `cpu.resource` interface and fails on current systems without a compatibility provider.**
+**[GD6109](AROS-graphics-desktop.md#gd6109) — InjectIcon truncates unsuffixed names and can underflow the copy length for short names.**
+**[GD6110](AROS-graphics-desktop.md#gd6110) — InjectIcon returns success when argument parsing, icon loading, or writing fails.**
+**[GD6111](AROS-graphics-desktop.md#gd6111) — InjectIcon does not release its parsed argument block or loaded DiskObjects.**
+**[GD6112](AROS-graphics-desktop.md#gd6112) — WiMP traverses Intuition's screen and window lists after releasing `LockIBase()`.**
+**[GD6113](AROS-graphics-desktop.md#gd6113) — WiMP may pass a selected screen or window pointer to a close routine after another task has closed it during the confirmation requester.**
+**[GD6114](AROS-graphics-desktop.md#gd6114) — AltKeyQ can overwrite a completed character before its task handles the signal.**
+**[GD6115](AROS-graphics-desktop.md#gd6115) — AltKeyQ's decimal accumulator can wrap a long keypad sequence into an accepted byte value.**
+**[GD6116](AROS-graphics-desktop.md#gd6116) — ClickToFront converts a negative `NUMCLICKS` value into a huge unsigned click threshold.**
+**[GD6117](AROS-graphics-desktop.md#gd6117) — ClickToFront reads Intuition's active window/screen fields without the required base lock.**
+**[GD6118](AROS-graphics-desktop.md#gd6118) — ClickToFront uses a `WhichLayer()` result after releasing the lock that protects the layer list.**
+**[GD6119](AROS-graphics-desktop.md#gd6119) — AutoPoint reads Intuition's active window and screen fields without `LockIBase()`.**
+**[GD6120](AROS-graphics-desktop.md#gd6120) — AutoPoint uses a hit-tested layer after releasing the lock protecting it.**
+**[GD6121](AROS-graphics-desktop.md#gd6121) — Blanker dereferences the result of `LockPubScreen()` even when it failed.**
+**[GD6122](AROS-graphics-desktop.md#gd6122) — Blanker mishandles both failed and bit-zero signal allocations.**
+**[GD6123](AROS-graphics-desktop.md#gd6123) — Blanker exits with status zero after argument and startup failures.**
+**[GD6124](AROS-graphics-desktop.md#gd6124) — DepthMenu drops screen-list protection before opening its popup on the selected screen.**
+**[GD6125](AROS-graphics-desktop.md#gd6125) — DepthMenu can dereference the popup screen after closing the visitor window that kept it alive.**
+**[GD6126](AROS-graphics-desktop.md#gd6126) — DepthMenu's selected-window check does not keep the window alive through the asynchronous fronting call.**
+**[GD6127](AROS-graphics-desktop.md#gd6127) — FKey can overwrite a pending hotkey action before its GUI task handles it.**
+**[GD6128](AROS-graphics-desktop.md#gd6128) — FKey reads and acts on active or hit-tested windows without preserving their lifetime.**
+**[GD6129](AROS-graphics-desktop.md#gd6129) — FKey ignores icon-write failure when saving its settings.**
+**[GD6130](AROS-graphics-desktop.md#gd6130) — Opaque derives a drag target from unprotected active-screen and layer/window pointers.**
+**[GD6131](AROS-graphics-desktop.md#gd6131) — Opaque continues accepting drag input when it cannot allocate its action signal.**
+**[GD6132](AROS-graphics-desktop.md#gd6132) — Opaque does not recompute pointer bounds when the off-screen-layer preference changes during a drag.**
+**[GD6133](AROS-graphics-desktop.md#gd6133) — ASCIITable can report clipboard-copy success after a short write leaves the FTXT clipboard data incomplete.**
+**[GD6134](AROS-graphics-desktop.md#gd6134) — The AVX RGB24-to-XRGB32 converter reads and writes eight pixels for each four-pixel loop step.**
+**[GD6135](AROS-graphics-desktop.md#gd6135) — The AVX RGB24-to-XRGB32 shuffle duplicates the first pixel's middle channel.**
+**[GD6136](AROS-graphics-desktop.md#gd6136) — The AVX 32-bit-to-BGR15 vector converters put red in both red and blue fields.**
+**[GD6137](AROS-graphics-desktop.md#gd6137) — The AVX 15-bit-to-ARGB32 vector converters swap red and blue.**
+**[GD6138](AROS-graphics-desktop.md#gd6138) — The SSSE3 and AVX packed-24-bit-to-32-bit converters read four bytes beyond each vector block's useful source pixels.**
+**[GD6139](AROS-graphics-desktop.md#gd6139) — Palette-to-palette `ConvertPixels()` returns without copying or converting any pixels.**
+**[GD6140](AROS-graphics-desktop.md#gd6140) — VGAGfx writes cursor rows below the visible framebuffer without clipping them.**
+**[GD6141](AROS-graphics-desktop.md#gd6141) — VGAGfx ignores the cursor hotspot offsets supplied by Intuition.**
+**[GD6142](AROS-graphics-desktop.md#gd6142) — VGAGfx clamps cursor coordinates to the visible bitmap bounds instead of the physical display bounds.**
+**[GD6143](AROS-graphics-desktop.md#gd6143) — The CHRP Radeon BIOS fallback dereferences a missing OpenFirmware ROM property.**
+**[GD6144](AROS-graphics-desktop.md#gd6144) — The CHRP Radeon BIOS cleanup passes an OpenFirmware-owned property value to `FreePooled()`.**
+**[GD6145](AROS-graphics-desktop.md#gd6145) — The screen decorator uses a public-screen pointer after releasing its close-prevention lock.**
+**[GD6146](AROS-graphics-desktop.md#gd6146) — Network and WiFi Preferences can signal a task after its lifetime has ended.**
+**[GD6157](AROS-graphics-desktop.md#gd6157) — Network Preferences can silently remove IPv4 and/or IPv6 interface settings when it reads and saves a configuration without the corresponding protocol handler registered.**
+**[GD6158](AROS-graphics-desktop.md#gd6158) — Network Preferences returns its editor object without initializing its instance data when no protocol window is registered or a required auxiliary window fails to construct.**
+**[GD6159](AROS-graphics-desktop.md#gd6159) — Network Preferences reports successful import and export while ignoring the supplied file handle; export can create or truncate an empty file.**
+**[GD6160](AROS-graphics-desktop.md#gd6160) — Network Preferences can silently lose IPv4/IPv6 address records when copying or rebuilding an interface's protocol-address list fails allocation.**
+**[GD6161](AROS-graphics-desktop.md#gd6161) — Network Preferences rewrites a valid IPv6 `/0` prefix as `/64` and accepts out-of-range prefix values that the stack later clamps.**
+**[GD6162](AROS-graphics-desktop.md#gd6162) — A failed `PAWinClass` initialization leaves Network Preferences with a globally published empty registry base, preventing later bootstrap attempts from retrying module setup.**
+**[GD6163](AROS-graphics-desktop.md#gd6163) — Network Preferences exits with a successful process status when command-line SAVE or USE fails.**
+**[GD6164](AROS-graphics-desktop.md#gd6164) — Network Preferences does not close the locale reference it opens during startup.**
+**[GD6165](AROS-graphics-desktop.md#gd6165) — The ILBM datatype discards indexed BODY mask planes, leaving Picture's masked RastPort render paths without a mask and without a fallback blit.**
+**[GD6167](AROS-graphics-desktop.md#gd6167) — Picture `DT_Write()` preserves `mskHasMask` in the ILBM BMHD but omits the corresponding mask plane from BODY and its declared size.**
+**[GD6168](AROS-graphics-desktop.md#gd6168) — The Picture 24-bit `DT_Write()` path places BODY eight bytes beyond the end declared by the FORM size.**
+**[GD6169](AROS-graphics-desktop.md#gd6169) — `AddDisplayDriverA()` leaks its allocated per-driver configuration on rejection, setup failure, successful setup with no registered display, and final display teardown.**
+**[GD6170](AROS-graphics-desktop.md#gd6170) — Disk-started HeadlessGfx boot registration retains a stack tag list for deferred driver creation.**
+**[GD6171](AROS-graphics-desktop.md#gd6171) — Consolidated into GD5906 (2026-10-25).**
+**[GD6172](AROS-graphics-desktop.md#gd6172) — `BeginUpdate()` dereferences a failed visible-damage region allocation.**
+**[GD6173](AROS-graphics-desktop.md#gd6173) — Hyperlayers dereferences failed region intersections in several locked operations.**
+**[GD6174](AROS-graphics-desktop.md#gd6174) — Hyperlayers dereferences failed ClipRect pool allocations while building layer clip lists.**
+**[GD6175](AROS-graphics-desktop.md#gd6175) — Hyperlayers does not handle failed refresh backing-bitmap allocations before copying from or to the missing bitmap.**
+**[GD6176](AROS-graphics-desktop.md#gd6176) — `CollectPixelsLayer()` constructs malformed callback fields for requested pixels that remain on the screen background.**
+**[GD6177](AROS-graphics-desktop.md#gd6177) — `CollectPixelsLayer()` drops requested pixels when they intersect a visible superbitmap layer.**
+**[GD6178](AROS-graphics-desktop.md#gd6178) — `MoveSizeLayer()` does not handle failure to construct the replacement shape region.**
+**[GD6179](AROS-graphics-desktop.md#gd6179) — `ChangeLayerShape()` dereferences a failed allocation for the layer's clipped shape.**
+**[GD6180](AROS-graphics-desktop.md#gd6180) — `ChangeLayerShape()` leaves `cutnewshape` empty, so it can skip visibility reconstruction for layers overlapped only by the new shape.**
+**[GD6181](AROS-graphics-desktop.md#gd6181) — Selected Hyperlayers operations ignore `SetRegion()` allocation failures and continue rebuilding layer state from incomplete regions.**
+**[GD6182](AROS-graphics-desktop.md#gd6182) — `CreateLayerTagList()` leaks its internally allocated shape region when later layer construction fails.**
+**[GD6183](AROS-graphics-desktop.md#gd6183) — `MoveLayerInFrontOf()` can dereference a NULL front link when the requested layer is already frontmost.**
+**[GD6184](AROS-graphics-desktop.md#gd6184) — `UpfrontLayer()` can reorder a hidden parent family without repairing visibility when its temporary region allocation fails.**
+**[GD6185](AROS-graphics-desktop.md#gd6185) — `_MoveLayerBehind()` dereferences a failed hide-region allocation after detaching the layer family.**
+**[GD6186](AROS-graphics-desktop.md#gd6186) — Hyperlayers ignores allocation-failure returns from in-place region Boolean operations and continues with stale region contents.**
+**[GD6187](AROS-graphics-desktop.md#gd6187) — The layer debug test reads `SuperBitMap` from a layer after successful deletion has freed the layer struct.**
+**[GD6230](AROS-graphics-desktop.md#gd6230) — The shared PrefsEditor class leaks its copied IconTool path on every object disposal.**
+**[GD6231](AROS-graphics-desktop.md#gd6231) — The shared PrefsEditor export truncates an existing preferences file before a subclass can report a write failure.**
+**[GD6244](AROS-graphics-desktop.md#gd6244) — Wanderer reads an AppIcon after releasing the lock that protects it.**
+**[GD6245](AROS-graphics-desktop.md#gd6245) — Wanderer keeps raw AppIcon pointers after removal can free them.**
+**[GD6249](AROS-graphics-desktop.md#gd6249) — Wanderer calls `ParentDir()` with a failed selected-argument lock.**
+**[GD6251](AROS-graphics-desktop.md#gd6251) — The software compositor ignores region-operation allocation failures and redraws with stale visibility regions.**
+**[GD6256](AROS-graphics-desktop.md#gd6256) — VideoCore graphics initialization failure leaves acquired IRQ, DMA, and cursor resources behind.**
+**[GD6304](AROS-graphics-desktop.md#gd6304) — HEIC import reports success after image decoding fails [conditional].**
+**[GD6305](AROS-graphics-desktop.md#gd6305) — HEIC import ignores Picture pixel-buffer write failure [conditional].**
+**[GD6306](AROS-graphics-desktop.md#gd6306) — HEIC import uses the image handle after lookup reports failure [conditional].**
+**[GD6307](AROS-graphics-desktop.md#gd6307) — HEIC import never releases its input buffer or libheif context [conditional].**
+**[GD6308](AROS-graphics-desktop.md#gd6308) — HEIC import advertises 12 header bytes after allocating less [conditional].**
+**[GD6309](AROS-graphics-desktop.md#gd6309) — HEIC image dimensions are narrowed into 16-bit Picture fields [conditional].**
+**[GD6310](AROS-graphics-desktop.md#gd6310) — HEIC RGBA pixels are not marked as alpha-masked in the Picture header [conditional].**
+**[GD6316](AROS-graphics-desktop.md#gd6316) — VESA and Raspberry Pi framebuffer reset callbacks clear the display without serializing active writers.**
+**[GD6317](AROS-graphics-desktop.md#gd6317) — X11 and WinGDI startup dispatch input methods on the wrong class objects.**
+**[GD6321](AROS-graphics-desktop.md#gd6321) — VMM memory sliders understate the available limit when a selected memory class totals more than 4 GiB.**
+**[GD6342](AROS-graphics-desktop.md#gd6342) — ScreenMode preview dereferences a failed RastPort allocation.**
+**[GD6343](AROS-graphics-desktop.md#gd6343) — ScreenMode Test leaks its preview RastPort after each successful run.**
+**[GD6344](AROS-graphics-desktop.md#gd6344) — Pointer Preferences reports a partial IFF export as successful.**
+**[GD6345](AROS-graphics-desktop.md#gd6345) — Input Preferences accepts a file without any recognized preference chunks.**
+**[GD6346](AROS-graphics-desktop.md#gd6346) — Input Preferences reports export success when the KMSW chunk fails.**
+**[GD6352](AROS-graphics-desktop.md#gd6352) — Appearance theme replacement can truncate a preference file after the source copy fails.**
+**[GD6353](AROS-graphics-desktop.md#gd6353) — Appearance Preferences writes past its description buffer on a full 1,024-byte read.**
+**[GD6354](AROS-graphics-desktop.md#gd6354) — Appearance Preferences fails to check allocations during theme discovery.**
+**[GD6355](AROS-graphics-desktop.md#gd6355) — Appearance Preferences reads theme descriptions through an unchecked buffer allocation.**
+**[GD6356](AROS-graphics-desktop.md#gd6356) — Appearance theme backup creation leaves timer.device open.**
+**[GD6357](AROS-graphics-desktop.md#gd6357) — SDL HIDD forwards mouse motion after the host window loses input focus.**
+**[GD9410](AROS-graphics-desktop.md#gd9410) — GELS save-under reads obscured SuperBitMap pixels from the display bitmap.**
+**[GD9412](AROS-graphics-desktop.md#gd9412) — `OrRectRegion()` narrows a valid rectangle's relative span into signed WORD coordinates.**
+**[GD9413](AROS-graphics-desktop.md#gd9413) — Asynchronous decorator removal races decorator lookup and reference counting.**
+**[GD9415](AROS-graphics-desktop.md#gd9415) — ScrollRegion does not clip to the original bounds when its rectangle is NULL.**
+**[GD9416](AROS-graphics-desktop.md#gd9416) — Animation tick and tapedeck scrubbing race on current-frame state.**
+**[GD9417](AROS-graphics-desktop.md#gd9417) — Generic software cursor reports success when save-under allocation fails, leaving the pointer undrawn.**
+**[GD9419](AROS-graphics-desktop.md#gd9419) — AROS VMM startup reports success for an unallocated virtual-memory range, then dereferences its NULL base.**
+**[GD9420](AROS-graphics-desktop.md#gd9420) — VideoCore RAM-backed palette bitmaps report valid nonzero-index updates as failures.**
+**[GD9421](AROS-graphics-desktop.md#gd9421) — AArch64 Raspberry Pi fbgfx assumes 32-bit framebuffer pixels without validating the firmware's returned depth or pitch.**
+**[GD9422](AROS-graphics-desktop.md#gd9422) — MUI timer re-registration allocation failure leaves a freed request pointer for the next removal.**
+**[GD9423](AROS-graphics-desktop.md#gd9423) — MUI Area rounded-frame drawing disposes a clip region twice when clip registration rejects it (conditional use-after-free/double-dispose; high source confidence).**
+**[GD9424](AROS-graphics-desktop.md#gd9424) — MUI Area frame-characteristics query falls off its non-void success path (latent internal-method contract defect; caller impact unconfirmed).**
+**[GD9425](AROS-graphics-desktop.md#gd9425) — Setting an Area context menu after Setup does not register the mouse-button handler needed to open it (conditional lost context-menu input; high source confidence).**
+**[GD9426](AROS-graphics-desktop.md#gd9426) — MUI Area frame titles bypass their width limit when the Area is narrower than its frame margins (conditional title spill; high source confidence).**
+**[GD9427](AROS-graphics-desktop.md#gd9427) — MUI Area context-menu trigger is declared gettable but is never retained for later reads (conditional stale/missing trigger readback; high source confidence).**
+**[GD9428](AROS-graphics-desktop.md#gd9428) — Group `MUIA_Disabled` forwarding changes child nested-disable counts even when the Group's own disabled state does not change (conditional stuck or prematurely enabled descendants; high source….**
+**[GD9429](AROS-graphics-desktop.md#gd9429) — MUI Area export drops selected-state persistence when Dataspace allocation fails (conditional silent state loss; high source confidence).**
+**[GD9431](AROS-graphics-desktop.md#gd9431) — MUI Area leaves its temporary mouse-move handler installed after context-menu opening fails or the Area is hidden (conditional event-consumption regression; high source confidence).**
+**[GD9432](AROS-graphics-desktop.md#gd9432) — `zune_open_menu()` leaks VisualInfo when GadTools menu construction fails (conditional resource leak; high source confidence).**
+**[GD9435](AROS-graphics-desktop.md#gd9435) — MUI popup windows silently ignore their requested no-backfill hook (conditional menu redraw defect; high source confidence).**
+**[GD9437](AROS-graphics-desktop.md#gd9437) — Page-mode Group `Next`/`Advance` performs modulo by zero when it has no content pages (conditional undefined arithmetic; high source confidence).**
+**[GD9438](AROS-graphics-desktop.md#gd9438) — MUI 2D Group allocation failure silently omits grid sizing and skips child placement (conditional incomplete layout; high source confidence).**
+**[GD9439](AROS-graphics-desktop.md#gd9439) — MUI Group child Setup failure leaves the Group's Area setup state and registrations active (conditional cleanup failure; high source confidence).**
+**[GD9440](AROS-graphics-desktop.md#gd9440) — Horizontal Group minimum and default widths overflow their signed `WORD` accumulators (high source confidence; compiler narrowing behavior applies).**
+**[GD9441](AROS-graphics-desktop.md#gd9441) — Large 2D Group row counts wrap the row-array allocation size on 32-bit targets (high source confidence; target ABI condition).**
+**[GD9442](AROS-graphics-desktop.md#gd9442) — Changing live Group spacing stores the new value without recalculating child layout (conditional stale geometry; high source confidence).**
+**[GD9445](AROS-graphics-desktop.md#gd9445) — String selection endpoints narrow from `ULONG` to signed `WORD` (conditional wrong/empty selection; high source confidence).**
+**[GD9446](AROS-graphics-desktop.md#gd9446) — Secret String construction does not terminate when `MUIA_String_MaxLen` exceeds 65,536 (high source confidence; allocation-success condition).**
+**[GD9447](AROS-graphics-desktop.md#gd9447) — Numeric ScaleToValue clamps a normalized offset against the absolute scale bounds (high source confidence; nonzero-origin caller condition).**
+**[GD9448](AROS-graphics-desktop.md#gd9448) — Numeric scale conversions overflow signed LONG intermediates for wide ranges (high source confidence; reachable with sufficiently large Numeric and drawable ranges).**
+**[GD9449](AROS-graphics-desktop.md#gd9449) — Numeric increase/decrease performs signed arithmetic before clamping at the configured endpoints (high source confidence; LONG-bound condition).**
+**[GD9450](AROS-graphics-desktop.md#gd9450) — Slider knob-width sizing can become a nonterminating LONG loop when endpoint-span arithmetic overflows (compiler-dependent; high source confidence).**
+**[GD9451](AROS-graphics-desktop.md#gd9451) — Slider drawing dereferences the label-copy result without checking allocation failure (high source confidence; draw-time allocation condition).**
+**[GD9452](AROS-graphics-desktop.md#gd9452) — Runtime Numeric range/format changes relayout the parent but leave Slider knob and label dimensions cached (high source confidence; live-change condition).**
+**[GD9453](AROS-graphics-desktop.md#gd9453) — Numericbutton AskMinMax enumerates every LONG value and loops when the range ends at LONG_MAX (compiler-dependent; high source confidence).**
+**[GD9454](AROS-graphics-desktop.md#gd9454) — Custom Prop render buffers leak when a Window closes and reopens (high source confidence; custom-scrollbar configuration).**
+**[GD9455](AROS-graphics-desktop.md#gd9455) — Removing a live Window-border Prop leaves its pointer in the Window gadget's UserData (conditional stale-object dispatch; high source confidence).**
+**[GD9457](AROS-graphics-desktop.md#gd9457) — Scrollbar leaks its preconstructed Prop when Group superclass construction fails (high source confidence; allocation-failure path).**
+**[GD9458](AROS-graphics-desktop.md#gd9458) — Scrollgroup uses the content's maximum height as the upper bound for a width clamp, which can suppress a needed horizontal bar (high source confidence; asymmetric custom-child constraints).**
+**[GD9459](AROS-graphics-desktop.md#gd9459) — Scrollgroup minimum-size hook adds scrollbar dimensions in signed WORD without saturation (conditional wrap; high source confidence).**
+**[GD9464](AROS-graphics-desktop.md#gd9464) — Caller recheck (2026-10-26).**
+**[GD9465](AROS-graphics-desktop.md#gd9465) — MUI Window dereferences a failed system-image allocation when creating border scrollers.**
+**[GD9466](AROS-graphics-desktop.md#gd9466) — MUI Window pen setup dereferences a failed computed half-shine or half-shadow specification allocation.**
+**[GD9467](AROS-graphics-desktop.md#gd9467) — MUI Bitmap skips all bitmap blits when its alpha attribute is set.**
+**[GD9468](AROS-graphics-desktop.md#gd9468) — MUI Bitmap dereferences a failed transparency-mask allocation during setup.**
+**[GD9469](AROS-graphics-desktop.md#gd9469) — MUI Bitmap reacquires palette pen zero because its remap-cache marker is truncated, then releases it only once.**
+**[GD9470](AROS-graphics-desktop.md#gd9470) — MUI Bodychunk consumes but discards the supplied mask plane.**
+**[GD9471](AROS-graphics-desktop.md#gd9471) — MUI Bodychunk uses signed 16-bit dimensions and counters for LONG-sized bitmaps.**
+**[GD9473](AROS-graphics-desktop.md#gd9473) — MUI List selected removal can loop forever once the list exceeds 65,535 entries.**
+**[GD9474](AROS-graphics-desktop.md#gd9474) — MUI Popobject advertises Light as settable but ignores runtime changes.**
+**[GD9475](AROS-graphics-desktop.md#gd9475) — MUI Rectangle reports successful Setup after its bar-title text allocation fails, then dereferences the missing text.**
+**[GD9476](AROS-graphics-desktop.md#gd9476) — MUI Register reports Setup success with missing tab-title text after an allocation failure, then dereferences it during setup or cleanup.**
+**[GD9477](AROS-graphics-desktop.md#gd9477) — MUI List hit-testing can loop forever with more than 65,535 zero-width columns.**
+**[GD9479](AROS-graphics-desktop.md#gd9479) — PSI and Zune leak public-screen descriptors loaded from file.**
+**[GD9480](AROS-graphics-desktop.md#gd9480) — PSI can pass a truncated or incomplete path to its file operation.**
+**[GD9481](AROS-graphics-desktop.md#gd9481) — PSI discards public-screen save errors, and its Finish action quits anyway.**
+**[GD9482](AROS-graphics-desktop.md#gd9482) — PSI's display-mode selector skips its monitor-mask fallback when no exact mode ID exists.**
+**[GD9483](AROS-graphics-desktop.md#gd9483) — Palette Preferences dereferences a failed Colorfield pointer-array allocation during Setup.**
+**[GD9484](AROS-graphics-desktop.md#gd9484) — Palette Preferences leaks PEPalette's Colorfield pointer array on object disposal.**
+**[GD9485](AROS-graphics-desktop.md#gd9485) — Palette Preferences leaks both pen-map arrays for every successful PalEditor object.**
+**[GD9486](AROS-graphics-desktop.md#gd9486) — Palette Preferences dereferences a failed screen-color backup allocation during Setup.**
+**[GD9487](AROS-graphics-desktop.md#gd9487) — Palette Preferences does not successfully import ordinary ILBM color maps.**
+**[GD9488](AROS-graphics-desktop.md#gd9488) — Palette Preferences can report a successful export after the IFF FORM size backpatch fails.**
+**[GD9489](AROS-graphics-desktop.md#gd9489) — Palette Preferences command-line USE/SAVE ignores preference-export failures and exits successfully.**
+**[GD9490](AROS-graphics-desktop.md#gd9490) — Palette Preferences indexes its three-component RGB buffer by the active palette row.**
+**[GD9496](AROS-graphics-desktop.md#gd9496) — GetColorMap truncates large entry counts and leaks both color tables on free.**
+**[GD9498](AROS-graphics-desktop.md#gd9498) — Palette Preferences keeps the previous color selection after switching between 4-color and 8-color maps.**
+**[GD9499](AROS-graphics-desktop.md#gd9499) — Wanderer leaks each panel spacer removed when a toolbar or status bar is installed.**
+**[GD9531](AROS-graphics-desktop.md#gd9531) — MUI nested clip registration ignores region-intersection allocation failure, allowing drawing outside an outer virtual-group clip.**
+**[GD9532](AROS-graphics-desktop.md#gd9532) — Graphics `Text()` fast-font renderer uses a negative raster stride for long valid strings (high source confidence).**
+**[GD9533](AROS-graphics-desktop.md#gd9533) — `ScaleLayer()` discards its existing layer bitmap when replacement allocation fails.**
+**[GD9534](AROS-graphics-desktop.md#gd9534) — MUI redraw continues without virtual-ancestor clipping when region allocation fails.**
+**[GD9535](AROS-graphics-desktop.md#gd9535) — Wanderer AppIcon refresh passes a failed DiskObject duplicate to `LayoutIconA()` (conditional NULL dereference).**
+**[GD9536](AROS-graphics-desktop.md#gd9536) — `LayoutIconA()` leaves partial screen-layout resources behind when allocation fails.**
+**[GD9537](AROS-graphics-desktop.md#gd9537) — `GetIconTagList()` leaves `ICONGETA_IsDefaultIcon` false when it returns a fallback default tool icon.**
+**[GD9538](AROS-graphics-desktop.md#gd9538) — `FindDeviceName()` ignores its output capacity when copying a DOS device name.**
+**[GD9539](AROS-graphics-desktop.md#gd9539) — The OS 3.5 icon reader does not validate raw image and palette lengths before copying.**
+**[GD9540](AROS-graphics-desktop.md#gd9540) — The OS 3.5 icon reader accepts failed RLE decoding and can publish a missing palette.**
+**[GD9541](AROS-graphics-desktop.md#gd9541) — The OS 3.5 icon RLE decoder uses the file-supplied depth in unchecked shifts.**
+**[GD9542](AROS-graphics-desktop.md#gd9542) — NewIcon decoding does not check pixel indices against the declared palette size.**
+**[GD9543](AROS-graphics-desktop.md#gd9543) — PNG icon loading gives libpng an unlimited memory extent for a file-sized buffer.**
+**[GD9544](AROS-graphics-desktop.md#gd9544) — PNG icon string attributes are scanned beyond their length-delimited `icOn` chunk.**
+**[GD9545](AROS-graphics-desktop.md#gd9545) — The classic icon reader accepts short or unterminated length-prefixed strings.**
+**[GD9546](AROS-graphics-desktop.md#gd9546) — Classic icon writes can report success after default-tool or tool-window serialization fails.**
+**[GD9547](AROS-graphics-desktop.md#gd9547) — Classic icon image dimensions can overflow signed arithmetic while calculating the data extent.**
+**[GD9548](AROS-graphics-desktop.md#gd9548) — `GetIconTagList()` dereferences a failed DrawerData allocation for disk and drawer icons.**
+**[GD9549](AROS-graphics-desktop.md#gd9549) — ARGB-to-paletted icon conversion writes through a failed image-buffer allocation.**
+**[GD9550](AROS-graphics-desktop.md#gd9550) — Classic icon writing dereferences a failed DiskObject duplicate.**
+**[GD9551](AROS-graphics-desktop.md#gd9551) — Rejected classic icon writes leak their temporary DiskObject.**
+**[GD9552](AROS-graphics-desktop.md#gd9552) — ARGB-to-indexed conversion emits a transparent index beyond its pen map.**
+**[GD9553](AROS-graphics-desktop.md#gd9553) — `ICONCTRLA_HasRealImage2` fetches image data before checking whether the DiskObject is a native icon.**
+**[GD9554](AROS-graphics-desktop.md#gd9554) — ARGB setters report success for non-native DiskObjects without storing the supplied data.**
+**[GD9555](AROS-graphics-desktop.md#gd9555) — `ICONCTRLA_HasRealImage2` writes its result but omits the processed-tag count.**
+**[GD9556](AROS-graphics-desktop.md#gd9556) — `DrawIconStateA()` dereferences NativeIcon state when drawing a classic DiskObject without a complete DrawInfo.**
+**[GD9557](AROS-graphics-desktop.md#gd9557) — Icon library initialization failure closes required libraries twice.**
+**[GD9558](AROS-graphics-desktop.md#gd9558) — `FindToolType()` accepts a longer tooltype key that merely starts with the requested name.**
+**[GD9559](AROS-graphics-desktop.md#gd9559) — `PutDefDiskObject()` always fails because it discards the supplied DiskObject.**
+**[GD9560](AROS-graphics-desktop.md#gd9560) — `PutIconTagList()` clears DOS open errors when writing cannot open the destination.**
+**[GD9561](AROS-graphics-desktop.md#gd9561) — `BumpRevision()` reads beyond short valid input names.**
+**[GD9563](AROS-graphics-desktop.md#gd9563) — `BumpRevision()` never reaches its branches for incrementing an existing copy revision.**
+**[GD9564](AROS-graphics-desktop.md#gd9564) — MultiView's About action dereferences failed memory allocations.**
+**[GD9565](AROS-graphics-desktop.md#gd9565) — MultiView deletes its AppWindow message port before unregistering the AppWindow.**
+**[GD9566](AROS-graphics-desktop.md#gd9566) — A failed MultiView open leaves the old document paired with the newly selected filename.**
+**[GD9567](AROS-graphics-desktop.md#gd9567) — MultiView writes through a string literal while formatting HAM or deep-color metadata.**
+**[GD9568](AROS-graphics-desktop.md#gd9568) — Text datatype discards the printer error returned by its print routine.**
+**[GD9569](AROS-graphics-desktop.md#gd9569) — WAV GSM610 allocates a sample buffer from an unchecked samples-per-block value, then always decodes 320 samples into it.**
+**[GD9570](AROS-graphics-desktop.md#gd9570) — Imageadjust reports a successful external-image scan after `ExAll()` fails (conditional silently incomplete image list; high source confidence).**
+**[GD9571](AROS-graphics-desktop.md#gd9571) — MUI Text reports successful Setup after ZText allocation fails, then dereferences the missing text during window sizing or drawing (conditional NULL-pointer fault; high source confidence).**
+**[GD9572](AROS-graphics-desktop.md#gd9572) — MUI's text parser silently returns partially constructed text after an internal allocation failure.**
+**[GD9573](AROS-graphics-desktop.md#gd9573) — MUI text bounds calculation stops at an embedded image-spec setup failure and leaves the remaining text with incomplete dimensions.**
+**[GD9574](AROS-graphics-desktop.md#gd9574) — MUI accepts BOOPSI image specs but returns uninitialized size constraints for them.**
+**[GD9575](AROS-graphics-desktop.md#gd9575) — MUI image-spec parsing leaks the allocated spec structure when a follow-up filename duplication fails.**
+**[GD9576](AROS-graphics-desktop.md#gd9576) — An empty external brush filename underflows the filename index during image-spec parsing.**
+**[GD9577](AROS-graphics-desktop.md#gd9577) — Replacing a displayed MUI image spec can dereference NULL after the spec copy fails.**
+**[GD9578](AROS-graphics-desktop.md#gd9578) — Reading a Pendisplay RGB color with no valid pen reads outside the colormap.**
+**[GD9579](AROS-graphics-desktop.md#gd9579) — Disposing a Pendisplay leaves its reference object's notification targeting the disposed object.**
+**[GD9580](AROS-graphics-desktop.md#gd9580) — MUI accepts an out-of-range system-pen number and indexes beyond the DrawInfo pen table.**
+**[GD9581](AROS-graphics-desktop.md#gd9581) — Confirming a system-pen choice in Poppen rewrites it as an invalid MUI pen spec.**
+**[GD9582](AROS-graphics-desktop.md#gd9582) — Balance can lose valid sibling weight during redistribution when a computed per-child weight exceeds signed WORD range.**
+**[GD9583](AROS-graphics-desktop.md#gd9583) — Changing a Radio's active index updates the row Groups but leaves the nested radio images in their previous selected states.**
+**[GD9584](AROS-graphics-desktop.md#gd9584) — Boopsi reports `MUIA_Boopsi_Object` through the generic getter path instead of returning it directly.**
+**[GD9585](AROS-graphics-desktop.md#gd9585) — Boopsi ignores failure to clone the wrapped gadget's constructor tags and later creates it without its configuration.**
+**[GD9586](AROS-graphics-desktop.md#gd9586) — Floattext can loop forever when a paragraph produces no fitted characters.**
+**[GD9587](AROS-graphics-desktop.md#gd9587) — Floattext leaves its typesetting guard set after buffer-allocation failure.**
+**[GD9588](AROS-graphics-desktop.md#gd9588) — A failed Floattext text replacement discards the previous text and reports no failure.**
+**[GD9589](AROS-graphics-desktop.md#gd9589) — Pixmap's RLE decoder does not check compressed or decompressed bounds.**
+**[GD9590](AROS-graphics-desktop.md#gd9590) — Replacing an uncompressed Pixmap buffer can free the caller's old buffer.**
+**[GD9591](AROS-graphics-desktop.md#gd9591) — Live Pixmap updates leave the low-depth dithered image stale.**
+**[GD9592](AROS-graphics-desktop.md#gd9592) — Pixmap silently drops ARGB transparency if its low-depth mask allocation fails.**
+**[GD9593](AROS-graphics-desktop.md#gd9593) — Changing a Dtpic's alpha with fading disabled does not redraw the image.**
+**[GD9594](AROS-graphics-desktop.md#gd9594) — Coloradjust cleanup can release palette pen 0 without having obtained it.**
+**[GD9595](AROS-graphics-desktop.md#gd9595) — Scale accepts vertical orientation but does not size or draw it.**
+**[GD9596](AROS-graphics-desktop.md#gd9596) — Volumelist computes used-space percentage with overflowing 32-bit arithmetic.**
+**[GD9597](AROS-graphics-desktop.md#gd9597) — Find can leave its Start/Stop controls claiming a scan is running when no worker started.**
+**[GD9598](AROS-graphics-desktop.md#gd9598) — A relaunch can publish a stale task pointer and let the worker observe the previous kill state.**
+**[GD9599](AROS-graphics-desktop.md#gd9599) — FindGroup reports a timed-out worker as stopped and re-enables Start.**
+**[GD9600](AROS-graphics-desktop.md#gd9600) — Process Kill can signal a NULL or retiring worker task.**
+**[GD9601](AROS-graphics-desktop.md#gd9601) — Volumelist divides by zero for a successfully reported zero-block volume.**
+**[GD9602](AROS-graphics-desktop.md#gd9602) — IntelGMA startup does not handle failure to allocate its initial mode state or framebuffer.**
+**[GD9603](AROS-graphics-desktop.md#gd9603) — Radeon successful initialization leaks its timer.device open across module expunge (conditional device-open/resource leak; high source confidence).**
+**[GD9604](AROS-graphics-desktop.md#gd9604) — Volumelist truncates displayed capacities above 4 EiB on DOS64.**
+**[GD9605](AROS-graphics-desktop.md#gd9605) — MonEd can enter its event loop after display setup fails and dereference a NULL or stale window.**
+**[GD9606](AROS-graphics-desktop.md#gd9606) — MonEd leaks display resources when `OpenWindowTagList()` fails.**
+**[GD9607](AROS-graphics-desktop.md#gd9607) — MonEd's monitor-rate calculation can divide by zero after 32-bit overflow of CLI timing values.**
+**[GD9608](AROS-graphics-desktop.md#gd9608) — Icon library's on-demand optional-library opens are unsynchronized and can leak a library reference under concurrent first use.**
+**[GD9612](AROS-graphics-desktop.md#gd9612) — NList, NListtree, BetterString, and TextEditor clipboard shutdown can unload module code while the worker is still executing it.**
+**[GD9616](AROS-graphics-desktop.md#gd9616) — HIDD AllocBitMap crashes for the documented header-only `BMATags_NoMemory` option (conditional; high source confidence).**
+**[GD9617](AROS-graphics-desktop.md#gd9617) — HIDD `BltBitMap()` reports eight planes regardless of the bitmap depths and mask (public result-contract mismatch; high source confidence).**
+**[GD9620](AROS-graphics-desktop.md#gd9620) — PaletteExtra pen-list traversal can index before its allocation when a shareable palette has more than 32,768 entries.**
+**[GD9621](AROS-graphics-desktop.md#gd9621) — `ObtainBestPenA()` can treat a visibly distant shared color as within tolerance after the distance/free-count product overflows.**
+**[GD9623](AROS-graphics-desktop.md#gd9623) — IntelGMA crashes while registering stolen graphics memory if its memory-header allocation fails.**
+**[GD9625](AROS-graphics-desktop.md#gd9625) — Failed graphics.library initialization leaves acquired external resources unreleased (conditional resource leak; high source confidence).**
+**[GD9626](AROS-graphics-desktop.md#gd9626) — Graphics HIDD registration can leave stale driver nodes and objects in the permanent global hardware tree (conditional stale-object traversal; high source confidence).**
+**[GD9627](AROS-graphics-desktop.md#gd9627) — Generic software `BltBitMap()` copies downward overlapping rectangles in the wrong row order.**
+**[GD9629](AROS-graphics-desktop.md#gd9629) — Conditional source defect; active reachability is not established.**
+**[GD9631](AROS-graphics-desktop.md#gd9631) — Printer graphics memory-allocation failures can return success without rendering the bitmap.**
+**[GD9632](AROS-graphics-desktop.md#gd9632) — System requester treats `MapRawKey()` buffer overflow as a successful conversion and reads an unwritten byte.**
+**[GD9635](AROS-graphics-desktop.md#gd9635) — Decoration marks an image usable after the Picture datatype fails to read its pixels.**
+**[GD9636](AROS-graphics-desktop.md#gd9636) — Info dereferences an unchecked ExAll control-object allocation during directory scans.**
+**[GD9637](AROS-graphics-desktop.md#gd9637) — WinGDI can lose its host event thread's shutdown request and release its resources while the worker continues.**
+**[GD9638](AROS-graphics-desktop.md#gd9638) — WinGDI startup dispatches through a failed hardware-subsystem object.**
+**[GD9640](AROS-graphics-desktop.md#gd9640) — Radeon on-screen bitmap allocation failure frees the failure sentinel as a VRAM offset.**
+**[GD9641](AROS-graphics-desktop.md#gd9641) — Info dereferences a failed child-path allocation during recursive directory-size scans.**
+**[GD9642](AROS-graphics-desktop.md#gd9642) — Workbench program launch leaks its cloned process tags when startup argument construction fails.**
+**[GD9643](AROS-graphics-desktop.md#gd9643) — Radeon publishes its VRAM MemHeader without the magic required for managed-memory dispatch.**
+**[GD9644](AROS-graphics-desktop.md#gd9644) — `LayoutIconA()` retains a freed scaled ARGB buffer across an unmap/remap cycle.**
+**[GD9645](AROS-graphics-desktop.md#gd9645) — The vertical Gauge draw path divides by a zero maximum.**
+**[GD9646](AROS-graphics-desktop.md#gd9646) — Panel drag images leak their allocated descriptor on every delete.**
+**[GD9647](AROS-graphics-desktop.md#gd9647) — PanelGroup silently leaves a child unmanaged when tracking-node allocation fails.**
+**[GD9648](AROS-graphics-desktop.md#gd9648) — MUI class creation failure paths leak acquired superclass references, and built-in lookups fail to retain each returned reference.**
+**[GD9649](AROS-graphics-desktop.md#gd9649) — MUI_RequestA() writes past its button array for requesters with more than 32 gadgets.**
+**[GD9650](AROS-graphics-desktop.md#gd9650) — Repeated MUI_GetClass() calls do not retain built-in class references.**
+**[GD9651](AROS-graphics-desktop.md#gd9651) — Transparent drag setup passes a failed pixel-buffer allocation to ReadPixelArray().**
+**[GD9652](AROS-graphics-desktop.md#gd9652) — Bubble-help shape construction ignores region-allocation failures.**
+**[GD9653](AROS-graphics-desktop.md#gd9653) — Property-image config parsing can overflow two fixed stack buffers.**
+**[GD9654](AROS-graphics-desktop.md#gd9654) — Tiled image setup keeps a backfill record after its scratch bitmap allocation fails.**
+**[GD9655](AROS-graphics-desktop.md#gd9655) — Rounded-frame clip construction returns partial regions after rectangle-allocation failures.**
+**[GD9656](AROS-graphics-desktop.md#gd9656) — Rounded-frame border widths larger than the frame draw outside the object's bounds.**
+**[GD9657](AROS-graphics-desktop.md#gd9657) — A square truecolor gradient at 135 degrees divides by zero.**
+**[GD9658](AROS-graphics-desktop.md#gd9658) — CursorFB narrows computed bitmap-operation bounds to WORD before testing cursor overlap.**
+**[GD9659](AROS-graphics-desktop.md#gd9659) — Deleting a custom MUI subclass closes its supplied superclass library without acquiring that library reference.**
+**[GD9660](AROS-graphics-desktop.md#gd9660) — InstallAROS continues after its root installer object fails to construct, so option creation silently returns NULL.**
+**[GD9661](AROS-graphics-desktop.md#gd9661) — InstallAROS dereferences unchecked allocations for its installer and bootloader option records.**
+**[GD9662](AROS-graphics-desktop.md#gd9662) — InstallAROS copies its launch path into a NULL destination if the second path allocation fails.**
+**[GD9663](AROS-graphics-desktop.md#gd9663) — InstallAROS environment-path helpers copy caller paths into a 100-byte stack buffer without a bound.**
+**[GD9664](AROS-graphics-desktop.md#gd9664) — InstallAROS retry handling writes through unchecked dialog-buffer allocations.**
+**[GD9665](AROS-graphics-desktop.md#gd9665) — InstallAROS bootloader setup formats a path into an unchecked allocation.**
+**[GD9666](AROS-graphics-desktop.md#gd9666) — Cancelling InstallAROS options writes gadget state through a failed backup-record allocation.**
+**[GD9667](AROS-graphics-desktop.md#gd9667) — InstallAROS continues after its required file-copy buffer allocation fails.**
+**[GD9668](AROS-graphics-desktop.md#gd9668) — InstallAROS leaks the allocated partition name returned during drive discovery.**
+**[GD9669](AROS-graphics-desktop.md#gd9669) — InstallAROS may replace a destination after silently failing to create its undo backup.**
+**[GD9670](AROS-graphics-desktop.md#gd9670) — InstallAROS reads DOS-list entries after releasing, or without acquiring, the DOS-list lock.**
+**[GD9671](AROS-graphics-desktop.md#gd9671) — InstallAROS copies a device prefix of arbitrary length into a 32-byte stack buffer.**
+**[GD9672](AROS-graphics-desktop.md#gd9672) — InstallAROS can overrun its 100-byte GRUB path buffer for a long destination-volume name.**
+**[GD9673](AROS-graphics-desktop.md#gd9673) — InstallAROS dereferences failed DOS enumeration-control allocations.**
+**[GD9676](AROS-graphics-desktop.md#gd9676) — InstallAROS backup-path construction dereferences unchecked allocations.**
+**[GD9677](AROS-graphics-desktop.md#gd9677) — InstallAROS accepts a short backup write as a complete undo copy.**
+**[GD9678](AROS-graphics-desktop.md#gd9678) — Cancelling the InstallAROS GRUB filesystem warning does not stop partition setup.**
+**[GD9679](AROS-graphics-desktop.md#gd9679) — InstallAROS reports bootloader setup complete even when it cannot start the installer command.**
+**[GD9680](AROS-graphics-desktop.md#gd9680) — InstallAROS normal shutdown leaks its installer instance and custom classes.**
+**[GD9681](AROS-graphics-desktop.md#gd9681) — MUI List reports successful setup when an embedded image object's Setup fails.**
+**[GD9682](AROS-graphics-desktop.md#gd9682) — The generic sync parser divides by zero when a caller supplies zero PixelTime.**
+**[GD9683](AROS-graphics-desktop.md#gd9683) — `InitIIH()` writes `MouseBoundsActiveFlag` through `iihdata` after freeing that structure on its failure path.**
+**[GD9684](AROS-graphics-desktop.md#gd9684) — Network Preferences removes live protocol-window objects, then drops custom-class handles after `FreeClass()` refuses to destroy their classes.**
+**[GD9685](AROS-graphics-desktop.md#gd9685) — HDToolBox ignores mountlist output errors and can leave a partial file.**
+**[GD9686](AROS-graphics-desktop.md#gd9686) — HDToolBox passes a freed mountlist pathname to the optional icon writer.**
+**[GD9687](AROS-graphics-desktop.md#gd9687) — VGAGfx leaks its copied cursor bitmap when graphics-library handover removes the boot display.**
+**[GD9688](AROS-graphics-desktop.md#gd9688) — X11 cursor-shape updates leak the previous server cursor.**
+**[GD9689](AROS-graphics-desktop.md#gd9689) — X11 display construction leaks the VidMode mode list after copying its entries.**
+**[GD9691](AROS-graphics-desktop.md#gd9691) — SDL mode enumeration applies the fullscreen flag as a truth test on surface flags.**
+**[GD9692](AROS-graphics-desktop.md#gd9692) — SDL color expansion uses its temporary row buffer without checking allocation failure.**
+**[GD9693](AROS-graphics-desktop.md#gd9693) — MUI custom scrollbar arrows ignore the selected image frame on low-depth screens.**
+**[GD9694](AROS-graphics-desktop.md#gd9694) — A negative custom-scrollbar tile size makes the Prop renderer loop indefinitely.**
+**[GD9695](AROS-graphics-desktop.md#gd9695) — Hiding a dragged MUI Slider leaves it tracking pointer movement.**
+**[GD9696](AROS-graphics-desktop.md#gd9696) — The public `WaitBOVP()` vector is an unimplemented no-op.**
+**[GD9699](AROS-graphics-desktop.md#gd9699) — The layer debug utility indexes its ten-entry layer table with unchecked interactive IDs.**
+**[GD9700](AROS-graphics-desktop.md#gd9700) — The layer test's interactive create commands consume the menu newline as an answer and then parse coordinates from the wrong input.**
+**[GD9701](AROS-graphics-desktop.md#gd9701) — `openscreen()` dereferences a failed `OpenScreenTags()` result before its caller can handle failure.**
+**[GD9702](AROS-graphics-desktop.md#gd9702) — The layer test's demo constructors use failed layer allocations without checking the result.**
+**[GD9703](AROS-graphics-desktop.md#gd9703) — `GenerateLayers2()` and `GenerateLayers3()` write through `layers[-1]` when the layer table has no free slot.**
+**[GD9704](AROS-graphics-desktop.md#gd9704) — The layer-test menu reads an unbounded command into an 80-byte buffer.**
+**[GD9705](AROS-graphics-desktop.md#gd9705) — The layer diagnostics retain borrowed active-window data across delays while the window can be closed.**
+**[GD9706](AROS-graphics-desktop.md#gd9706) — The clipping test ignores failures while building its requested clip region.**
+**[GD9707](AROS-graphics-desktop.md#gd9707) — The `allocbitmap` test skips every depth above 8, including its intended truecolor cases.**
+**[GD9708](AROS-graphics-desktop.md#gd9708) — `showvisregion` and `showvisshape` dereference a missing active window before checking it.**
+**[GD9709](AROS-graphics-desktop.md#gd9709) — The `weightamatch` test omits the final configured font size.**
+**[GD9710](AROS-graphics-desktop.md#gd9710) — The `testarrayops` “misaligned” benchmark computes a negative x coordinate instead of the last tile position.**
+**[GD9711](AROS-graphics-desktop.md#gd9711) — The `testarrayops` brightness and darken sample loops process one tile beyond the image width.**
+**[GD9712](AROS-graphics-desktop.md#gd9712) — `areatest2` loads polygon counts beyond its fixed point array.**
+**[GD9713](AROS-graphics-desktop.md#gd9713) — `CGXTest` uses the public screen bitmap after releasing its screen lock.**
+**[GD9714](AROS-graphics-desktop.md#gd9714) — `copper` calls `MakeScreen()` and `RethinkDisplay()` after unlocking the public screen.**
+**[GD9715](AROS-graphics-desktop.md#gd9715) — `gfx` does not handle clip-region allocation failures.**
+**[GD9716](AROS-graphics-desktop.md#gd9716) — `gfx` uses uninitialized clip dimensions when console input is not an integer.**
+**[GD9717](AROS-graphics-desktop.md#gd9717) — `gfx` initializes its area renderer with a possibly NULL scratch raster.**
+**[GD9768](AROS-graphics-desktop.md#gd9768) — Zune menu constructors dereference a failed superclass object allocation.**
+**[GD9769](AROS-graphics-desktop.md#gd9769) — MUI_MakeObjectA continues after NewMenu object construction failures, leaking or misparenting entries.**
+**[GD9770](AROS-graphics-desktop.md#gd9770) — MUI Group OM_SET leaves filtered attributes overwritten in the caller's tag list.**
+**[GD9771](AROS-graphics-desktop.md#gd9771) — Wanderer can lose drawer ToolTypes or omit the new sort preference after a snapshot-copy allocation failure.**
+**[GD9772](AROS-graphics-desktop.md#gd9772) — SysExplorer's Properties action dereferences missing tree-node userdata after a construct-hook allocation failure.**
+**[GD9774](AROS-graphics-desktop.md#gd9774) — Wanderer snapshot can replace a drawer icon with incomplete output when the settings write fails.**
+**[GD9775](AROS-graphics-desktop.md#gd9775) — Wanderer snapshot-all ignores failed in-place icon-position updates.**
+**[GD9776](AROS-graphics-desktop.md#gd9776) — Position-only icon writes ignore a failed initial seek and can overwrite the icon header.**
+**[GD9777](AROS-graphics-desktop.md#gd9777) — An empty icon name makes the icon library read before the supplied string.**
+**[GD9778](AROS-graphics-desktop.md#gd9778) — Zune timer-handler cleanup passes an invalid request to `CheckIO` after timer allocation failure.**
+**[GD9780](AROS-graphics-desktop.md#gd9780) — Graph source-handle lookup can return an invalid slot after growth failure or index overflow.**
+**[GD9781](AROS-graphics-desktop.md#gd9781) — Graph can publish an entry count larger than per-source buffer capacity.**
+**[GD9782](AROS-graphics-desktop.md#gd9782) — Graph marks its timer handler registered even when MUI cannot allocate the timer request.**
+**[GD9783](AROS-graphics-desktop.md#gd9783) — AboutWindow leaks its pool, catalog strings, and duplicated attributes when base-object construction fails.**
+**[GD9784](AROS-graphics-desktop.md#gd9784) — Aboutbox dereferences the optional credits attribute when it is omitted.**
+**[GD9787](AROS-graphics-desktop.md#gd9787) — MUI PenSpec acquisition failures become foreground byte 0xff in Lamp, NList, NListtree, BetterString, and TextEditor (wrong or unsupported drawing color; high source confidence).**
+**[GD9788](AROS-graphics-desktop.md#gd9788) — Calendar accepts invalid date fields in date conversion.**
+**[GD9789](AROS-graphics-desktop.md#gd9789) — LoginWindow supplies authentication methods after the Poplist has already been constructed.**
+**[GD9790](AROS-graphics-desktop.md#gd9790) — LoginWindow leaks duplicated authentication method labels when the window is disposed.**
+**[GD9791](AROS-graphics-desktop.md#gd9791) — LoginWindow can write authentication-list entries and its terminator beyond a fixed stack array.**
+**[GD9793](AROS-graphics-desktop.md#gd9793) — NListviews MCP writes its RawKeyConvert terminator past an eight-byte stack buffer.**
+**[GD9794](AROS-graphics-desktop.md#gd9794) — NListviews MCP dereferences a failed per-line example-text allocation.**
+**[GD9795](AROS-graphics-desktop.md#gd9795) — NListviews MCP leaks opened libraries when an AmigaOS 4 interface lookup fails.**
+**[GD9796](AROS-graphics-desktop.md#gd9796) — The clipping test exits successfully after reporting setup failures.**
+**[GD9797](AROS-graphics-desktop.md#gd9797) — The NListviews preferences test leaves opened libraries unclosed when AmigaOS 4 interface acquisition fails.**
+**[GD9798](AROS-graphics-desktop.md#gd9798) — The LoginWindow test frees a borrowed method-string buffer.**
+**[GD9799](AROS-graphics-desktop.md#gd9799) — NListtree's Off double-click notification supplies NULL instead of the clicked node.**
+**[GD9801](AROS-graphics-desktop.md#gd9801) — The TextEditor SpellChecker frees an in-flight ARexx request when Ctrl-C interrupts its reply wait.**
+**[GD9802](AROS-graphics-desktop.md#gd9802) — TextEditor SpellChecker drops the final character of suggestion lines without a newline and splits long lines into separate entries.**
+**[GD9803](AROS-graphics-desktop.md#gd9803) — VideoCore VCGfx publishes its GPU memory header without the Exec SMP memory-list lock.**
+**[GD9804](AROS-graphics-desktop.md#gd9804) — Selected bitmap conversions pass widths that do not fit the signed `ReadPixelLine8()` API and then consume rows the API did not read.**
+**[GD9805](AROS-graphics-desktop.md#gd9805) — MUI bitmap remapping uses signed-WORD loop counters for LONG bitmap dimensions.**
+**[GD9807](AROS-graphics-desktop.md#gd9807) — MUI Bitmap ignores a transparent-pen request when no palette remapping is configured.**
+**[GD9808](AROS-graphics-desktop.md#gd9808) — NListtree's built-in pointer-match hooks can report distinct pointers as equal on 64-bit builds.**
+**[GD9809](AROS-graphics-desktop.md#gd9809) — NListtree resolves active-node sentinels by overwriting the caller's tag list.**
+**[GD9810](AROS-graphics-desktop.md#gd9810) — NListtree double-click tracking truncates row indices above 65,535.**
+**[GD9811](AROS-graphics-desktop.md#gd9811) — NListtree dereferences a failed duplicated-name allocation during insertion.**
+**[GD9812](AROS-graphics-desktop.md#gd9812) — NListtree InsertStruct continues at the root after an intermediate insertion fails.**
+**[GD9813](AROS-graphics-desktop.md#gd9813) — NListtree Exchange resolves the second head/tail selector from the first list.**
+**[GD9814](AROS-graphics-desktop.md#gd9814) — NListtree Rename discards existing user data when the construct hook rejects replacement data.**
+**[GD9815](AROS-graphics-desktop.md#gd9815) — NListtree Rename dereferences a failed duplicated-name allocation after freeing the existing name.**
+**[GD9816](AROS-graphics-desktop.md#gd9816) — NListtree's built-in clipboard copier mishandles display escape sequences and mutates bracketed names.**
+**[GD9817](AROS-graphics-desktop.md#gd9817) — NListtree Select Visible also selects hidden descendants, which become selected when expanded.**
+**[GD9818](AROS-graphics-desktop.md#gd9818) — Legacy Listtree dereferences a failed image-wrapper allocation.**
+**[GD9820](AROS-graphics-desktop.md#gd9820) — Four Zune MCCs leak the clipboard-server request semaphore when process creation fails.**
+**[GD9821](AROS-graphics-desktop.md#gd9821) — The shared Zune MCC startup leaks `muimaster.library` when its AmigaOS 4 interface lookup fails.**
+**[GD9823](AROS-graphics-desktop.md#gd9823) — NListtree's active-selection query truncates the node pointer on 64-bit builds.**
+**[GD9824](AROS-graphics-desktop.md#gd9824) — Failed software-cursor replacement leaves the previous cursor erased until a later refresh.**
+**[GD9825](AROS-graphics-desktop.md#gd9825) — AmigaVideo's aligned chunky-to-planar conversion left-shifts high-bit pixels as signed integers.**
+**[GD9826](AROS-graphics-desktop.md#gd9826) — `writepixelarrayalpha` reports setup failures with a successful process exit status.**
+**[GD9827](AROS-graphics-desktop.md#gd9827) — NListtree ignores the documented numeric double-click column setting and can notify with a stale entry.**
+**[GD9828](AROS-graphics-desktop.md#gd9828) — NListtree preferences parse imported numeric values as unterminated C strings.**
+**[GD9829](AROS-graphics-desktop.md#gd9829) — Framebuffer mode construction shifts a 32-bit `int` by 32.**
+**[GD9831](AROS-graphics-desktop.md#gd9831) — EFI, Raspberry Pi, and VESA framebuffer initialization leak acquired OOP attribute-base references when graphics-driver registration fails.**
+**[GD9832](AROS-graphics-desktop.md#gd9832) — Generic 8-bit bitmap CopyBox can issue unaligned longword accesses when source and destination alignments differ on 68k.**
+**[GD9834](AROS-graphics-desktop.md#gd9834) — VCGfx CopyBox copies four-byte pixels without converting different pixel formats.**
+**[GD9835](AROS-graphics-desktop.md#gd9835) — FreeType glyph-map allocation failure is dereferenced instead of returned as an error.**
+**[GD9836](AROS-graphics-desktop.md#gd9836) — Graphics enables a display without its required software compositor after object creation fails.**
+**[GD9837](AROS-graphics-desktop.md#gd9837) — NListtree sends OM_DISPOSE an invalid object when construction fails before the superclass object exists.**
+**[GD9838](AROS-graphics-desktop.md#gd9838) — NListtree forward selection iteration skips the active entry when nothing is selected.**
+**[GD9839](AROS-graphics-desktop.md#gd9839) — BltPattern drops a fully visible 32,768-pixel span after narrowing its clipped dimensions to signed WORD.**
+**[GD9840](AROS-graphics-desktop.md#gd9840) — NListtree dereferences a missing drop target while a drag is reported over an empty tree.**
+**[GD9841](AROS-graphics-desktop.md#gd9841) — NListtree Clear leaves a NULL node pool after pool recreation fails, and the next insertion faults in Exec.**
+**[GD9842](AROS-graphics-desktop.md#gd9842) — NListtree's GetNr method dereferences the active-node sentinel in list queries.**
+**[GD9843](AROS-graphics-desktop.md#gd9843) — NListtree clipboard copying reads past a node name with a truncated display escape.**
+**[GD9851](AROS-graphics-desktop.md#gd9851) — MUI master initialization dereferences a failed default-pen table allocation.**
+**[GD9852](AROS-graphics-desktop.md#gd9852) — Diskfont continues parsing a descriptor after read-buffer cursor restoration fails.**
+**[GD9853](AROS-graphics-desktop.md#gd9853) — AmigaGuide records node offsets and lengths after read-buffer cursor restoration fails.**
+**[GD9854](AROS-graphics-desktop.md#gd9854) — Workbench registers AppWindow drop zones but never dispatches zone messages or hooks.**
+**[GD9855](AROS-graphics-desktop.md#gd9855) — Failed Raspberry Pi FBGfx initialization permanently detaches framebuffer kernel debug output.**
+**[GD9856](AROS-graphics-desktop.md#gd9856) — NListtree GetNr dereferences the active-node sentinel for list queries when nothing is active.**
+**[GD9857](AROS-graphics-desktop.md#gd9857) — NListtree TestPos example refers to a result member that does not exist.**
+**[GD9858](AROS-graphics-desktop.md#gd9858) — NListtree per-node Select Ask reports the request code instead of the node's selection state.**
+**[GD9859](AROS-graphics-desktop.md#gd9859) — NListtree Select Force documentation puts the flag in the wrong argument.**
+**[GD9860](AROS-graphics-desktop.md#gd9860) — NListtree silently truncates long node display strings.**
+**[GD9861](AROS-graphics-desktop.md#gd9861) — NListtree leaks the duplicated node name when insertion cannot resolve a destination list.**
+**[GD9862](AROS-graphics-desktop.md#gd9862) — NListtree publishes visibility and row metadata after the inherited NList construct hook rejects an entry.**
+**[GD9863](AROS-graphics-desktop.md#gd9863) — NListtree InsertStruct returns the root-list sentinel when its token buffer allocation fails.**
+**[GD9864](AROS-graphics-desktop.md#gd9864) — NListtree InsertStruct places remaining path components beside an existing leaf.**
+**[GD9865](AROS-graphics-desktop.md#gd9865) — Legacy Listtree BOOL quiet setter is forwarded into a nesting counter.**
+**[GD9866](AROS-graphics-desktop.md#gd9866) — NListtree Select All Ask undercounts selected hidden descendants.**
+**[GD9867](AROS-graphics-desktop.md#gd9867) — AArch64 Raspberry Pi FBGfx framebuffer handoff does not synchronize concurrent kernel debug output.**
+**[GD9868](AROS-graphics-desktop.md#gd9868) — NListtree clone failure runs the destruct hook on the source node's userdata.**
+**[GD9869](AROS-graphics-desktop.md#gd9869) — AreaEnd corrupts the flag table and writes past a full AreaInfo buffer while closing a polygon.**
+**[GD9870](AROS-graphics-desktop.md#gd9870) — ClearScreen skips the visible remainder when its text line begins above the bitmap.**
+**[GD9871](AROS-graphics-desktop.md#gd9871) — `SetRGB4CM()` accepts a negative color index and writes before the colormap tables.**
+**[GD9872](AROS-graphics-desktop.md#gd9872) — IPrefs accepts legacy pointer preferences with an unsupported depth or incomplete bitmap payload.**
+**[GD9873](AROS-graphics-desktop.md#gd9873) — ASL eraser can paint over earlier gadgets when clipping-region subtraction runs out of memory.**
+**[GD9874](AROS-graphics-desktop.md#gd9874) — IPrefs selects the wrong legacy pointer image on little-endian systems when `WhichInFile` is nonzero.**
+**[GD9876](AROS-graphics-desktop.md#gd9876) — ASL accepts a short preferences chunk and opens relative-size requesters at their minimum dimensions.**
+**[GD9877](AROS-graphics-desktop.md#gd9877) — ASL copies an unchecked initial drawer path into a fixed stack buffer.**
+**[GD9878](AROS-graphics-desktop.md#gd9878) — ASL directory scans retry non-EOF ExNext errors without yielding.**
+**[GD9879](AROS-graphics-desktop.md#gd9879) — ASL list sorting can compare a null volume name after a pool allocation failure.**
+**[GD9880](AROS-graphics-desktop.md#gd9880) — ASL font requester sizing reads one pointer past its fixed style-label array.**
+**[GD9881](AROS-graphics-desktop.md#gd9881) — ASL leaks an opened requester font when copying its name fails.**
+**[GD9882](AROS-graphics-desktop.md#gd9882) — ASL font-hook trampoline does not compile in its MorphOS branch.**
+**[GD9883](AROS-graphics-desktop.md#gd9883) — ASL font size sorting can reverse entries when sizes differ by more than a signed word.**
+**[GD9884](AROS-graphics-desktop.md#gd9884) — ASL screen-mode sorting can compare a null display name after allocation failure.**
+**[GD9885](AROS-graphics-desktop.md#gd9885) — ASL screen-mode depth labels shift a 32-bit value by 32.**
+**[GD9886](AROS-graphics-desktop.md#gd9886) — ASL admits HAM modes with no depth choice inside the requested range.**
+**[GD9887](AROS-graphics-desktop.md#gd9887) — Concurrent ASL property-window refreshes share a mutable iteration pointer.**
+**[GD9888](AROS-graphics-desktop.md#gd9888) — ASL color picker narrows its public color count to signed 16 bits before building the palette.**
+**[GD9889](AROS-graphics-desktop.md#gd9889) — ASL color picker shifts a 32-bit value by the screen depth without bounding the shift.**
+**[GD9890](AROS-graphics-desktop.md#gd9890) — XorRectRegionND dereferences a failed region allocation for an empty rectangle.**
+**[GD9891](AROS-graphics-desktop.md#gd9891) — ASL file requester copies a long drawer path into a filename-sized stack buffer.**
+**[GD9892](AROS-graphics-desktop.md#gd9892) — ASL file requester uses `NameFromLock()` output after that call fails.**
+**[GD9893](AROS-graphics-desktop.md#gd9893) — ASL list-view selection narrows long row indices to signed 16 bits.**
+**[GD9894](AROS-graphics-desktop.md#gd9894) — ASL cycle gadget returns its disposed object when frame allocation fails.**
+**[GD9896](AROS-graphics-desktop.md#gd9896) — ASL signed-WORD row counting overflows for large file lists and multi-selections.**
+**[GD9897](AROS-graphics-desktop.md#gd9897) — ASL's MorphOS fallback reads beyond every cool-image palette on truecolor screens.**
+**[GD9898](AROS-graphics-desktop.md#gd9898) — SDL event-task startup can accept an unrelated signal as its readiness handshake.**
+**[GD9900](AROS-graphics-desktop.md#gd9900) — Scrollbar preferences leaves custom-only image controls enabled for the default scrollbar type.**
+**[GD9902](AROS-graphics-desktop.md#gd9902) — Zune's public-screen picker keeps names after their public-screen nodes are freed.**
+**[GD9903](AROS-graphics-desktop.md#gd9903) — Zune Window Preferences cannot configure the supported refresh mode.**
+**[GD9904](AROS-graphics-desktop.md#gd9904) — Zune preferences leaks loaded configdata and can overrun the Save As pathname buffer.**
+**[GD9905](AROS-graphics-desktop.md#gd9905) — Zune's file requester helper leaks ASL resources on allocation failure or cancellation.**
+**[GD9907](AROS-graphics-desktop.md#gd9907) — MUI trusts the embedded window-position size without checking the stored chunk length or destination capacity.**
+**[GD9908](AROS-graphics-desktop.md#gd9908) — Legacy MUI Application Input can consume a handler signal without dispatching its callback.**
+**[GD9909](AROS-graphics-desktop.md#gd9909) — ARexx command dispatch continues with missing or invalid parsed arguments.**
+**[GD9910](AROS-graphics-desktop.md#gd9910) — MUI Application Save and Load can pass an unterminated stack pathname to DOS.**
+**[GD9911](AROS-graphics-desktop.md#gd9911) — MUI Dataspace IFF import loops forever on a zero-length record.**
+**[GD9912](AROS-graphics-desktop.md#gd9912) — ASL font requester narrows large AvailFonts counts to signed WORD before sorting and grouping.**
+**[GD9914](AROS-graphics-desktop.md#gd9914) — ASL ListView drops timer-driven selection repeat at the list edges.**
+**[GD9915](AROS-graphics-desktop.md#gd9915) — Wanderer reports a successful file copy when destination metadata updates fail.**
+**[GD9916](AROS-graphics-desktop.md#gd9916) — Wanderer directory deletion can pass a null FileInfoBlock to DOS Examine after allocation failure.**
+**[GD9918](AROS-graphics-desktop.md#gd9918) — Wanderer leaks destination paths allocated during move operations.**
+**[GD9919](AROS-graphics-desktop.md#gd9919) — Wanderer can reject moving a standalone `.info` file because an unrelated same-basename file exists at the destination.**
+**[GD9920](AROS-graphics-desktop.md#gd9920) — Wanderer overwrites a failed `.info` FileInfoBlock setup and later dereferences the null pointer.**
+**[GD9922](AROS-graphics-desktop.md#gd9922) — Wanderer can report a move as successful when destination-path allocation fails.**
+**[GD9923](AROS-graphics-desktop.md#gd9923) — Wanderer ignores a failed destination Close() and reports the file copy as successful.**
+**[GD9924](AROS-graphics-desktop.md#gd9924) — Wanderer reads uninitialized copy timing and divides by zero for empty files.**
+**[GD9925](AROS-graphics-desktop.md#gd9925) — Wanderer recursive deletion can skip an entry when child-path allocation fails and report success.**
+**[GD9926](AROS-graphics-desktop.md#gd9926) — Wanderer recursive copy can pass a null child path into string handling after allocation failure.**
+**[GD9927](AROS-graphics-desktop.md#gd9927) — Zune non-single-task application base names can collide during concurrent startup, long-base truncation, or suffix exhaustion.**
+**[GD9928](AROS-graphics-desktop.md#gd9928) — Zune can hide an application before creating its AppIcon and leave it inaccessible when icon creation fails.**
+**[GD9929](AROS-graphics-desktop.md#gd9929) — MUI reports an unrecognized ARexx command as successful.**
+**[GD9930](AROS-graphics-desktop.md#gd9930) — SetOutlinePen returns a sign-extended old pen instead of its unsigned pen value.**
+**[GD9931](AROS-graphics-desktop.md#gd9931) — A heavily shared palette pen can wrap its reference count to zero and be returned to the free list while clients still hold it.**
+**[GD9932](AROS-graphics-desktop.md#gd9932) — Indexed HIDD palette updates can change the software ColorMap while the display driver rejects the hardware update.**
+**[GD9933](AROS-graphics-desktop.md#gd9933) — SDL HIDD color updates leak their temporary palette array and dereference it after allocation failure.**
+**[GD9934](AROS-graphics-desktop.md#gd9934) — GetMonitorList returns monitor objects without keeping them alive after dropping the list lock.**
+**[GD9935](AROS-graphics-desktop.md#gd9935) — NListtree GetEntry dereferences a missing active list.**
+**[GD9937](AROS-graphics-desktop.md#gd9937) — SetIPrefs offsets the Workbench's last four palette colors past the end of its palette.**
+**[GD9938](AROS-graphics-desktop.md#gd9938) — SetPointerColors decodes the low-depth sprite palette base to an oversized color index.**
+**[GD9940](AROS-graphics-desktop.md#gd9940) — OpenScreen reports success when its display rebuild fails.**
+**[GD9941](AROS-graphics-desktop.md#gd9941) — CloseScreen frees a bitmap still linked into AmigaVideo's compositor after a display rebuild failure.**
+**[GD9942](AROS-graphics-desktop.md#gd9942) — CloseScreen can tear down a private screen after a concurrent OpenWindow passed the empty-window check.**
+**[GD9943](AROS-graphics-desktop.md#gd9943) — SysExplorer's processor page formats strings through unchecked allocation results.**
+**[GD9944](AROS-graphics-desktop.md#gd9944) — Radeon uses an unallocated VRAM offset for the hardware cursor after cursor-buffer allocation fails.**
+**[GD9945](AROS-graphics-desktop.md#gd9945) — Radeon does not check its CPU conversion-buffer allocation before using it as a pixel destination.**
+**[GD9946](AROS-graphics-desktop.md#gd9946) — Find can add search results after the user stops the scan.**
+**[GD9948](AROS-graphics-desktop.md#gd9948) — FTManager leaks font entries queued after the application's final event-loop drain.**
+**[GD9949](AROS-graphics-desktop.md#gd9949) — `OpenMonitor()` can pin or return a `MonitorSpec` after Sync/display teardown frees it.**
+**[GD9951](AROS-graphics-desktop.md#gd9951) — Graphics.library `ChangeSprite()` changes the stored image pointer but never updates the displayed sprite shape.**
+**[GD9952](AROS-graphics-desktop.md#gd9952) — `TextLength()` and `TextExtent()` dereference optional font metric tables without checking each pointer.**
+**[GD9953](AROS-graphics-desktop.md#gd9953) — The graphics copper-list debug test continues after `UCopperListInit()` fails to allocate its instruction buffer.**
+**[GD9955](AROS-graphics-desktop.md#gd9955) — Shared palette pen references can wrap to zero and return a still-held pen to the free list.**
+**[GD9956](AROS-graphics-desktop.md#gd9956) — Optional Nouveau bitmap `PutPixel()`/`GetPixel()` can race with accelerated operations on an already-mapped bitmap.**
+**[GD9957](AROS-graphics-desktop.md#gd9957) — Optional Nouveau bitmap operations ignore failure to map the buffer before dereferencing it.**
+**[GD9958](AROS-graphics-desktop.md#gd9958) — Edit's preference requester truncates long paths without a terminator.**
+**[GD9959](AROS-graphics-desktop.md#gd9959) — Edit's preference loader trusts record lengths and can write beyond its destination fields.**
+**[GD9960](AROS-graphics-desktop.md#gd9960) — Edit's preference parser can loop indefinitely on a JANO chunk larger than its 16-bit cursor.**
+**[GD9961](AROS-graphics-desktop.md#gd9961) — Edit's file requester copies a long directory path beyond its shared buffer.**
+**[GD9962](AROS-graphics-desktop.md#gd9962) — Edit reports a failed save as successful and clears the modified state.**
+**[GD9963](AROS-graphics-desktop.md#gd9963) — Edit crashes when it cannot allocate a line node while loading a file.**
+**[GD9964](AROS-graphics-desktop.md#gd9964) — The shared Radeon BIOS fallback copies into a NULL buffer when its pool allocation fails.**
+**[GD9965](AROS-graphics-desktop.md#gd9965) — Graph.mcc stores `MUIV_Graph_Source_FillPenSrc` in the line-pen slot.**
+**[GD9966](AROS-graphics-desktop.md#gd9966) — NBitmap leaks acquired palette pens on non-AmigaOS4 high-color screens when CyberGraphics is unavailable.**
+**[GD9967](AROS-graphics-desktop.md#gd9967) — NList bitmap-image creation leaks palette pens if its image-record allocation fails.**
+**[GD9968](AROS-graphics-desktop.md#gd9968) — NBitmap accepts failed truecolor pixel-array reads as valid image data.**
+**[GD9969](AROS-graphics-desktop.md#gd9969) — NBitmap silently renders an unconverted RGB24 buffer when its endian-conversion allocation fails.**
+**[GD9970](AROS-graphics-desktop.md#gd9970) — DitherImage's ARGB mask stride truncates widths above 65,535 pixels.**
+**[GD9971](AROS-graphics-desktop.md#gd9971) — DitherImage silently drops ARGB transparency when its chip-memory mask allocation fails.**
+**[GD9972](AROS-graphics-desktop.md#gd9972) — Chunky2Bitmap passes an unrepresentable row width to WritePixelLine8.**
+**[GD9973](AROS-graphics-desktop.md#gd9973) — NBitmap-Test exits successfully when startup or class creation fails.**
+**[GD9974](AROS-graphics-desktop.md#gd9974) — Enabling built-in Title references an undefined disposal function.**
+**[GD9975](AROS-graphics-desktop.md#gd9975) — An empty Title group divides by zero during layout and dereferences a missing first tab during drawing.**
+**[GD9976](AROS-graphics-desktop.md#gd9976) — TextEditor block deletion can destroy text when its undo snapshot allocation fails.**
+**[GD9977](AROS-graphics-desktop.md#gd9977) — TextEditor color updates replace the original line-color map with incomplete data after a grow allocation fails.**
+**[GD9978](AROS-graphics-desktop.md#gd9978) — TextEditor ExportBlock validates the stop column against the start line.**
+**[GD9979](AROS-graphics-desktop.md#gd9979) — TextEditor SplitLine inserts a new line after its content allocation fails.**
+**[GD9980](AROS-graphics-desktop.md#gd9980) — TextEditor PasteClip can report success after dropping clipboard lines on allocation failure.**
+**[GD9981](AROS-graphics-desktop.md#gd9981) — TextEditor style updates discard the old style map when growth allocation fails.**
+**[GD9982](AROS-graphics-desktop.md#gd9982) — TextEditor search indexes its 256-byte skip table with signed character values.**
+**[GD9983](AROS-graphics-desktop.md#gd9983) — TextEditor MIME import appends color transitions to the style array.**
+**[GD9984](AROS-graphics-desktop.md#gd9984) — TextEditor MIME soft-line joining leaves the recorded line capacity stale.**
+**[GD9985](AROS-graphics-desktop.md#gd9985) — TextEditor import leaves continuation line state uninitialized.**
+**[GD9986](AROS-graphics-desktop.md#gd9986) — TextEditor ImportText accepts a truncated document after line-node allocation failure.**
+**[GD9987](AROS-graphics-desktop.md#gd9987) — TextEditor MUI edit shortcuts are gated by the read-only flag.**
+**[GD9988](AROS-graphics-desktop.md#gd9988) — TextEditor cannot reset an overridden tab size to the user preference.**
+**[GD9989](AROS-graphics-desktop.md#gd9989) — TextEditor SetBlock flow changes do not set HasChanged.**
+**[GD9990](AROS-graphics-desktop.md#gd9990) — TextEditor ARexx commands still execute in read-only mode.**
+**[GD9991](AROS-graphics-desktop.md#gd9991) — TextEditor word navigation passes signed bytes as locale character indexes.**
+**[GD9992](AROS-graphics-desktop.md#gd9992) — TextEditor plain export reserves too little space for dense style and color control codes.**
+**[GD9993](AROS-graphics-desktop.md#gd9993) — TextEditor undo-buffer resize discards the old buffer after allocation failure.**
+**[GD9994](AROS-graphics-desktop.md#gd9994) — TextEditor assigns zero visual lines when a leading tab cannot fit.**
+**[GD9995](AROS-graphics-desktop.md#gd9995) — TextEditor font setup frees an uninitialized pointer when its name allocation fails.**
+**[GD9997](AROS-graphics-desktop.md#gd9997) — TextEditor clipboard parsing tests an uninitialized text pointer after allocation failure.**
+**[GD9998](AROS-graphics-desktop.md#gd9998) — TextEditor spell checking uses a reversed word-length bound and can overflow its stack buffer.**
+**[GD9999](AROS-graphics-desktop.md#gd9999) — Boot-mode display registration defers writing DDRV_ResultID through the caller's pointer.**
+**[GD10000](AROS-graphics-desktop.md#gd10000) — Boot-mode display handover retains the caller's DDRV_HWRanges array.**
+**[GD10001](AROS-graphics-desktop.md#gd10001) — NList's ByteRun1 bitmap conversion advances the compressed input pointer during repeated runs.**
+**[GD10002](AROS-graphics-desktop.md#gd10002) — `LayoutIconA()` skips scaling the selected ARGB image after scaling the normal image.**
+**[GD10003](AROS-graphics-desktop.md#gd10003) — `LayoutIconA()` divides by a zero source width when applying a finite scale box.**
+**[GD10004](AROS-graphics-desktop.md#gd10004) — Reaction library initialization failure closes intuition.library twice.**
+**[GD10005](AROS-graphics-desktop.md#gd10005) — ReAction DrawList silently ignores four documented drawing directives.**
+**[GD10006](AROS-graphics-desktop.md#gd10006) — Reaction `window.class` dereferences a missing default screen in `WM_OPEN`.**
+**[GD10007](AROS-graphics-desktop.md#gd10007) — ReAction `PopUpObject` chooser never opens a popup and only cycles its active index.**
+**[GD10008](AROS-graphics-desktop.md#gd10008) — ReAction Chooser input can select nodes explicitly marked disabled or read-only.**
+**[GD10009](AROS-graphics-desktop.md#gd10009) — ReAction Layout ignores horizontal and centered alignment settings.**
+**[GD10010](AROS-graphics-desktop.md#gd10010) — `FlushLayoutDomainCache()` does not flush the Layout domain cache.**
+**[GD10012](AROS-graphics-desktop.md#gd10012) — `LayoutLimits()` reports a fixed minimum unrelated to the supplied layout.**
+**[GD10013](AROS-graphics-desktop.md#gd10013) — ReAction Page fixed-size attributes are stored but have no effect.**
+**[GD10014](AROS-graphics-desktop.md#gd10014) — ReAction ClickTab accepts several documented label and gadget attributes without applying them.**
+**[GD10015](AROS-graphics-desktop.md#gd10015) — ReAction CheckBox stores three documented appearance attributes without applying them.**
+**[GD10016](AROS-graphics-desktop.md#gd10016) — ReAction CheckBox mishandles the documented `~0` text-pen sentinel.**
+**[GD10017](AROS-graphics-desktop.md#gd10017) — ReAction `PushButton` mode forces the button into its selected appearance all the time.**
+**[GD10020](AROS-graphics-desktop.md#gd10020) — ReAction Button ignores several pen/style tags and treats the documented text-pen sentinel as a literal pen index.**
+**[GD10021](AROS-graphics-desktop.md#gd10021) — ReAction Label can draw its text over its attached image when centered or right-justified.**
+**[GD10022](AROS-graphics-desktop.md#gd10022) — ReAction RadioButton ignores the public label-placement attribute.**
+**[GD10023](AROS-graphics-desktop.md#gd10023) — RadioButton node helpers silently discard the documented per-node user data.**
+**[GD10024](AROS-graphics-desktop.md#gd10024) — RadioButton silently accepts a truncated `RADIOBUTTON_LabelArray` after allocation failure.**
+**[GD10025](AROS-graphics-desktop.md#gd10025) — Large valid RadioButton spacing values wrap the signed row height and move later choices to incorrect coordinates.**
+**[GD10026](AROS-graphics-desktop.md#gd10026) — ReAction Slider does not synchronize its public range/level/orientation with the proportional superclass.**
+**[GD10027](AROS-graphics-desktop.md#gd10027) — Truncated Slider level text can include uninitialized stack bytes.**
+**[GD10028](AROS-graphics-desktop.md#gd10028) — ReAction Slider stores and reports `SLIDER_Invert` but never changes slider direction.**
+**[GD10029](AROS-graphics-desktop.md#gd10029) — FuelGauge releases an obtained RastPort before drawing the gadget label.**
+**[GD10033](AROS-graphics-desktop.md#gd10033) — ReAction Scroller keeps its public range/position separate from the proportional superclass that draws and handles it.**
+**[GD10035](AROS-graphics-desktop.md#gd10035) — ReAction Scroller ignores its documented stretch and active-task signal attributes.**
+**[GD10036](AROS-graphics-desktop.md#gd10036) — ReAction Integer's `INTEGER_Number` is disconnected from the editable `STRGCLASS` value.**
+**[GD10037](AROS-graphics-desktop.md#gd10037) — ReAction Integer stores or advertises controls that never reach the string gadget or render path.**
+**[GD10038](AROS-graphics-desktop.md#gd10038) — ReAction TextField is display-only and ignores its advertised editing, cursor and scrolling controls.**
+**[GD10040](AROS-graphics-desktop.md#gd10040) — `TEXTFIELD_Lines` reports only the lines traversed for the current viewport, not the total text line count.**
+**[GD10041](AROS-graphics-desktop.md#gd10041) — ReAction String stores `STRINGA_MinVisible` but does not use it for sizing.**
+**[GD10042](AROS-graphics-desktop.md#gd10042) — ReAction String stores `STRINGA_HookType` without installing any built-in editing hook.**
+**[GD10043](AROS-graphics-desktop.md#gd10043) — ReAction GetFile exposes `gfRequestFile()` but implements neither `GFILE_REQUEST` nor `GFILE_FREELIST`.**
+**[GD10044](AROS-graphics-desktop.md#gd10044) — ListBrowser ignores `LISTBROWSER_SelectedNode` in `OM_SET`, leaving the selected-node pointer stale after a list rebuild.**
+**[GD10045](AROS-graphics-desktop.md#gd10045) — ListBrowser treats `LISTBROWSER_Position` scroll commands as literal row indexes.**
+**[GD10046](AROS-graphics-desktop.md#gd10046) — The public header defines `LBM_ADDNODE`, `LBM_REMNODE`, `LBM_EDITNODE`, `LBM_SORT`, `LBM_SHOWCHILDREN`, and `LBM_HIDECHILDREN` with method structures and operation descriptions….**
+**[GD10047](AROS-graphics-desktop.md#gd10047) — SpeedBar draws blank frames for the button nodes created by its public allocator.**
+**[GD10048](AROS-graphics-desktop.md#gd10048) — SpeedBar never translates button clicks into the node identifiers its client expects.**
+**[GD10049](AROS-graphics-desktop.md#gd10049) — Requester integer, string and progress modes all open as plain information prompts.**
+**[GD10050](AROS-graphics-desktop.md#gd10050) — Requester ignores the explicit screen supplied to `RM_OPENREQ` when no parent window is given.**
+**[GD10051](AROS-graphics-desktop.md#gd10051) — GetFont advertises `gfRequestFont()` but its class cannot open a font requester.**
+**[GD10052](AROS-graphics-desktop.md#gd10052) — Palette never updates the selected color in response to input.**
+**[GD10053](AROS-graphics-desktop.md#gd10053) — Palette ignores its public color-remapping table and always draws consecutive pen numbers.**
+**[GD10054](AROS-graphics-desktop.md#gd10054) — GetScreenMode advertises `RequestScreenMode()` but cannot open a display-mode requester.**
+**[GD10055](AROS-graphics-desktop.md#gd10055) — ReAction Glyph radio buttons draw beyond small image bounds.**
+**[GD10056](AROS-graphics-desktop.md#gd10056) — ReAction Bevel stores label placement but always draws group labels at the top-left.**
+**[GD10057](AROS-graphics-desktop.md#gd10057) — ReAction Bevel cannot select pen zero for group-label text.**
+**[GD10058](AROS-graphics-desktop.md#gd10058) — ReAction bitmap.image ignores the selected-state source-file tag.**
+**[GD10059](AROS-graphics-desktop.md#gd10059) — ReAction `led.image` draws digit segments outside small image bounds.**
+**[GD10060](AROS-graphics-desktop.md#gd10060) — ReAction penmap.image skips the configured background color instead of mapping it to the background pen.**
+**[GD10061](AROS-graphics-desktop.md#gd10061) — ReAction penmap.image ignores its public pen-remapping and mask-blit controls.**
+**[GD10062](AROS-graphics-desktop.md#gd10062) — ReAction `space.gadget` ignores its render hook.**
+**[GD10063](AROS-graphics-desktop.md#gd10063) — ReAction `space.gadget` does not implement its mouse-position notifications or inner-area getter.**
+**[GD10064](AROS-graphics-desktop.md#gd10064) — ReAction `space.gadget` does not apply its declared minimum dimensions.**
+**[GD10065](AROS-graphics-desktop.md#gd10065) — TapeDeck returns a usable gadget when its required child objects fail to allocate.**
+**[GD10066](AROS-graphics-desktop.md#gd10066) — TapeDeck's fixed-height setter changes the tag only after the superclass has applied it.**
+**[GD10070](AROS-graphics-desktop.md#gd10070) — 64-bit Font datatype writes the `.otag` terminator past its converted tag array.**
+**[GD10071](AROS-graphics-desktop.md#gd10071) — Font datatype outline-font error paths leave the caller's current directory changed.**
+**[GD10072](AROS-graphics-desktop.md#gd10072) — A full 1,023-byte font preferences buffer makes `ReadArgsBuf()` write one byte past its allocation.**
+**[GD10073](AROS-graphics-desktop.md#gd10073) — MUI ARexx dispatch treats command prefixes as complete command names.**
+**[GD10074](AROS-graphics-desktop.md#gd10074) — Font datatype reports successful loading when chunky bitmap transfer fails.**
+**[GD10076](AROS-graphics-desktop.md#gd10076) — Font datatype leaks its temporary chunky-rendering bitmap.**
+**[GD10077](AROS-graphics-desktop.md#gd10077) — Nouveau cursor updates dereference the cursor buffer after allocation or mapping fails.**
+**[GD10078](AROS-graphics-desktop.md#gd10078) — Mode-change trigger confirmed (2026-10-31).**
+**[GD10079](AROS-graphics-desktop.md#gd10079) — NListtree clipboard export skips display text and edits bracketed escape sequences in the stored node name.**
+**[GD10080](AROS-graphics-desktop.md#gd10080) — Nouveau's accelerated DrawLine path drops the final pixel on horizontal and vertical lines.**
+**[GD10081](AROS-graphics-desktop.md#gd10081) — Nouveau's accelerated DrawLine path ignores the graphics context's line pattern.**
+**[GD10082](AROS-graphics-desktop.md#gd10082) — Nouveau's 3D alpha-template upload applies inverted alpha to the blue byte instead of the alpha byte.**
+**[GD10083](AROS-graphics-desktop.md#gd10083) — Nouveau's software alpha blending left-shifts negative signed values.**
+**[GD10084](AROS-graphics-desktop.md#gd10084) — The P96 monitor launcher ignores CLI parse errors and can report success without loading a card.**
+**[GD10085](AROS-graphics-desktop.md#gd10085) — NListtree reverse searches skip nested descendants.**
+**[GD10086](AROS-graphics-desktop.md#gd10086) — Graphics display handover can dispose a display that still owns live display-ID bitmaps.**
+**[GD10087](AROS-graphics-desktop.md#gd10087) — SDL keyboard events place the raw key in the flags half of the HIDD event.**
+**[GD10088](AROS-graphics-desktop.md#gd10088) — ReAction Glyph's CheckMark type draws an empty checkbox instead of a checkmark.**
+**[GD10089](AROS-graphics-desktop.md#gd10089) — MUI ARexx dispatch ignores argument-setup failures and can invoke a command hook with invalid arguments.**
+**[GD10090](AROS-graphics-desktop.md#gd10090) — The m68k emulator does not dispatch several public Intuition vectors.**
+**[GD10092](AROS-graphics-desktop.md#gd10092) — The generic keyboard input subsystem can lose events while buffering before or during first-consumer registration on ExecSMP.**
+**[GD10093](AROS-graphics-desktop.md#gd10093) — The generic input HIDD does not serialize consumer-list updates and callbacks across ExecSMP CPUs.**
+**[GD10095](AROS-graphics-desktop.md#gd10095) — `GenTaskName()` dereferences a NULL result when its name allocation fails.**
+**[GD10096](AROS-graphics-desktop.md#gd10096) — Ignored damage-region insertions can leave resized relative gadgets or window borders outside the redraw region.**
+**[GD10097](AROS-graphics-desktop.md#gd10097) — 64-bit Font datatype scans past the end of a malformed `.otag` file looking for `TAG_DONE`.**
+**[GD10098](AROS-graphics-desktop.md#gd10098) — PrefsWindow catalogs omit keyboard-control markers for Russian and some Croatian buttons.**
+**[GD10099](AROS-graphics-desktop.md#gd10099) — `AreaEnd()` silently drops a polygon when the scan-conversion workspace allocation fails.**
+**[GD10100](AROS-graphics-desktop.md#gd10100) — The general polygon scan converter can overflow its signed intersection product for valid signed-WORD coordinates.**
+**[GD10102](AROS-graphics-desktop.md#gd10102) — NList discards an explicit Bodychunk mask and derives transparency from the color index instead.**
+**[GD10103](AROS-graphics-desktop.md#gd10103) — IntelGMA leaks the temporary I²C device object used to read EDID.**
+**[GD10104](AROS-graphics-desktop.md#gd10104) — Android graphics does not bound ACK payload copies to the matched request's response storage.**
+**[GD10107](AROS-graphics-desktop.md#gd10107) — HostGL returns native OpenGL procedure pointers that bypass its per-task context switch.**
+**[GD10108](AROS-graphics-desktop.md#gd10108) — The m68k emulator omits four public Graphics vectors from its dispatch tables.**
+**[GD10109](AROS-graphics-desktop.md#gd10109) — `SetCollision()` writes past the collision callback table for an out-of-range vector number.**
+**[GD10110](AROS-graphics-desktop.md#gd10110) — Two manual m68k Graphics thunks are registered at the wrong LVOs.**
+**[GD10112](AROS-graphics-desktop.md#gd10112) — SDL HIDD opaque 16-bit color expansion reads the source X coordinate from `srcY`.**
+**[GD10113](AROS-graphics-desktop.md#gd10113) — SDL HIDD 24-bit color expansion advances destination pixels by four bytes.**
+**[GD10115](AROS-graphics-desktop.md#gd10115) — Cocoa drops mouse button transitions when its event ring fills.**
+**[GD10117](AROS-graphics-desktop.md#gd10117) — Resizing the Cocoa window leaves mouse coordinates in the old framebuffer scale.**
+**[GD10118](AROS-graphics-desktop.md#gd10118) — Graph source growth can leave a new read hook with no entry buffer.**
+**[GD10119](AROS-graphics-desktop.md#gd10119) — MapANSI hides a successfully translated prefix when a later character is unmappable.**
+**[GD10120](AROS-graphics-desktop.md#gd10120) — LAYOUT_RemoveChild leaves the child object undisposed.**
+**[GD10125](AROS-graphics-desktop.md#gd10125) — Opening an already open Wanderer drawer leaves its Workbench message unreplied.**
+**[GD10126](AROS-graphics-desktop.md#gd10126) — Wanderer drops filesystem notification replies for requests with user data.**
+**[GD10127](AROS-graphics-desktop.md#gd10127) — Failed system-gadget creation double-cleans an OpenWindow allocation.**
+**[GD10128](AROS-graphics-desktop.md#gd10128) — An ARexx request crashes a MUI application that enabled Rexx without a command table.**
+**[GD10129](AROS-graphics-desktop.md#gd10129) — DoGadgetMethodA overwrites OM_GET's output pointer with GadgetInfo.**
+**[GD10130](AROS-graphics-desktop.md#gd10130) — IconList drag/drop dereferences a missing DiskObject for icon-only files.**
+**[GD10134](AROS-graphics-desktop.md#gd10134) — Nouveau mode enumeration dereferences failed tag allocations.**
+**[GD10135](AROS-graphics-desktop.md#gd10135) — Nouveau leaks dynamically allocated display-mode tag lists.**
+**[GD10136](AROS-graphics-desktop.md#gd10136) — Nouveau continues after client allocation fails and retains a NULL client.**
+**[GD10137](AROS-graphics-desktop.md#gd10137) — Nouveau leaks DRM and connector resources when root construction fails.**
+**[GD10138](AROS-graphics-desktop.md#gd10138) — Gallium NULL screen destruction tears down live driver state.**
+**[GD10139](AROS-graphics-desktop.md#gd10139) — GL context setup dereferences a failed RastPort clone.**
+**[GD10140](AROS-graphics-desktop.md#gd10140) — Wanderer dereferences a missing AppIcon DiskObject during position propagation.**
+**[GD10141](AROS-graphics-desktop.md#gd10141) — Wanderer can leave an IconWindow stuck open when deferred close allocation fails.**
+**[GD10143](AROS-graphics-desktop.md#gd10143) — EGL surfaceless and pbuffer contexts fail because no RastPort is supplied.**
+**[GD10144](AROS-graphics-desktop.md#gd10144) — EGL swap buffers uses one display-wide context for every task.**
+**[GD10145](AROS-graphics-desktop.md#gd10145) — Destroying an unbound EGL context detaches a different current GLA context.**
+**[GD10146](AROS-graphics-desktop.md#gd10146) — EGL initialization passes an unchecked config allocation into Mesa helpers [medium impact, medium confidence; optional EGL].**
+**[GD10147](AROS-graphics-desktop.md#gd10147) — LayoutIconA publishes a partially flood-filled backfill image when Flood runs out of scanline slots.**
+**[GD10148](AROS-graphics-desktop.md#gd10148) — BetterString hexadecimal conversion keeps only the final digit.**
+**[GD10150](AROS-graphics-desktop.md#gd10150) — Secret BetterString text is drawn unmasked when masking allocation fails.**
+**[GD10151](AROS-graphics-desktop.md#gd10151) — BetterString selection can retain an out-of-range start and read past its contents.**
+**[GD10152](AROS-graphics-desktop.md#gd10152) — BetterString Paste turns a negative remaining capacity into a huge copy length.**
+**[GD10153](AROS-graphics-desktop.md#gd10153) — BetterString leaks a shared-pool buffer when a clipboard chunk read fails.**
+**[GD10154](AROS-graphics-desktop.md#gd10154) — BetterString builds its selection pointer before selecting screen-matched colors.**
+**[GD10155](AROS-graphics-desktop.md#gd10155) — BetterString underallocates 64-bit ExAll frames.**
+**[GD10156](AROS-graphics-desktop.md#gd10156) — BetterString AROS volume completion drops the final volume-name character.**
+**[GD10157](AROS-graphics-desktop.md#gd10157) — BetterString filename completion truncates names longer than 31 characters.**
+**[GD10158](AROS-graphics-desktop.md#gd10158) — Invalid BetterString filename patterns fall back to listing every entry.**
+**[GD10159](AROS-graphics-desktop.md#gd10159) — BetterString insertion copies text after content expansion fails.**
+**[GD10160](AROS-graphics-desktop.md#gd10160) — BetterString filename replacement wraps a negative MaxLen remainder.**
+**[GD10161](AROS-graphics-desktop.md#gd10161) — BetterString leaks its filename-completion frame when ExAll control allocation fails.**
+**[GD10212](AROS-graphics-desktop.md#gd10212) — ReAction Layout ignores its declared child-modification tag.**
+**[GD10213](AROS-graphics-desktop.md#gd10213) — ReAction Layout succeeds while losing an inline child on wrapper-allocation failure.**
+**[GD10222](AROS-graphics-desktop.md#gd10222) — Vulkan-Hpp format traits omit `R16G16_S10_5_NV`.**
+**[GD10225](AROS-graphics-desktop.md#gd10225) — Vulkan-Hpp batch pipeline wrappers can leak partial successes.**
+**[GD10228](AROS-graphics-desktop.md#gd10228) — Vulkan-Hpp deferred ray-tracing wrappers return before output storage is safe to release.**
+**[GD10229](AROS-graphics-desktop.md#gd10229) — Vulkan HIDD narrows `size_t` values on 64-bit targets.**
+**[GD10231](AROS-graphics-desktop.md#gd10231) — Vulkan-Hpp hashers dereference nullable string members.**
+**[GD10232](AROS-graphics-desktop.md#gd10232) — Vulkan-Hpp release-backed unique handles have incompatible deleters.**
+**[GD10234](AROS-graphics-desktop.md#gd10234) — Vulkan-Hpp debug-utils helpers fail to compile for 32-bit non-dispatchable handles.**
+**[GD10237](AROS-graphics-desktop.md#gd10237) — Vulkan-Hpp unique display-mode factory has no valid destroy operation.**
+**[GD10240](AROS-graphics-desktop.md#gd10240) — Vulkan-Hpp `TensorCopyARM` array helpers can produce inconsistent dimensions.**
+**[GD10245](AROS-graphics-desktop.md#gd10245) — Vulkan-Hpp platform-specific external-handle wrappers default to `eOpaqueFd`.**
+**[GD10246](AROS-graphics-desktop.md#gd10246) — `IndirectCommandsLayoutTokenNV` setters can desynchronize paired arrays.**
+**[GD10247](AROS-graphics-desktop.md#gd10247) — `IndirectExecutionSetShaderInfoEXT` setters can desynchronize shader arrays.**
+**[GD10248](AROS-graphics-desktop.md#gd10248) — `LayerSettingEXT::setValues` does not enforce the selected value type.**
