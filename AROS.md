@@ -19876,7 +19876,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[GD9939](AROS-graphics-desktop.md#gd9939)** — `OpenScreen()` underflows its UWORD sprite palette base for one- and two-plane screens; its pointer-color initialization then reaches the unchecked HIDD pixel-table write. The ScreenMode editor Test action permits depth 1 and directly opens the selected mode, grounding a maintained caller when mode maximum depth is at most eight. `scrbackfill` requests depth 2 but `SA_LikeWorkbench` replaces that with the configured Workbench depth. Applies to non-BINCOMPAT flavours; source-only, no screen was opened.
 
-**[GD15449](AROS-graphics-desktop.md#gd15449-animation-worker-startup-failure-hangs-construction)** — Animation object construction waits forever if either `CreateNewProcTags()` call fails, because it waits for a RUNNING flag only that worker can set. The second failure can also leave the already-started buffer worker running. Conditional on process creation failure; source-only.
+**GD15449 — Withdrawn as a duplicate of [GD6287](AROS-graphics-desktop.md#gd6287).** Both entries cover the Animation constructor waiting forever after worker creation/startup failure; GD6287 includes the additional consequence that the buffer worker may remain active when playback-worker creation fails.
 
 ## Graphics/Desktop findings with explicit indexed summaries (2026-11-26)
 
