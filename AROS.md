@@ -105,7 +105,7 @@
 
 **[EK373](AROS-exec-kernel.md#ek373) — WaitX reports successful exit when ReadArgs rejects the command line.** Source details and affected configuration are in the linked finding.
 
-**[EK814](AROS-exec-kernel.md#ek814) — Sam440 accepts IRQs 128–239 and indexes beyond its UIC enable-state array.** Source details and affected configuration are in the linked finding.
+**[EK814](AROS-exec-kernel.md#ek814) — Sam440 accepts IRQs outside the active UIC range.** PPC440 accepts 64–127 but never dispatches them; both variants index beyond the mask array for 128–239. Source details and affected configuration are in the linked finding.
 
 **[EK816](AROS-exec-kernel.md#ek816) — Efika last-handler removal can set the wrong main-IRQ disable bit, leaving IRQs 4–19 unmasked without a handler. The follow-on effect requires a pending/asserted source; no ordinary in-tree last-handler removal was established. See the [mask and caller trace](AROS-exec-kernel-coverage.md#L4640). Source-only.
 
