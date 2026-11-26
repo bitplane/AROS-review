@@ -1,3 +1,7 @@
+## Native PC target reachability qualification (EK11124; 2026-11-26)
+
+The checked-in configure-generated native `pc-i386` and `pc-x86_64` KOBJ graphs leave `FAMILY` empty and their boot manifests request generic kernel and Exec objects without parent edges to the PC-specific and shared PC overlays (EK11124). Therefore source findings tied to `arch/i386-pc`, `arch/x86_64-pc`, `arch/all-pc`, or `arch/all-native` native PC implementation paths describe conditional defects in those source paths; default native PC runtime reachability is not established unless the generated target graph is corrected or the build supplies the missing family edge. Shared/common and hosted Unix paths remain independently applicable where their manifests select the relevant code. This qualification applies across the report, including older entries that use “selected PC” as shorthand for manifest selection. It does not change findings in bootstrap code that the PC boot manifests select directly. No build or boot was run; source-only.
+
 <a id="ek11115"></a>
 ### EK11115 — A long task name overruns the fixed Exec alert-text buffer [conditional]
 
