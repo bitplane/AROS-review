@@ -21323,3 +21323,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[GD15461](AROS-graphics-desktop.md#gd15461) — OpenURL Workbench startup may pass an unterminated icon name.** A basename filling the fixed `strncpy` count leaves the local buffer unterminated before icon lookup; conditional maximum-length Workbench input. Source-only.
 
 **[GD15462](AROS-graphics-desktop.md#gd15462) — OpenURL Workbench startup does not free loaded DiskObjects.** Successfully loaded icon objects remain allocated after tooltype parsing; optional command Workbench path. Source-only.
+
+**[OD11837](AROS-other-drivers.md#od11837) — RFCOMM credit-bearing data can exceed the negotiated MTU by one byte.** An exact-MTU send that piggybacks credits violates the N1−1 limit; conditional credit-flow Bluetooth RFCOMM path. Source-only.
