@@ -21333,3 +21333,6 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD11839](AROS-other-drivers.md#od11839) — Prism2 scan allocation failure can fault during beacon matching.** A failed result/tag/BSSID allocation is followed by beacon correlation through incomplete entries; conditional Lucent raw-beacon scan path.
 
 **[OD11840](AROS-other-drivers.md#od11840) — Prism2 accepts a truncated firmware S3 record.** An address-only record underflows the parsed length and makes the firmware loader read past its 50-byte scratch buffer; conditional on a malformed local firmware image.
+
+
+**[GD15463](AROS-graphics-desktop.md#gd15463) — Nouveau GEM close releases a mapping after its GPU fence wait times out.** Under allocation failure and a fence delayed beyond two seconds, handle-close cleanup removes the VMA while submitted work may still reference it; optional Nouveau target. Source-only.
