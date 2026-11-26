@@ -12156,6 +12156,13 @@ The parent creates each task and waits for `SIGBREAKF_CTRL_C` before adding its 
 
 **Trigger and consequence:** memory exhaustion during worker-private allocation leaves the parent readiness loop waiting forever on an unready published worker. Failure to allocate the worker message port makes the worker call `WaitPort(NULL)` and, if execution continues, leaves the master spinning without an eligible worker. **Affected configuration:** explicit optional `test-smp-smp` target (`developer/debug/test/smp/smp-test/mmakefile.src:5-15`); no default-image inclusion is claimed. **Confidence:** high for the two unchecked allocation-failure branches and their control flow. Use distinct startup-success/failure signaling, publish a worker only after both resources exist, and remove/skip failed workers before starting the master. No allocation failure, task, port, or runtime behavior was exercised; source-only.
 
+<a id="ek11120"></a>
+## EK11120 — SMP-Test does not stop workers when window creation fails
+
+`main()` creates the per-CPU worker tasks before attempting `OpenWindowTags()` (`developer/debug/test/smp/smp-test/smpt_main.c:143-193,238-254`). Each worker reaches its own `WaitPort()` loop after signaling readiness and remains there until it receives a `SPMWORKTYPE_FINISHED` message (`worker.c:185-196,215-220`). The only code that allocates and sends those stop messages is inside the successful-window branch (`smpt_main.c:368-380`). If `OpenWindowTags()` returns NULL, execution skips that branch and falls through to the final loop that waits for workers to remove their nodes (`smpt_main.c:382-414`). No message is sent to release the blocked workers, so neither side can finish.
+
+**Trigger and consequence:** explicitly run the SMP-Test with one or more workers created, then fail the main display window allocation. The main task waits indefinitely for worker-removal signals while the workers wait indefinitely for work or stop messages; the test does not return and retains the worker tasks and their resources. **Affected configuration:** standalone `test-smp-smp` target (`developer/debug/test/smp/smp-test/mmakefile.src:14-17`); its parent aggregate edges are commented (`developer/debug/test/smp/mmakefile.src:5-6`), so this is not a default-image defect. **Confidence:** high for the branch placement and wait/message dependency; window failure was not induced. Send stop messages and join workers on every post-startup exit path, including window-open failure. No window, task, message or allocation failure was exercised; source-only.
+
 <a id="ek11083"></a>
 ## EK11083 — taskswitch2 passes failed task creation results to Signal() [optional benchmark]
 
