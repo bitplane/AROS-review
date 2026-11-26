@@ -41388,3 +41388,22 @@ CDC Ethernet interface-header exact-path pass (four newly represented headers, 1
 | `rom/usb/classes/cdceth/common.h` | Full 45-code-line header read | Common includes and `min`/`max` macros checked against class and device implementation use; no mismatch established. |
 | `rom/usb/classes/cdceth/debug.h` | Full 26-code-line header read | `DEBUG=0` manifest setting and macro/prototype gating checked; debug helper is selected but disabled in the module recipe. |
 | `rom/usb/classes/cdceth/dev.h` | Full 55-code-line header read | Device ABI vectors, SANA declarations, packed error macro and query-result layout matched against `dev.c`; no mismatch established. |
+
+USB Ethernet sibling-class header inventory pass (Davicom, EthWrap and MosChip; 12 newly represented headers, 438 `cloc 2.06` C/header code lines; 2026-11-26): checked each module manifest against the active `kernel-usb-classes-common` parent edge, read all previously unlisted local headers, and matched each class header's prototypes to its class/device implementation; checked shared includes/macros, debug gating, Sana-II device vectors, packed error declarations and NSCMD_DEVICEQUERY result layouts against selected bodies. These interfaces matched the reviewed implementations; no additional mismatch or finding was established. Existing full-body class/device reviews remain unchanged. Source-only; no USB device, request, debug build or runtime behavior was exercised.
+
+| File | Status | Notes |
+|---|---|---|
+| `rom/usb/classes/davicometh/common.h` | Full 45-code-line header read | Shared declarations/includes matched against selected class and device bodies. |
+| `rom/usb/classes/davicometh/debug.h` | Full 19-code-line header read | DEBUG gating and helper declaration matched against selected helper/callers. |
+| `rom/usb/classes/davicometh/dm9601eth.class.h` | Full 36-code-line header read | Davicom register/PHY and lifecycle prototypes matched against the full class body. |
+| `rom/usb/classes/davicometh/dev.h` | Full 50-code-line header read | Device vectors, SANA helpers, error packing and query result matched against `dev.c`. |
+| `rom/usb/classes/ethwrap/common.h` | Full 45-code-line header read | Shared declarations/includes matched against selected class and device bodies. |
+| `rom/usb/classes/ethwrap/debug.h` | Full 19-code-line header read | DEBUG gating and helper declaration matched against selected helper/callers. |
+| `rom/usb/classes/ethwrap/dev.h` | Full 49-code-line header read | Device vectors, SANA helpers, error packing and query result matched against `dev.c`. |
+| `rom/usb/classes/ethwrap/ethwrap.class.h` | Full 28-code-line header read | Class lifecycle, packet and config prototypes matched against the full class body. |
+| `rom/usb/classes/moschipeth/moschipeth.class.h` | Full 33-code-line header read | MCS register/PHY and lifecycle prototypes matched against the full class body. |
+| `rom/usb/classes/moschipeth/common.h` | Full 45-code-line header read | Shared declarations/includes matched against selected class and device bodies. |
+| `rom/usb/classes/moschipeth/debug.h` | Full 19-code-line header read | DEBUG gating and helper declaration matched against selected helper/callers. |
+| `rom/usb/classes/moschipeth/dev.h` | Full 50-code-line header read | Device vectors, SANA helpers, error packing and query result matched against `dev.c`. |
+
+USB Ethernet header coverage-count reconciliation (accounting only; includes the preceding CDC header pass): the four class passes add 16 selected header paths and 580 C/header lines. Other Drivers advances from 5,372/5,551 to **5,388/5,567 represented paths (96.8%)**, and from 2,216,637/2,247,869 to **2,217,217/2,248,449 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,088,608/3,210,490 to **3,089,188/3,211,070 (96.2%)**; shared paths may be counted in multiple area ledgers. This is coverage-ledger reconciliation only and does not close broader caller/configuration/platform audit gaps.
