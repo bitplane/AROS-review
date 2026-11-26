@@ -131,6 +131,8 @@
 
 ## Scope corrections
 
+Native PC target reachability correction (EK11124; 2026-11-26): the configure-generated `pc-i386` and `pc-x86_64` KOBJ graphs leave `FAMILY` empty, and checked-in boot manifests do not add parent edges to the shared/platform PC kernel and Exec overlays. The detailed Exec/Kernel report now treats findings tied to `arch/i386-pc`, `arch/x86_64-pc`, `arch/all-pc`, and native-PC `arch/all-native` implementations as source-level candidates whose default native PC runtime reachability is conditional on correcting the graph or supplying the family edge. Directly selected PC bootstrap findings and independently selected shared/hosted code retain their own scope. No build or boot was run; source-only.
+
 FreeType build-scope correction (2026-11-24): current MetaMake graph tracing confirms the full `AROS`/Workbench aggregate selects the FreeType module (`workbench/mmakefile.src:7-17`; `workbench/libs/mmakefile:9-24`; `workbench/libs/freetype2/mmakefile.src:4-8,116-117`). This corrects the earlier historical GD2821–GD2823 notes below that called the module optional or claimed its aggregate edge was commented; those defects still require a request reaching their particular FreeType engine paths. The active detailed scope in [`AROS-graphics-desktop.md`](AROS-graphics-desktop.md#gd2821) and [`AROS-exec-kernel.md`](AROS-exec-kernel.md#ek733) reflects the corrected target graph. Source-only; no build or font operation was run.
 
 ## Previously omitted active Exec/Kernel entries restored (2026-11-11)
