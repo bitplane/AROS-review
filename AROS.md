@@ -119,7 +119,6 @@
 
 **[EK10189](AROS-exec-kernel.md#ek10189) — Efika and Raspberry Pi ARM bootstrap ELF relocation diagnostics index the raw `SHN_XINDEX` sentinel instead of the resolved section-name table index, so an undefined/COMMON-symbol error can read section header 65535 out of bounds.** Source details and conditional target/input scope are in the linked finding.
 
-**[EK10611](AROS-exec-kernel.md#ek10611) — `NextConductor()` returns private RealTime conductors from the shared list without filtering `CONDUCTF_PRIVATE`, although `FindConductor()` filters them. Candidate is medium-low because public enumeration does not explicitly promise privacy; no maintained direct caller was found. See the [enumeration review](AROS-exec-kernel-coverage.md#nextconductor-private-conductor-enumeration-ek10611). Source-only.
 
 **[EK613](AROS-exec-kernel.md#ek613) — OpenSBI RISC-V Zicbom helpers use a fixed 64-byte stride; on a CPU with smaller CMO blocks, alternating cache blocks are skipped. Actual DMA-coherency impact remains conditional on a non-coherent client, not established in the selected tree. See the [block-size and caller review](AROS-exec-kernel-coverage.md#L7960). Source-only.
 
