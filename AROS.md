@@ -21258,3 +21258,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[GD10246](AROS-graphics-desktop.md#gd10246) — `IndirectCommandsLayoutTokenNV` setters can desynchronize paired arrays.**
 **[GD10247](AROS-graphics-desktop.md#gd10247) — `IndirectExecutionSetShaderInfoEXT` setters can desynchronize shader arrays.**
 **[GD10248](AROS-graphics-desktop.md#gd10248) — `LayerSettingEXT::setValues` does not enforce the selected value type.**
+
+**[OD11830](AROS-other-drivers.md#od11830) — BCM2711 PCI registration passes an uninitialized instance-tag pointer.** The selected AArch64 Raspberry Pi caller leaves `instanceTags` unset, and PCI registration forwards it to object construction as a tag list. Conditional on the stack slot containing a nonzero invalid pointer; source-only.
