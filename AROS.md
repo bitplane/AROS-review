@@ -21345,6 +21345,14 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[GD15466](AROS-graphics-desktop.md#gd15466) — Failed Nouveau copy-engine channel construction retains a partial channel.** A Fermi+ semaphore setup or Volta+ USERD allocation failure leaves push-buffer resources and a non-NULL copy-channel pointer until teardown; optional Nouveau path. Source-only.
 
+
+
+
+**[GD15467](AROS-graphics-desktop.md#gd15467) — Nouveau fence event failures can leave completed GPU work unwoken in software.** On NV84+ backends, failed event setup/arming can leave lazy waits timing out and fence-callback cleanup pending; optional Nouveau path. Source-only.
+
+
+**[GD15468](AROS-graphics-desktop.md#gd15468) — Nouveau TTM initialization failure skips partial-state cleanup.** A VRAM/GTT manager setup error after TTM device initialization returns from probe without unwinding initialized TTM and BAR write-combining state; optional Nouveau path. Source-only.
+
 ## Coverage status refresh — 2026-11-26
 
 - **Graphics/Desktop:** 551,547/589,212 represented C/header code lines have full-body credit (**93.6%**). Its aggregate selected-file denominator is still unreconciled, so no subsystem file percentage is claimed. The latest review delta adds the selected Nouveau `nouveau_gem.c`, `nouveau_vmm.c`, `nouveau_bo.c`, and `nouveau_mem.c`, and `nouveau_chan.c`, `nouveau_fence.c`, `nouveau_ttm.c`, and `nouveau_sgdma.c` bodies; optional Nouveau target coverage remains separately qualified in the ledger.
@@ -21352,12 +21360,3 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 - **Other Drivers:** the latest standalone ledger checkpoint is 5,509/5,688 represented paths (**96.8%**) and 2,227,726/2,258,958 C/header code lines (**98.6%**). Broader selected-source, caller, configuration, platform and integration work remains open.
 
 These body/path measures are coverage proxies only. No combined three-area percentage is refreshed here because the latest Other Drivers additions have not been reconciled into the additive cross-area denominator, and shared paths can appear in multiple ledgers. All three areas remain incomplete; see their coverage ledgers for the tracked scope and unresolved work. Source-only; no build or runtime operation was performed.
-
-
-**[GD15466](AROS-graphics-desktop.md#gd15466) — Failed Nouveau copy-engine channel construction retains a partial channel.** A Fermi+ semaphore setup or Volta+ USERD allocation failure leaves push-buffer resources and a non-NULL copy-channel pointer until teardown; optional Nouveau path. Source-only.
-
-
-**[GD15467](AROS-graphics-desktop.md#gd15467) — Nouveau fence event failures can leave completed GPU work unwoken in software.** On NV84+ backends, failed event setup/arming can leave lazy waits timing out and fence-callback cleanup pending; optional Nouveau path. Source-only.
-
-
-**[GD15468](AROS-graphics-desktop.md#gd15468) — Nouveau TTM initialization failure skips partial-state cleanup.** A VRAM/GTT manager setup error after TTM device initialization returns from probe without unwinding initialized TTM and BAR write-combining state; optional Nouveau path. Source-only.
