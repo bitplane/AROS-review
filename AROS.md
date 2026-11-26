@@ -19913,7 +19913,6 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[GD15458](AROS-graphics-desktop.md#gd15458) — OpenURL continues mail dispatch after failing to write the temporary mail-body file. Conditional; optional explicit library target; source-only.**
 **[GD15459](AROS-graphics-desktop.md#gd15459-find-malformed-pattern-stuck-start) — Find leaves Start disabled after rejecting malformed wildcard syntax until Stop is pressed. Conditional; optional explicit Find target; source-only.**
 
-**[GD15460](AROS-graphics-desktop.md#gd15460-find-null-wildcard-buffer) — Find dereferences a NULL wildcard buffer if allocation fails during a search that reaches a regular file. Conditional low-memory failure; optional explicit Find target; source-only.**
 
 ## Graphics/Desktop findings with explicit indexed summaries (2026-11-26)
 
