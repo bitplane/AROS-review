@@ -14676,7 +14676,7 @@ Reconciled the non-withdrawn detailed OD headings against this index. Added 201 
 
 **[OD11737](AROS-other-drivers.md#od11737) — — controller mapping lookup ignores nonzero version mismatches [conditional]** Source-only.
 
-**[OD11738](AROS-other-drivers.md#od11738) — — xHCI functions grouped by PCI bus/device can sum past the 20-entry port map and overwrite adjacent request-tracking state. Conditional on a multifunction device with more than 20 combined xHCI ports; source-only.**
+**[OD909](AROS-other-drivers.md#od909) — — xHCI functions grouped by PCI bus/device can sum past the 20-entry port map and overwrite adjacent request-tracking state. Conditional on a multifunction device with more than 20 combined xHCI ports; source-only.**
 
 **[OD11741](AROS-other-drivers.md#od11741) — — coalesced controller motion keeps stale standard-control metadata [conditional]** Source-only.
 
@@ -19205,7 +19205,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11737](AROS-other-drivers.md#od11737-controller-mapping-ignores-specific-version-mismatch)** — mapping lookup treats every controller GUID version mismatch as a wildcard even when the mapping specifies a version, potentially applying the wrong control layout. Conditional on API/User mappings and versioned devices; source-only.
 
-**[OD11738](AROS-other-drivers.md#od11738)** — xHCI PCI functions sharing a bus/device number are aggregated into one unit, but combined port counts are not checked against the fixed 20-entry port map; setup can overwrite the adjacent endpoint-request table. Conditional on multiple functions whose ports total over 20; source-only.
+**[OD909](AROS-other-drivers.md#od909)** — xHCI PCI functions sharing a bus/device number are aggregated into one unit, but combined port counts are not checked against the fixed 20-entry port map; setup can overwrite the adjacent endpoint-request table. Conditional on multiple functions whose ports total over 20; source-only.
 
 
 
