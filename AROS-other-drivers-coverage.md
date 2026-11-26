@@ -41459,3 +41459,14 @@ Palm PDA serial-class header exact-path pass (four newly represented headers, 13
 | `rom/usb/classes/palmpda/dev.h` | Full 42-code-line header read | Serial device vectors, query-result record and helper declarations matched against `dev.c`. |
 
 Palm PDA coverage-count reconciliation (accounting only): Other Drivers advances from 5,403/5,582 to **5,407/5,586 represented paths (96.8%)**, and from 2,217,808/2,249,040 to **2,217,938/2,249,170 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,089,779/3,211,661 to **3,089,909/3,211,791 (96.2%)**. Other untracked USB class headers and broader audit gaps remain open.
+
+Pegasus USB Ethernet header exact-path pass (four newly represented headers, 150 `cloc 2.06` C/header code lines; 2026-11-26): checked the Pegasus recipe and class-common target membership, read the four local headers and matched register/PHY and binding/task declarations, common macros and SANA device vectors to the already complete class and device source bodies. The NSCMD_DEVICEQUERY record and packed error macro agree with the selected implementation; no new declaration or layout mismatch was established. Existing Pegasus body findings remain unchanged. No USB adapter, request, debug build or runtime operation was used; source-only.
+
+| File | Status | Notes |
+|---|---|---|
+| `rom/usb/classes/pegasuseth/common.h` | Full 45-code-line header read | Common includes/macros checked against the class and device bodies. |
+| `rom/usb/classes/pegasuseth/debug.h` | Full 19-code-line header read | DEBUG gating and helper declaration checked against module source and call sites. |
+| `rom/usb/classes/pegasuseth/pegasus.class.h` | Full 36-code-line header read | Register/PHY, binding, lifecycle and worker declarations matched against the complete class body. |
+| `rom/usb/classes/pegasuseth/dev.h` | Full 50-code-line header read | Device vectors, SANA helpers, error packing and query result matched against `dev.c`. |
+
+Pegasus coverage-count reconciliation (accounting only): Other Drivers advances from 5,407/5,586 to **5,411/5,590 represented paths (96.8%)**, and from 2,217,938/2,249,170 to **2,218,088/2,249,320 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,089,909/3,211,791 to **3,090,059/3,211,941 (96.2%)**. Other USB class header and subsystem audit gaps remain open.
