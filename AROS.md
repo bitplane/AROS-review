@@ -21347,7 +21347,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 ## Coverage status refresh — 2026-11-26
 
-- **Graphics/Desktop:** 551,197/588,862 represented C/header code lines have full-body credit (**93.6%**). Its aggregate selected-file denominator is still unreconciled, so no subsystem file percentage is claimed. The latest review delta adds the selected Nouveau `nouveau_gem.c`, `nouveau_vmm.c`, `nouveau_bo.c`, and `nouveau_mem.c`, and `nouveau_chan.c`, `nouveau_fence.c` bodies; optional Nouveau target coverage remains separately qualified in the ledger.
+- **Graphics/Desktop:** 551,474/589,139 represented C/header code lines have full-body credit (**93.6%**). Its aggregate selected-file denominator is still unreconciled, so no subsystem file percentage is claimed. The latest review delta adds the selected Nouveau `nouveau_gem.c`, `nouveau_vmm.c`, `nouveau_bo.c`, and `nouveau_mem.c`, and `nouveau_chan.c`, `nouveau_fence.c`, and `nouveau_ttm.c` bodies; optional Nouveau target coverage remains separately qualified in the ledger.
 - **Exec/Kernel:** the last reconciled cross-area checkpoint remains 325,014/376,907 lines (**86.2%**) and 2,156/2,156 represented ledger paths; that path ratio is not a complete subsystem file percentage. Later per-file ledger notes use inconsistent line denominators and need reconciliation before refreshing this headline.
 - **Other Drivers:** the latest standalone ledger checkpoint is 5,509/5,688 represented paths (**96.8%**) and 2,227,726/2,258,958 C/header code lines (**98.6%**). Broader selected-source, caller, configuration, platform and integration work remains open.
 
