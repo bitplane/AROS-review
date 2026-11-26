@@ -19845,5 +19845,3 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD11820](AROS-other-drivers.md#od11820)** — NetInfo passwd/group parsers pass unbounded decimal IDs to `StrToLong()`, whose signed `LONG` accumulation has no overflow check. Malformed or corrupted database values can yield incorrect IDs and lookup results; the exact overflow result is compiler-dependent. No default-image inclusion is claimed; source-only.
 
 **[OD11821](AROS-other-drivers.md#od11821)** — The Workbench IPMI command stores at most eight discovered interfaces and silently omits later ones from listing and selection. The code cap is confirmed; no checked-in firmware establishes a machine with more than eight. The cap may be intentional; source-only.
-
-**[GD15447](AROS-graphics-desktop.md#gd15447-popasl-close-method-enqueue-failure-leaves-control-active)** — If the application method queue cannot allocate Popasl's close callback, the control remains permanently active and later opens are refused. The selected ExecuteCommand client also abandons the requested action. Conditional on queue-allocation failure; source-only.
