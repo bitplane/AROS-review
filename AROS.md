@@ -14760,6 +14760,8 @@ Reconciled the non-withdrawn detailed OD headings against this index. Added 201 
 
 **[OD1602](AROS-other-drivers.md#od1602) — Poseidon's private read/write semaphore updates its owner/count fields and waiter/borrow lists under `Forbid()` only, which does not serialize other CPUs on ExecSMP. Nested hub scans provide a selected concurrent path; overlapping updates can lose a lock record or desynchronize its count. Conditional on ExecSMP with Poseidon/hub support; source-only.**
 
+**[OD1610](AROS-other-drivers.md#od1610) — Serial `GetCapabilities` implementations iterate the OOP method-message address as a `TagItem` array instead of using its `taglist` member. A call through the public wrapper reads past its stack message and can write beyond it if adjacent data matches a supported tag. No maintained in-tree caller was found; external HIDD calls are required. Source-only.**
+
 **[OD10155](AROS-other-drivers.md#od10155) — USB and Bluetooth HID report-descriptor parsing left-shifts negative signed bytes when decoding two-byte short items, so negative logical bounds depend on undefined C behavior. The adjacent four-byte promotion is documented separately as implementation-defined, not included in the UB claim. Optional HID targets; source-only.**
 
 **[OD9424](AROS-other-drivers.md#od9424) — LowLevel `ReadJoyPort()` frees its full requested POTGO mask in `llPortClose()` even after `AllocPotBits()` failed, clearing another client’s reservation and POTGO state. The selected AmigaMouse HIDD persistently reserves port 0 mask `0x0f00`, so `ReadJoyPort(0)` supplies a concrete conflicting owner. See the [source trace](AROS-other-drivers-coverage.md#potgo-failed-allocation-unowned-free-od9424). Source-only; no joystick or hardware operation was run.
