@@ -19890,10 +19890,20 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[GD15450](AROS-graphics-desktop.md#gd15450) — OpenURL preferences launch path overruns its stack buffer for long `AppPaths/OpenURL` values. Conditional; optional explicit library target; source-only.**
 
-**[GD15451](AROS-graphics-desktop.md#gd15451) — OpenURL preferences launcher leaks its supplied streams and reports success if asynchronous `SystemTags()` startup fails. Conditional; optional explicit library target; source-only.**
+**[GD15451](AROS-graphics-desktop.md#gd15451) — OpenURL leaks supplied input streams when asynchronous `SystemTags()` startup fails; the preferences launcher also leaks output and reports success. Conditional; optional explicit library target; source-only.**
 
 **[GD15452](AROS-graphics-desktop.md#gd15452) — OpenURL preference fallback abandons partially loaded list nodes. Conditional; optional explicit library target; source-only.**
 **[GD15453](AROS-graphics-desktop.md#gd15453) — OpenURL debug settings accept unknown tokens with recognized prefixes. Debug build only; optional explicit library target; diagnostic configuration only; source-only.**
+
+**[GD15454](AROS-graphics-desktop.md#gd15454) — OpenURL's pooled-vector fallback misaligns allocations on 64-bit AROS targets. Conditional; optional explicit library target; source-only.**
+
+**[GD15455](AROS-graphics-desktop.md#gd15455) — OpenURL strips `ftp://` even when the FTP preference says to keep it. Conditional; optional library and preferences targets; source-only.**
+
+**[GD15456](AROS-graphics-desktop.md#gd15456) — A failed mailer Rexx send nulls the command cursor before the next loop check. Conditional; optional explicit library target; source-only.**
+
+**[GD15457](AROS-graphics-desktop.md#gd15457) — OpenURL's mailto percent decoder can index before its translation table on signed-char targets. Conditional malformed input; optional explicit library target; source-only.**
+
+**[GD15458](AROS-graphics-desktop.md#gd15458) — OpenURL continues mail dispatch after failing to write the temporary mail-body file. Conditional; optional explicit library target; source-only.**
 
 ## Graphics/Desktop findings with explicit indexed summaries (2026-11-26)
 
