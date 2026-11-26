@@ -21260,3 +21260,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[GD10248](AROS-graphics-desktop.md#gd10248) — `LayerSettingEXT::setValues` does not enforce the selected value type.**
 
 **[OD11830](AROS-other-drivers.md#od11830) — PCI HIDD registration callers pass uninitialized instance-tag pointers.** Confirmed in BCM2711, PCILinux, Sam440 PCI/PCI460, Efika, PCI Mediator/Prometheus, and PCIPC legacy fallback; PCI registration forwards the field into object construction as a tag list. Conditional on nonzero invalid stack contents; source-only.
+
+**[EK11122](AROS-exec-kernel.md#ek11122-realtime-delete-current-player-from-hook) — A realtime player hook can free the player node Pulse is still traversing:** `DeletePlayer()` can recursively acquire `RT_CONDUCTORS` from the Pulse callback, free the current node, then Pulse resumes and reads it. Conditional on a public hook deleting its callback player while realtime.library's timer is active; no default-package inclusion is claimed. Source-only.
