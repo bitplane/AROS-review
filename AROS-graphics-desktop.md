@@ -9138,6 +9138,7 @@ Withdrawn as a duplicate of GD5859. GD5859 now includes the exact-size AppIcon l
 
 **Surviving review evidence:** [`AROS-graphics-desktop-coverage.md:L5`](AROS-graphics-desktop-coverage.md#L5), [`AROS-graphics-desktop-coverage.md:L2158`](AROS-graphics-desktop-coverage.md#L2158), [`AROS-graphics-desktop-coverage.md:L2161`](AROS-graphics-desktop-coverage.md#L2161). Recheck the cited note and its scope before treating this candidate as confirmed.
 
+<a id="gd9407"></a>
 ## GD9407 — DoCDrawMethodTagList truncates chunky bitmap row strides in its public hook message
 
 **Source:** `workbench/libs/cgfx/docdrawmethodtaglist.c:156-181,218-242`; public `struct CDrawMsg` declares `cdm_BytesPerRow` as `UWORD` (`workbench/libs/cgfx/include/cybergraphics.h:183-193`; matching compatibility header at `workbench/devs/diskimage/include/amigaos/cybergraphx/cybergraphics.h:170-180`). The renderer obtains `bytesperrow` as `IPTR` from `aHidd_BitMap_BytesPerRow` (`docdrawmethodtaglist.c:157`) and assigns it to that 16-bit field on both the direct-access and fallback paths without a range check.

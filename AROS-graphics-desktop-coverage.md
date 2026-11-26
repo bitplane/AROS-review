@@ -25451,3 +25451,6 @@ Vulkan-Hpp GD15407/GD15408 build-scope wording aligned (no new finding or body/p
 
 
 HDToolBox GD14952-GD14957 master-index link reconciliation (2026-11-26; no source-body/path/LOC credit): compared the six detailed HDToolBox findings and their explicit anchors with the corresponding `AROS.md` entries. All six IDs were present as summaries but lacked links to their detailed sections. Added direct links for GD14952, GD14953, GD14954, GD14955, GD14956 and GD14957. The neighboring GD14949-GD14951 entries already linked correctly. This bounded index fix adds no new findings or source coverage. Source-only.
+
+
+GD9407 master-index restoration (2026-11-26; no source-body/path/LOC credit): rechecked the detailed finding and its two source-level follow-ups against the current index. The row-stride narrowing, 65,536-byte ARGB32 example, ChunkyBM direct-access selection, and PopupMenu row-step caller are supported by the existing full-body/caller review. GD9407 was present only in dated coverage notes, not as an active `AROS.md` finding. Added a direct index link with the existing conditional scope; no new source review or finding was added. Source-only.

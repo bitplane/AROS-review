@@ -1,3 +1,5 @@
+**[GD9407](AROS-graphics-desktop.md#gd9407) — `DoCDrawMethodTagList()` narrows chunky bitmap byte stride to `UWORD`; for 16,384-pixel ARGB32 rows it becomes zero, so a hook such as PopupMenu's row-step consumer can process the wrong pixels. Conditional on a sufficiently wide bitmap and a hook using the field; source-only.**
+
 **[OD3338](AROS-other-drivers.md#od3338) — m68k-Amiga expansion startup publishes only the first eligible RAM board:** the loop breaks immediately after queuing a board, before marking it processed; subsequent eligible board memory is omitted, and another call selects the same board again. Conditional on multiple eligible RAM boards; source-only.**
 
 **[OD1732](AROS-other-drivers.md#od1732) — m68k-Amiga motherboard RAM discovery stops after the first contiguous run in each ROM-separated scan segment:** separate usable RAM beyond a hole in the same segment is not added to Exec's memory list. Conditional on that memory map; source-only.**
