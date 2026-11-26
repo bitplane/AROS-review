@@ -41448,3 +41448,14 @@ EgalaxTouch USB HID class header exact-path pass (four newly represented headers
 | `rom/usb/classes/egalaxtouch/debug.h` | Full 19-code-line header read | DEBUG wrapper and dump declaration checked against recipe and active call sites. |
 
 EgalaxTouch coverage-count reconciliation (accounting only): Other Drivers advances from 5,399/5,578 to **5,403/5,582 represented paths (96.8%)**, and from 2,217,616/2,248,848 to **2,217,808/2,249,040 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,089,587/3,211,469 to **3,089,779/3,211,661 (96.2%)**. Other untracked USB class headers and wider audit scope remain open.
+
+Palm PDA serial-class header exact-path pass (four newly represented headers, 130 `cloc 2.06` C/header code lines; 2026-11-26): verified the `palmpda.class`, `dev`, and `debug` module objects and active class-common dependency; read all four previously untracked local headers. Matched serial device ABI vectors and query result to `dev.c`, binding/config declarations and worker entry to the class body, and the private serial request/unit queues, suspend/deny flags, abort signal, and endpoint fields to their initialization and read/write/abort/HotSync paths. Common/debug definitions match the selected use. Existing OD3553/OD3366/OD3367 and related body findings remain unchanged; no new header mismatch established. No Palm device, HotSync session, request, or build was used; source-only.
+
+| File | Status | Notes |
+|---|---|---|
+| `rom/usb/classes/palmpda/palmpda.class.h` | Full 24-code-line header read | Binding, lifecycle, config and task declarations matched against `palmpda.class.c`. |
+| `rom/usb/classes/palmpda/common.h` | Full 45-code-line header read | Common includes/macros checked against class and device bodies. |
+| `rom/usb/classes/palmpda/debug.h` | Full 19-code-line header read | DEBUG gating and helper declaration checked against module recipe and calls. |
+| `rom/usb/classes/palmpda/dev.h` | Full 42-code-line header read | Serial device vectors, query-result record and helper declarations matched against `dev.c`. |
+
+Palm PDA coverage-count reconciliation (accounting only): Other Drivers advances from 5,403/5,582 to **5,407/5,586 represented paths (96.8%)**, and from 2,217,808/2,249,040 to **2,217,938/2,249,170 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,089,779/3,211,661 to **3,089,909/3,211,791 (96.2%)**. Other untracked USB class headers and broader audit gaps remain open.
