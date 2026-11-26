@@ -21364,6 +21364,8 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[GD15471](AROS-graphics-desktop.md#gd15471) — Nouveau ABI16 channel allocation leaks an unreturned notifier GEM handle.** If notifier-heap setup fails after handle creation, cleanup leaves the inaccessible per-file handle retaining the BO until file close; optional legacy Nouveau ABI16 path. Source-only.
 
+**[OD11838](AROS-other-drivers.md#od11838) — Rejected duplicate GATT connect replaces the active completion callback.** A duplicate call returns an error after overwriting the pending callback; the accepted first operation later invokes the replacement callback. BTCore API path; no maintained duplicate caller established; source-only.
+
 ## Coverage status refresh — 2026-11-26
 
 - **Graphics/Desktop:** 551,547/589,212 represented C/header code lines have full-body credit (**93.6%**). Its aggregate selected-file denominator is still unreconciled, so no subsystem file percentage is claimed. The latest review delta adds the selected Nouveau `nouveau_gem.c`, `nouveau_vmm.c`, `nouveau_bo.c`, and `nouveau_mem.c`, and `nouveau_chan.c`, `nouveau_fence.c`, `nouveau_ttm.c`, and `nouveau_sgdma.c` bodies; optional Nouveau target coverage remains separately qualified in the ledger.
