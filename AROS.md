@@ -19892,6 +19892,8 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[GD15451](AROS-graphics-desktop.md#gd15451) — OpenURL preferences launcher leaks its supplied streams and reports success if asynchronous `SystemTags()` startup fails. Conditional; optional explicit library target; source-only.**
 
+**[GD15452](AROS-graphics-desktop.md#gd15452) — OpenURL preference fallback abandons partially loaded list nodes. Conditional; optional explicit library target; source-only.**
+
 ## Graphics/Desktop findings with explicit indexed summaries (2026-11-26)
 
 **[GD77](AROS-graphics-desktop.md#gd77) — `BitMapScale()` and `cgfx` `ScalePixelArray()` hide generic HIDD scaler scratch-allocation failures.** Source-only; see the detailed finding and coverage ledger.
