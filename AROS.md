@@ -21355,3 +21355,6 @@ These body/path measures are coverage proxies only. No combined three-area perce
 
 
 **[GD15466](AROS-graphics-desktop.md#gd15466) — Failed Nouveau copy-engine channel construction retains a partial channel.** A Fermi+ semaphore setup or Volta+ USERD allocation failure leaves push-buffer resources and a non-NULL copy-channel pointer until teardown; optional Nouveau path. Source-only.
+
+
+**[GD15467](AROS-graphics-desktop.md#gd15467) — Nouveau fence event failures can leave completed GPU work unwoken in software.** On NV84+ backends, failed event setup/arming can leave lazy waits timing out and fence-callback cleanup pending; optional Nouveau path. Source-only.
