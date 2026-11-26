@@ -18463,7 +18463,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[EK8799](AROS-exec-kernel.md#ek8799) — `WaitIO()` can complete and release a request while `ReplyMsg()` is still publishing it.** Source-only.
 
-**[EK8902](AROS-exec-kernel.md#ek8902) — Raspberry Pi ARM and AArch64 kernel targets require absent architecture source files.** Source-only.
+**[EK8902](AROS-exec-kernel.md#ek8902) — Raspberry Pi ARM and AArch64 kernel targets require absent architecture source files.** The explicit Raspberry Pi `distfiles` targets select these kernel targets; generic/default build inclusion is not claimed. Source-only.
 
 **[EK8903](AROS-exec-kernel.md#ek8903) — BCM27xx secondary startup can reuse trampoline state after a late-core timeout.** Source-only.
 
