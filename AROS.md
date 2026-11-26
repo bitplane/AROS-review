@@ -17268,7 +17268,7 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 **[OD3172](AROS-other-drivers.md#od3172) — USB Audio registers a mode with no usable AHI sample rates.** Discrete rates can all exceed 64 kHz, or a continuous range can contain no listed common rate; the AHI requester and `AHIDB_MaxMixFreq` attribute path then query index -1 and get a bogus zero-frequency result; source-only.
 **[OD11425](AROS-other-drivers.md#od11425) — USB Audio reads variable descriptor fields without checking `bLength`.** Conditional on a successful configuration transfer with a short class-specific descriptor; source-only.
 
-**[OD11427](AROS-other-drivers.md#od11427) — The selected Efika ATA driver calls an undefined IRQ helper.** The active `#MM` package graph selects the Efika ATA overlay, whose interrupt handler calls `ata_HandleIRQ()` without a checked-in declaration or definition; the Efika target cannot complete its ATA module build. Source-inferred; no build was run.
+**[OD11427](AROS-other-drivers.md#od11427) — The selected Efika ATA backend calls two undefined helpers.** The active `#MM` package graph selects the Efika ATA overlay, whose interrupt and initialization paths call `ata_HandleIRQ()` and `ata_RegisterBus()` without checked-in declarations or definitions; the Efika target cannot complete its ATA module build. Source-inferred; no build was run.
 
 **[OD11426](AROS-other-drivers.md#od11426) — RAII pipeline-binary creation drops handles on `VK_INCOMPLETE`.** Conditional on the driver writing one or more handles before returning incomplete; source-only.
 
