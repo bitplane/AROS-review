@@ -13827,17 +13827,17 @@ Keyboard and mouse worker setup derives stack bounds from a failed 10-KiB alloca
 
 **GD14951 — HDToolBox discards the partition model before table destruction is confirmed:** a backend write failure leaves the old table open after its displayed child nodes have been freed. Conditional table-I/O failure; source-only. See [GD14951](AROS-graphics-desktop.md#gd14951-hdtoolbox-erases-model-before-table-destroy-succeeds).
 
-**GD14952 — HDToolBox does not bound partition IDs read from preferences:** overlong non-GPT IDs/default strings exceed the fixed partition-ID field. Malformed local preferences can corrupt the type map; source-only.
+**[GD14952](AROS-graphics-desktop.md#gd14952-hdtoolbox-preferences-do-not-bound-partition-id-copy) — HDToolBox does not bound partition IDs read from preferences:** overlong non-GPT IDs/default strings exceed the fixed partition-ID field. Malformed local preferences can corrupt the type map; source-only.
 
-**GD14953 — HDToolBox dereferences missing type-map nodes after allocation failure:** skipped map allocations are followed by unchecked EBR/MBR lookups during startup. Conditional memory-pressure startup failure; source-only.
+**[GD14953](AROS-graphics-desktop.md#gd14953-hdtoolbox-preference-type-list-allocation-failure-null-dereference) — HDToolBox dereferences missing type-map nodes after allocation failure:** skipped map allocations are followed by unchecked EBR/MBR lookups during startup. Conditional memory-pressure startup failure; source-only.
 
-**GD14954 — HDToolBox parses leading-zero size input as octal:** decimal size strings such as `08M` fail or `010M` becomes 8M, producing the wrong resize cylinder count. Source-only.
+**[GD14954](AROS-graphics-desktop.md#gd14954-hdtoolbox-size-parser-treats-leading-zero-decimals-as-octal) — HDToolBox parses leading-zero size input as octal:** decimal size strings such as `08M` fail or `010M` becomes 8M, producing the wrong resize cylinder count. Source-only.
 
-**GD14955 — HDToolBox never deletes its custom Listview class:** the GUI creates a custom class but omits `MUI_DeleteCustomClass()` on cleanup. Per-launch class/superclass resource leak; source-only.
+**[GD14955](AROS-graphics-desktop.md#gd14955-hdtoolbox-never-deletes-custom-listview-class) — HDToolBox never deletes its custom Listview class:** the GUI creates a custom class but omits `MUI_DeleteCustomClass()` on cleanup. Per-launch class/superclass resource leak; source-only.
 
-**GD14956 — HDToolBox returns success after initialization fails:** startup errors are printed, but `main()` unconditionally returns zero. Callers cannot detect failure from the process status; source-only.
+**[GD14956](AROS-graphics-desktop.md#gd14956-hdtoolbox-returns-success-after-startup-failure) — HDToolBox returns success after initialization fails:** startup errors are printed, but `main()` unconditionally returns zero. Callers cannot detect failure from the process status; source-only.
 
-**GD14957 — HDToolBox's partition gadget leaks its frame image object:** its custom class allocates a FRAMEICLASS image but never disposes it. Per-gadget resource leak; source-only.
+**[GD14957](AROS-graphics-desktop.md#gd14957-hdtoolbox-partition-gadget-leaks-frame-image) — HDToolBox's partition gadget leaks its frame image object:** its custom class allocates a FRAMEICLASS image but never disposes it. Per-gadget resource leak; source-only.
 **GD10563 — QuickPart dereferences a failed selection-region allocation:** selected-partition drawing passes a failed `NewRegion()` result to `OrRectRegion()`. Selected by the active `AROS` Workbench tools aggregate; source-only. See [GD10563](AROS-graphics-desktop.md#gd10563) and the [full partition-class review](AROS-graphics-desktop-coverage.md#quickpart-partition-class-full-body-review).
 **GD10564 — QuickPart does not handle failed partition-node allocations:** failure to allocate the initial or inserted bookkeeping node can lead to a NULL dereference; failure to allocate the trailing free-space node omits that region from the UI model. Selected by the active `AROS` Workbench tools aggregate; source-only. See [GD10564](AROS-graphics-desktop.md#gd10564) and the [partition-container source review](AROS-graphics-desktop-coverage.md#quickpart-partition-container-full-body-review).
 

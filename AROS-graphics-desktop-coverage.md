@@ -25448,3 +25448,6 @@ Vulkan-Hpp public-header build-scope correction (GD15419 and GD15446 detailed co
 
 
 Vulkan-Hpp GD15407/GD15408 build-scope wording aligned (no new finding or body/path/LOC credit; 2026-11-26): applied the same active `workbench-hidds` aggregate correction to the remaining detailed hash findings. The selected header target still has no checked-in C++ hasher caller, so the defect triggers remain conditional on a downstream C++ client. Aggregate build selection is distinguished from successful build and runtime backend availability. No source-body coverage changed. Source-only.
+
+
+HDToolBox GD14952-GD14957 master-index link reconciliation (2026-11-26; no source-body/path/LOC credit): compared the six detailed HDToolBox findings and their explicit anchors with the corresponding `AROS.md` entries. All six IDs were present as summaries but lacked links to their detailed sections. Added direct links for GD14952, GD14953, GD14954, GD14955, GD14956 and GD14957. The neighboring GD14949-GD14951 entries already linked correctly. This bounded index fix adds no new findings or source coverage. Source-only.
