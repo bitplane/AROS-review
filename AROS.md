@@ -21380,3 +21380,5 @@ The latest corrected extraction of the three coverage ledgers finds **6,589 of 7
 These are tracker-status/body-reading proxies, not whole-subsystem completeness percentages. They do not measure paths missing from the ledgers, caller/configuration/platform closure, or entries whose wording does not explicitly say Full/Complete. All three areas remain incomplete; see each coverage ledger for tracked scope and open gaps. Source-only; no build or runtime operation was performed.
 
 **[GD15472](AROS-graphics-desktop.md#gd15472) — Nouveau DP IRQ work dereferences a missing encoder before its NULL check.** A DP event can queue work after connector event registration but before NV50+ output-encoder attachment; the worker dereferences the missing encoder first. Optional Nouveau setup race; source-only.
+
+**[EK11128](AROS-exec-kernel.md#ek11128) — Sam440 USB OHCI transfers omit required DMA cache maintenance.** The selected Exec KOBJ uses generic no-op DMA cache routines instead of the Sam440 clean/invalidate implementation, so OHCI can read stale TX data or leave RX data stale on cacheable buffers. Sam440 PPC USB/OHCI path; source-only.
