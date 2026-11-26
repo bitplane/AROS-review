@@ -41417,3 +41417,13 @@ CDC ACM serial-class header exact-path pass (five newly represented headers, 187
 | `rom/usb/classes/cdcacm/debug.h` | Full 19-code-line header read | DEBUG gating/helper declaration matched against debug helper and active call sites. |
 | `rom/usb/classes/cdcacm/dev.h` | Full 42-code-line header read | Serial device vectors, NSD query result and helper declarations matched against `dev.c`. |
 | `rom/usb/classes/cdcacm/cdcacm.class.h` | Full 18-code-line header read | Binding, allocation/release and worker entry declarations matched against `cdcacm.class.c`. |
+
+USB mass-storage private-header exact-path pass (three newly represented headers, 108 `cloc 2.06` C/header code lines; 2026-11-26): confirmed the module recipe selects `dev.c` and `debug.c`, the class header includes these private headers, and `USB/massstorage` is in the kickstart USB package class list. Read the shared include/macro header, debug wrapper and complete SCSI-device vector declarations; matched command entry signatures and `NSCMD_DEVICEQUERY` result structure to `dev.c`, and checked DEBUG defaults against the module recipe. No independent header or ABI mismatch was established; existing mass-storage body findings and transfer/command audits remain unchanged. No mass-storage unit, command, media or build was exercised; source-only.
+
+| File | Status | Notes |
+|---|---|---|
+| `rom/usb/classes/massstorage/common.h` | Full 45-code-line header read | Common includes and `min`/`max` definitions checked against selected mass-storage implementation bodies. |
+| `rom/usb/classes/massstorage/debug.h` | Full 26-code-line header read | DEBUG default, KPrintF macros and helper declaration checked against selected helper and call sites. |
+| `rom/usb/classes/massstorage/dev.h` | Full 37-code-line header read | USB SCSI device vectors and query result declaration checked against `dev.c`; no signature/layout mismatch established. |
+
+Mass-storage and CDC ACM coverage-count reconciliation (accounting only): after adding the CDC ACM and mass-storage paths, Other Drivers advances from 5,388/5,567 to **5,396/5,575 represented paths (96.8%)** and from 2,217,217/2,248,449 to **2,217,512/2,248,744 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,089,188/3,211,070 to **3,089,483/3,211,365 (96.2%)**; shared paths may be counted in multiple area ledgers. These are ledger measures and do not close other untracked USB headers or broader caller/configuration/platform audit gaps.
