@@ -21338,6 +21338,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD11840](AROS-other-drivers.md#od11840) — Prism2 accepts a truncated firmware S3 record.** An address-only record underflows the parsed length and makes the firmware loader read past its 50-byte scratch buffer; conditional on a malformed local firmware image.
 
 **[OD11842](AROS-other-drivers.md#od11842) — Prism2 accepts non-hex digits in firmware S-records.** Invalid characters are decoded as address or data nibbles and the malformed record is programmed; conditional on a malformed local firmware image.
+**[OD11843](AROS-other-drivers.md#od11843) — Efika ATA BestComm initialization indexes an invalid task when firmware data is absent.** Missing firmware properties can leave the task ID at `0xffffffff` or required register pointers unset; latent until the independent Efika ATA build blocker OD11427 is fixed. Source-only.
 
 
 **[GD15463](AROS-graphics-desktop.md#gd15463) — Nouveau cleanup can unmap a VMA after its GPU fence wait times out.** This can happen on handle close under allocation failure or during BO move/eviction after a 15-second wait; submitted work may still reference the mapping. Optional Nouveau target; source-only.
