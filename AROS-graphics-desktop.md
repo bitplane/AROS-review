@@ -6295,11 +6295,9 @@ The other selected multi-format tables checked here are depth-descending in Rade
 
 **Affected configuration and trigger:** enter a nonzero hexadecimal Event ID and press Apply. **Consequence:** the list remains filtered only by the other selected criteria, so entries with other IDs remain and matching IDs are not isolated. **Confidence:** high for the input read, empty branch, and absence of Event ID check in list construction; no filter action was performed. Source-only.
 
-## GD5952
+## GD5952 — Withdrawn as duplicate of [EK9455](AROS-exec-kernel.md#ek9455)
 
-**SysMon writes the task name into the Status row of its task-details window.** During task-window construction, `TaskClickedFunction()` assigns the Name text object to `tld_TaskWinNameObj`, then assigns the Status text object to that same field (`workbench/system/SysMon/tasks.c:379-397`). The status object begins with empty contents, but `TaskViewUpdate()` later sets `MUIA_Text_Contents` on `tld_TaskWinNameObj` to `task->tc_Node.ln_Name` (`:311-317`); the selected task details update calls this method (`:431`).
-
-**Affected configuration and trigger:** open task details for a selected task/process and allow its detail update to run. **Consequence:** the Status row displays the task name instead of task state; the intended Name row retains its initial name, while the status value is never populated. **Confidence:** high for the duplicated member assignment and update path; no UI was opened. Source-only.
+The SysMon task-detail Name/Status assignment defect is already documented in Exec/Kernel as EK9455, with the same source location, trigger, consequence, and caller scope. Keep EK9455 as the canonical finding; this Graphics/Desktop entry is retained only as audit history.
 
 <a id="gd5953"></a>
 ## GD5953
