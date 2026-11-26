@@ -19810,7 +19810,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[OD11817](AROS-other-drivers.md#od11817) — PORT replies with startup failure but stays blocked in its packet loop; DOS `RunHandler()` abandons the failed handler without sending `ACTION_DIE`, leaking the process. Conditional on invalid startup data or utility.library open failure; source-only.**
 
-**[OD11818](AROS-other-drivers.md#od11818) — PC 16550 and OpenSBI DesignWare receive interrupts can call `RBF_InterruptHandler()` before Open publishes the unit or after last Close withdraws it while the HIDD interrupt remains active, causing a null dereference. The full AROS Workbench build includes serial.device; its presence in a BSP device package is separate. Conditional on incoming data in either lifecycle window; source-only.**
+**[OD11818](AROS-other-drivers.md#od11818) — Duplicate ID for OD1454.** Same serial receive-callback/`UnitList` lifecycle race; use [OD1454](AROS-other-drivers.md#od1454) as the canonical finding. Not an additional bug.
 
 
 **[GD15441](AROS-graphics-desktop.md#gd15441-popasl-dispose-frees-active-request-state) — Disposing an application with an active Popasl requester can free its ASL requester and UI object while the separate worker is still using them and before its deferred callback. Conditional teardown race; source-only.**
