@@ -21353,6 +21353,9 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[GD15468](AROS-graphics-desktop.md#gd15468) — Nouveau TTM initialization failure skips partial-state cleanup.** A VRAM/GTT manager setup error after TTM device initialization returns from probe without unwinding initialized TTM and BAR write-combining state; optional Nouveau path. Source-only.
 
+
+**[GD15469](AROS-graphics-desktop.md#gd15469) — Nouveau continues connector setup after DRM connector initialization fails.** A mode-object/connector-ID allocation error is ignored, so connector setup can call through an uninitialized `funcs` pointer; optional Nouveau path. Source-only.
+
 ## Coverage status refresh — 2026-11-26
 
 - **Graphics/Desktop:** 551,547/589,212 represented C/header code lines have full-body credit (**93.6%**). Its aggregate selected-file denominator is still unreconciled, so no subsystem file percentage is claimed. The latest review delta adds the selected Nouveau `nouveau_gem.c`, `nouveau_vmm.c`, `nouveau_bo.c`, and `nouveau_mem.c`, and `nouveau_chan.c`, `nouveau_fence.c`, `nouveau_ttm.c`, and `nouveau_sgdma.c` bodies; optional Nouveau target coverage remains separately qualified in the ledger.
