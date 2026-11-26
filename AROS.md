@@ -19740,6 +19740,8 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[EK11120](AROS-exec-kernel.md#ek11120) — The optional SMP-Test hangs if its display window cannot be opened after workers start:** stop messages are sent only on the successful-window path, while cleanup waits for workers that remain blocked on their ports. Applies to explicit `test-smp-smp` runs; not part of the default image. Source-only.
 
+**[EK11121](AROS-exec-kernel.md#ek11121) — SMP-Test leaks the worker record, name, and MemList if `NewCreateTask()` fails:** they are allocated before task creation and attached to task ownership only on success. Conditional on task-creation failure in the explicit optional test target; source-only.
+
 
 **[OD4287](AROS-other-drivers.md#od4287) — Printer startup reply-port allocation failure removes and frees the unit without stopping or joining its worker.** The child can remain stranded with stale task user data or run after the unit is freed. Applies to the standard complete Workbench device target and explicit printer-device builds; source-only.
 
