@@ -19837,3 +19837,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[OD11819](AROS-other-drivers.md#od11819-i8042-mouse-probe-discards-keyboard-scancodes)** — The selected PC i8042 mouse probe drains unclassified controller bytes while keyboard IRQ service is masked. A keyboard scan code pending during probing can be discarded, losing that key transition. Conditional on keyboard input during the probe; source-only, not reproduced.
 **[OD11820](AROS-other-drivers.md#od11820)** — NetInfo passwd/group parsers pass unbounded decimal IDs to `StrToLong()`, whose signed `LONG` accumulation has no overflow check. Malformed or corrupted database values can yield incorrect IDs and lookup results; the exact overflow result is compiler-dependent. No default-image inclusion is claimed; source-only.
+
+**[OD11821](AROS-other-drivers.md#od11821)** — The Workbench IPMI command stores at most eight discovered interfaces and silently omits later ones from listing and selection. The code cap is confirmed; no checked-in firmware establishes a machine with more than eight. The cap may be intentional; source-only.
