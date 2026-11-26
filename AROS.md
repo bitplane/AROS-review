@@ -6,7 +6,7 @@
 
 **[GD9399](AROS-graphics-desktop.md#gd9399) — graphics.library driver initialization does not release already obtained OOP attribute bases or its gfx.hidd open when later setup fails. Conditional on a failure after acquisition; repeated failed initialization can retain resources; source-only.**
 
-**[GD9401](AROS-graphics-desktop.md#gd9401) — RastPort drawing wrappers narrow mathematical bounds to signed WORD before shared clipping. An edge-crossing request can lose its still-visible part on targets where the conversion produces an inverted rectangle; conditional on endpoint overflow; source-only.**
+**[GD9401](AROS-graphics-desktop.md#gd9401) — Graphics drawing bounds narrow to signed WORD before clipping or Area TmpRas sizing. Edge-crossing blits/ellipses can lose their visible part or be rejected on wraparound targets; conditional on endpoint overflow; source-only.**
 
 **[GD9403](AROS-graphics-desktop.md#gd9403) — Animation GenTaskName() retries an occupied task name without incrementing the suffix, so constructing a second object with the same basename can loop forever. Conditional on an active exact-name collision; source-only.**
 
