@@ -19738,6 +19738,8 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[EK11119](AROS-exec-kernel.md#ek11119-raspberry-pi-execsmp-generic-logger-interleaving) — The Raspberry Pi ARM/AArch64 ExecSMP generic logger can interleave concurrent records because it does not use the configured atomic debug-output guard.** Conditional on enabled Exec debug output and concurrent logging; source-only.
 
+**[EK11120](AROS-exec-kernel.md#ek11120) — The optional SMP-Test worker dereferences a failed message-port allocation:** it advertises readiness and calls `WaitPort(NULL)`; the master can spin because it excludes workers without a port. Applies to explicit `test-smp-smp` runs after a worker port allocation failure; not part of the default image. Source-only.
+
 **[OD4287](AROS-other-drivers.md#od4287) — Printer startup reply-port allocation failure removes and frees the unit without stopping or joining its worker.** The child can remain stranded with stale task user data or run after the unit is freed. Applies to the standard complete Workbench device target and explicit printer-device builds; source-only.
 
 **[OD11812](AROS-other-drivers.md#od11812) — PC serial HIDD can route requested units 1–3 to COM1 if first-time `IID_Hidd_SerialUnit` string allocation fails, returns attrbase zero, and class initialization later succeeds.** The separate OOP bucket-structure allocation failure is OD2398; source-only.
