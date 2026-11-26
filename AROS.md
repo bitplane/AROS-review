@@ -15822,6 +15822,8 @@ Coverage-link repair: GD10288's coverage link now resolves to the explicit `setr
 
 **[EK11125](AROS-exec-kernel.md#ek11125) — OpenURL expunge can unload code still used by its Rexx worker, then the worker can dereference a stale library base. Optional explicit library target; source-only.**
 
+**[EK11126](AROS-exec-kernel.md#ek11126-m68k-task-switch-frame-crosses-stack-lower-bound) — m68k task switches can write a saved register frame below the task stack boundary; the ordinary check is late and `Wait()` bypasses it. Conditional on a task switching near its stack limit; source-only.**
+
 
 **[GD14612](AROS-graphics-desktop.md#gd14612) — Input Preferences reports export success when the KMSW chunk write fails after INPT succeeds. Optional explicit target; source-only.**
 
