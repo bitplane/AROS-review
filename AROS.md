@@ -15820,6 +15820,8 @@ Coverage-link repair: GD10288's coverage link now resolves to the explicit `setr
 
 **[EK10625](AROS-exec-kernel.md#ek10625) — OpenURL leaves a spawned handler process blocked if its reply port or startup message cannot be allocated. Optional explicit library target; source-only.**
 
+**[EK11125](AROS-exec-kernel.md#ek11125) — OpenURL expunge can unload code still used by its Rexx worker, then the worker can dereference a stale library base. Optional explicit library target; source-only.**
+
 
 **[GD14612](AROS-graphics-desktop.md#gd14612) — Input Preferences reports export success when the KMSW chunk write fails after INPT succeeds. Optional explicit target; source-only.**
 
