@@ -8759,6 +8759,15 @@ The native ARM32 and AArch64 startup paths set `mh` to the first usable RAM addr
 **Confidence:** high for the spawn-before-allocation ordering, early returns, and worker's initial wait; actual allocation failure was not induced. Source-only.
 
 
+<a id="ek11125"></a>
+### EK11125 — OpenURL expunge can unload code still used by its Rexx worker [conditional optional target]
+
+`sendRexxMsg()` starts `handler()` as a separate process whose entry point is in the OpenURL library code, sends it a startup message, then waits only for the worker to report that the Rexx command was queued (`external/openurl/library/utils.c:208-288`). In `handler()`, the worker sends the Rexx message, replies to that startup message, and only afterward waits on its private port for the Rexx server's response; after that wait it frees the reply and accesses `OpenURLBase->libSem` and `OpenURLBase->rexx_use` (`external/openurl/library/handler.c:78-112`). Thus the public `sendRexxMsg()` caller can return while the worker is still executing library code or blocked in `WaitPort()`.
+
+The worker increments `rexx_use` before it is started and decrements it only at the end, but the library expunge path does not consult this field. `LibExpunge()` defers deletion only while `lib_OpenCnt > 0`; once the last client closes and expunge is pending, `LibClose()` calls `LibDelete()`, which frees private state and returns the segment for deletion without waiting for `rexx_use` (`external/openurl/library/libinit.c:592-620,652-667,727-761`; `base.h:49`). The handler can therefore be blocked in the Rexx reply wait when the library code and base are expunged. If the Rexx server replies later, the worker resumes into unloaded code and its cleanup dereferences the freed or cleared global library base.
+
+**Trigger and consequence:** use OpenURL to send a command to a live Rexx port whose server delays or omits its reply; after the OpenURL API call returns, close the last openurl.library reference and request expunge. The worker is not counted by `lib_OpenCnt`; expunge can reclaim its code and base while it is still active. A later reply can resume execution through reclaimed code and reach a stale `OpenURLBase`, causing memory corruption or a task fault. **Affected configuration:** explicitly buildable `external-openurl-lib` (`external/openurl/library/mmakefile.src:19-23`); the top-level OpenURL and broader `external` aggregate edges are commented (`external/openurl/mmakefile.src:5-12`), so default-package inclusion is not claimed. **Confidence:** high for the asynchronous reply ordering, worker's post-reply base access, and expunge's lack of a worker-count check; timing requires a worker still awaiting the Rexx response when expunge runs. Keep an expunge-blocking library reference for each worker until it exits, or have expunge wait safely for `rexx_use` to reach zero. No Rexx server, task schedule, library expunge, or build was run; source-only.
+
 <a id="ek10626"></a>
 ### EK10626 — Withdrawn: selector source was misidentified; see EK11077
 
