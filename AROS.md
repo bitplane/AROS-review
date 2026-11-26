@@ -19829,3 +19829,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[GD9528](AROS-graphics-desktop.md#gd9528) — DataTypes print-start failures leave the object permanently marked as printing.** Source-only; see the detailed finding and coverage ledger.
 
 **[GD9529](AROS-graphics-desktop.md#gd9529) — DataTypes method-table copy underallocates when an existing excluded method is repeated.** Source-only; see the detailed finding and coverage ledger.
+
+**[EK507](AROS-exec-kernel.md#ek507-hosted-bootstrap-memory-size-wrap)** — The hosted bootstrap shifts the requested MiB count in 32-bit unsigned arithmetic before allocating RAM. Requests above 4,095 MiB wrap to a smaller region (for example, 4,608 MiB becomes 512 MiB), so Exec receives less memory than configured or startup fails for a zero extent. Applies to hosted targets; source-only, no boot or allocation was exercised.
