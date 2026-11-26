@@ -21317,3 +21317,5 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD11833](AROS-other-drivers.md#od11833) — AddBTHardware can report successful exit after hardware enumeration fails.** If a registered radio is in late-firmware reinitialization, `btEnumerateHardware()` returns NULL; the command prints or suppresses the failure but exits with status 0. Conditional Bluetooth shell-command path; source-only.
 
 **EK11124 withdrawn:** the empty-FAMILY KOBJ alias still reaches the PC kernel/Exec overlays; no omission defect is counted. See the [withdrawal note](AROS-exec-kernel.md#ek11124-withdrawn--empty-family-still-traverses-the-pc-kobj-alias-chain).**
+
+**[OD11836](AROS-other-drivers.md#od11836) — GATT discovery accepts truncated trailing entries.** A malformed ATT response with a valid row followed by an incomplete row is accepted as complete or partial results; conditional BTCore GATT peer-response path. Source-only.
