@@ -14760,7 +14760,7 @@ Reconciled the non-withdrawn detailed OD headings against this index. Added 201 
 
 **[OD1602](AROS-other-drivers.md#od1602) — Poseidon's private read/write semaphore updates its owner/count fields and waiter/borrow lists under `Forbid()` only, which does not serialize other CPUs on ExecSMP. Nested hub scans provide a selected concurrent path; overlapping updates can lose a lock record or desynchronize its count. Conditional on ExecSMP with Poseidon/hub support; source-only.**
 
-**[OD1610](AROS-other-drivers.md#od1610) — Serial `GetCapabilities` implementations iterate the OOP method-message address as a `TagItem` array instead of using its `taglist` member. A call through the public wrapper reads past its stack message and can write beyond it if adjacent data matches a supported tag. No maintained in-tree caller was found; external HIDD calls are required. Source-only.**
+**[OD1610](AROS-other-drivers.md#od1610) — Serial `GetCapabilities` implementations iterate the OOP method-message address as a `TagItem` array instead of using its `taglist` member. A call through the public wrapper reads past its stack message and can write beyond it if adjacent data matches a supported tag. No maintained in-tree caller was found; external HIDD calls are required. Sam440 has the same source defect but its explicit target has current compile blockers. Source-only.**
 
 **[OD10155](AROS-other-drivers.md#od10155) — USB and Bluetooth HID report-descriptor parsing left-shifts negative signed bytes when decoding two-byte short items, so negative logical bounds depend on undefined C behavior. The adjacent four-byte promotion is documented separately as implementation-defined, not included in the UB claim. Optional HID targets; source-only.**
 
