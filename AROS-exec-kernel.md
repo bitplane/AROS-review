@@ -4506,6 +4506,11 @@ Parthenope initializes `ptr_rw` to `KERNEL_PHYS_BASE` (`0x00800000`) and allocat
 
 **Trigger and consequence:** any caller uses `TimeDelay()` and relies on its documented return value. A successful wait returns 1; port creation or device-open failure returns 0, and timer I/O failure is not distinguished. **Affected configuration:** targets selecting `compiler/alib/timedelay.c`; direct in-tree callers are Intuition menu delays and ignore the value, so impact for maintained callers is limited to wasted/error-status information. **Confidence:** high for the return-value inversion and ignored I/O result. Return zero only after successful `DoIO()` and a nonzero error status for each failed setup/I/O path. No timer request or failure path was run; source-only. See the [TimeDelay result/caller trace](AROS-exec-kernel-coverage.md#L5255).
 
+<a id="ek31"></a>
+### EK31 — Withdrawn: PC IRQ chain mutation/lifetime effect consolidated into EK9263.
+
+The PC-specific handler-list add, dispatch and removal synchronization gap is reported under EK9263, which includes concurrent `ADDHEAD`, unlink/free versus traversal, and the shared cross-IRQ cursor. No separate root cause or active master-index entry remains for EK31. Source-only.
+
 <a id="ek821"></a>
 ### EK821 — Withdrawn: shared PC IRQ cursor effect consolidated into EK9263.
 
