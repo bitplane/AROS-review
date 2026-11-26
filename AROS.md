@@ -32,6 +32,14 @@
 
 **[GD9847](AROS-graphics-desktop.md#gd9847) — NewIcon palette/image decode errors are ignored, so malformed or truncated data can be accepted and later laid out using incomplete, uninitialized pixels.** NewIcon support is enabled by default; requires malformed icon tooltypes and subsequent layout. Separate from GD9542's decoded palette-index bound. Source-only.
 
+**[GD9844](AROS-graphics-desktop.md#gd9844) — NListtree KeepStructure copy/move continues after an ancestor clone failure and can insert through a NULL destination list. Conditional on clone allocation or hook failure; Move can also detach the selected node before faulting. Source-only.**
+
+**[GD9845](AROS-graphics-desktop.md#gd9845) — NListtree copy silently omits a descendant subtree when that clone fails, then reports success. Conditional on descendant clone failure; the checked-in demo displays a success message. Source-only.**
+
+**[GD9848](AROS-graphics-desktop.md#gd9848) — NListtree active-list selectors can dereference NULL before a row is active. The optional demo's Sort button provides an in-tree trigger before selection. Source-only.**
+
+**[GD9850](AROS-graphics-desktop.md#gd9850) — BltClear documentation contradicts itself about the row-mode flag, so callers can choose the wrong byte-count format. Both selected implementations agree with one of the conflicting descriptions. Source-only.**
+
 **[GD15240](AROS-graphics-desktop.md#gd15240-quickpart-debug-divides-by-zero-for-a-tiny-nvme-namespace) — QuickPart DEBUG builds divide by zero when scanning a partitioned NVMe namespace below 63 sectors whose reported cylinder count is zero. Release-build impact depends on compiler optimization of the diagnostic-only calculation; NVMe PC and QuickPart target paths. Source-only.**
 
 **OD11555 — `setlastlog`'s public vector omits the console argument:** the generated three-argument interface passes `host` in A1, but the implementation expects `con` in A1 and `host` in A2. Calls can fail, store the host as the console line, or read an unrelated A2 pointer. No maintained in-tree caller was found; applies to clients of a built `usergroup.library`. See [OD11555](AROS-other-drivers.md#od11555) and the [generated vector trace](AROS-other-drivers-coverage.md#usergroup-setlastlog-vector-arity-od11555). Source-only; no build or call was run.
