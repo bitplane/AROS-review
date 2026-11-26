@@ -21392,4 +21392,3 @@ These are tracker-status/body-reading proxies, not whole-subsystem completeness 
 
 **[EK11128](AROS-exec-kernel.md#ek11128) — Sam440 and Efika DMA omit required cache maintenance.** Their selected Exec KOBJ uses generic no-op routines despite board cache implementations; Sam440 ATA/OHCI and Efika OHCI callers can see stale DMA data on cacheable buffers. Efika runtime remains conditional on its separate ATA build blocker; source-only.
 
-**[GD15477](AROS-graphics-desktop.md#gd15477-raii-descriptor-set-free-requires-freeable-pool) — Vulkan-Hpp RAII descriptor sets can free through pools that forbid individual frees.** `DescriptorSet::clear()` always calls `vkFreeDescriptorSets()`; callers must use a pool created with `VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT`. Optional C++ API-use condition; no maintained in-tree RAII caller found; source-only.
