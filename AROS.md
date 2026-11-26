@@ -19888,6 +19888,8 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **GD15449 — Withdrawn as a duplicate of [GD6287](AROS-graphics-desktop.md#gd6287).** Both entries cover the Animation constructor waiting forever after worker creation/startup failure; GD6287 includes the additional consequence that the buffer worker may remain active when playback-worker creation fails.
 
+**[GD15450](AROS-graphics-desktop.md#gd15450) — OpenURL preferences launch path overruns its stack buffer for long `AppPaths/OpenURL` values. Conditional; optional explicit library target; source-only.**
+
 ## Graphics/Desktop findings with explicit indexed summaries (2026-11-26)
 
 **[GD77](AROS-graphics-desktop.md#gd77) — `BitMapScale()` and `cgfx` `ScalePixelArray()` hide generic HIDD scaler scratch-allocation failures.** Source-only; see the detailed finding and coverage ledger.
