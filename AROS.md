@@ -19738,6 +19738,8 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[EK11119](AROS-exec-kernel.md#ek11119-raspberry-pi-execsmp-generic-logger-interleaving) — The Raspberry Pi ARM/AArch64 ExecSMP generic logger can interleave concurrent records because it does not use the configured atomic debug-output guard.** Conditional on enabled Exec debug output and concurrent logging; source-only.
 
+**[EK11120](AROS-exec-kernel.md#ek11120) — The optional SMP-Test hangs if its display window cannot be opened after workers start:** stop messages are sent only on the successful-window path, while cleanup waits for workers that remain blocked on their ports. Applies to explicit `test-smp-smp` runs; not part of the default image. Source-only.
+
 
 **[OD4287](AROS-other-drivers.md#od4287) — Printer startup reply-port allocation failure removes and frees the unit without stopping or joining its worker.** The child can remain stranded with stale task user data or run after the unit is freed. Applies to the standard complete Workbench device target and explicit printer-device builds; source-only.
 
