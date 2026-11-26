@@ -41495,3 +41495,13 @@ USB serial CP210x and PL2303 class header exact-path pass (eight newly represent
 | `rom/usb/classes/serialpl2303/serialpl2303.class.h` | Full 18-code-line header read | Bind/release and worker declarations matched against PL2303 class body. |
 
 Serial-class coverage-count reconciliation (accounting only): Other Drivers advances from 5,414/5,593 to **5,422/5,601 represented paths (96.8%)**, and from 2,218,175/2,249,407 to **2,218,422/2,249,654 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,090,146/3,212,028 to **3,090,393/3,212,275 (96.2%)**. Remaining untracked USB source headers and broader audit scope remain open.
+
+USB Simple MIDI class header exact-path pass (three newly represented headers, 103 `cloc 2.06` C/header code lines; 2026-11-26): verified the class, debug and module recipes and the class target dependency; read its global config and HID task/unit structures, MIDI parser API/class declarations and debug macros. Matched GUI config fields and chunk record, input-device event state, endpoint/task fields, parser length prototype and worker declarations against the complete implementation and MIDI input-processing paths. No declaration or structure mismatch was established. This adds no claim about external MIDI devices or emitted keyboard behavior. No MIDI interface, input event, GUI or build was used; source-only.
+
+| File | Status | Notes |
+|---|---|---|
+| `rom/usb/classes/simplemidi/simplemidi.h` | Full 62-code-line header read | Config record, class/base fields, endpoint and input-event state matched against full consumers. |
+| `rom/usb/classes/simplemidi/simplemidi.class.h` | Full 22-code-line header read | Bind/release, parser, allocation and task declarations matched against implementation. |
+| `rom/usb/classes/simplemidi/debug.h` | Full 19-code-line header read | DEBUG gating/helper declaration matched against selected debug object and callers. |
+
+Simple MIDI coverage-count reconciliation (accounting only): Other Drivers advances from 5,422/5,601 to **5,425/5,604 represented paths (96.8%)**, and from 2,218,422/2,249,654 to **2,218,525/2,249,757 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,090,393/3,212,275 to **3,090,496/3,212,378 (96.2%)**. The exact-path scan of USB class directories now has no remaining unmentioned C/header/assembly paths; broader subsystem selected-file and caller/configuration/platform review remains open.
