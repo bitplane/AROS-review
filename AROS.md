@@ -21342,3 +21342,12 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 
 **[GD15465](AROS-graphics-desktop.md#gd15465) — Nouveau legacy tile cleanup uses an uninitialized fence after aggregation allocation fails.** On pre-Tesla tiled BO moves under memory pressure, the cleanup path waits but then stores an uninitialized fence pointer for later tile reuse. Optional Nouveau path; source-only.
+
+
+## Coverage status refresh — 2026-11-26
+
+- **Graphics/Desktop:** 550,335/588,000 represented C/header code lines have full-body credit (**93.6%**). Its aggregate selected-file denominator is still unreconciled, so no subsystem file percentage is claimed. The latest review delta adds the selected Nouveau `nouveau_gem.c`, `nouveau_vmm.c`, `nouveau_bo.c`, and `nouveau_mem.c` bodies; optional Nouveau target coverage remains separately qualified in the ledger.
+- **Exec/Kernel:** the last reconciled cross-area checkpoint remains 325,014/376,907 lines (**86.2%**) and 2,156/2,156 represented ledger paths; that path ratio is not a complete subsystem file percentage. Later per-file ledger notes use inconsistent line denominators and need reconciliation before refreshing this headline.
+- **Other Drivers:** the latest standalone ledger checkpoint is 5,509/5,688 represented paths (**96.8%**) and 2,227,726/2,258,958 C/header code lines (**98.6%**). Broader selected-source, caller, configuration, platform and integration work remains open.
+
+These body/path measures are coverage proxies only. No combined three-area percentage is refreshed here because the latest Other Drivers additions have not been reconciled into the additive cross-area denominator, and shared paths can appear in multiple ledgers. All three areas remain incomplete; see their coverage ledgers for the tracked scope and unresolved work. Source-only; no build or runtime operation was performed.
