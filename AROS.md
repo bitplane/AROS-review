@@ -19793,7 +19793,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[GD15443](AROS-graphics-desktop.md#gd15443-popasl-superclass-construction-failure-leaks-asl-request) — Popasl leaks the ASL requester and registered request node if superclass object construction fails after requester allocation. Conditional allocation failure; source-only.**
 
 
-**[GD15444](AROS-graphics-desktop.md#gd15444-popinterface-construction-failure-leaks-child-gadgets) — Network Preferences PopInterface leaks prebuilt child gadgets if superclass construction fails. Conditional allocation failure; source-only.**
+**[GD15444](AROS-graphics-desktop.md#gd15444-popinterface-construction-failure-leaks-child-gadgets) — Network Preferences PopInterface leaks prebuilt gadgets when the Popstring Group fails allocating its Family before adopting child tags. Conditional allocation failure; source-only.**
 
 
 **[GD15445](AROS-graphics-desktop.md#gd15445-locale-language-construction-double-disposes-popup-content) — Locale Preferences' partial Language page cleanup separately disposes descendants and the owning charset Listview/Popobject, repeating nested object disposal. Conditional allocation failure; source-only.**
