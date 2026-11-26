@@ -20678,7 +20678,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[GD6357](AROS-graphics-desktop.md#gd6357) — SDL HIDD forwards mouse motion after the host window loses input focus.**
 **[GD9410](AROS-graphics-desktop.md#gd9410) — GELS save-under reads obscured SuperBitMap pixels from the display bitmap.**
 **[GD9412](AROS-graphics-desktop.md#gd9412) — `OrRectRegion()` narrows a valid rectangle's relative span into signed WORD coordinates.**
-**[GD9413](AROS-graphics-desktop.md#gd9413) — Asynchronous decorator removal races decorator lookup and reference counting.**
+**[GD9413](AROS-graphics-desktop.md#gd9413) — A queued decorator removal can destroy the old global theme after a screen reacquires it as fallback during a pattern-theme reload.**
 **[GD9415](AROS-graphics-desktop.md#gd9415) — ScrollRegion does not clip to the original bounds when its rectangle is NULL.**
 **[GD9416](AROS-graphics-desktop.md#gd9416) — Animation tick and tapedeck scrubbing race on current-frame state.**
 **[GD9417](AROS-graphics-desktop.md#gd9417) — Generic software cursor reports success when save-under allocation fails, leaving the pointer undrawn.**
