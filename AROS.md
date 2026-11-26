@@ -18429,6 +18429,8 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[OD11600](AROS-other-drivers.md#od11600) — Nouveau legacy thermal fallback narrows large trip duties before clamping.** A malformed 16-bit trip duty such as 256 becomes minimum fan duty in automatic PWM control. Conditional on the fallback table and selected trip; board-ROM incidence is unknown. Source-only.
 
+**[OD3570](AROS-other-drivers.md#od3570) — AHI audio.device keeps a callback-scoped capture pointer for deferred processing.** A later record callback can replace the single saved buffer before the unit task consumes it, losing capture intervals; HDAudio is a conditional example when built, installed and selected. No runtime recording or timing was exercised; source-only.
+
 **[OD11601](AROS-other-drivers.md#od11601) — AHI `FeedReaders()` stops servicing later read requests after replying to a completed one.** Concurrent readers can miss the current capture buffer and continue with a later segment. Conditional on multiple outstanding direct `CMD_READ` requests; source-only.
 
 **[OD3573](AROS-other-drivers.md#od3573) — AHI recording can remain active far beyond its idle delay after a short first read.** The first callback can complete the only request while the zero-initialized `RecordOffDelay` is still zero; the empty-list branch decrements it below zero. The eventual delay is target-dependent. Source-only.
