@@ -11141,7 +11141,7 @@ Exec/Kernel PPC helper call-site census (2026-10-30): rechecked the linked Efika
 **EK8875 — Historical duplicate identifier for EK10363:** this earlier entry describes the same `Cause()` duplicate-enqueue race and is retained only because existing ledger notes cite it. The complete finding and reconciled conditional caller examples are under canonical [EK10363](AROS-exec-kernel.md#ek10363), including optional RTL8139, PCIUSB, and USB Audio paths. It is not counted as a separate bug.
 
 
-**EK8799 — `WaitIO()` can return while `ReplyMsg()` is still publishing a timer completion:** On selected ExecSMP `C:Wait` and reset-callback paths, an independent signal can expose the reply state before reply-port insertion completes, letting cleanup or reuse race the publisher. The same pattern occurs in explicit optional `C:Logger`, Bluetooth, Poseidon, and PPP/serial targets. Conditional on a narrow cross-CPU timing window; source-only.
+**EK8799 — `WaitIO()` can return while `ReplyMsg()` is still publishing a timer completion:** On selected ExecSMP `C:Wait` and reset-callback paths, an independent signal can expose the reply state before reply-port insertion completes, letting cleanup or reuse race the publisher. A selected Raspberry Pi SMP input.device key-repeat path can resubmit the same request in that window, potentially corrupting timer/reply queue links. The same pattern occurs in explicit optional `C:Logger`, Bluetooth, Poseidon, Intuition, and PPP/serial paths. Conditional on a narrow cross-CPU timing window; source-only.
 
 **EK9883 — Exec `WaitIO()` and DOS `EndNotify()` can remove messages without the shared port lock on ExecSMP:** the selected optional AHI-Handler has a concurrent completion producer for `WaitIO()`; Wanderer shares one notification port across volume requests, and a different active filesystem handler can append while `EndNotify()` removes a queued notification. See [EK9883](AROS-exec-kernel.md#ek9883) and the [Exec/Kernel coverage ledger](AROS-exec-kernel-coverage.md). No I/O, port operation or interleaving was run; source-only.
 
@@ -18461,7 +18461,7 @@ Graphics HIDD failed-init root ownership correction (GD9626 confirmed; 2026-11-1
 
 **[EK651](AROS-exec-kernel.md#ek651) — A failed OpenFirmware property-length query becomes a huge copy length in Efika startup.** Source-only.
 
-**[EK8799](AROS-exec-kernel.md#ek8799) — `WaitIO()` can complete and release a request while `ReplyMsg()` is still publishing it.** Source-only.
+**[EK8799](AROS-exec-kernel.md#ek8799) — `WaitIO()` can complete and release a request while `ReplyMsg()` is still publishing it.** The selected Raspberry Pi SMP input.device key-repeat caller can reuse the VBlank request before reply-port insertion completes. Source-only.
 
 **[EK8902](AROS-exec-kernel.md#ek8902) — Raspberry Pi ARM and AArch64 kernel targets require absent architecture source files.** The explicit Raspberry Pi `distfiles` targets select these kernel targets; generic/default build inclusion is not claimed. Source-only.
 
