@@ -41480,3 +41480,18 @@ RawWrap USB class header exact-path pass (three newly represented headers, 87 `c
 | `rom/usb/classes/rawwrap/debug.h` | Full 19-code-line header read | DEBUG helper declarations and macro gating checked against selected module. |
 
 RawWrap coverage-count reconciliation (accounting only): Other Drivers advances from 5,411/5,590 to **5,414/5,593 represented paths (96.8%)**, and from 2,218,088/2,249,320 to **2,218,175/2,249,407 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,090,059/3,211,941 to **3,090,146/3,212,028 (96.2%)**. Other exact-path USB header gaps remain open.
+
+USB serial CP210x and PL2303 class header exact-path pass (eight newly represented headers, 247 `cloc 2.06` C/header code lines; 2026-11-26): confirmed both manifests select their class, device and debug objects and both module targets are in the active class-common aggregate. Read both modules' class, common, debug and device headers; matched serial class/device bases, worker entry declarations, IOExtSer device vectors, NSCMD_DEVICEQUERY record and TermIO declarations against the selected implementation bodies. The common/debug wrappers and declarations agree with recipe and call sites; no additional header mismatch was established. Existing serial worker, transfer and protocol findings remain unchanged. No USB serial adapter, serial request, debug build or runtime operation was used; source-only.
+
+| File | Status | Notes |
+|---|---|---|
+| `rom/usb/classes/serialcp210x/serialcp210x.class.h` | Full 17-code-line header read | Bind/release and worker declarations matched against CP210x class body. |
+| `rom/usb/classes/serialcp210x/common.h` | Full 45-code-line header read | Shared includes/macros checked against selected sources. |
+| `rom/usb/classes/serialcp210x/debug.h` | Full 19-code-line header read | DEBUG gating/helper declaration checked against recipe and callers. |
+| `rom/usb/classes/serialcp210x/dev.h` | Full 42-code-line header read | Serial device vectors, query record and helpers matched against `dev.c`. |
+| `rom/usb/classes/serialpl2303/common.h` | Full 45-code-line header read | Shared includes/macros checked against selected sources. |
+| `rom/usb/classes/serialpl2303/debug.h` | Full 19-code-line header read | DEBUG gating/helper declaration checked against recipe and callers. |
+| `rom/usb/classes/serialpl2303/dev.h` | Full 42-code-line header read | Serial device vectors, query record and helpers matched against `dev.c`. |
+| `rom/usb/classes/serialpl2303/serialpl2303.class.h` | Full 18-code-line header read | Bind/release and worker declarations matched against PL2303 class body. |
+
+Serial-class coverage-count reconciliation (accounting only): Other Drivers advances from 5,414/5,593 to **5,422/5,601 represented paths (96.8%)**, and from 2,218,175/2,249,407 to **2,218,422/2,249,654 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,090,146/3,212,028 to **3,090,393/3,212,275 (96.2%)**. Remaining untracked USB source headers and broader audit scope remain open.
