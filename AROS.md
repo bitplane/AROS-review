@@ -21368,7 +21368,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 ## Coverage status refresh — 2026-11-26
 
-A corrected combined extraction of the three coverage ledgers finds **6,367 of 7,022 `cloc`-classified paths (90.7%)** and **1,444,963 of 1,673,599 C/C++/header/assembly/Objective-C/Fortran code lines (86.3%)** with an explicit `Full` or `Complete` body-review status. The ledgers name 7,161 paths total; 139 are not classified by `cloc`. This replaces earlier inconsistent subsystem-specific totals and the first, flawed combined extraction.
+The latest combined extraction of the three coverage ledgers finds **6,416 of 7,070 `cloc`-classified paths (90.7%)** and **1,455,570 of 1,677,823 code lines (86.8%)** with an explicit `Full` or `Complete` body-review status. The ledgers name 7,237 paths total; 167 are not classified by `cloc`. These counts supersede earlier measurements that predate later ledger additions.
 
 These are tracker-status/body-reading proxies, not whole-subsystem completeness percentages. They do not measure paths missing from the ledgers, caller/configuration/platform closure, or entries whose wording does not explicitly say Full/Complete. All three areas remain incomplete; see each coverage ledger for tracked scope and open gaps. Source-only; no build or runtime operation was performed.
 
