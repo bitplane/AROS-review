@@ -423,7 +423,7 @@ Reverse reconciliation found 191 active Exec/Kernel finding sections that were n
 
 **[GD9461](AROS-graphics-desktop.md#gd9461) — The public `MUIA_Menustrip_Enabled` set/get attribute has no implementation handling.** Clients cannot change or query Menustrip enabled state through the advertised attribute. Conditional on API use; source-only.
 
-**[GD9462](AROS-graphics-desktop.md#gd9462) — A self-removing notification callback frees its node while dispatch still uses it.** The return path writes through the freed node and list traversal reads its link; conditional on a public `MUIM_KillNotify` self-destination callback. Source-only.
+**[GD9462](AROS-graphics-desktop.md#gd9462) — A notification callback can free its active node while dispatch still uses it.** This includes public `MUIM_KillNotify` self-removal and synchronous disposal of the notification source during a tab-page change; both can leave Notify writing or traversing freed node storage. Source-only; source-disposal reachability is conditional on a client callback.
 
 
 **[GD9613](AROS-graphics-desktop.md#gd9613) — `ScrollRaster()` and `ScrollRasterBF()` cast negative screen-raster upper bounds to `ULONG` and expand a wholly off-screen ordered interval to the bitmap’s far edge; they can then scroll visible pixels and still fill or erase the far strip. Conditional on an external call using a no-Layer screen RastPort. The exact example does not trigger GD9615 because negative-source clipping advances its destination. Source-only.
