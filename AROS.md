@@ -21273,4 +21273,3 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[OD11832](AROS-other-drivers.md#od11832-hid-lowlevel-zero-payload-reinitialize) — HID LowLevel hooks ignore zero-payload reinitialize:** a present VOID tag with zero payload leaves the analogue override enabled.
 
-**[EK11123](AROS-exec-kernel.md#ek11123) — The CHRP PPC Efika package uses the generic module lists:** its package rule omits the declared Efika resources, devices, and HIDDs even though the Efika boot menu loads that package. Applies to the explicit Efika package/boot-ISO target; source-level, no package build or boot was run.
