@@ -21342,6 +21342,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[OD11842](AROS-other-drivers.md#od11842) — Prism2 accepts non-hex digits in firmware S-records.** Invalid characters are decoded as address or data nibbles and the malformed record is programmed; conditional on a malformed local firmware image.
 **[OD11843](AROS-other-drivers.md#od11843) — Efika ATA BestComm initialization indexes an invalid task when firmware data is absent.** Missing firmware properties can leave the task ID at `0xffffffff` or required register pointers unset; latent until the independent Efika ATA build blocker OD11427 is fixed. Source-only.
+**[OD11844](AROS-other-drivers.md#od11844) — xHCI can submit a translated DMA address above a non-64-bit controller’s limit.** Conditional on a BCM2711 DMA offset, non-AC64 controller, and buffer placement crossing the 32-bit bus-address limit; source-only.
 
 
 **[GD15463](AROS-graphics-desktop.md#gd15463) — Nouveau cleanup can unmap a VMA after its GPU fence wait times out.** This can happen on handle close under allocation failure or during BO move/eviction after a 15-second wait; submitted work may still reference the mapping. Optional Nouveau target; source-only.
