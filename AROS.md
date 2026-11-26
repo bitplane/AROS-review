@@ -21259,4 +21259,4 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[GD10247](AROS-graphics-desktop.md#gd10247) — `IndirectExecutionSetShaderInfoEXT` setters can desynchronize shader arrays.**
 **[GD10248](AROS-graphics-desktop.md#gd10248) — `LayerSettingEXT::setValues` does not enforce the selected value type.**
 
-**[OD11830](AROS-other-drivers.md#od11830) — BCM2711 PCI registration passes an uninitialized instance-tag pointer.** The selected AArch64 Raspberry Pi caller leaves `instanceTags` unset, and PCI registration forwards it to object construction as a tag list. Conditional on the stack slot containing a nonzero invalid pointer; source-only.
+**[OD11830](AROS-other-drivers.md#od11830) — PCI HIDD registration callers pass uninitialized instance-tag pointers.** Confirmed in BCM2711, PCILinux, Sam440 PCI/PCI460, Efika, PCI Mediator/Prometheus, and PCIPC legacy fallback; PCI registration forwards the field into object construction as a tag list. Conditional on nonzero invalid stack contents; source-only.
