@@ -21356,6 +21356,12 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[GD15469](AROS-graphics-desktop.md#gd15469) — Nouveau continues connector setup after DRM connector initialization fails.** A mode-object/connector-ID allocation error is ignored, so connector setup can call through an uninitialized `funcs` pointer; optional Nouveau path. Source-only.
 
+
+**[GD15470](AROS-graphics-desktop.md#gd15470) — Nouveau ABI16 GPU object free discards channel-idle failure.** A queued channel can still reference an engine object when `GPUOBJ_FREE` destroys it after a failed synchronization wait; optional legacy Nouveau ABI16 path. Source-only.
+
+
+**[GD15471](AROS-graphics-desktop.md#gd15471) — Nouveau ABI16 channel allocation leaks an unreturned notifier GEM handle.** If notifier-heap setup fails after handle creation, cleanup leaves the inaccessible per-file handle retaining the BO until file close; optional legacy Nouveau ABI16 path. Source-only.
+
 ## Coverage status refresh — 2026-11-26
 
 - **Graphics/Desktop:** 551,547/589,212 represented C/header code lines have full-body credit (**93.6%**). Its aggregate selected-file denominator is still unreconciled, so no subsystem file percentage is claimed. The latest review delta adds the selected Nouveau `nouveau_gem.c`, `nouveau_vmm.c`, `nouveau_bo.c`, and `nouveau_mem.c`, and `nouveau_chan.c`, `nouveau_fence.c`, `nouveau_ttm.c`, and `nouveau_sgdma.c` bodies; optional Nouveau target coverage remains separately qualified in the ledger.
