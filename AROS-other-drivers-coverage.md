@@ -41407,3 +41407,13 @@ USB Ethernet sibling-class header inventory pass (Davicom, EthWrap and MosChip; 
 | `rom/usb/classes/moschipeth/dev.h` | Full 50-code-line header read | Device vectors, SANA helpers, error packing and query result matched against `dev.c`. |
 
 USB Ethernet header coverage-count reconciliation (accounting only; includes the preceding CDC header pass): the four class passes add 16 selected header paths and 580 C/header lines. Other Drivers advances from 5,372/5,551 to **5,388/5,567 represented paths (96.8%)**, and from 2,216,637/2,247,869 to **2,217,217/2,248,449 C/header code lines (98.6%)**. The additive three-area body measure advances from 3,088,608/3,210,490 to **3,089,188/3,211,070 (96.2%)**; shared paths may be counted in multiple area ledgers. This is coverage-ledger reconciliation only and does not close broader caller/configuration/platform audit gaps.
+
+CDC ACM serial-class header exact-path pass (five newly represented headers, 187 `cloc 2.06` C/header code lines; 2026-11-26): confirmed the module's `cdcacm.class`, `dev` and `debug` objects and its active `kernel-usb-classes-common` dependency. Read the private base/unit/queue structures and class/device declarations; matched CDC control request/state layout and serial state bits to the worker's notification setup/processing, pending-write tracking and read/write queue operations; checked device ABI declarations against `dev.c`, and common/debug header behavior against the selected recipe (DEBUG remains disabled unless externally defined). No independent header/structure/API mismatch was established. Existing full class/device body findings remain authoritative; this pass adds no duplicate issue. No USB modem, serial request, debug build or runtime operation was exercised; source-only.
+
+| File | Status | Notes |
+|---|---|---|
+| `rom/usb/classes/cdcacm/cdcacm.h` | Full 63-code-line header read | CDC serial state request and private base/device/unit fields matched against complete class worker and device bodies. |
+| `rom/usb/classes/cdcacm/common.h` | Full 45-code-line header read | Shared includes and min/max macros checked against both selected bodies. |
+| `rom/usb/classes/cdcacm/debug.h` | Full 19-code-line header read | DEBUG gating/helper declaration matched against debug helper and active call sites. |
+| `rom/usb/classes/cdcacm/dev.h` | Full 42-code-line header read | Serial device vectors, NSD query result and helper declarations matched against `dev.c`. |
+| `rom/usb/classes/cdcacm/cdcacm.class.h` | Full 18-code-line header read | Binding, allocation/release and worker entry declarations matched against `cdcacm.class.c`. |
