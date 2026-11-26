@@ -45897,6 +45897,11 @@ The controller task calls `i8042_kbd_reset()` during driver construction and sig
 
 **Trigger and consequence:** the keyboard controller or attached keyboard repeatedly returns `KBD_REPLY_RESEND` for each `RESET` or `DISABLE` command. The corresponding outer loop has no retry bound, so i8042 keyboard construction does not return and the module cannot finish that initialization sequence. **Affected configuration:** the i8042 HIDD selected in the i386-PC and x86-64-PC `KHIDDS` package lists (`arch/i386-pc/boot/mmakefile.src:75-78`; `arch/x86_64-pc/boot/mmakefile.src:66-75`), when keyboard support is enabled and the controller/keyboard produces repeated `RESEND` replies. **Confidence:** high for the unbounded loops and synchronous constructor wait; occurrence requires repeated device responses. Bound retries and return initialization failure after the limit. No controller, keyboard, task, or build was exercised; source-only.
 
+<a id="od2056"></a>
+### OD2056 merged into OD11819 — shared i8042 output draining is one lost-key cause
+
+The shared `i8042_wait_for_write_ready()` helper drains every OBF byte without classifying its source (`arch/all-pc/hidds/i8042/i8042_common.h:84-117`). Its selected mouse-reset callers and their conditional keyboard-scan loss are covered by OD11819. OD2056's separate observation that the helper returns after exhausting its IBF wait and its wrappers still write the requested command is present in the source, but the consequence of writing while the controller remains busy depends on controller behavior not established by this source-only review. No independent finding is retained for that unverified behavior; OD2056 is merged into OD11819 for the shared-output drain, with the timeout concern left unconfirmed. No controller timeout or write was exercised; source-only.
+
 <a id="od1686"></a>
 ### OD1686 withdrawn — the extra i8042 LED response read has no established active lost-key path
 
