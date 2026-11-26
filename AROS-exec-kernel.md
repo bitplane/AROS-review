@@ -12163,6 +12163,13 @@ The parent creates each task and waits for `SIGBREAKF_CTRL_C` before adding its 
 
 **Trigger and consequence:** explicitly run the SMP-Test with one or more workers created, then fail the main display window allocation. The main task waits indefinitely for worker-removal signals while the workers wait indefinitely for work or stop messages; the test does not return and retains the worker tasks and their resources. **Affected configuration:** standalone `test-smp-smp` target (`developer/debug/test/smp/smp-test/mmakefile.src:14-17`); its parent aggregate edges are commented (`developer/debug/test/smp/mmakefile.src:5-6`), so this is not a default-image defect. **Confidence:** high for the branch placement and wait/message dependency; window failure was not induced. Send stop messages and join workers on every post-startup exit path, including window-open failure. No window, task, message or allocation failure was exercised; source-only.
 
+<a id="ek11121"></a>
+## EK11121 — SMP-Test leaks each worker record when task creation fails
+
+For each CPU iteration, `main()` allocates the `MemList`, the `SMPWorker` object, and the worker-name string before calling `NewCreateTask()` (`developer/debug/test/smp/smp-test/smpt_main.c:143-183`). The three buffers are linked into the new task's `tc_MemEntry` only after task creation succeeds (`:185-192`). If `NewCreateTask()` returns NULL, the success block is skipped and there is no failure cleanup; the only local frees cover failures of the worker or name allocations before the task-creation call (`:195-204`). These allocations therefore remain outside any task MemList and are no longer reachable by the loop.
+
+**Trigger and consequence:** explicitly run the SMP-Test and have `NewCreateTask()` fail after the three caller-side allocations succeed. Each such CPU iteration leaks the MemList, worker record, and name buffer for the remainder of the process; repeated failures across the configured CPUs accumulate the leaked memory. **Affected configuration:** standalone `test-smp-smp` target (`developer/debug/test/smp/smp-test/mmakefile.src:14-17`); the parent aggregate is commented (`developer/debug/test/smp/mmakefile.src:5-6`). **Confidence:** high for the missing failure branch and unlinked allocation ownership; no task-creation failure was induced. Free the caller-owned buffers when task creation returns NULL. No task, allocation failure or build was exercised; source-only.
+
 <a id="ek11083"></a>
 ## EK11083 — taskswitch2 passes failed task creation results to Signal() [optional benchmark]
 
