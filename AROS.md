@@ -19845,7 +19845,3 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD11820](AROS-other-drivers.md#od11820)** — NetInfo passwd/group parsers pass unbounded decimal IDs to `StrToLong()`, whose signed `LONG` accumulation has no overflow check. Malformed or corrupted database values can yield incorrect IDs and lookup results; the exact overflow result is compiler-dependent. No default-image inclusion is claimed; source-only.
 
 **[OD11821](AROS-other-drivers.md#od11821)** — The Workbench IPMI command stores at most eight discovered interfaces and silently omits later ones from listing and selection. The code cap is confirmed; no checked-in firmware establishes a machine with more than eight. The cap may be intentional; source-only.
-
-**[OD11824](AROS-other-drivers.md#od11824)** — IPMI SENSORS renews an invalid first SDR reservation but exits the fetch loop before retrying, then uses an uninitialized next-record ID. Conditional on reservation invalidation; source-only.
-
-**[OD11825](AROS-other-drivers.md#od11825)** — The IPMI command helper accepts a successful response without checking its length, while reservation and SEL-clear callers read response fields unconditionally. Conditional on a short successful BMC response; source-only.
