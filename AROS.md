@@ -21381,6 +21381,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[OD11841](AROS-other-drivers.md#od11841) — Envy24HT can lose a playback half-buffer when its soft interrupt is delayed.** A later DMA completion overwrites the pending half pointer while Exec will queue the embedded soft interrupt only once; conditional native AHI Envy24HT playback path. Source-only.
 
 **[EK11127](AROS-exec-kernel.md#ek11127) — RTASCall does not bound its combined argument and return slots.** An external caller whose counts exceed the fixed 16-word array can make firmware and result handling cross the record boundary; all checked-in Efika callers fit. Source-only.
+**[EK11129](AROS-exec-kernel.md#ek11129-rtas-call-record-task-interleaving) — RTASCall can marshal through another task's shared call record.** A task switch after marshaling but before `Disable()` lets a second RTAS call overwrite the single record; conditional on overlapping task-context callers. Source-only.
 
 ## Coverage status refresh — 2026-11-26
 
