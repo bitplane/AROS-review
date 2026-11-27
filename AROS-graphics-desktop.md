@@ -97,21 +97,11 @@ The only surviving text for this entry was the identifier itself (`GD1`). No exa
 **Disposition:** Unverified legacy placeholder. The current report and coverage ledger provide no source location, trigger, consequence, or finding-specific evidence from which to re-establish this candidate. It is not retained as an active bug finding pending provenance.
 
 <a id="gd2346"></a>
-## GD2346 — ROM font allocation is leaked when graphics.library initialization fails
+## GD2346 withdrawn — duplicate of GD2884
 
-**Severity / confidence:** Low severity, high confidence. This is a bounded initialization-failure memory leak; it does not establish a normal-operation font leak.
+**Disposition:** Withdrawn on 2026-11-27 as a duplicate. Its ROM-font allocation leak is the same post-`InitROMFont()` failed-initialization path now included in GD2884, which also covers the earlier hash-table and region-pool allocations. Keep GD2884 as the single active finding for those independent allocations abandoned by the common missing rollback. The embedded `fontsem` node left in Exec's public semaphore list remains a separate lifetime defect under GD5762, and driver/OOP resources remain under GD9399.
 
-**Affected configuration:** Any build using the selected `rom/graphics` library initializer, including the checked-in configuration. The trigger requires a failure after ROM-font creation.
-
-`GfxInit()` calls `InitROMFont()` at `rom/graphics/graphics_init.c:101-103`. `InitROMFont()` allocates a separate `TextFont` with `AllocMem()`, copies the static Topaz font into it, publishes it with `AddFont()`, and stores it in `GfxBase->DefaultFont` (`rom/graphics/default_font.c:240-255`). The allocation therefore outlives the library base that points to it.
-
-After that call succeeds, `GfxInit()` can still return failure if `OOP_NewObject(CLID_HW_Gfx)` returns NULL (`graphics_init.c:107-115`) or if `driver_init()` fails (`:117-119`). In `driver_init()`, concrete false-return paths include failure to open `gfx.hidd`, missing required HIDD classes/objects or attribute bases, and object/cache creation failure (`rom/graphics/graphics_driver.c:82-166`). The module is configured `options noexpunge` (`rom/graphics/graphics.conf:8`), and the reviewed graphics init/expunge paths contain no matching removal/free of the ROM font. The generated module init path releases the failed library allocation, but that does not release the independent `AllocMem()` block.
-
-**Consequence:** Each failed initialization after `InitROMFont()` leaves the allocated ROM `TextFont` unreclaimed. The registered font node is in the failed library base's `TextFonts` list, so the font is no longer reachable through a successfully loaded graphics library; the report does not claim a dangling live-list access after base disposal.
-
-**Scope limits:** Failures before `InitROMFont()` do not trigger this leak. This finding concerns only the separately allocated font block, not other resources that `driver_init()` may retain on failure.
-
-**Source-only evidence:** `rom/graphics/graphics_init.c:101-119`; `rom/graphics/default_font.c:240-255`; `rom/graphics/graphics_driver.c:82-166`; `rom/graphics/graphics.conf:8`.
+The historical source trace remains: `GfxInit()` can fail when the HW root or `driver_init()` fails after `InitROMFont()` has allocated and published its Topaz copy (`rom/graphics/graphics_init.c:101-119`; `rom/graphics/default_font.c:240-255`). See [GD2884](#gd2884) for the consolidated trigger, consequences and configuration.
 
 ## GD2613
 
