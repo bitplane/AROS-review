@@ -21393,6 +21393,8 @@ These are tracker-status/body-reading proxies, not whole-subsystem completeness 
 
 **[GD15478](AROS-graphics-desktop.md#gd15478) — Nouveau DP IRQ work can outlive its failed-setup connector.** If output-record allocation fails after a DP event queues work, the cull path frees the connector without cancelling that work; conditional NV50+ Nouveau lifetime race. Source-only.
 
+**[GD15479](AROS-graphics-desktop.md#gd15479) — Nouveau caches the MST encoder before it exists.** The NV50+ connector stores NULL before the output attaches its encoder, so MST root atomic checking and its commit serialization are skipped. Optional MST-capable DP path; source-only.
+
 **[EK11128](AROS-exec-kernel.md#ek11128) — Sam440 and Efika DMA omit required cache maintenance.** Their selected Exec KOBJ uses generic no-op routines despite board cache implementations; Sam440 ATA/OHCI and Efika OHCI callers can see stale DMA data on cacheable buffers. Efika runtime remains conditional on its separate ATA build blocker; source-only.
 
 
