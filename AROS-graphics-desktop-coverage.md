@@ -24492,7 +24492,7 @@ MUI static link-library wrappers full-body and target/caller pass (2026-11-24; t
 | Source path | Physical lines | `cloc 2.06` code lines | Body status |
 |---|---:|---:|---|
 | `workbench/libs/muimaster/staticlib/mui_allocaslrequesttags.c` | 51 | 15 | Full wrapper body read; tag-list conversion and return/failure handling reconciled. |
-| `workbench/libs/muimaster/staticlib/mui_makeobject.c` | 92 | 49 | Full wrapper body read; every public selector's parameter arity reconciled; 64-bit variadic argument representation remains open. |
+| `workbench/libs/muimaster/staticlib/mui_makeobject.c` | 92 | 49 | Full wrapper body read; every public selector's parameter arity reconciled. ABI-specific follow-up: `LONG` remains 32-bit while `IPTR` is 64-bit on x86-64, so `va_arg(args, IPTR)` does not match the declared `LONG`/`ULONG` arguments; checked MUI numeric consumers narrow these parameters back to `LONG`, and no checked-in caller of this optional static wrapper was found. No concrete in-tree value corruption established; external callers and compiler-specific varargs behavior remain open. |
 | `workbench/libs/muimaster/staticlib/mui_newobject.c` | 50 | 15 | Full wrapper body read; tag-list conversion and return/failure handling reconciled. |
 
 
