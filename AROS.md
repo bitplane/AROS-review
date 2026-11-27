@@ -21382,6 +21382,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[EK11127](AROS-exec-kernel.md#ek11127) — RTASCall does not bound its combined argument and return slots.** An external caller whose counts exceed the fixed 16-word array can make firmware and result handling cross the record boundary; all checked-in Efika callers fit. Source-only.
 **[EK11129](AROS-exec-kernel.md#ek11129-rtas-call-record-task-interleaving) — RTASCall can marshal through another task's shared call record.** A task switch after marshaling but before `Disable()` lets a second RTAS call overwrite the single record; conditional on overlapping task-context callers. Source-only.
+**[EK11130](AROS-exec-kernel.md#ek11130-security-signal-monitor-task-lifetime) — Security signal monitors can retain a task pointer past task exit.** A later matching security event can pass the reclaimed `Task *` to Exec `Signal()`; conditional on an external root client retaining a signal-mode monitor after its target exits. Source-only.
 
 ## Coverage status refresh — 2026-11-26
 
