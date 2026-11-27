@@ -20190,7 +20190,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 **[GD1731](AROS-graphics-desktop.md#gd1731) — Plain interleaved bitmap allocation under-sizes the plane block, and FreeBitMap over-frees it (high source confidence; public API trigger).**
 **[GD2620](AROS-graphics-desktop.md#gd2620) — SDL startup cleanup removes the event task but leaves its stack-local VBlank interrupt registered.**
 **[GD2675](AROS-graphics-desktop.md#gd2675) — Diskfont publication race can leave a loaded font detached and permanently unreclaimable.**
-**[GD2884](AROS-graphics-desktop.md#gd2884) — A failed graphics.library initialization leaks allocations made before the failure.**
+**[GD2884](AROS-graphics-desktop.md#gd2884) — Failed graphics.library initialization abandons its hash table, optional region pool, and separately allocated ROM font.** The ROM-font-only duplicate GD2346 is withdrawn; GD5762 semaphore and GD9399 driver/OOP cleanup findings remain separate.**
 **[GD2953](AROS-graphics-desktop.md#gd2953) — MUI Group construction can leak children that callers created before the parent Group fails.**
 **[GD2969](AROS-graphics-desktop.md#gd2969) — SysMon leaks its `oop.library` reference when the final graphics attribute-base lookup fails.**
 **[GD3076](AROS-graphics-desktop.md#gd3076) — The toolbar and status-bar preference setup each register a static `NotifyRequest` with `StartNotify()` using Wanderer's application filesystem-notification port and `NRF_SEND_MESSAGE`….**
