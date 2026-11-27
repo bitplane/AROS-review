@@ -21354,7 +21354,7 @@ OpenSBI PLIC context-cap duplicate correction (2026-11-23): removed the redundan
 
 **[OD11842](AROS-other-drivers.md#od11842) — Prism2 accepts non-hex digits in firmware S-records.** Invalid characters are decoded as address or data nibbles and the malformed record is programmed; conditional on a malformed local firmware image.
 **[OD11843](AROS-other-drivers.md#od11843) — Efika ATA BestComm initialization indexes an invalid task when firmware data is absent.** Missing firmware properties can leave the task ID at `0xffffffff` or required register pointers unset; latent until the independent Efika ATA build blocker OD11427 is fixed. Source-only.
-**[OD11844](AROS-other-drivers.md#od11844) — xHCI can submit a translated DMA address above a non-64-bit controller’s limit.** Conditional on a BCM2711 DMA offset, non-AC64 controller, and buffer placement crossing the 32-bit bus-address limit; source-only.
+**[OD11844](AROS-other-drivers.md#od11844) — xHCI can truncate a translated DMA address for a non-64-bit controller.** On BCM2711, a DMA offset can push an otherwise low CPU buffer above the controller limit; the non-AC64 TRB path zeros the high word. Conditional on offset, controller capability and buffer placement; source-only.
 
 **[OD2302](AROS-other-drivers.md#od2302) — USB HID mouse converts a relative axis as an absolute tablet coordinate.** When X/Y report fields have different Relative flags, movement on the relative axis can jump the pointer to a screen coordinate; conditional on such a HID descriptor. Source-only.
 
