@@ -17512,7 +17512,6 @@ Vulkan-Hpp RAII video-format query error-path follow-up (GD10223 expanded; targe
 **[OD2515](AROS-other-drivers.md#od2515) — Unix timer options can produce a zero or unusable host timer interval.** Conditional on invalid frequency boot options or a valid positive high-rate pair; Linux high-rate case can leave SIGALRM timekeeping disarmed despite successful initialization. Source-only.
 
 
-**[GD2346](AROS-graphics-desktop.md#gd2346) — Graphics initialization can leak its separately allocated ROM font after a later init failure.** Conditional on failure after ROM-font creation; the font allocation outlives the failed library base. Source-only.
 
 **[GD4868](AROS-graphics-desktop.md#gd4868) — Picture's IFF writer reports success after failed seeks or short writes.** The writer ignores helper failures and returns success; MultiView relies on that result when saving. Source-only.
 
